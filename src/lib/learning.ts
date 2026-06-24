@@ -81,7 +81,7 @@ async function fetchLearningData(): Promise<TopicWithStages[]> {
   for (const h of hinh) {
     const url = urlByKey.get(`${h.storage_bucket}/${h.storage_path}`) ?? "";
     const arr = hinhByBai.get(h.bai_id) ?? [];
-    arr.push({ id: h.id, caption: firstText(h.text), url });
+    arr.push({ id: h.id, captions: allTexts(h.text), url });
     hinhByBai.set(h.bai_id, arr);
   }
 
