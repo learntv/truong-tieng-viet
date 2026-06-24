@@ -25,7 +25,7 @@ function titleCase(s: string): string {
     .replace(/(^|\s)\p{L}/gu, (m) => m.toLocaleUpperCase("vi"));
 }
 
-export type LessonImage = { id: string; caption: string; url: string };
+export type LessonImage = { id: string; captions: string[]; url: string };
 export type Lesson = { id: string; texts: string[]; images: LessonImage[] };
 export type Section = { id: string; title: string; lessons: Lesson[] };
 export type LearningStage = {
@@ -81,7 +81,7 @@ async function fetchLearningData(): Promise<TopicWithStages[]> {
   for (const h of hinh) {
     const url = urlByKey.get(`${h.storage_bucket}/${h.storage_path}`) ?? "";
     const arr = hinhByBai.get(h.bai_id) ?? [];
-    arr.push({ id: h.id, caption: firstText(h.text), url });
+    arr.push({ id: h.id, captions: allTexts(h.text), url });
     hinhByBai.set(h.bai_id, arr);
   }
 
