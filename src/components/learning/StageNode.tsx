@@ -73,9 +73,9 @@ export function StageNode({
       <div className="flex flex-col items-center gap-2">
         <div
           className={[
-            "grid place-items-center rounded-full text-white shadow-card ring-4 ring-white",
+            "grid place-items-center rounded-full text-white ring-[6px] ring-white drop-shadow-[0_6px_10px_rgba(0,0,0,0.35)]",
             color.bg,
-            isCurrent ? "ring-offset-2 ring-offset-white/0" : "",
+            isCurrent ? "animate-pulse-glow" : "",
           ].join(" ")}
           style={{ width: size, height: size }}
         >

@@ -36,7 +36,15 @@ export function LearningTab() {
   const openChang = (i: number) => {
     setCurrentChangIndex(i);
     setCurrentNoiDungIndex(0);
-    setIsDetailOpen(true);
+    setIsDetailOpen(false);
+
+    const urls = changs[i]?.noiDungs.flatMap((nd) => nd.bais.flatMap((b) => b.hinhs.map((h) => h.url))) ?? [];
+    urls.filter(Boolean).forEach((url) => {
+      const img = new Image();
+      img.src = url;
+    });
+
+    window.setTimeout(() => setIsDetailOpen(true), 750);
   };
 
   const nextChuDe = () => {
@@ -122,12 +130,12 @@ export function LearningTab() {
       {isDetailOpen && currentChang && (
         <div
           className={[
-            "fixed inset-0 z-40 flex items-center justify-center bg-navy/40 p-2 backdrop-blur-sm transition-[padding] sm:p-4",
+            "fixed inset-0 z-40 flex items-center justify-center bg-navy/40 p-2 backdrop-blur-sm transition-[padding] animate-modal-overlay-in sm:p-4",
             isSidebarCollapsed ? "lg:pr-[104px]" : "lg:pr-[352px]",
           ].join(" ")}
           onClick={() => setIsDetailOpen(false)}
         >
-          <div onClick={(e) => e.stopPropagation()} className="h-[95vh] w-full max-w-3xl">
+          <div onClick={(e) => e.stopPropagation()} className="h-[95vh] w-full max-w-3xl animate-modal-pop-in">
             <LessonCard
               chang={currentChang}
               changIndex={currentChangIndex}
