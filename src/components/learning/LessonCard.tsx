@@ -24,11 +24,11 @@ function SpeakButton({ text }: { text: string }) {
       onClick={onClick}
       aria-label="Nghe đọc"
       className={[
-        "grid h-10 w-10 shrink-0 place-items-center rounded-full shadow-card ring-2 ring-primary/30 transition hover:scale-110 active:scale-95",
+        "grid h-9 w-9 shrink-0 place-items-center rounded-full shadow-card ring-2 ring-primary/30 transition hover:scale-110 active:scale-95",
         playing ? "animate-pulse bg-primary text-white" : "bg-white text-primary",
       ].join(" ")}
     >
-      <Volume2 className="h-5 w-5" strokeWidth={2.5} />
+      <Volume2 className="h-4 w-4" strokeWidth={2.5} />
     </button>
   );
 }
@@ -56,6 +56,7 @@ export function LessonCard({
   const section = sections[sectionIndex];
   const canPrev = sectionIndex > 0;
   const canNext = sectionIndex < sections.length - 1;
+  const isLastSection = sectionIndex === sections.length - 1;
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -88,9 +89,11 @@ export function LessonCard({
       {section ? (
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-6 sm:px-8 sm:py-8">
           {section.title && (
-            <p className="mb-6 text-center font-display text-sm font-extrabold uppercase tracking-wider text-primary">
-              {section.title}
-            </p>
+            <div className="mb-6 rounded-2xl bg-yellow-50/80 px-5 py-4 text-center shadow-card ring-1 ring-yellow-200">
+              <p className="font-display text-xl font-extrabold text-navy sm:text-2xl">
+                {section.title}
+              </p>
+            </div>
           )}
 
           <div className="flex flex-col gap-6 divide-y divide-border/60">
@@ -99,6 +102,13 @@ export function LessonCard({
               const isSingle = imgs.length === 1;
               return (
                 <article key={lesson.id} className={li > 0 ? "pt-6" : ""}>
+                  <div className="mb-3 flex items-center gap-2">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary font-display text-sm font-extrabold text-white">
+                      {li + 1}
+                    </span>
+                    <div className="h-px flex-1 bg-border/60" />
+                  </div>
+
                   {lesson.texts.length > 0 && (
                     <div className="mb-4 space-y-1.5">
                       {lesson.texts.map((t, i) => (
@@ -138,10 +148,10 @@ export function LessonCard({
                                 {captions.map((c, ci) => (
                                   <div
                                     key={ci}
-                                    className="flex items-center gap-3 rounded-xl bg-yellow-50/70 px-3 py-2 ring-1 ring-border/60"
+                                    className="flex items-center gap-2 rounded-lg bg-yellow-50/70 px-2.5 py-1.5 ring-1 ring-border/60"
                                   >
                                     <SpeakButton text={c} />
-                                    <span className="flex-1 whitespace-pre-line font-display text-lg font-extrabold text-navy sm:text-xl">
+                                    <span className="flex-1 whitespace-pre-line font-display text-sm font-bold text-navy sm:text-base">
                                       {c}
                                     </span>
                                   </div>
@@ -156,7 +166,6 @@ export function LessonCard({
                 </article>
               );
             })}
-
 
             {section.lessons.length === 0 && (
               <p className="text-center text-sm text-muted-foreground">Nội dung đang được cập nhật.</p>
@@ -178,17 +187,19 @@ export function LessonCard({
           ← Trước
         </button>
 
-        <button
-          onClick={onComplete}
-          disabled={isCompleted}
-          className={[
-            "flex items-center justify-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-extrabold shadow-card transition",
-            isCompleted ? "cursor-not-allowed bg-green/40 text-navy" : "bg-green text-navy hover:scale-105",
-          ].join(" ")}
-        >
-          <Check className="h-4 w-4" strokeWidth={3} />
-          {isCompleted ? "Đã hoàn thành" : "Hoàn thành chặng"}
-        </button>
+        {isLastSection && (
+          <button
+            onClick={onComplete}
+            disabled={isCompleted}
+            className={[
+              "flex items-center justify-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-extrabold shadow-card transition",
+              isCompleted ? "cursor-not-allowed bg-green/40 text-navy" : "bg-green text-navy hover:scale-105",
+            ].join(" ")}
+          >
+            <Check className="h-4 w-4" strokeWidth={3} />
+            {isCompleted ? "Đã hoàn thành" : "Hoàn thành chặng"}
+          </button>
+        )}
 
         <button
           onClick={onNextSection}
