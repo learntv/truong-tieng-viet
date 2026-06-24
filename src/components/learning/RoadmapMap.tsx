@@ -1,0 +1,130 @@
+import { Heart, Gift, Sparkles, Star, Volume2 } from "lucide-react";
+import type { Topic } from "@/data/topics";
+import { BuffaloMascot } from "./BuffaloMascot";
+import { StageNode } from "./StageNode";
+import halongScene from "@/assets/halong-scene.jpg";
+
+const NODE_POSITIONS = [
+  { x: 10, y: 58 },
+  { x: 28, y: 30 },
+  { x: 50, y: 52 },
+  { x: 72, y: 26 },
+  { x: 90, y: 52 },
+];
+
+const TIPS = [
+  { Icon: Heart, iconBg: "bg-rose-100 text-rose-600", lines: ["Học mỗi ngày một chút,", "Tiếng Việt thêm yêu hơn!"] },
+  { Icon: Star, iconBg: "bg-yellow-100 text-yellow-600", lines: ["Học vui – Hiểu sâu", "Tiến bộ mỗi ngày"] },
+  { Icon: Gift, iconBg: "bg-orange-100 text-orange-600", lines: ["Cố gắng hôm nay", "Tự tin ngày mai"] },
+];
+
+export function RoadmapMap({
+  topic,
+  topicIndex,
+  stageTitles,
+  currentStageIndex,
+  completedStages,
+  onSelectStage,
+  soundOn,
+  onToggleSound,
+}: {
+  topic: Topic;
+  topicIndex: number;
+  stageTitles: string[];
+  currentStageIndex: number;
+  completedStages: Set<number>;
+  onSelectStage: (i: number) => void;
+  soundOn: boolean;
+  onToggleSound: () => void;
+}) {
+  const bookNumber = topicIndex < 4 ? 1 : 2;
+
+  const pathD = NODE_POSITIONS.reduce((acc, p, i, arr) => {
+    if (i === 0) return `M ${p.x} ${p.y}`;
+    const prev = arr[i - 1];
+    const cx = (prev.x + p.x) / 2;
+    return `${acc} Q ${cx} ${prev.y}, ${p.x} ${p.y}`;
+  }, "");
+
+  return (
+    <div className="relative w-full overflow-hidden rounded-3xl shadow-soft">
+      <img src={halongScene} alt="Phong cảnh Việt Nam — Vịnh Hạ Long và Hội An" width={1600} height={1100} className="absolute inset-0 h-full w-full object-cover" />
+      <div className="absolute inset-0 bg-gradient-to-b from-sky/60 via-transparent to-white/10" />
+
+      <div className="relative z-20 flex flex-wrap items-center justify-between gap-3 px-4 pt-4 sm:px-6 sm:pt-6">
+        <div className="flex items-center gap-2 rounded-full bg-white/95 px-4 py-2 text-sm font-bold text-navy shadow-card backdrop-blur">
+          <span>Quyển {bookNumber}</span>
+          <span className="text-muted-foreground">›</span>
+          <span>Vui học Tiếng Việt</span>
+        </div>
+        <button onClick={onToggleSound} className="flex items-center gap-2 rounded-full bg-white/95 px-4 py-2 text-sm font-bold text-navy shadow-card backdrop-blur transition hover:scale-105">
+          <Volume2 className={["h-4 w-4", soundOn ? "text-primary" : "text-muted-foreground"].join(" ")} />
+          Âm thanh
+        </button>
+      </div>
+
+      <div className="relative z-20 mx-auto mt-4 flex max-w-3xl items-center justify-center gap-2 px-4 text-center sm:mt-6">
+        <Sparkles className="h-7 w-7 shrink-0 text-yellow-400 sm:h-9 sm:w-9" />
+        <h1 className="font-display text-3xl font-extrabold text-primary [text-shadow:0_2px_0_white,0_-1px_0_white,2px_0_0_white,-2px_0_0_white] sm:text-5xl">
+          VUI HỌC TIẾNG VIỆT
+        </h1>
+        <Sparkles className="h-7 w-7 shrink-0 text-yellow-400 sm:h-9 sm:w-9" />
+      </div>
+
+      <div className="relative z-20 mx-auto mt-3 w-fit max-w-[90%]">
+        <div className="relative">
+          <div className="relative rounded-2xl bg-gradient-to-b from-[oklch(0.88_0.15_80)] to-[oklch(0.75_0.18_55)] px-6 py-2 text-center shadow-card sm:px-10 sm:py-2.5">
+            <div className="absolute inset-0 rounded-2xl ring-2 ring-white/60 ring-inset" />
+            <h2 className="relative font-display text-lg font-extrabold text-white drop-shadow-[0_2px_2px_rgba(120,60,0,0.5)] sm:text-2xl">
+              {topic.title}
+            </h2>
+          </div>
+          <div className="absolute -left-3 top-1/2 h-6 w-6 -translate-y-1/2 rotate-45 bg-[oklch(0.6_0.18_45)] opacity-70" />
+          <div className="absolute -right-3 top-1/2 h-6 w-6 -translate-y-1/2 rotate-45 bg-[oklch(0.6_0.18_45)] opacity-70" />
+        </div>
+      </div>
+
+      <div className="relative z-20 mx-auto mt-3 flex w-fit items-center gap-1.5 rounded-full bg-white/95 px-4 py-1.5 text-sm font-extrabold text-navy shadow-card backdrop-blur">
+        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+        {completedStages.size} chặng / {NODE_POSITIONS.length} chặng
+      </div>
+
+      <div className="relative mt-4 h-[340px] w-full sm:h-[380px]">
+        <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <path d={pathD} fill="none" stroke="white" strokeWidth="1.4" strokeDasharray="2.5 2.5" strokeLinecap="round" opacity="0.95" />
+        </svg>
+
+        {NODE_POSITIONS.map((p, i) => (
+          <StageNode
+            key={i}
+            index={i}
+            xPercent={p.x}
+            yPercent={p.y}
+            title={stageTitles[i]}
+            isCurrent={i === currentStageIndex}
+            isCompleted={completedStages.has(i)}
+            onClick={() => onSelectStage(i)}
+          />
+        ))}
+
+        <BuffaloMascot
+          xPercent={Math.max(6, (NODE_POSITIONS[currentStageIndex]?.x ?? 10) - 6)}
+          yPercent={NODE_POSITIONS[currentStageIndex]?.y ?? 58}
+        />
+      </div>
+
+      <div className="relative z-20 grid grid-cols-1 gap-3 p-4 sm:grid-cols-3 sm:p-6">
+        {TIPS.map(({ Icon, iconBg, lines }, i) => (
+          <div key={i} className="flex items-center gap-3 rounded-2xl bg-white/95 px-4 py-3 shadow-card backdrop-blur">
+            <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${iconBg}`}>
+              <Icon className="h-5 w-5" />
+            </div>
+            <div className="text-xs font-bold leading-tight text-stone-700">
+              {lines.map((l, j) => (<p key={j}>{l}</p>))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
