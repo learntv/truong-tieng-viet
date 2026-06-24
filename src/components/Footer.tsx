@@ -2,6 +2,8 @@ import { Facebook, Youtube, Twitter, Music2, Send } from "lucide-react";
 import boLogo from "@/assets/uy-ban.png";
 import cvcecLogo from "@/assets/cvcec.jpg";
 
+const COPYRIGHT_YEAR = 2026;
+
 export function Footer() {
   return (
     <footer className="mt-16 border-t border-border">
@@ -89,7 +91,7 @@ export function Footer() {
       <div className="bg-white py-4">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-4 sm:px-6">
           <p className="text-center text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Trường Tiếng Việt Của Em. Tất cả quyền được bảo lưu.
+            © {COPYRIGHT_YEAR} Trường Tiếng Việt Của Em. Tất cả quyền được bảo lưu.
           </p>
         </div>
       </div>
