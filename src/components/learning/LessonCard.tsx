@@ -24,11 +24,11 @@ function SpeakButton({ text }: { text: string }) {
       onClick={onClick}
       aria-label="Nghe đọc"
       className={[
-        "grid h-12 w-12 shrink-0 place-items-center rounded-full shadow-card ring-2 ring-primary/30 transition hover:scale-110 active:scale-95",
+        "grid h-10 w-10 shrink-0 place-items-center rounded-full shadow-card ring-2 ring-primary/30 transition hover:scale-110 active:scale-95",
         playing ? "animate-pulse bg-primary text-white" : "bg-white text-primary",
       ].join(" ")}
     >
-      <Volume2 className="h-6 w-6" strokeWidth={2.5} />
+      <Volume2 className="h-5 w-5" strokeWidth={2.5} />
     </button>
   );
 }
@@ -94,34 +94,37 @@ export function LessonCard({
           )}
 
           <div className="flex flex-col gap-8">
-            {section.lessons.map((lesson) => {
+            {section.lessons.map((lesson, li) => {
               const imgs = lesson.images;
+              const isSingle = imgs.length === 1;
               const gridCols = imgs.length >= 2 ? "grid-cols-2" : "grid-cols-1";
               return (
                 <article
                   key={lesson.id}
-                  className="rounded-3xl border-2 border-primary/20 bg-gradient-to-b from-yellow-50/60 to-white p-5 shadow-card sm:p-7"
+                  className="rounded-2xl border-2 border-border/70 bg-white p-4 shadow-card sm:p-5"
                 >
                   {lesson.texts.length > 0 && (
-                    <div className="mb-5 flex flex-col gap-3">
-                      {lesson.texts.map((t, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center justify-center gap-4 rounded-2xl bg-white px-4 py-4 shadow-sm ring-1 ring-border/60"
-                        >
-                          <SpeakButton text={t} />
-                          <p className="flex-1 text-center font-display text-2xl font-extrabold leading-snug tracking-wide text-navy sm:text-3xl">
+                    <div className="mb-4 flex items-start gap-3">
+                      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-xs font-extrabold text-white">
+                        {li + 1}
+                      </span>
+                      <div className="flex-1 space-y-2">
+                        {lesson.texts.map((t, i) => (
+                          <p
+                            key={i}
+                            className="whitespace-pre-line font-display text-base font-bold text-navy sm:text-lg"
+                          >
                             {t}
                           </p>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   )}
 
                   {imgs.length > 0 && (
-                    <div className={`grid gap-3 ${gridCols}`}>
+                    <div className={`mt-3 grid gap-3 ${gridCols} ${isSingle ? "mx-auto w-[70%]" : ""}`}>
                       {imgs.map((img) => (
-                        <figure key={img.id} className="overflow-hidden rounded-2xl bg-stone-50 ring-1 ring-border/60">
+                        <figure key={img.id} className="overflow-hidden rounded-xl bg-stone-50 ring-1 ring-border/60">
                           {img.url ? (
                             <img
                               src={img.url}
@@ -135,8 +138,11 @@ export function LessonCard({
                             </div>
                           )}
                           {img.caption && (
-                            <figcaption className="whitespace-pre-line px-3 py-2 text-center text-sm font-semibold text-stone-600">
-                              {img.caption}
+                            <figcaption className="flex items-center gap-2 px-3 py-2">
+                              <SpeakButton text={img.caption} />
+                              <span className="flex-1 whitespace-pre-line text-center font-display text-lg font-extrabold text-navy">
+                                {img.caption}
+                              </span>
                             </figcaption>
                           )}
                         </figure>
