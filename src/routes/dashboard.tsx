@@ -114,8 +114,6 @@ const SCALE_STATS = {
   retentionMonth1: 52,
 };
 
-const REPORT_UPDATED_AT = "24/06/2026";
-
 const RETENTION_CURVE = [
   { label: "Ngày 1", rate: 100 },
   { label: "Tuần 1", rate: 78 },
@@ -256,7 +254,7 @@ function DashboardPage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-gray-400">Cập nhật: {REPORT_UPDATED_AT}</span>
+            <span className="text-xs text-gray-400">Cập nhật: {new Date().toLocaleDateString("vi-VN")}</span>
             <Badge className="bg-red-600 text-white hover:bg-red-600">Nội bộ</Badge>
           </div>
         </div>
