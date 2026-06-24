@@ -90,7 +90,7 @@ async function fetchLearningData(): Promise<TopicWithStages[]> {
     const arr = baiByNd.get(b.noidung_id) ?? [];
     arr.push({
       id: b.id,
-      text: firstText(b.text),
+      texts: allTexts(b.text),
       images: hinhByBai.get(b.id) ?? [],
     });
     baiByNd.set(b.noidung_id, arr);
