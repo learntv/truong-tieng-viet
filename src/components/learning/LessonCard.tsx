@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, ChevronLeft, ChevronRight, Star, X } from "lucide-react";
-import type { Chang } from "@/lib/learning";
+import type { Chang, Hinh } from "@/lib/learning";
 import { STAGE_COLORS } from "./StageNode";
 
 type StageColor = (typeof STAGE_COLORS)[number];
@@ -38,6 +38,65 @@ function CloudWord({ text, color }: { text: string; color: StageColor }) {
     >
       {text}
     </button>
+  );
+}
+
+function HinhBlock({
+  hinh,
+  captions,
+  isSingle,
+}: {
+  hinh: Hinh;
+  captions: string[];
+  isSingle: boolean;
+}) {
+  const [isLandscape, setIsLandscape] = useState(false);
+  const hasCaptions = captions.length > 0;
+  const stackVertical = !isSingle || isLandscape || !hasCaptions;
+
+  return (
+    <figure
+      className={
+        stackVertical
+          ? "flex flex-col items-center gap-3"
+          : "flex flex-1 flex-col gap-3 sm:flex-row sm:items-start"
+      }
+    >
+      <div className={stackVertical ? "w-full" : "sm:w-1/2"}>
+        {hinh.url ? (
+          <img
+            src={hinh.url}
+            alt={captions[0] || "Hình minh họa"}
+            loading="lazy"
+            onLoad={(e) =>
+              setIsLandscape(e.currentTarget.naturalWidth > e.currentTarget.naturalHeight)
+            }
+            className={[
+              "mx-auto rounded-xl object-contain ring-1 ring-border/60",
+              stackVertical ? "w-[70%]" : "w-[80%]",
+            ].join(" ")}
+          />
+        ) : (
+          <div className="grid aspect-video w-full place-items-center rounded-xl bg-stone-50 text-xs text-muted-foreground ring-1 ring-border/60">
+            (Không tải được hình)
+          </div>
+        )}
+      </div>
+
+      {hasCaptions && (
+        <div
+          className={
+            stackVertical
+              ? "flex flex-wrap items-center justify-center gap-2"
+              : "flex flex-1 flex-wrap items-center justify-center gap-2 sm:pl-2"
+          }
+        >
+          {captions.map((c, ci) => (
+            <CloudWord key={ci} text={c} color={STAGE_COLORS[ci % STAGE_COLORS.length]} />
+          ))}
+        </div>
+      )}
+    </figure>
   );
 }
 
@@ -168,47 +227,12 @@ export function LessonCard({
                         {hinhs.map((hinh) => {
                           const captions = hinh.captions.filter((c) => c.trim().length > 1);
                           return (
-                            <figure
+                            <HinhBlock
                               key={hinh.id}
-                              className={
-                                isSingle
-                                  ? "flex flex-1 flex-col gap-3 sm:flex-row sm:items-start"
-                                  : ""
-                              }
-                            >
-                              <div className={isSingle ? "sm:w-1/2" : ""}>
-                                {hinh.url ? (
-                                  <img
-                                    src={hinh.url}
-                                    alt={captions[0] || "Hình minh họa"}
-                                    loading="lazy"
-                                    className="mx-auto w-[80%] rounded-xl object-contain ring-1 ring-border/60"
-                                  />
-                                ) : (
-                                  <div className="grid aspect-video w-full place-items-center rounded-xl bg-stone-50 text-xs text-muted-foreground ring-1 ring-border/60">
-                                    (Không tải được hình)
-                                  </div>
-                                )}
-                              </div>
-
-                              {captions.length > 0 && (
-                                <div
-                                  className={
-                                    isSingle
-                                      ? "flex flex-1 flex-wrap items-center justify-center gap-2 sm:pl-2"
-                                      : "mt-2 flex flex-wrap items-center justify-center gap-2"
-                                  }
-                                >
-                                  {captions.map((c, ci) => (
-                                    <CloudWord
-                                      key={ci}
-                                      text={c}
-                                      color={STAGE_COLORS[ci % STAGE_COLORS.length]}
-                                    />
-                                  ))}
-                                </div>
-                              )}
-                            </figure>
+                              hinh={hinh}
+                              captions={captions}
+                              isSingle={isSingle}
+                            />
                           );
                         })}
                       </div>
