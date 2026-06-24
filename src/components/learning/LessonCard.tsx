@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, ChevronLeft, ChevronRight, Star, Volume2, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Star, X } from "lucide-react";
 import type { Chang } from "@/lib/learning";
 import { STAGE_COLORS } from "./StageNode";
 
@@ -16,7 +16,7 @@ function speak(text: string, onEnd?: () => void) {
   window.speechSynthesis.speak(u);
 }
 
-function SpeakButton({ text, color }: { text: string; color: StageColor }) {
+function CloudWord({ text, color }: { text: string; color: StageColor }) {
   const [playing, setPlaying] = useState(false);
   const onClick = useCallback(() => {
     setPlaying(true);
@@ -25,16 +25,18 @@ function SpeakButton({ text, color }: { text: string; color: StageColor }) {
   return (
     <button
       onClick={onClick}
-      aria-label="Nghe đọc"
+      aria-label={`Nghe đọc: ${text}`}
       className={[
-        "grid h-9 w-9 shrink-0 place-items-center rounded-full shadow-card ring-2 transition hover:scale-110 active:scale-95",
-        color.ring,
+        "cursor-pointer rounded-full border-2 px-3 py-1.5 font-display text-base leading-tight transition active:scale-95",
+        color.bgSoft,
+        color.border,
+        color.text,
         playing
-          ? ["animate-pulse", color.gradient, "text-white"].join(" ")
-          : ["bg-white", color.text].join(" "),
+          ? "animate-pulse scale-110"
+          : "hover:-translate-y-0.5 hover:scale-110 hover:shadow-card",
       ].join(" ")}
     >
-      <Volume2 className="h-4 w-4" strokeWidth={2.5} />
+      {text}
     </button>
   );
 }
@@ -190,22 +192,21 @@ export function LessonCard({
                               </div>
 
                               {captions.length > 0 && (
-                                <ul
+                                <div
                                   className={
                                     isSingle
-                                      ? "flex flex-1 flex-col gap-2 sm:pl-2"
-                                      : "mt-2 flex flex-col gap-2"
+                                      ? "flex flex-1 flex-wrap items-center justify-center gap-2 sm:pl-2"
+                                      : "mt-2 flex flex-wrap items-center justify-center gap-2"
                                   }
                                 >
                                   {captions.map((c, ci) => (
-                                    <li key={ci} className="flex items-center gap-2">
-                                      <SpeakButton text={c} color={color} />
-                                      <span className="flex-1 whitespace-pre-line font-display text-sm text-navy sm:text-base">
-                                        {c}
-                                      </span>
-                                    </li>
+                                    <CloudWord
+                                      key={ci}
+                                      text={c}
+                                      color={STAGE_COLORS[ci % STAGE_COLORS.length]}
+                                    />
                                   ))}
-                                </ul>
+                                </div>
                               )}
                             </figure>
                           );
