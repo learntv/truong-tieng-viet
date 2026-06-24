@@ -13,6 +13,12 @@ function firstText(text: unknown): string {
   return "";
 }
 
+function allTexts(text: unknown): string[] {
+  if (Array.isArray(text)) return text.filter((s): s is string => typeof s === "string" && s.trim().length > 0);
+  if (typeof text === "string" && text.trim().length > 0) return [text];
+  return [];
+}
+
 function titleCase(s: string): string {
   return s
     .toLocaleLowerCase("vi")
@@ -20,7 +26,7 @@ function titleCase(s: string): string {
 }
 
 export type LessonImage = { id: string; caption: string; url: string };
-export type Lesson = { id: string; text: string; images: LessonImage[] };
+export type Lesson = { id: string; texts: string[]; images: LessonImage[] };
 export type Section = { id: string; title: string; lessons: Lesson[] };
 export type LearningStage = {
   id: string;
