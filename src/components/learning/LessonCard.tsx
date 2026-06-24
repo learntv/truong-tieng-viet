@@ -89,8 +89,8 @@ export function LessonCard({
       {section ? (
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-6 sm:px-8 sm:py-8">
           {section.title && (
-            <div className="mb-6 rounded-2xl bg-yellow-50/80 px-5 py-4 text-center shadow-card ring-1 ring-yellow-200">
-              <p className="font-display text-xl font-extrabold text-navy sm:text-2xl">
+            <div className="mb-6 rounded-2xl bg-primary px-5 py-4 text-center shadow-card">
+              <p className="font-display text-xl font-extrabold text-white sm:text-2xl">
                 {section.title}
               </p>
             </div>
