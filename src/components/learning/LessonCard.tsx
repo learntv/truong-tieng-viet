@@ -1,28 +1,29 @@
-import { ArrowLeft, ArrowRight, Check, Star, Volume2, X } from "lucide-react";
-import type { Stage } from "@/data/topics";
-import kidsAodai from "@/assets/kids-aodai.jpg";
+import { ArrowLeft, ArrowRight, Check, Star, X } from "lucide-react";
+import type { LearningStage } from "@/lib/learning";
 
 export function LessonCard({
   stage,
   stageIndex,
-  totalStages,
+  sectionIndex,
   isCompleted,
-  onPrev,
-  onNext,
+  onPrevSection,
+  onNextSection,
   onComplete,
   onClose,
 }: {
-  stage: Stage;
+  stage: LearningStage;
   stageIndex: number;
-  totalStages: number;
+  sectionIndex: number;
   isCompleted: boolean;
-  onPrev: () => void;
-  onNext: () => void;
+  onPrevSection: () => void;
+  onNextSection: () => void;
   onComplete: () => void;
   onClose: () => void;
 }) {
-  const canPrev = stageIndex > 0;
-  const canNext = stageIndex < totalStages - 1;
+  const sections = stage.sections;
+  const section = sections[sectionIndex];
+  const canPrev = sectionIndex > 0;
+  const canNext = sectionIndex < sections.length - 1;
 
   return (
     <div className="flex max-h-full w-full flex-col overflow-hidden rounded-3xl bg-white shadow-soft">
@@ -34,47 +35,93 @@ export function LessonCard({
           </h3>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <button onClick={onPrev} disabled={!canPrev} className="grid h-9 w-9 place-items-center rounded-full bg-white text-navy shadow-card ring-1 ring-border transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40" aria-label="Chặng trước">
+          <button
+            onClick={onPrevSection}
+            disabled={!canPrev}
+            className="grid h-9 w-9 place-items-center rounded-full bg-white text-navy shadow-card ring-1 ring-border transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
+            aria-label="Nội dung trước"
+          >
             <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
           </button>
-          <button onClick={onNext} disabled={!canNext} className="grid h-9 w-9 place-items-center rounded-full bg-primary text-white shadow-card transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40" aria-label="Chặng kế">
+          <button
+            onClick={onNextSection}
+            disabled={!canNext}
+            className="grid h-9 w-9 place-items-center rounded-full bg-primary text-white shadow-card transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
+            aria-label="Nội dung kế"
+          >
             <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
           </button>
-          <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full bg-stone-100 text-stone-500 shadow-card transition hover:scale-105 hover:bg-stone-200 hover:text-stone-700" aria-label="Đóng">
+          <button
+            onClick={onClose}
+            className="grid h-9 w-9 place-items-center rounded-full bg-stone-100 text-stone-500 shadow-card transition hover:scale-105 hover:bg-stone-200 hover:text-stone-700"
+            aria-label="Đóng"
+          >
             <X className="h-4 w-4" strokeWidth={2.5} />
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 overflow-y-auto p-4 sm:grid-cols-2 sm:gap-5 sm:p-6">
-        <div className="relative overflow-hidden rounded-2xl">
-          <img src={kidsAodai} alt="Hai bạn nhỏ mặc áo dài chào nhau" width={768} height={768} loading="lazy" className="h-44 w-full object-cover sm:h-full" />
-          <span className="absolute bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-stone-700 shadow-card">
-            Hình minh họa bài học
-          </span>
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <p className="text-center font-display text-sm font-extrabold text-primary">
-            ✦ Từ vựng Tiếng Việt ✦
-          </p>
-          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-            {stage.sampleVocabulary.slice(0, 8).map((v, i) => (
-              <div key={i} className="flex flex-col items-center gap-1 rounded-xl border-2 border-border bg-white px-2 py-3 text-center shadow-card">
-                <span className="text-2xl">{stage.imageEmoji}</span>
-                <p className="font-display text-base font-extrabold text-navy">{v.vi}</p>
-              </div>
-            ))}
+      {section ? (
+        <div className="flex-1 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <p className="font-display text-sm font-extrabold uppercase tracking-wide text-primary">
+              {section.title || "Nội dung"}
+            </p>
+            <span className="rounded-full bg-muted px-3 py-1 text-xs font-bold text-navy">
+              Nội dung {sectionIndex + 1} / {sections.length}
+            </span>
           </div>
-          <button onClick={() => console.log("[audio]", stage.sampleVocabulary.map((v) => v.vi))} className="flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-extrabold text-white shadow-card transition hover:scale-[1.02] hover:bg-primary/90">
-            <Volume2 className="h-4 w-4" />
-            Nghe phát âm
-          </button>
-          <p className="text-center text-xs font-medium text-muted-foreground">
-            Bấm vào loa để nghe và đọc theo nhé!
-          </p>
+
+          <div className="flex flex-col gap-6">
+            {section.lessons.map((lesson, li) => (
+              <article key={lesson.id} className="rounded-2xl border-2 border-border/70 bg-white p-4 shadow-card sm:p-5">
+                <div className="mb-3 flex items-start gap-2">
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-xs font-extrabold text-white">
+                    {li + 1}
+                  </span>
+                  <p className="whitespace-pre-line font-display text-base font-bold text-navy sm:text-lg">
+                    {lesson.text || "—"}
+                  </p>
+                </div>
+
+                {lesson.images.length > 0 && (
+                  <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {lesson.images.map((img) => (
+                      <figure key={img.id} className="overflow-hidden rounded-xl bg-stone-50">
+                        {img.url ? (
+                          <img
+                            src={img.url}
+                            alt={img.caption || `Hình minh họa ${li + 1}`}
+                            loading="lazy"
+                            className="h-auto w-full object-contain"
+                          />
+                        ) : (
+                          <div className="grid aspect-video place-items-center text-xs text-muted-foreground">
+                            (Không tải được hình)
+                          </div>
+                        )}
+                        {img.caption && (
+                          <figcaption className="whitespace-pre-line px-3 py-2 text-xs font-medium text-stone-600">
+                            {img.caption}
+                          </figcaption>
+                        )}
+                      </figure>
+                    ))}
+                  </div>
+                )}
+              </article>
+            ))}
+
+            {section.lessons.length === 0 && (
+              <p className="text-center text-sm text-muted-foreground">Nội dung đang được cập nhật.</p>
+            )}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex-1 px-5 py-10 text-center text-sm text-muted-foreground">
+          Chặng này chưa có nội dung.
+        </div>
+      )}
 
       <div className="border-t border-border/60 px-4 py-3 sm:px-6">
         <button

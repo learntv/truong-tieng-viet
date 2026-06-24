@@ -1,10 +1,11 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { Topic, Stage, Vocab } from "@/data/topics";
+import type { Topic } from "@/data/topics";
 
 const STAGE_EMOJIS = ["👋", "📚", "💬", "📖", "✏️"];
 const TOPIC_EMOJIS = ["👨‍👩‍👧", "🏫", "🧑‍🤝‍🧑", "🧸", "🌳", "🏞️", "👩‍⚕️", "🌏"];
 const ACCENTS: Topic["accent"][] = ["purple", "primary", "green", "yellow", "pink"];
+const SIGNED_URL_TTL = 60 * 60;
 
 function firstText(text: unknown): string {
   if (Array.isArray(text) && text.length > 0 && typeof text[0] === "string") return text[0];
@@ -18,58 +19,96 @@ function titleCase(s: string): string {
     .replace(/(^|\s)\p{L}/gu, (m) => m.toLocaleUpperCase("vi"));
 }
 
+export type LessonImage = { id: string; caption: string; url: string };
+export type Lesson = { id: string; text: string; images: LessonImage[] };
+export type Section = { id: string; title: string; lessons: Lesson[] };
+export type LearningStage = {
+  id: string;
+  title: string;
+  emoji: string;
+  sections: Section[];
+};
 export type TopicWithStages = {
   topic: Topic;
-  stages: Stage[];
+  stages: LearningStage[];
 };
 
 async function fetchLearningData(): Promise<TopicWithStages[]> {
-  const { data: chude, error: chudeErr } = await supabase
-    .from("chude")
-    .select("id, position, text")
-    .order("position", { ascending: true });
-  if (chudeErr) throw chudeErr;
+  const [chudeRes, changRes, ndRes, baiRes, hinhRes] = await Promise.all([
+    supabase.from("chude").select("id, position, text").order("position", { ascending: true }),
+    supabase.from("chang").select("id, position, text, chude_id").order("position", { ascending: true }),
+    supabase.from("noidung").select("id, position, text, chang_id").order("position", { ascending: true }),
+    supabase.from("bai").select("id, position, text, noidung_id").order("position", { ascending: true }),
+    supabase.from("hinh").select("id, position, text, bai_id, storage_bucket, storage_path").order("position", { ascending: true }),
+  ]);
 
-  const { data: chang, error: changErr } = await supabase
-    .from("chang")
-    .select("id, position, text, chude_id")
-    .order("position", { ascending: true });
-  if (changErr) throw changErr;
+  for (const r of [chudeRes, changRes, ndRes, baiRes, hinhRes]) {
+    if (r.error) throw r.error;
+  }
 
-  const { data: noidung, error: ndErr } = await supabase
-    .from("noidung")
-    .select("id, position, chang_id")
-    .order("position", { ascending: true });
-  if (ndErr) throw ndErr;
+  const chude = chudeRes.data ?? [];
+  const chang = changRes.data ?? [];
+  const noidung = ndRes.data ?? [];
+  const bai = baiRes.data ?? [];
+  const hinh = hinhRes.data ?? [];
 
-  const { data: bai, error: baiErr } = await supabase
-    .from("bai")
-    .select("id, position, text, noidung_id")
-    .order("position", { ascending: true });
-  if (baiErr) throw baiErr;
+  // Batch sign URLs per bucket
+  const byBucket = new Map<string, string[]>();
+  for (const h of hinh) {
+    const arr = byBucket.get(h.storage_bucket) ?? [];
+    arr.push(h.storage_path);
+    byBucket.set(h.storage_bucket, arr);
+  }
+  const urlByKey = new Map<string, string>();
+  await Promise.all(
+    Array.from(byBucket.entries()).map(async ([bucket, paths]) => {
+      const unique = Array.from(new Set(paths));
+      const { data, error } = await supabase.storage.from(bucket).createSignedUrls(unique, SIGNED_URL_TTL);
+      if (error) throw error;
+      for (const item of data ?? []) {
+        if (item.path && item.signedUrl) urlByKey.set(`${bucket}/${item.path}`, item.signedUrl);
+      }
+    }),
+  );
 
-  const baiByNd = new Map<string, typeof bai>();
-  for (const b of bai ?? []) {
+  const hinhByBai = new Map<string, LessonImage[]>();
+  for (const h of hinh) {
+    const url = urlByKey.get(`${h.storage_bucket}/${h.storage_path}`) ?? "";
+    const arr = hinhByBai.get(h.bai_id) ?? [];
+    arr.push({ id: h.id, caption: firstText(h.text), url });
+    hinhByBai.set(h.bai_id, arr);
+  }
+
+  const baiByNd = new Map<string, Lesson[]>();
+  for (const b of bai) {
     const arr = baiByNd.get(b.noidung_id) ?? [];
-    arr.push(b);
+    arr.push({
+      id: b.id,
+      text: firstText(b.text),
+      images: hinhByBai.get(b.id) ?? [],
+    });
     baiByNd.set(b.noidung_id, arr);
   }
 
-  const ndByChang = new Map<string, typeof noidung>();
-  for (const n of noidung ?? []) {
+  const ndByChang = new Map<string, Section[]>();
+  for (const n of noidung) {
     const arr = ndByChang.get(n.chang_id) ?? [];
-    arr.push(n);
+    arr.push({
+      id: n.id,
+      title: firstText(n.text),
+      lessons: baiByNd.get(n.id) ?? [],
+    });
     ndByChang.set(n.chang_id, arr);
   }
 
   const changByChude = new Map<string, typeof chang>();
-  for (const c of chang ?? []) {
+  for (const c of chang) {
     const arr = changByChude.get(c.chude_id) ?? [];
     arr.push(c);
     changByChude.set(c.chude_id, arr);
   }
 
-  return (chude ?? []).map((cd, ti) => {
+  return chude.map((cd, ti) => {
     const topicTitle = titleCase(firstText(cd.text));
     const topic: Topic = {
       id: cd.id,
@@ -78,23 +117,12 @@ async function fetchLearningData(): Promise<TopicWithStages[]> {
       accent: ACCENTS[ti % ACCENTS.length],
     };
 
-    const stages: Stage[] = (changByChude.get(cd.id) ?? []).map((ch, si) => {
-      const stageTitle = titleCase(firstText(ch.text));
-      const nds = ndByChang.get(ch.id) ?? [];
-      const vocab: Vocab[] = [];
-      for (const nd of nds) {
-        for (const b of baiByNd.get(nd.id) ?? []) {
-          const t = firstText(b.text);
-          if (t) vocab.push({ vi: t, en: "" });
-        }
-      }
-      return {
-        id: ch.id,
-        title: stageTitle,
-        imageEmoji: STAGE_EMOJIS[si % STAGE_EMOJIS.length],
-        sampleVocabulary: vocab,
-      };
-    });
+    const stages: LearningStage[] = (changByChude.get(cd.id) ?? []).map((ch, si) => ({
+      id: ch.id,
+      title: titleCase(firstText(ch.text)),
+      emoji: STAGE_EMOJIS[si % STAGE_EMOJIS.length],
+      sections: ndByChang.get(ch.id) ?? [],
+    }));
 
     return { topic, stages };
   });
