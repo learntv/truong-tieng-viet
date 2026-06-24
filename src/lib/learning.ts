@@ -25,7 +25,7 @@ function titleCase(s: string): string {
     .replace(/(^|\s)\p{L}/gu, (m) => m.toLocaleUpperCase("vi"));
 }
 
-export type LessonImage = { id: string; caption: string; url: string };
+export type LessonImage = { id: string; captions: string[]; url: string };
 export type Lesson = { id: string; texts: string[]; images: LessonImage[] };
 export type Section = { id: string; title: string; lessons: Lesson[] };
 export type LearningStage = {
