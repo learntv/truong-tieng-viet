@@ -89,8 +89,8 @@ export function LessonCard({
       {section ? (
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-6 sm:px-8 sm:py-8">
           {section.title && (
-            <div className="mb-6 rounded-2xl bg-yellow-50/80 px-5 py-4 text-center shadow-card ring-1 ring-yellow-200">
-              <p className="font-display text-xl font-extrabold text-navy sm:text-2xl">
+            <div className="mb-6 rounded-2xl bg-primary px-5 py-4 text-center shadow-card">
+              <p className="font-display text-xl font-extrabold text-white sm:text-2xl">
                 {section.title}
               </p>
             </div>
@@ -102,15 +102,11 @@ export function LessonCard({
               const isSingle = imgs.length === 1;
               return (
                 <article key={lesson.id} className={li > 0 ? "pt-6" : ""}>
-                  <div className="mb-3 flex items-center gap-2">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary font-display text-sm font-extrabold text-white">
+                  <div className="mb-4 flex items-start gap-3">
+                    <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary font-display text-sm font-extrabold text-white">
                       {li + 1}
                     </span>
-                    <div className="h-px flex-1 bg-border/60" />
-                  </div>
-
-                  {lesson.texts.length > 0 && (
-                    <div className="mb-4 space-y-1.5">
+                    <div className="flex-1 space-y-1.5">
                       {lesson.texts.map((t, i) => (
                         <p
                           key={i}
@@ -120,7 +116,7 @@ export function LessonCard({
                         </p>
                       ))}
                     </div>
-                  )}
+                  </div>
 
                   {imgs.length > 0 && (
                     <div className={isSingle ? "flex flex-col gap-4 sm:flex-row sm:items-start" : "grid grid-cols-2 gap-4"}>
@@ -134,7 +130,7 @@ export function LessonCard({
                                   src={img.url}
                                   alt={captions[0] || "Hình minh họa"}
                                   loading="lazy"
-                                  className="h-auto w-full rounded-xl object-contain ring-1 ring-border/60"
+                                  className="mx-auto w-[70%] rounded-xl object-contain ring-1 ring-border/60"
                                 />
                               ) : (
                                 <div className="grid aspect-video w-full place-items-center rounded-xl bg-stone-50 text-xs text-muted-foreground ring-1 ring-border/60">
@@ -144,19 +140,16 @@ export function LessonCard({
                             </div>
 
                             {captions.length > 0 && (
-                              <figcaption className={isSingle ? "flex flex-1 flex-col gap-2 sm:pl-2" : "mt-2 flex flex-col gap-2"}>
+                              <ul className={isSingle ? "flex flex-1 flex-col gap-2 sm:pl-2" : "mt-2 flex flex-col gap-2"}>
                                 {captions.map((c, ci) => (
-                                  <div
-                                    key={ci}
-                                    className="flex items-center gap-2 rounded-lg bg-yellow-50/70 px-2.5 py-1.5 ring-1 ring-border/60"
-                                  >
+                                  <li key={ci} className="flex items-center gap-2">
                                     <SpeakButton text={c} />
-                                    <span className="flex-1 whitespace-pre-line font-display text-sm font-bold text-navy sm:text-base">
+                                    <span className="flex-1 whitespace-pre-line font-display text-sm text-navy sm:text-base">
                                       {c}
                                     </span>
-                                  </div>
+                                  </li>
                                 ))}
-                              </figcaption>
+                              </ul>
                             )}
                           </figure>
                         );
