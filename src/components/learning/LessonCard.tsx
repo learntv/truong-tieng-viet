@@ -1,28 +1,72 @@
-import { ArrowLeft, ArrowRight, Check, Star, Volume2, X } from "lucide-react";
-import type { Stage } from "@/data/topics";
-import kidsAodai from "@/assets/kids-aodai.jpg";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Check, Star, Volume2, X } from "lucide-react";
+import type { LearningStage } from "@/lib/learning";
+
+function speak(text: string, onEnd?: () => void) {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "vi-VN";
+  u.rate = 0.85;
+  u.pitch = 1.05;
+  if (onEnd) u.onend = onEnd;
+  window.speechSynthesis.speak(u);
+}
+
+function SpeakButton({ text }: { text: string }) {
+  const [playing, setPlaying] = useState(false);
+  const onClick = useCallback(() => {
+    setPlaying(true);
+    speak(text, () => setPlaying(false));
+  }, [text]);
+  return (
+    <button
+      onClick={onClick}
+      aria-label="Nghe đọc"
+      className={[
+        "grid h-9 w-9 shrink-0 place-items-center rounded-full shadow-card ring-2 ring-primary/30 transition hover:scale-110 active:scale-95",
+        playing ? "animate-pulse bg-primary text-white" : "bg-white text-primary",
+      ].join(" ")}
+    >
+      <Volume2 className="h-4 w-4" strokeWidth={2.5} />
+    </button>
+  );
+}
 
 export function LessonCard({
   stage,
   stageIndex,
-  totalStages,
+  sectionIndex,
   isCompleted,
-  onPrev,
-  onNext,
+  onPrevSection,
+  onNextSection,
   onComplete,
   onClose,
 }: {
-  stage: Stage;
+  stage: LearningStage;
   stageIndex: number;
-  totalStages: number;
+  sectionIndex: number;
   isCompleted: boolean;
-  onPrev: () => void;
-  onNext: () => void;
+  onPrevSection: () => void;
+  onNextSection: () => void;
   onComplete: () => void;
   onClose: () => void;
 }) {
-  const canPrev = stageIndex > 0;
-  const canNext = stageIndex < totalStages - 1;
+  const sections = stage.sections;
+  const section = sections[sectionIndex];
+  const canPrev = sectionIndex > 0;
+  const canNext = sectionIndex < sections.length - 1;
+  const isLastSection = sectionIndex === sections.length - 1;
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0 });
+    return () => {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [sectionIndex, stageIndex]);
 
   return (
     <div className="flex max-h-full w-full flex-col overflow-hidden rounded-3xl bg-white shadow-soft">
@@ -33,60 +77,129 @@ export function LessonCard({
             Chặng {stageIndex + 1}: {stage.title}
           </h3>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <button onClick={onPrev} disabled={!canPrev} className="grid h-9 w-9 place-items-center rounded-full bg-white text-navy shadow-card ring-1 ring-border transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40" aria-label="Chặng trước">
-            <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
-          </button>
-          <button onClick={onNext} disabled={!canNext} className="grid h-9 w-9 place-items-center rounded-full bg-primary text-white shadow-card transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40" aria-label="Chặng kế">
-            <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
-          </button>
-          <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full bg-stone-100 text-stone-500 shadow-card transition hover:scale-105 hover:bg-stone-200 hover:text-stone-700" aria-label="Đóng">
-            <X className="h-4 w-4" strokeWidth={2.5} />
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 overflow-y-auto p-4 sm:grid-cols-2 sm:gap-5 sm:p-6">
-        <div className="relative overflow-hidden rounded-2xl">
-          <img src={kidsAodai} alt="Hai bạn nhỏ mặc áo dài chào nhau" width={768} height={768} loading="lazy" className="h-44 w-full object-cover sm:h-full" />
-          <span className="absolute bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-stone-700 shadow-card">
-            Hình minh họa bài học
-          </span>
-        </div>
-
-        <div className="flex flex-col gap-4">
-          <p className="text-center font-display text-sm font-extrabold text-primary">
-            ✦ Từ vựng Tiếng Việt ✦
-          </p>
-          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-            {stage.sampleVocabulary.slice(0, 8).map((v, i) => (
-              <div key={i} className="flex flex-col items-center gap-1 rounded-xl border-2 border-border bg-white px-2 py-3 text-center shadow-card">
-                <span className="text-2xl">{stage.imageEmoji}</span>
-                <p className="font-display text-base font-extrabold text-navy">{v.vi}</p>
-              </div>
-            ))}
-          </div>
-          <button onClick={() => console.log("[audio]", stage.sampleVocabulary.map((v) => v.vi))} className="flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-extrabold text-white shadow-card transition hover:scale-[1.02] hover:bg-primary/90">
-            <Volume2 className="h-4 w-4" />
-            Nghe phát âm
-          </button>
-          <p className="text-center text-xs font-medium text-muted-foreground">
-            Bấm vào loa để nghe và đọc theo nhé!
-          </p>
-        </div>
-      </div>
-
-      <div className="border-t border-border/60 px-4 py-3 sm:px-6">
         <button
-          onClick={onComplete}
-          disabled={isCompleted}
-          className={[
-            "flex w-full items-center justify-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-extrabold shadow-card transition sm:w-auto",
-            isCompleted ? "cursor-not-allowed bg-green/40 text-navy" : "bg-green text-navy hover:scale-105",
-          ].join(" ")}
+          onClick={onClose}
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-stone-100 text-stone-500 shadow-card transition hover:scale-105 hover:bg-stone-200 hover:text-stone-700"
+          aria-label="Đóng"
         >
-          <Check className="h-4 w-4" strokeWidth={3} />
-          {isCompleted ? "Đã hoàn thành chặng này" : "Hoàn thành chặng"}
+          <X className="h-4 w-4" strokeWidth={2.5} />
+        </button>
+      </div>
+
+      {section ? (
+        <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-6 sm:px-8 sm:py-8">
+          {section.title && (
+            <div className="mb-6 rounded-2xl bg-primary px-5 py-4 text-center shadow-card">
+              <p className="font-display text-xl font-extrabold text-white sm:text-2xl">
+                {section.title}
+              </p>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-6 divide-y divide-border/60">
+            {section.lessons.map((lesson, li) => {
+              const imgs = lesson.images;
+              const isSingle = imgs.length === 1;
+              return (
+                <article key={lesson.id} className={li > 0 ? "pt-6" : ""}>
+                  <div className="mb-4 flex items-start gap-3">
+                    <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary font-display text-sm font-extrabold text-white">
+                      {li + 1}
+                    </span>
+                    <div className="flex-1 space-y-1.5">
+                      {lesson.texts.map((t, i) => (
+                        <p
+                          key={i}
+                          className="whitespace-pre-line font-display text-base font-bold text-navy sm:text-lg"
+                        >
+                          {t}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+
+                  {imgs.length > 0 && (
+                    <div className={isSingle ? "flex flex-col gap-4 sm:flex-row sm:items-start" : "grid grid-cols-2 gap-4"}>
+                      {imgs.map((img) => {
+                        const captions = img.captions.filter((c) => c.trim().length > 1);
+                        return (
+                          <figure key={img.id} className={isSingle ? "flex flex-1 flex-col gap-3 sm:flex-row sm:items-start" : ""}>
+                            <div className={isSingle ? "sm:w-1/2" : ""}>
+                              {img.url ? (
+                                <img
+                                  src={img.url}
+                                  alt={captions[0] || "Hình minh họa"}
+                                  loading="lazy"
+                                  className="mx-auto w-[70%] rounded-xl object-contain ring-1 ring-border/60"
+                                />
+                              ) : (
+                                <div className="grid aspect-video w-full place-items-center rounded-xl bg-stone-50 text-xs text-muted-foreground ring-1 ring-border/60">
+                                  (Không tải được hình)
+                                </div>
+                              )}
+                            </div>
+
+                            {captions.length > 0 && (
+                              <ul className={isSingle ? "flex flex-1 flex-col gap-2 sm:pl-2" : "mt-2 flex flex-col gap-2"}>
+                                {captions.map((c, ci) => (
+                                  <li key={ci} className="flex items-center gap-2">
+                                    <SpeakButton text={c} />
+                                    <span className="flex-1 whitespace-pre-line font-display text-sm text-navy sm:text-base">
+                                      {c}
+                                    </span>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </figure>
+                        );
+                      })}
+                    </div>
+                  )}
+                </article>
+              );
+            })}
+
+            {section.lessons.length === 0 && (
+              <p className="text-center text-sm text-muted-foreground">Nội dung đang được cập nhật.</p>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="flex-1 px-5 py-10 text-center text-sm text-muted-foreground">
+          Chặng này chưa có nội dung.
+        </div>
+      )}
+
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 px-4 py-3 sm:px-6">
+        <button
+          onClick={onPrevSection}
+          disabled={!canPrev}
+          className="rounded-full bg-white px-4 py-2 text-sm font-bold text-navy shadow-card ring-1 ring-border transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          ← Trước
+        </button>
+
+        {isLastSection && (
+          <button
+            onClick={onComplete}
+            disabled={isCompleted}
+            className={[
+              "flex items-center justify-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-extrabold shadow-card transition",
+              isCompleted ? "cursor-not-allowed bg-green/40 text-navy" : "bg-green text-navy hover:scale-105",
+            ].join(" ")}
+          >
+            <Check className="h-4 w-4" strokeWidth={3} />
+            {isCompleted ? "Đã hoàn thành" : "Hoàn thành chặng"}
+          </button>
+        )}
+
+        <button
+          onClick={onNextSection}
+          disabled={!canNext}
+          className="rounded-full bg-primary px-4 py-2 text-sm font-bold text-white shadow-card transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Tiếp →
         </button>
       </div>
     </div>
