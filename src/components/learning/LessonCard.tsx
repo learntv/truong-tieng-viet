@@ -73,7 +73,7 @@ function HinhBlock({
             }
             className={[
               "mx-auto rounded-xl object-contain ring-1 ring-border/60",
-              stackVertical ? "w-[70%]" : "w-[80%]",
+              !isSingle ? "w-full" : stackVertical ? "w-[70%]" : "w-[80%]",
             ].join(" ")}
           />
         ) : (
@@ -164,6 +164,17 @@ export function LessonCard({
             <h3 className="truncate font-display text-lg font-extrabold text-white sm:text-xl">
               Chặng {changIndex + 1}: {chang.title}
             </h3>
+          </div>
+          <div className="flex shrink-0 items-center gap-1">
+            {noiDungs.map((_, i) => (
+              <div
+                key={i}
+                className={[
+                  "h-1.5 w-3 rounded-full transition",
+                  i <= noiDungIndex ? "bg-white" : "bg-white/30",
+                ].join(" ")}
+              />
+            ))}
           </div>
           <button
             onClick={onClose}
