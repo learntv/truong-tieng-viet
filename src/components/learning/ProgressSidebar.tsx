@@ -1,21 +1,21 @@
 import { BookOpenCheck, ChevronLeft, ChevronRight, Lock, Star } from "lucide-react";
-import type { Topic } from "@/data/topics";
+import type { ChuDe } from "@/data/topics";
 
 export function ProgressSidebar({
-  topics,
-  currentTopicIndex,
+  chuDes,
+  currentChuDeIndex,
   completedCount,
-  totalStages,
+  totalChangs,
   allCurrentDone,
   isLast,
   onAdvance,
   isCollapsed,
   onToggleCollapsed,
 }: {
-  topics: Topic[];
-  currentTopicIndex: number;
+  chuDes: ChuDe[];
+  currentChuDeIndex: number;
   completedCount: number;
-  totalStages: number;
+  totalChangs: number;
   allCurrentDone: boolean;
   isLast: boolean;
   onAdvance: () => void;
@@ -32,7 +32,7 @@ export function ProgressSidebar({
         </button>
         <BookOpenCheck className="h-6 w-6 shrink-0 text-primary" />
         <span className="text-xs font-extrabold text-navy">
-          {currentTopicIndex + 1}/{topics.length}
+          {currentChuDeIndex + 1}/{chuDes.length}
         </span>
       </div>
     );
@@ -44,7 +44,7 @@ export function ProgressSidebar({
         <div>
           <p className="font-display text-base font-extrabold text-navy">Tiến độ chương trình</p>
           <p className="text-xs font-bold text-muted-foreground">
-            {topics.length} chủ đề • {topics.length * totalStages} bài học
+            {chuDes.length} chủ đề • {chuDes.length * totalChangs} bài học
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
@@ -56,10 +56,10 @@ export function ProgressSidebar({
       </div>
 
       <ul className="flex flex-col gap-1.5">
-        {topics.map((t, i) => {
-          const isCurrent = i === currentTopicIndex;
-          const isNext = i === currentTopicIndex + 1 && allCurrentDone;
-          const isLocked = !isCurrent && !isNext && i > currentTopicIndex;
+        {chuDes.map((t, i) => {
+          const isCurrent = i === currentChuDeIndex;
+          const isNext = i === currentChuDeIndex + 1 && allCurrentDone;
+          const isLocked = !isCurrent && !isNext && i > currentChuDeIndex;
           const label = t.title.split(":")[1]?.trim() || t.title;
 
           return (
@@ -72,7 +72,7 @@ export function ProgressSidebar({
               </span>
               {isCurrent ? (
                 <span className="flex shrink-0 items-center gap-1 text-xs font-extrabold text-stone-500">
-                  {completedCount}/{totalStages} chặng
+                  {completedCount}/{totalChangs} chặng
                   <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
                 </span>
               ) : isNext ? (
@@ -100,7 +100,7 @@ export function ProgressSidebar({
         ) : isLast && allCurrentDone ? (
           "Bạn đã hoàn thành toàn bộ lộ trình!"
         ) : (
-          <>Hoàn thành đủ <span className="text-primary">{totalStages} chặng</span> để mở khóa trang tiếp theo nhé!</>
+          <>Hoàn thành đủ <span className="text-primary">{totalChangs} chặng</span> để mở khóa trang tiếp theo nhé!</>
         )}
       </p>
     </div>

@@ -7,7 +7,7 @@ export type Stage = {
   imageEmoji: string;
 };
 
-export type Topic = {
+export type ChuDe = {
   id: string;
   title: string;
   emoji: string;
@@ -70,7 +70,7 @@ export const STAGE_TEMPLATE: Omit<Stage, "id">[] = [
   },
 ];
 
-const TOPIC_META: Omit<Topic, "id">[] = [
+const TOPIC_META: Omit<ChuDe, "id">[] = [
   { title: "Chủ đề 1: Gia đình", emoji: "👨‍👩‍👧", accent: "purple" },
   { title: "Chủ đề 2: Trường học", emoji: "🏫", accent: "primary" },
   { title: "Chủ đề 3: Bạn bè", emoji: "🧑‍🤝‍🧑", accent: "green" },
@@ -81,7 +81,7 @@ const TOPIC_META: Omit<Topic, "id">[] = [
   { title: "Chủ đề 8: Thế giới quanh ta", emoji: "🌏", accent: "purple" },
 ];
 
-export const TOPICS: Topic[] = TOPIC_META.map((t, i) => ({
+export const TOPICS: ChuDe[] = TOPIC_META.map((t, i) => ({
   ...t,
   id: `topic-${i + 1}`,
 }));

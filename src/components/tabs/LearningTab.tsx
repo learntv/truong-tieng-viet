@@ -8,51 +8,51 @@ import { ProgressSidebar } from "@/components/learning/ProgressSidebar";
 export function LearningTab() {
   const { data, isLoading, error } = useQuery(learningDataQueryOptions);
 
-  const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
-  const [currentStageIndex, setCurrentStageIndex] = useState(0);
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
-  const [completedByTopic, setCompletedByTopic] = useState<Record<number, number[]>>({});
+  const [currentChuDeIndex, setCurrentChuDeIndex] = useState(0);
+  const [currentChangIndex, setCurrentChangIndex] = useState(0);
+  const [currentNoiDungIndex, setCurrentNoiDungIndex] = useState(0);
+  const [completedByChuDe, setCompletedByChuDe] = useState<Record<number, number[]>>({});
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [soundOn, setSoundOn] = useState(true);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  const topics = useMemo(() => (data ?? []).map((d) => d.topic), [data]);
-  const topic = topics[currentTopicIndex];
-  const stages = useMemo(
-    () => data?.[currentTopicIndex]?.stages ?? [],
-    [data, currentTopicIndex],
+  const chuDes = useMemo(() => (data ?? []).map((d) => d.chuDe), [data]);
+  const chuDe = chuDes[currentChuDeIndex];
+  const changs = useMemo(
+    () => data?.[currentChuDeIndex]?.changs ?? [],
+    [data, currentChuDeIndex],
   );
-  const stageTitles = useMemo(() => stages.map((s) => s.title), [stages]);
-  const completedSet = useMemo(
-    () => new Set(completedByTopic[currentTopicIndex] ?? []),
-    [completedByTopic, currentTopicIndex],
+  const changTitles = useMemo(() => changs.map((s) => s.title), [changs]);
+  const completedChangs = useMemo(
+    () => new Set(completedByChuDe[currentChuDeIndex] ?? []),
+    [completedByChuDe, currentChuDeIndex],
   );
 
-  const completeStage = () => {
-    setCompletedByTopic((prev) => {
-      const cur = new Set(prev[currentTopicIndex] ?? []);
-      cur.add(currentStageIndex);
-      return { ...prev, [currentTopicIndex]: Array.from(cur) };
+  const completeChang = () => {
+    setCompletedByChuDe((prev) => {
+      const cur = new Set(prev[currentChuDeIndex] ?? []);
+      cur.add(currentChangIndex);
+      return { ...prev, [currentChuDeIndex]: Array.from(cur) };
     });
   };
 
-  const openStage = (i: number) => {
-    setCurrentStageIndex(i);
-    setCurrentSectionIndex(0);
+  const openChang = (i: number) => {
+    setCurrentChangIndex(i);
+    setCurrentNoiDungIndex(0);
     setIsDetailOpen(true);
   };
 
-  const nextTopic = () => {
-    if (currentTopicIndex >= topics.length - 1) return;
-    setCurrentTopicIndex((i) => i + 1);
-    setCurrentStageIndex(0);
-    setCurrentSectionIndex(0);
-    setCompletedByTopic((prev) => ({ ...prev, [currentTopicIndex + 1]: [] }));
+  const nextChuDe = () => {
+    if (currentChuDeIndex >= chuDes.length - 1) return;
+    setCurrentChuDeIndex((i) => i + 1);
+    setCurrentChangIndex(0);
+    setCurrentNoiDungIndex(0);
+    setCompletedByChuDe((prev) => ({ ...prev, [currentChuDeIndex + 1]: [] }));
     setIsDetailOpen(false);
   };
 
-  const allDone = stages.length > 0 && completedSet.size >= stages.length;
-  const isLast = currentTopicIndex >= topics.length - 1;
+  const allDone = changs.length > 0 && completedChangs.size >= changs.length;
+  const isLast = currentChuDeIndex >= chuDes.length - 1;
 
   useEffect(() => {
     if (!isDetailOpen) return;
@@ -71,7 +71,7 @@ export function LearningTab() {
     );
   }
 
-  if (error || !topic || stages.length === 0) {
+  if (error || !chuDe || changs.length === 0) {
     return (
       <section className="w-full px-4 py-16 text-center text-navy">
         <p className="font-display text-lg font-bold">Chưa có dữ liệu bài học.</p>
@@ -82,8 +82,8 @@ export function LearningTab() {
     );
   }
 
-  const currentStage = stages[currentStageIndex];
-  const sectionCount = currentStage?.sections.length ?? 0;
+  const currentChang = changs[currentChangIndex];
+  const noiDungCount = currentChang?.noiDungs.length ?? 0;
 
   return (
     <section className="w-full px-4 py-6 sm:px-6 lg:px-10">
@@ -96,30 +96,30 @@ export function LearningTab() {
       >
         <div className="relative">
           <RoadmapMap
-            topic={topic}
-            topicIndex={currentTopicIndex}
-            stageTitles={stageTitles}
-            currentStageIndex={currentStageIndex}
-            completedStages={completedSet}
-            onSelectStage={openStage}
+            chuDe={chuDe}
+            chuDeIndex={currentChuDeIndex}
+            changTitles={changTitles}
+            currentChangIndex={currentChangIndex}
+            completedChangs={completedChangs}
+            onSelectStage={openChang}
             soundOn={soundOn}
             onToggleSound={() => setSoundOn((s) => !s)}
           />
 
-          {isDetailOpen && currentStage && (
+          {isDetailOpen && currentChang && (
             <div
               className="absolute inset-x-2 top-16 bottom-24 z-30 flex items-center justify-center rounded-3xl bg-navy/40 p-2 backdrop-blur-sm sm:inset-x-8 sm:top-20 sm:bottom-28"
               onClick={() => setIsDetailOpen(false)}
             >
               <div onClick={(e) => e.stopPropagation()} className="h-full w-full">
                 <LessonCard
-                  stage={currentStage}
-                  stageIndex={currentStageIndex}
-                  sectionIndex={currentSectionIndex}
-                  isCompleted={completedSet.has(currentStageIndex)}
-                  onPrevSection={() => setCurrentSectionIndex((i) => Math.max(0, i - 1))}
-                  onNextSection={() => setCurrentSectionIndex((i) => Math.min(sectionCount - 1, i + 1))}
-                  onComplete={completeStage}
+                  chang={currentChang}
+                  changIndex={currentChangIndex}
+                  noiDungIndex={currentNoiDungIndex}
+                  isCompleted={completedChangs.has(currentChangIndex)}
+                  onPrevNoiDung={() => setCurrentNoiDungIndex((i) => Math.max(0, i - 1))}
+                  onNextNoiDung={() => setCurrentNoiDungIndex((i) => Math.min(noiDungCount - 1, i + 1))}
+                  onComplete={completeChang}
                   onClose={() => setIsDetailOpen(false)}
                 />
               </div>
@@ -128,13 +128,13 @@ export function LearningTab() {
         </div>
 
         <ProgressSidebar
-          topics={topics}
-          currentTopicIndex={currentTopicIndex}
-          completedCount={completedSet.size}
-          totalStages={stages.length}
+          chuDes={chuDes}
+          currentChuDeIndex={currentChuDeIndex}
+          completedCount={completedChangs.size}
+          totalChangs={changs.length}
           allCurrentDone={allDone}
           isLast={isLast}
-          onAdvance={nextTopic}
+          onAdvance={nextChuDe}
           isCollapsed={isSidebarCollapsed}
           onToggleCollapsed={() => setIsSidebarCollapsed((c) => !c)}
         />

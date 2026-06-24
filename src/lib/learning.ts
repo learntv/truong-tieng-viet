@@ -1,10 +1,10 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { Topic } from "@/data/topics";
+import type { ChuDe } from "@/data/topics";
 
 const STAGE_EMOJIS = ["👋", "📚", "💬", "📖", "✏️"];
 const TOPIC_EMOJIS = ["👨‍👩‍👧", "🏫", "🧑‍🤝‍🧑", "🧸", "🌳", "🏞️", "👩‍⚕️", "🌏"];
-const ACCENTS: Topic["accent"][] = ["purple", "primary", "green", "yellow", "pink"];
+const ACCENTS: ChuDe["accent"][] = ["purple", "primary", "green", "yellow", "pink"];
 const SIGNED_URL_TTL = 60 * 60;
 
 function firstText(text: unknown): string {
@@ -25,21 +25,21 @@ function titleCase(s: string): string {
     .replace(/(^|\s)\p{L}/gu, (m) => m.toLocaleUpperCase("vi"));
 }
 
-export type LessonImage = { id: string; captions: string[]; url: string };
-export type Lesson = { id: string; texts: string[]; images: LessonImage[] };
-export type Section = { id: string; title: string; lessons: Lesson[] };
-export type LearningStage = {
+export type Hinh = { id: string; captions: string[]; url: string };
+export type Bai = { id: string; texts: string[]; hinhs: Hinh[] };
+export type NoiDung = { id: string; title: string; bais: Bai[] };
+export type Chang = {
   id: string;
   title: string;
   emoji: string;
-  sections: Section[];
+  noiDungs: NoiDung[];
 };
-export type TopicWithStages = {
-  topic: Topic;
-  stages: LearningStage[];
+export type ChuDeWithChangs = {
+  chuDe: ChuDe;
+  changs: Chang[];
 };
 
-async function fetchLearningData(): Promise<TopicWithStages[]> {
+async function fetchLearningData(): Promise<ChuDeWithChangs[]> {
   const [chudeRes, changRes, ndRes, baiRes, hinhRes] = await Promise.all([
     supabase.from("chude").select("id, position, text").order("position", { ascending: true }),
     supabase.from("chang").select("id, position, text, chude_id").order("position", { ascending: true }),
@@ -77,7 +77,7 @@ async function fetchLearningData(): Promise<TopicWithStages[]> {
     }),
   );
 
-  const hinhByBai = new Map<string, LessonImage[]>();
+  const hinhByBai = new Map<string, Hinh[]>();
   for (const h of hinh) {
     const url = urlByKey.get(`${h.storage_bucket}/${h.storage_path}`) ?? "";
     const arr = hinhByBai.get(h.bai_id) ?? [];
@@ -85,24 +85,24 @@ async function fetchLearningData(): Promise<TopicWithStages[]> {
     hinhByBai.set(h.bai_id, arr);
   }
 
-  const baiByNd = new Map<string, Lesson[]>();
+  const baiByNd = new Map<string, Bai[]>();
   for (const b of bai) {
     const arr = baiByNd.get(b.noidung_id) ?? [];
     arr.push({
       id: b.id,
       texts: allTexts(b.text),
-      images: hinhByBai.get(b.id) ?? [],
+      hinhs: hinhByBai.get(b.id) ?? [],
     });
     baiByNd.set(b.noidung_id, arr);
   }
 
-  const ndByChang = new Map<string, Section[]>();
+  const ndByChang = new Map<string, NoiDung[]>();
   for (const n of noidung) {
     const arr = ndByChang.get(n.chang_id) ?? [];
     arr.push({
       id: n.id,
       title: firstText(n.text),
-      lessons: baiByNd.get(n.id) ?? [],
+      bais: baiByNd.get(n.id) ?? [],
     });
     ndByChang.set(n.chang_id, arr);
   }
@@ -115,22 +115,22 @@ async function fetchLearningData(): Promise<TopicWithStages[]> {
   }
 
   return chude.map((cd, ti) => {
-    const topicTitle = titleCase(firstText(cd.text));
-    const topic: Topic = {
+    const chuDeTitle = titleCase(firstText(cd.text));
+    const chuDe: ChuDe = {
       id: cd.id,
-      title: `Chủ đề ${ti + 1}: ${topicTitle}`,
+      title: `Chủ đề ${ti + 1}: ${chuDeTitle}`,
       emoji: TOPIC_EMOJIS[ti % TOPIC_EMOJIS.length],
       accent: ACCENTS[ti % ACCENTS.length],
     };
 
-    const stages: LearningStage[] = (changByChude.get(cd.id) ?? []).map((ch, si) => ({
+    const changs: Chang[] = (changByChude.get(cd.id) ?? []).map((ch, si) => ({
       id: ch.id,
       title: titleCase(firstText(ch.text)),
       emoji: STAGE_EMOJIS[si % STAGE_EMOJIS.length],
-      sections: ndByChang.get(ch.id) ?? [],
+      noiDungs: ndByChang.get(ch.id) ?? [],
     }));
 
-    return { topic, stages };
+    return { chuDe, changs };
   });
 }
 

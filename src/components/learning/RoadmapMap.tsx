@@ -1,5 +1,5 @@
 import { Heart, Gift, Sparkles, Star, Volume2 } from "lucide-react";
-import type { Topic } from "@/data/topics";
+import type { ChuDe } from "@/data/topics";
 import { BuffaloMascot } from "./BuffaloMascot";
 import { StageNode } from "./StageNode";
 import halongScene from "@/assets/halong-scene.jpg";
@@ -19,25 +19,25 @@ const TIPS = [
 ];
 
 export function RoadmapMap({
-  topic,
-  topicIndex,
-  stageTitles,
-  currentStageIndex,
-  completedStages,
+  chuDe,
+  chuDeIndex,
+  changTitles,
+  currentChangIndex,
+  completedChangs,
   onSelectStage,
   soundOn,
   onToggleSound,
 }: {
-  topic: Topic;
-  topicIndex: number;
-  stageTitles: string[];
-  currentStageIndex: number;
-  completedStages: Set<number>;
+  chuDe: ChuDe;
+  chuDeIndex: number;
+  changTitles: string[];
+  currentChangIndex: number;
+  completedChangs: Set<number>;
   onSelectStage: (i: number) => void;
   soundOn: boolean;
   onToggleSound: () => void;
 }) {
-  const bookNumber = topicIndex < 4 ? 1 : 2;
+  const bookNumber = chuDeIndex < 4 ? 1 : 2;
 
   const pathD = NODE_POSITIONS.reduce((acc, p, i, arr) => {
     if (i === 0) return `M ${p.x} ${p.y}`;
@@ -76,7 +76,7 @@ export function RoadmapMap({
           <div className="relative rounded-2xl bg-gradient-to-b from-[oklch(0.88_0.15_80)] to-[oklch(0.75_0.18_55)] px-6 py-2 text-center shadow-card sm:px-10 sm:py-2.5">
             <div className="absolute inset-0 rounded-2xl ring-2 ring-white/60 ring-inset" />
             <h2 className="relative font-display text-lg font-extrabold text-white drop-shadow-[0_2px_2px_rgba(120,60,0,0.5)] sm:text-2xl">
-              {topic.title}
+              {chuDe.title}
             </h2>
           </div>
           <div className="absolute -left-3 top-1/2 h-6 w-6 -translate-y-1/2 rotate-45 bg-[oklch(0.6_0.18_45)] opacity-70" />
@@ -86,7 +86,7 @@ export function RoadmapMap({
 
       <div className="relative z-20 mx-auto mt-3 flex w-fit items-center gap-1.5 rounded-full bg-white/95 px-4 py-1.5 text-sm font-extrabold text-navy shadow-card backdrop-blur">
         <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-        {completedStages.size} chặng / {NODE_POSITIONS.length} chặng
+        {completedChangs.size} chặng / {NODE_POSITIONS.length} chặng
       </div>
 
       <div className="relative mt-4 h-[340px] w-full sm:h-[380px]">
@@ -100,16 +100,16 @@ export function RoadmapMap({
             index={i}
             xPercent={p.x}
             yPercent={p.y}
-            title={stageTitles[i]}
-            isCurrent={i === currentStageIndex}
-            isCompleted={completedStages.has(i)}
+            title={changTitles[i]}
+            isCurrent={i === currentChangIndex}
+            isCompleted={completedChangs.has(i)}
             onClick={() => onSelectStage(i)}
           />
         ))}
 
         <BuffaloMascot
-          xPercent={Math.max(6, (NODE_POSITIONS[currentStageIndex]?.x ?? 10) - 6)}
-          yPercent={NODE_POSITIONS[currentStageIndex]?.y ?? 58}
+          xPercent={Math.max(6, (NODE_POSITIONS[currentChangIndex]?.x ?? 10) - 6)}
+          yPercent={NODE_POSITIONS[currentChangIndex]?.y ?? 58}
         />
       </div>
 

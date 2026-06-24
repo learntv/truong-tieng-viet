@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Star, Volume2, X } from "lucide-react";
-import type { LearningStage } from "@/lib/learning";
+import type { Chang } from "@/lib/learning";
 
 function speak(text: string, onEnd?: () => void) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
@@ -34,29 +34,29 @@ function SpeakButton({ text }: { text: string }) {
 }
 
 export function LessonCard({
-  stage,
-  stageIndex,
-  sectionIndex,
+  chang,
+  changIndex,
+  noiDungIndex,
   isCompleted,
-  onPrevSection,
-  onNextSection,
+  onPrevNoiDung,
+  onNextNoiDung,
   onComplete,
   onClose,
 }: {
-  stage: LearningStage;
-  stageIndex: number;
-  sectionIndex: number;
+  chang: Chang;
+  changIndex: number;
+  noiDungIndex: number;
   isCompleted: boolean;
-  onPrevSection: () => void;
-  onNextSection: () => void;
+  onPrevNoiDung: () => void;
+  onNextNoiDung: () => void;
   onComplete: () => void;
   onClose: () => void;
 }) {
-  const sections = stage.sections;
-  const section = sections[sectionIndex];
-  const canPrev = sectionIndex > 0;
-  const canNext = sectionIndex < sections.length - 1;
-  const isLastSection = sectionIndex === sections.length - 1;
+  const noiDungs = chang.noiDungs;
+  const noiDung = noiDungs[noiDungIndex];
+  const canPrev = noiDungIndex > 0;
+  const canNext = noiDungIndex < noiDungs.length - 1;
+  const isLastNoiDung = noiDungIndex === noiDungs.length - 1;
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -66,7 +66,7 @@ export function LessonCard({
         window.speechSynthesis.cancel();
       }
     };
-  }, [sectionIndex, stageIndex]);
+  }, [noiDungIndex, changIndex]);
 
   return (
     <div className="flex max-h-full w-full flex-col overflow-hidden rounded-3xl bg-white shadow-soft">
@@ -74,7 +74,7 @@ export function LessonCard({
         <div className="flex min-w-0 items-center gap-2">
           <Star className="h-5 w-5 shrink-0 fill-yellow-400 text-yellow-400" />
           <h3 className="truncate font-display text-lg font-extrabold text-navy sm:text-xl">
-            Chặng {stageIndex + 1}: {stage.title}
+            Chặng {changIndex + 1}: {chang.title}
           </h3>
         </div>
         <button
@@ -86,28 +86,28 @@ export function LessonCard({
         </button>
       </div>
 
-      {section ? (
+      {noiDung ? (
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-6 sm:px-8 sm:py-8">
-          {section.title && (
+          {noiDung.title && (
             <div className="mb-6 rounded-2xl bg-primary px-5 py-4 text-center shadow-card">
               <p className="font-display text-xl font-extrabold text-white sm:text-2xl">
-                {section.title}
+                {noiDung.title}
               </p>
             </div>
           )}
 
           <div className="flex flex-col gap-6 divide-y divide-border/60">
-            {section.lessons.map((lesson, li) => {
-              const imgs = lesson.images;
-              const isSingle = imgs.length === 1;
+            {noiDung.bais.map((bai, li) => {
+              const hinhs = bai.hinhs;
+              const isSingle = hinhs.length === 1;
               return (
-                <article key={lesson.id} className={li > 0 ? "pt-6" : ""}>
+                <article key={bai.id} className={li > 0 ? "pt-6" : ""}>
                   <div className="mb-4 flex items-start gap-3">
                     <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary font-display text-sm font-extrabold text-white">
                       {li + 1}
                     </span>
                     <div className="flex-1 space-y-1.5">
-                      {lesson.texts.map((t, i) => (
+                      {bai.texts.map((t, i) => (
                         <p
                           key={i}
                           className="whitespace-pre-line font-display text-base font-bold text-navy sm:text-lg"
@@ -118,16 +118,16 @@ export function LessonCard({
                     </div>
                   </div>
 
-                  {imgs.length > 0 && (
+                  {hinhs.length > 0 && (
                     <div className={isSingle ? "flex flex-col gap-4 sm:flex-row sm:items-start" : "grid grid-cols-2 gap-4"}>
-                      {imgs.map((img) => {
-                        const captions = img.captions.filter((c) => c.trim().length > 1);
+                      {hinhs.map((hinh) => {
+                        const captions = hinh.captions.filter((c) => c.trim().length > 1);
                         return (
-                          <figure key={img.id} className={isSingle ? "flex flex-1 flex-col gap-3 sm:flex-row sm:items-start" : ""}>
+                          <figure key={hinh.id} className={isSingle ? "flex flex-1 flex-col gap-3 sm:flex-row sm:items-start" : ""}>
                             <div className={isSingle ? "sm:w-1/2" : ""}>
-                              {img.url ? (
+                              {hinh.url ? (
                                 <img
-                                  src={img.url}
+                                  src={hinh.url}
                                   alt={captions[0] || "Hình minh họa"}
                                   loading="lazy"
                                   className="mx-auto w-[70%] rounded-xl object-contain ring-1 ring-border/60"
@@ -160,7 +160,7 @@ export function LessonCard({
               );
             })}
 
-            {section.lessons.length === 0 && (
+            {noiDung.bais.length === 0 && (
               <p className="text-center text-sm text-muted-foreground">Nội dung đang được cập nhật.</p>
             )}
           </div>
@@ -173,14 +173,14 @@ export function LessonCard({
 
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 px-4 py-3 sm:px-6">
         <button
-          onClick={onPrevSection}
+          onClick={onPrevNoiDung}
           disabled={!canPrev}
           className="rounded-full bg-white px-4 py-2 text-sm font-bold text-navy shadow-card ring-1 ring-border transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
         >
           ← Trước
         </button>
 
-        {isLastSection && (
+        {isLastNoiDung && (
           <button
             onClick={onComplete}
             disabled={isCompleted}
@@ -195,7 +195,7 @@ export function LessonCard({
         )}
 
         <button
-          onClick={onNextSection}
+          onClick={onNextNoiDung}
           disabled={!canNext}
           className="rounded-full bg-primary px-4 py-2 text-sm font-bold text-white shadow-card transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
         >
