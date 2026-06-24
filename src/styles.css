@@ -97,6 +97,7 @@
   --shadow-card: 0 8px 24px -8px oklch(0.22 0.05 30 / 0.10);
   --shadow-glow-primary: 0 0 0 6px oklch(0.65 0.18 22 / 0.25), 0 12px 32px -8px oklch(0.52 0.22 22 / 0.35);
   --shadow-glow-yellow: 0 0 0 6px oklch(0.87 0.16 75 / 0.4), 0 12px 32px -8px oklch(0.72 0.18 60 / 0.35);
+  --shadow-glow-green: 0 0 0 6px oklch(0.72 0.17 150 / 0.35), 0 14px 36px -8px oklch(0.6 0.18 150 / 0.5);
 }
 
 @layer base {
@@ -148,6 +149,9 @@
 @utility shadow-glow-yellow {
   box-shadow: var(--shadow-glow-yellow);
 }
+@utility shadow-glow-green {
+  box-shadow: var(--shadow-glow-green);
+}
 
 @keyframes bob {
   0%, 100% { transform: translateY(0); }
@@ -163,4 +167,12 @@
 }
 @utility animate-float-slow {
   animation: float-slow 6s ease-in-out infinite;
+}
+
+@keyframes shine {
+  0% { transform: translateX(-150%) skewX(-20deg); }
+  100% { transform: translateX(150%) skewX(-20deg); }
+}
+@utility animate-shine {
+  animation: shine 2.2s ease-in-out infinite;
 }

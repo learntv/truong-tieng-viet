@@ -18,10 +18,7 @@ export function LearningTab() {
 
   const chuDes = useMemo(() => (data ?? []).map((d) => d.chuDe), [data]);
   const chuDe = chuDes[currentChuDeIndex];
-  const changs = useMemo(
-    () => data?.[currentChuDeIndex]?.changs ?? [],
-    [data, currentChuDeIndex],
-  );
+  const changs = useMemo(() => data?.[currentChuDeIndex]?.changs ?? [], [data, currentChuDeIndex]);
   const changTitles = useMemo(() => changs.map((s) => s.title), [changs]);
   const completedChangs = useMemo(
     () => new Set(completedByChuDe[currentChuDeIndex] ?? []),
@@ -86,15 +83,15 @@ export function LearningTab() {
   const noiDungCount = currentChang?.noiDungs.length ?? 0;
 
   return (
-    <section className="w-full px-4 py-6 sm:px-6 lg:px-10">
+    <section className="h-full w-full px-4 py-3 sm:px-6 sm:py-4 lg:px-10">
       <div
         id="roadmap-start"
         className={[
-          "mx-auto grid max-w-7xl grid-cols-1 gap-6 transition-[grid-template-columns]",
+          "mx-auto grid h-full max-w-7xl grid-cols-1 gap-4 transition-[grid-template-columns] lg:gap-6",
           isSidebarCollapsed ? "lg:grid-cols-[1fr_72px]" : "lg:grid-cols-[1fr_320px]",
         ].join(" ")}
       >
-        <div className="relative">
+        <div className="relative h-full min-h-0">
           <RoadmapMap
             chuDe={chuDe}
             chuDeIndex={currentChuDeIndex}
@@ -105,40 +102,45 @@ export function LearningTab() {
             soundOn={soundOn}
             onToggleSound={() => setSoundOn((s) => !s)}
           />
-
-          {isDetailOpen && currentChang && (
-            <div
-              className="absolute inset-x-2 top-16 bottom-24 z-30 flex items-center justify-center rounded-3xl bg-navy/40 p-2 backdrop-blur-sm sm:inset-x-8 sm:top-20 sm:bottom-28"
-              onClick={() => setIsDetailOpen(false)}
-            >
-              <div onClick={(e) => e.stopPropagation()} className="h-full w-full">
-                <LessonCard
-                  chang={currentChang}
-                  changIndex={currentChangIndex}
-                  noiDungIndex={currentNoiDungIndex}
-                  isCompleted={completedChangs.has(currentChangIndex)}
-                  onPrevNoiDung={() => setCurrentNoiDungIndex((i) => Math.max(0, i - 1))}
-                  onNextNoiDung={() => setCurrentNoiDungIndex((i) => Math.min(noiDungCount - 1, i + 1))}
-                  onComplete={completeChang}
-                  onClose={() => setIsDetailOpen(false)}
-                />
-              </div>
-            </div>
-          )}
         </div>
 
-        <ProgressSidebar
-          chuDes={chuDes}
-          currentChuDeIndex={currentChuDeIndex}
-          completedCount={completedChangs.size}
-          totalChangs={changs.length}
-          allCurrentDone={allDone}
-          isLast={isLast}
-          onAdvance={nextChuDe}
-          isCollapsed={isSidebarCollapsed}
-          onToggleCollapsed={() => setIsSidebarCollapsed((c) => !c)}
-        />
+        <div className="relative lg:z-50">
+          <ProgressSidebar
+            chuDes={chuDes}
+            currentChuDeIndex={currentChuDeIndex}
+            completedCount={completedChangs.size}
+            totalChangs={changs.length}
+            allCurrentDone={allDone}
+            isLast={isLast}
+            onAdvance={nextChuDe}
+            isCollapsed={isSidebarCollapsed}
+            onToggleCollapsed={() => setIsSidebarCollapsed((c) => !c)}
+          />
+        </div>
       </div>
+
+      {isDetailOpen && currentChang && (
+        <div
+          className={[
+            "fixed inset-0 z-40 flex items-center justify-center bg-navy/40 p-2 backdrop-blur-sm transition-[padding] sm:p-4",
+            isSidebarCollapsed ? "lg:pr-[104px]" : "lg:pr-[352px]",
+          ].join(" ")}
+          onClick={() => setIsDetailOpen(false)}
+        >
+          <div onClick={(e) => e.stopPropagation()} className="h-[95vh] w-full max-w-3xl">
+            <LessonCard
+              chang={currentChang}
+              changIndex={currentChangIndex}
+              noiDungIndex={currentNoiDungIndex}
+              isCompleted={completedChangs.has(currentChangIndex)}
+              onPrevNoiDung={() => setCurrentNoiDungIndex((i) => Math.max(0, i - 1))}
+              onNextNoiDung={() => setCurrentNoiDungIndex((i) => Math.min(noiDungCount - 1, i + 1))}
+              onComplete={completeChang}
+              onClose={() => setIsDetailOpen(false)}
+            />
+          </div>
+        </div>
+      )}
     </section>
   );
 }

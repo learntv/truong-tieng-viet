@@ -1,11 +1,46 @@
 import { Check, Star } from "lucide-react";
 
-const STAGE_COLORS = [
-  { ring: "ring-green-400", bg: "bg-green-500", border: "border-green-400", text: "text-green-700" },
-  { ring: "ring-sky-400", bg: "bg-sky-500", border: "border-sky-400", text: "text-sky-700" },
-  { ring: "ring-purple-400", bg: "bg-purple-500", border: "border-purple-400", text: "text-purple-700" },
-  { ring: "ring-amber-400", bg: "bg-amber-500", border: "border-amber-400", text: "text-amber-700" },
-  { ring: "ring-pink-400", bg: "bg-pink-500", border: "border-pink-400", text: "text-pink-700" },
+export const STAGE_COLORS = [
+  {
+    ring: "ring-green-400",
+    bg: "bg-green-500",
+    bgSoft: "bg-green-50",
+    gradient: "bg-gradient-to-br from-green-400 to-green-600",
+    border: "border-green-400",
+    text: "text-green-700",
+  },
+  {
+    ring: "ring-sky-400",
+    bg: "bg-sky-500",
+    bgSoft: "bg-sky-50",
+    gradient: "bg-gradient-to-br from-sky-400 to-sky-600",
+    border: "border-sky-400",
+    text: "text-sky-700",
+  },
+  {
+    ring: "ring-purple-400",
+    bg: "bg-purple-500",
+    bgSoft: "bg-purple-50",
+    gradient: "bg-gradient-to-br from-purple-400 to-purple-600",
+    border: "border-purple-400",
+    text: "text-purple-700",
+  },
+  {
+    ring: "ring-amber-400",
+    bg: "bg-amber-500",
+    bgSoft: "bg-amber-50",
+    gradient: "bg-gradient-to-br from-amber-400 to-amber-600",
+    border: "border-amber-400",
+    text: "text-amber-700",
+  },
+  {
+    ring: "ring-pink-400",
+    bg: "bg-pink-500",
+    bgSoft: "bg-pink-50",
+    gradient: "bg-gradient-to-br from-pink-400 to-pink-600",
+    border: "border-pink-400",
+    text: "text-pink-700",
+  },
 ];
 
 export function StageNode({
@@ -37,7 +72,11 @@ export function StageNode({
     >
       <div className="flex flex-col items-center gap-2">
         <div
-          className={["grid place-items-center rounded-full text-white shadow-card ring-4 ring-white", color.bg, isCurrent ? "ring-offset-2 ring-offset-white/0" : ""].join(" ")}
+          className={[
+            "grid place-items-center rounded-full text-white shadow-card ring-4 ring-white",
+            color.bg,
+            isCurrent ? "ring-offset-2 ring-offset-white/0" : "",
+          ].join(" ")}
           style={{ width: size, height: size }}
         >
           {isCompleted ? (
@@ -47,14 +86,26 @@ export function StageNode({
           )}
         </div>
 
-        <div className={["flex flex-col items-center gap-1 rounded-xl border-2 bg-white/95 px-3 py-1.5 text-center shadow-card backdrop-blur", color.border].join(" ")}>
-          <span className={["font-display text-xs font-extrabold leading-tight", color.text].join(" ")}>
+        <div
+          className={[
+            "flex flex-col items-center gap-1 rounded-xl border-2 bg-white/95 px-3 py-1.5 text-center shadow-card backdrop-blur",
+            color.border,
+          ].join(" ")}
+        >
+          <span
+            className={["font-display text-xs font-extrabold leading-tight", color.text].join(" ")}
+          >
             Chặng {index + 1}
           </span>
           <span className="text-[11px] font-bold leading-tight text-stone-700">{title}</span>
           <div className="flex items-center gap-0.5">
             {Array.from({ length: 3 }).map((_, i) => (
-              <Star key={i} className={isCompleted ? "h-3 w-3 fill-yellow-400 text-yellow-400" : "h-3 w-3 text-stone-300"} />
+              <Star
+                key={i}
+                className={
+                  isCompleted ? "h-3 w-3 fill-yellow-400 text-yellow-400" : "h-3 w-3 text-stone-300"
+                }
+              />
             ))}
           </div>
         </div>
