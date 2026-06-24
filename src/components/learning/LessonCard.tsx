@@ -93,65 +93,70 @@ export function LessonCard({
             </p>
           )}
 
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-6 divide-y divide-border/60">
             {section.lessons.map((lesson, li) => {
               const imgs = lesson.images;
               const isSingle = imgs.length === 1;
-              const gridCols = imgs.length >= 2 ? "grid-cols-2" : "grid-cols-1";
               return (
-                <article
-                  key={lesson.id}
-                  className="rounded-2xl border-2 border-border/70 bg-white p-4 shadow-card sm:p-5"
-                >
+                <article key={lesson.id} className={li > 0 ? "pt-6" : ""}>
                   {lesson.texts.length > 0 && (
-                    <div className="mb-4 flex items-start gap-3">
-                      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-xs font-extrabold text-white">
-                        {li + 1}
-                      </span>
-                      <div className="flex-1 space-y-2">
-                        {lesson.texts.map((t, i) => (
-                          <p
-                            key={i}
-                            className="whitespace-pre-line font-display text-base font-bold text-navy sm:text-lg"
-                          >
-                            {t}
-                          </p>
-                        ))}
-                      </div>
+                    <div className="mb-4 space-y-1.5">
+                      {lesson.texts.map((t, i) => (
+                        <p
+                          key={i}
+                          className="whitespace-pre-line font-display text-base font-bold text-navy sm:text-lg"
+                        >
+                          {t}
+                        </p>
+                      ))}
                     </div>
                   )}
 
                   {imgs.length > 0 && (
-                    <div className={`mt-3 grid gap-3 ${gridCols} ${isSingle ? "mx-auto w-[70%]" : ""}`}>
-                      {imgs.map((img) => (
-                        <figure key={img.id} className="overflow-hidden rounded-xl bg-stone-50 ring-1 ring-border/60">
-                          {img.url ? (
-                            <img
-                              src={img.url}
-                              alt={img.caption || "Hình minh họa"}
-                              loading="lazy"
-                              className="h-auto w-full object-contain"
-                            />
-                          ) : (
-                            <div className="grid aspect-video place-items-center text-xs text-muted-foreground">
-                              (Không tải được hình)
+                    <div className={isSingle ? "flex flex-col gap-4 sm:flex-row sm:items-start" : "grid grid-cols-2 gap-4"}>
+                      {imgs.map((img) => {
+                        const captions = img.captions.filter((c) => c.trim().length > 1);
+                        return (
+                          <figure key={img.id} className={isSingle ? "flex flex-1 flex-col gap-3 sm:flex-row sm:items-start" : ""}>
+                            <div className={isSingle ? "sm:w-1/2" : ""}>
+                              {img.url ? (
+                                <img
+                                  src={img.url}
+                                  alt={captions[0] || "Hình minh họa"}
+                                  loading="lazy"
+                                  className="h-auto w-full rounded-xl object-contain ring-1 ring-border/60"
+                                />
+                              ) : (
+                                <div className="grid aspect-video w-full place-items-center rounded-xl bg-stone-50 text-xs text-muted-foreground ring-1 ring-border/60">
+                                  (Không tải được hình)
+                                </div>
+                              )}
                             </div>
-                          )}
-                          {img.caption && (
-                            <figcaption className="flex items-center gap-2 px-3 py-2">
-                              <SpeakButton text={img.caption} />
-                              <span className="flex-1 whitespace-pre-line text-center font-display text-lg font-extrabold text-navy">
-                                {img.caption}
-                              </span>
-                            </figcaption>
-                          )}
-                        </figure>
-                      ))}
+
+                            {captions.length > 0 && (
+                              <figcaption className={isSingle ? "flex flex-1 flex-col gap-2 sm:pl-2" : "mt-2 flex flex-col gap-2"}>
+                                {captions.map((c, ci) => (
+                                  <div
+                                    key={ci}
+                                    className="flex items-center gap-3 rounded-xl bg-yellow-50/70 px-3 py-2 ring-1 ring-border/60"
+                                  >
+                                    <SpeakButton text={c} />
+                                    <span className="flex-1 whitespace-pre-line font-display text-lg font-extrabold text-navy sm:text-xl">
+                                      {c}
+                                    </span>
+                                  </div>
+                                ))}
+                              </figcaption>
+                            )}
+                          </figure>
+                        );
+                      })}
                     </div>
                   )}
                 </article>
               );
             })}
+
 
             {section.lessons.length === 0 && (
               <p className="text-center text-sm text-muted-foreground">Nội dung đang được cập nhật.</p>
