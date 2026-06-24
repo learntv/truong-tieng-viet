@@ -1,13 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { learningDataQueryOptions } from "@/lib/learning";
+import { TOPICS, getStagesForTopic } from "@/data/topics";
 import { RoadmapMap } from "@/components/learning/RoadmapMap";
 import { LessonCard } from "@/components/learning/LessonCard";
 import { ProgressSidebar } from "@/components/learning/ProgressSidebar";
 
 export function LearningTab() {
-  const { data, isLoading, error } = useQuery(learningDataQueryOptions);
-
   const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
   const [completedByTopic, setCompletedByTopic] = useState<Record<number, number[]>>({});
@@ -15,12 +12,8 @@ export function LearningTab() {
   const [soundOn, setSoundOn] = useState(true);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  const topics = useMemo(() => (data ?? []).map((d) => d.topic), [data]);
-  const topic = topics[currentTopicIndex];
-  const stages = useMemo(
-    () => data?.[currentTopicIndex]?.stages ?? [],
-    [data, currentTopicIndex],
-  );
+  const topic = TOPICS[currentTopicIndex];
+  const stages = useMemo(() => getStagesForTopic(currentTopicIndex), [currentTopicIndex]);
   const stageTitles = useMemo(() => stages.map((s) => s.title), [stages]);
   const completedSet = useMemo(
     () => new Set(completedByTopic[currentTopicIndex] ?? []),
@@ -36,15 +29,15 @@ export function LearningTab() {
   };
 
   const nextTopic = () => {
-    if (currentTopicIndex >= topics.length - 1) return;
+    if (currentTopicIndex >= TOPICS.length - 1) return;
     setCurrentTopicIndex((i) => i + 1);
     setCurrentStageIndex(0);
     setCompletedByTopic((prev) => ({ ...prev, [currentTopicIndex + 1]: [] }));
     setIsDetailOpen(false);
   };
 
-  const allDone = stages.length > 0 && completedSet.size >= stages.length;
-  const isLast = currentTopicIndex >= topics.length - 1;
+  const allDone = completedSet.size >= stages.length;
+  const isLast = currentTopicIndex >= TOPICS.length - 1;
 
   useEffect(() => {
     if (!isDetailOpen) return;
@@ -54,25 +47,6 @@ export function LearningTab() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [isDetailOpen]);
-
-  if (isLoading) {
-    return (
-      <section className="w-full px-4 py-16 text-center text-navy">
-        <p className="font-display text-lg font-bold">Đang tải bài học…</p>
-      </section>
-    );
-  }
-
-  if (error || !topic || stages.length === 0) {
-    return (
-      <section className="w-full px-4 py-16 text-center text-navy">
-        <p className="font-display text-lg font-bold">Chưa có dữ liệu bài học.</p>
-        {error ? (
-          <p className="mt-2 text-sm text-muted-foreground">{(error as Error).message}</p>
-        ) : null}
-      </section>
-    );
-  }
 
   return (
     <section className="w-full px-4 py-6 sm:px-6 lg:px-10">
@@ -120,7 +94,7 @@ export function LearningTab() {
         </div>
 
         <ProgressSidebar
-          topics={topics}
+          topics={TOPICS}
           currentTopicIndex={currentTopicIndex}
           completedCount={completedSet.size}
           totalStages={stages.length}
