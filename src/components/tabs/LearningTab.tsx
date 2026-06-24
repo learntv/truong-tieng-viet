@@ -10,6 +10,7 @@ export function LearningTab() {
 
   const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [completedByTopic, setCompletedByTopic] = useState<Record<number, number[]>>({});
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [soundOn, setSoundOn] = useState(true);
@@ -35,10 +36,17 @@ export function LearningTab() {
     });
   };
 
+  const openStage = (i: number) => {
+    setCurrentStageIndex(i);
+    setCurrentSectionIndex(0);
+    setIsDetailOpen(true);
+  };
+
   const nextTopic = () => {
     if (currentTopicIndex >= topics.length - 1) return;
     setCurrentTopicIndex((i) => i + 1);
     setCurrentStageIndex(0);
+    setCurrentSectionIndex(0);
     setCompletedByTopic((prev) => ({ ...prev, [currentTopicIndex + 1]: [] }));
     setIsDetailOpen(false);
   };
@@ -74,6 +82,9 @@ export function LearningTab() {
     );
   }
 
+  const currentStage = stages[currentStageIndex];
+  const sectionCount = currentStage?.sections.length ?? 0;
+
   return (
     <section className="w-full px-4 py-6 sm:px-6 lg:px-10">
       <div
@@ -90,27 +101,24 @@ export function LearningTab() {
             stageTitles={stageTitles}
             currentStageIndex={currentStageIndex}
             completedStages={completedSet}
-            onSelectStage={(i) => {
-              setCurrentStageIndex(i);
-              setIsDetailOpen(true);
-            }}
+            onSelectStage={openStage}
             soundOn={soundOn}
             onToggleSound={() => setSoundOn((s) => !s)}
           />
 
-          {isDetailOpen && (
+          {isDetailOpen && currentStage && (
             <div
               className="absolute inset-x-2 top-16 bottom-24 z-30 flex items-center justify-center rounded-3xl bg-navy/40 p-2 backdrop-blur-sm sm:inset-x-8 sm:top-20 sm:bottom-28"
               onClick={() => setIsDetailOpen(false)}
             >
               <div onClick={(e) => e.stopPropagation()} className="h-full w-full">
                 <LessonCard
-                  stage={stages[currentStageIndex]}
+                  stage={currentStage}
                   stageIndex={currentStageIndex}
-                  totalStages={stages.length}
+                  sectionIndex={currentSectionIndex}
                   isCompleted={completedSet.has(currentStageIndex)}
-                  onPrev={() => setCurrentStageIndex((i) => Math.max(0, i - 1))}
-                  onNext={() => setCurrentStageIndex((i) => Math.min(stages.length - 1, i + 1))}
+                  onPrevSection={() => setCurrentSectionIndex((i) => Math.max(0, i - 1))}
+                  onNextSection={() => setCurrentSectionIndex((i) => Math.min(sectionCount - 1, i + 1))}
                   onComplete={completeStage}
                   onClose={() => setIsDetailOpen(false)}
                 />
