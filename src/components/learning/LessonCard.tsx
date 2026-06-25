@@ -62,7 +62,7 @@ function HinhBlock({
           : "flex flex-1 flex-col gap-3 sm:flex-row sm:items-start"
       }
     >
-      <div className={stackVertical ? "w-full" : "sm:w-1/2"}>
+      <div className={stackVertical ? "w-full" : "sm:w-[60%]"}>
         {hinh.url ? (
           <img
             src={hinh.url}
@@ -73,7 +73,7 @@ function HinhBlock({
             }
             className={[
               "mx-auto rounded-xl object-contain ring-1 ring-border/60",
-              !isSingle ? "w-full" : stackVertical ? "w-[70%]" : "w-[80%]",
+              !isSingle ? "w-full" : stackVertical ? "w-[80%]" : "w-[85%]",
             ].join(" ")}
           />
         ) : (
@@ -87,8 +87,8 @@ function HinhBlock({
         <div
           className={
             stackVertical
-              ? "flex flex-wrap items-center justify-center gap-2"
-              : "flex flex-1 flex-wrap items-center justify-center gap-2 sm:pl-2"
+              ? "flex flex-wrap items-center justify-center gap-2 pb-2"
+              : "flex flex-1 flex-wrap items-center justify-center gap-2 self-center sm:pl-2 pb-2"
           }
         >
           {captions.map((c, ci) => (
