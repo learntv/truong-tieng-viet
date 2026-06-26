@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, ChevronLeft, ChevronRight, Star, X } from "lucide-react";
+import { Check, X } from "lucide-react";
+import useEmblaCarousel from "embla-carousel-react";
 import type { Chang, Hinh } from "@/lib/learning";
-import { STAGE_COLORS } from "./StageNode";
+import { STAGE_COLORS } from "./StageCard";
+import { ConfettiBurst } from "./ConfettiBurst";
 
 type StageColor = (typeof STAGE_COLORS)[number];
 
@@ -45,10 +47,12 @@ function HinhBlock({
   hinh,
   captions,
   isSingle,
+  colorIndex,
 }: {
   hinh: Hinh;
   captions: string[];
   isSingle: boolean;
+  colorIndex: number;
 }) {
   const [isLandscape, setIsLandscape] = useState(false);
   const hasCaptions = captions.length > 0;
@@ -88,11 +92,15 @@ function HinhBlock({
           className={
             stackVertical
               ? "flex flex-wrap items-center justify-center gap-2 pb-2"
-              : "flex flex-1 flex-wrap items-center justify-center gap-2 self-center sm:pl-2 pb-2"
+              : "flex flex-1 flex-wrap items-center justify-center gap-2 self-center pb-2 sm:pl-2"
           }
         >
           {captions.map((c, ci) => (
-            <CloudWord key={ci} text={c} color={STAGE_COLORS[ci % STAGE_COLORS.length]} />
+            <CloudWord
+              key={ci}
+              text={c}
+              color={STAGE_COLORS[(colorIndex + ci) % STAGE_COLORS.length]}
+            />
           ))}
         </div>
       )}
@@ -107,6 +115,7 @@ export function LessonCard({
   isCompleted,
   onPrevNoiDung,
   onNextNoiDung,
+  onNoiDungChange,
   onComplete,
   onClose,
 }: {
@@ -116,19 +125,36 @@ export function LessonCard({
   isCompleted: boolean;
   onPrevNoiDung: () => void;
   onNextNoiDung: () => void;
+  onNoiDungChange?: (i: number) => void;
   onComplete: () => void;
   onClose: () => void;
 }) {
   const noiDungs = chang.noiDungs;
-  const noiDung = noiDungs[noiDungIndex];
-  const canPrev = noiDungIndex > 0;
-  const canNext = noiDungIndex < noiDungs.length - 1;
-  const isLastNoiDung = noiDungIndex === noiDungs.length - 1;
+  const total = noiDungs.length;
+  const isLastNoiDung = noiDungIndex === total - 1;
   const color = STAGE_COLORS[changIndex % STAGE_COLORS.length];
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
 
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, dragFree: false });
+
+  /* Sync parent index → carousel */
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: 0 });
+    emblaApi?.scrollTo(noiDungIndex, false);
+  }, [emblaApi, noiDungIndex]);
+
+  /* Sync swipe gesture → parent */
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSelect = () => {
+      const i = emblaApi.selectedScrollSnap();
+      onNoiDungChange?.(i);
+    };
+    emblaApi.on("select", onSelect);
+    return () => { emblaApi.off("select", onSelect); };
+  }, [emblaApi, onNoiDungChange]);
+
+  /* Cancel TTS on unmount / page change */
+  useEffect(() => {
     return () => {
       if (typeof window !== "undefined" && "speechSynthesis" in window) {
         window.speechSynthesis.cancel();
@@ -136,171 +162,172 @@ export function LessonCard({
     };
   }, [noiDungIndex, changIndex]);
 
-  return (
-    <div className="relative flex h-full w-full items-stretch justify-center">
-      <button
-        onClick={onPrevNoiDung}
-        disabled={!canPrev}
-        aria-label="Trước"
-        className="absolute left-1 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-white text-navy shadow-card ring-1 ring-border transition hover:scale-110 disabled:cursor-not-allowed disabled:opacity-30 sm:left-0 sm:h-14 sm:w-14 sm:-translate-x-1/2"
-      >
-        <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
-      </button>
+  const handleComplete = () => {
+    if (isCompleted) return;
+    setShowConfetti(true);
+    onComplete();
+  };
 
+  return (
+    <div className="relative flex h-full w-full flex-col overflow-hidden bg-card shadow-2xl sm:rounded-3xl">
+
+      {/* ── Gradient header ── */}
       <div
         className={[
-          "flex max-h-full w-full flex-col overflow-hidden rounded-none shadow-soft sm:rounded-3xl",
-          color.bgSoft,
+          "relative shrink-0 px-5 pb-3 pt-[max(1rem,env(safe-area-inset-top))] sm:px-6 sm:pt-4",
+          color.gradient,
         ].join(" ")}
       >
-        <div
-          className={[
-            "flex items-center justify-between gap-3 px-5 py-4 pt-[max(1rem,env(safe-area-inset-top))] sm:px-7 sm:pt-4",
-            color.gradient,
-          ].join(" ")}
-        >
-          <div className="flex min-w-0 items-center gap-2">
-            <Star className="h-5 w-5 shrink-0 fill-yellow-400 text-yellow-400" />
+        <div className="flex items-center gap-3">
+          <span className="text-2xl leading-none">{chang.emoji}</span>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-extrabold uppercase tracking-wider text-white/70">
+              Chặng {changIndex + 1}
+            </p>
             <h3 className="truncate font-display text-lg font-extrabold text-white sm:text-xl">
-              Chặng {changIndex + 1}: {chang.title}
+              {chang.title}
             </h3>
-          </div>
-          <div className="flex shrink-0 items-center gap-1">
-            {noiDungs.map((_, i) => (
-              <div
-                key={i}
-                className={[
-                  "h-1.5 w-3 rounded-full transition",
-                  i <= noiDungIndex ? "bg-white" : "bg-white/30",
-                ].join(" ")}
-              />
-            ))}
           </div>
           <button
             onClick={onClose}
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/90 text-stone-600 shadow-card transition hover:scale-105 hover:bg-white"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/20 text-white transition hover:bg-white/35"
             aria-label="Đóng"
           >
             <X className="h-4 w-4" strokeWidth={2.5} />
           </button>
         </div>
 
-        {noiDung ? (
+        {/* Slim progress bar */}
+        <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-white/25">
           <div
-            ref={scrollRef}
-            className="flex-1 overflow-y-auto px-5 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-8 sm:py-8"
-          >
-            {noiDung.title && (
-              <div
-                className={[
-                  "mb-6 rounded-2xl px-5 py-4 text-center shadow-card",
-                  color.gradient,
-                ].join(" ")}
-              >
-                <p className="font-display text-xl font-extrabold text-white sm:text-2xl">
-                  {noiDung.title}
-                </p>
-              </div>
-            )}
-
-            <div className="flex flex-col gap-6 divide-y divide-border/60">
-              {noiDung.bais.map((bai, li) => {
-                const hinhs = bai.hinhs;
-                const isSingle = hinhs.length === 1;
-                return (
-                  <article key={bai.id} className={li > 0 ? "pt-6" : ""}>
-                    <div className="mb-4 flex items-start gap-3">
-                      <span
-                        className={[
-                          "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-display text-sm font-extrabold text-white",
-                          color.gradient,
-                        ].join(" ")}
-                      >
-                        {li + 1}
-                      </span>
-                      <div className="flex-1 space-y-1.5">
-                        {bai.texts.map((t, i) => (
-                          <p
-                            key={i}
-                            className="whitespace-pre-line font-display text-base font-bold text-navy sm:text-lg"
-                          >
-                            {t}
-                          </p>
-                        ))}
-                      </div>
-                    </div>
-
-                    {hinhs.length > 0 && (
-                      <div
-                        className={
-                          isSingle
-                            ? "flex flex-col gap-4 sm:flex-row sm:items-start"
-                            : "grid grid-cols-2 gap-4"
-                        }
-                      >
-                        {hinhs.map((hinh) => {
-                          const captions = hinh.captions.filter((c) => c.trim().length > 1);
-                          return (
-                            <HinhBlock
-                              key={hinh.id}
-                              hinh={hinh}
-                              captions={captions}
-                              isSingle={isSingle}
-                            />
-                          );
-                        })}
-                      </div>
-                    )}
-                  </article>
-                );
-              })}
-
-              {noiDung.bais.length === 0 && (
-                <p className="text-center text-sm text-muted-foreground">
-                  Nội dung đang được cập nhật.
-                </p>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="flex-1 px-5 py-10 text-center text-sm text-muted-foreground">
-            Chặng này chưa có nội dung.
-          </div>
-        )}
-
-        {isLastNoiDung && (
-          <div className="flex items-center justify-center border-t border-border/60 px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-6 sm:py-5">
-            <button
-              onClick={onComplete}
-              disabled={isCompleted}
-              className={[
-                "relative flex items-center justify-center gap-2 overflow-hidden rounded-full px-10 py-4 text-lg font-extrabold tracking-wide transition sm:px-12 sm:py-5 sm:text-xl",
-                isCompleted
-                  ? "cursor-not-allowed bg-green/40 text-navy"
-                  : "bg-gradient-to-r from-emerald-400 via-green-500 to-emerald-600 text-white shadow-glow-green ring-4 ring-white/70 hover:scale-105 active:scale-95",
-              ].join(" ")}
-            >
-              {!isCompleted && (
-                <span className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine" />
-              )}
-              <Check className="h-6 w-6 shrink-0" strokeWidth={3} />
-              {isCompleted ? "Đã hoàn thành" : "Hoàn thành chặng"}
-            </button>
-          </div>
-        )}
+            className="h-full rounded-full bg-white transition-[width] duration-500 ease-out"
+            style={{ width: total > 0 ? `${((noiDungIndex + 1) / total) * 100}%` : "0%" }}
+          />
+        </div>
+        <div className="mt-1 flex justify-between text-[10px] font-bold text-white/60">
+          <span>Trang {noiDungIndex + 1}</span>
+          <span>{total} trang</span>
+        </div>
       </div>
 
-      <button
-        onClick={onNextNoiDung}
-        disabled={!canNext}
-        aria-label="Tiếp"
-        className={[
-          "absolute right-1 top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full text-white shadow-card transition hover:scale-110 disabled:cursor-not-allowed disabled:opacity-30 sm:right-0 sm:h-14 sm:w-14 sm:translate-x-1/2",
-          color.gradient,
-        ].join(" ")}
-      >
-        <ChevronRight className="h-5 w-5" strokeWidth={2.5} />
-      </button>
+      {/* ── Embla carousel (horizontal pages) ── */}
+      <div ref={emblaRef} className="min-h-0 flex-1 overflow-hidden">
+        <div className="flex h-full">
+          {noiDungs.map((nd, pageIdx) => (
+            <div
+              key={nd.id}
+              className="lesson-scroll flex-none w-full h-full overflow-y-auto overscroll-contain px-5 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-7 sm:py-8"
+              style={{ "--scroll-thumb": color.scrollThumb, "--scroll-track": color.scrollTrack } as React.CSSProperties}
+            >
+              {/* NoiDung title pill */}
+              {nd.title && (
+                <div
+                  className={[
+                    "mb-6 rounded-2xl px-5 py-4 text-center shadow-card",
+                    color.gradient,
+                  ].join(" ")}
+                >
+                  <p className="font-display text-xl font-extrabold text-white sm:text-2xl">
+                    {nd.title}
+                  </p>
+                </div>
+              )}
+
+              {/* Bai items */}
+              <div className="flex flex-col gap-6 divide-y divide-border/60">
+                {nd.bais.map((bai, li) => {
+                  const hinhs = bai.hinhs;
+                  const isSingle = hinhs.length === 1;
+                  return (
+                    <article key={bai.id} className={li > 0 ? "pt-6" : ""}>
+                      <div className="mb-4 flex items-start gap-3">
+                        <span
+                          className={[
+                            "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-display text-sm font-extrabold text-white",
+                            color.gradient,
+                          ].join(" ")}
+                        >
+                          {li + 1}
+                        </span>
+                        <div className="flex-1 space-y-1.5">
+                          {bai.texts.map((t, i) => (
+                            <p
+                              key={i}
+                              className="whitespace-pre-line font-display text-base font-bold text-navy sm:text-lg"
+                            >
+                              {t}
+                            </p>
+                          ))}
+                        </div>
+                      </div>
+
+                      {hinhs.length > 0 && (
+                        <div
+                          className={
+                            isSingle
+                              ? "flex flex-col gap-4 sm:flex-row sm:items-start"
+                              : "grid grid-cols-2 gap-4"
+                          }
+                        >
+                          {hinhs.map((hinh) => {
+                            const captions = hinh.captions.filter((c) => c.trim().length > 1);
+                            return (
+                              <HinhBlock
+                                key={hinh.id}
+                                hinh={hinh}
+                                captions={captions}
+                                isSingle={isSingle}
+                                colorIndex={changIndex + li}
+                              />
+                            );
+                          })}
+                        </div>
+                      )}
+                    </article>
+                  );
+                })}
+
+                {nd.bais.length === 0 && (
+                  <p className="text-center text-sm text-muted-foreground">
+                    Nội dung đang được cập nhật.
+                  </p>
+                )}
+              </div>
+
+              {/* Complete button on last page */}
+              {pageIdx === total - 1 && (
+                <div className="relative mt-10 flex justify-center pb-4">
+                  {showConfetti && <ConfettiBurst onDone={() => setShowConfetti(false)} />}
+                  <button
+                    onClick={handleComplete}
+                    disabled={isCompleted}
+                    className={[
+                      "relative flex items-center justify-center gap-2 overflow-hidden rounded-full px-10 py-4 text-lg font-extrabold tracking-wide shadow-glow-green transition sm:px-12 sm:py-5 sm:text-xl",
+                      isCompleted
+                        ? "cursor-not-allowed bg-green-100 text-green-600 shadow-none ring-0"
+                        : "bg-gradient-to-r from-emerald-400 via-green-500 to-emerald-600 text-white ring-4 ring-white/70 hover:scale-105 active:scale-95",
+                    ].join(" ")}
+                  >
+                    {!isCompleted && (
+                      <span className="pointer-events-none absolute inset-0 animate-shine bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+                    )}
+                    <Check className="h-6 w-6 shrink-0" strokeWidth={3} />
+                    {isCompleted ? "Đã hoàn thành ✓" : "Hoàn thành chặng 🎉"}
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {/* Empty state */}
+          {noiDungs.length === 0 && (
+            <div className="flex-none w-full h-full flex items-center justify-center px-5 text-center text-sm text-muted-foreground">
+              Chặng này chưa có nội dung.
+            </div>
+          )}
+        </div>
+      </div>
+
     </div>
   );
 }

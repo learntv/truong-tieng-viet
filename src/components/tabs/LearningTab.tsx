@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { learningDataQueryOptions } from "@/lib/learning";
 import { RoadmapMap } from "@/components/learning/RoadmapMap";
 import { LessonCard } from "@/components/learning/LessonCard";
-import { ProgressSidebar } from "@/components/learning/ProgressSidebar";
+import { STAGE_COLORS } from "@/components/learning/StageCard";
 
 export function LearningTab() {
   const { data, isLoading, error } = useQuery(learningDataQueryOptions);
@@ -13,13 +15,12 @@ export function LearningTab() {
   const [currentNoiDungIndex, setCurrentNoiDungIndex] = useState(0);
   const [completedByChuDe, setCompletedByChuDe] = useState<Record<number, number[]>>({});
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [soundOn, setSoundOn] = useState(true);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const chuDes = useMemo(() => (data ?? []).map((d) => d.chuDe), [data]);
   const chuDe = chuDes[currentChuDeIndex];
   const changs = useMemo(() => data?.[currentChuDeIndex]?.changs ?? [], [data, currentChuDeIndex]);
   const changTitles = useMemo(() => changs.map((s) => s.title), [changs]);
+  const changEmojis = useMemo(() => changs.map((s) => s.emoji), [changs]);
   const completedChangs = useMemo(
     () => new Set(completedByChuDe[currentChuDeIndex] ?? []),
     [completedByChuDe, currentChuDeIndex],
@@ -31,6 +32,10 @@ export function LearningTab() {
       cur.add(currentChangIndex);
       return { ...prev, [currentChuDeIndex]: Array.from(cur) };
     });
+    toast.success(`Chặng ${currentChangIndex + 1} hoàn thành! 🎉`, {
+      description: "Tiếp tục giỏi nhé!",
+      duration: 3000,
+    });
   };
 
   const openChang = (i: number) => {
@@ -38,13 +43,16 @@ export function LearningTab() {
     setCurrentNoiDungIndex(0);
     setIsDetailOpen(false);
 
-    const urls = changs[i]?.noiDungs.flatMap((nd) => nd.bais.flatMap((b) => b.hinhs.map((h) => h.url))) ?? [];
+    const urls =
+      changs[i]?.noiDungs.flatMap((nd) =>
+        nd.bais.flatMap((b) => b.hinhs.map((h) => h.url)),
+      ) ?? [];
     urls.filter(Boolean).forEach((url) => {
       const img = new Image();
       img.src = url;
     });
 
-    window.setTimeout(() => setIsDetailOpen(true), 750);
+    window.setTimeout(() => setIsDetailOpen(true), 400);
   };
 
   const nextChuDe = () => {
@@ -92,66 +100,81 @@ export function LearningTab() {
 
   return (
     <section className="h-full w-full px-4 py-3 sm:px-6 sm:py-4 lg:px-10">
-      <div
-        id="roadmap-start"
-        className={[
-          "mx-auto grid h-full max-w-7xl grid-cols-1 gap-4 transition-[grid-template-columns] lg:gap-6",
-          isSidebarCollapsed ? "lg:grid-cols-[1fr_72px]" : "lg:grid-cols-[1fr_320px]",
-        ].join(" ")}
-      >
-        <div className="relative h-full min-h-0">
+      <div className="relative mx-auto h-full max-w-7xl" id="roadmap-start">
+
+        <div className="h-full">
           <RoadmapMap
+            chuDes={chuDes}
             chuDe={chuDe}
             chuDeIndex={currentChuDeIndex}
             changTitles={changTitles}
+            changEmojis={changEmojis}
             currentChangIndex={currentChangIndex}
             completedChangs={completedChangs}
             onSelectStage={openChang}
-            soundOn={soundOn}
-            onToggleSound={() => setSoundOn((s) => !s)}
-          />
-        </div>
-
-        <div className="relative lg:z-50">
-          <ProgressSidebar
-            chuDes={chuDes}
-            currentChuDeIndex={currentChuDeIndex}
             completedCount={completedChangs.size}
-            totalChangs={changs.length}
             allCurrentDone={allDone}
             isLast={isLast}
             onAdvance={nextChuDe}
-            isCollapsed={isSidebarCollapsed}
-            onToggleCollapsed={() => setIsSidebarCollapsed((c) => !c)}
           />
         </div>
-      </div>
 
-      {isDetailOpen && currentChang && (
-        <div
-          className={[
-            "fixed inset-0 z-40 flex h-dvh items-center justify-center bg-navy/40 backdrop-blur-sm transition-[padding] animate-modal-overlay-in sm:p-4",
-            isSidebarCollapsed ? "lg:pr-[104px]" : "lg:pr-[352px]",
-          ].join(" ")}
-          onClick={() => setIsDetailOpen(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="h-dvh w-full animate-modal-pop-in sm:h-[95dvh] sm:max-w-3xl"
-          >
-            <LessonCard
-              chang={currentChang}
-              changIndex={currentChangIndex}
-              noiDungIndex={currentNoiDungIndex}
-              isCompleted={completedChangs.has(currentChangIndex)}
-              onPrevNoiDung={() => setCurrentNoiDungIndex((i) => Math.max(0, i - 1))}
-              onNextNoiDung={() => setCurrentNoiDungIndex((i) => Math.min(noiDungCount - 1, i + 1))}
-              onComplete={completeChang}
-              onClose={() => setIsDetailOpen(false)}
-            />
-          </div>
-        </div>
-      )}
+        {/* Centered modal overlay */}
+        {isDetailOpen && currentChang && (() => {
+          const modalColor = STAGE_COLORS[currentChangIndex % STAGE_COLORS.length];
+          const canPrev = currentNoiDungIndex > 0;
+          const canNext = currentNoiDungIndex < noiDungCount - 1;
+          return (
+            <div
+              className="fixed inset-0 z-40 flex h-dvh items-center justify-center bg-navy/70 p-0 backdrop-blur-sm animate-modal-overlay-in sm:p-4"
+              onClick={() => setIsDetailOpen(false)}
+            >
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="relative h-dvh w-full animate-modal-pop-in sm:h-[95dvh] sm:max-w-2xl"
+              >
+                <LessonCard
+                  chang={currentChang}
+                  changIndex={currentChangIndex}
+                  noiDungIndex={currentNoiDungIndex}
+                  isCompleted={completedChangs.has(currentChangIndex)}
+                  onPrevNoiDung={() => setCurrentNoiDungIndex((i) => Math.max(0, i - 1))}
+                  onNextNoiDung={() =>
+                    setCurrentNoiDungIndex((i) => Math.min(noiDungCount - 1, i + 1))
+                  }
+                  onNoiDungChange={setCurrentNoiDungIndex}
+                  onComplete={completeChang}
+                  onClose={() => setIsDetailOpen(false)}
+                />
+
+                {canPrev && (
+                  <button
+                    onClick={() => setCurrentNoiDungIndex((i) => Math.max(0, i - 1))}
+                    aria-label="Trang trước"
+                    className="absolute left-2 top-1/2 z-50 -translate-y-1/2 sm:-left-14"
+                  >
+                    <div className="grid h-11 w-11 place-items-center rounded-full bg-white/90 text-navy shadow-card backdrop-blur transition hover:scale-110 hover:bg-white">
+                      <ChevronLeft className="h-6 w-6" strokeWidth={2.5} />
+                    </div>
+                  </button>
+                )}
+
+                {canNext && (
+                  <button
+                    onClick={() => setCurrentNoiDungIndex((i) => Math.min(noiDungCount - 1, i + 1))}
+                    aria-label="Trang tiếp"
+                    className="absolute right-2 top-1/2 z-50 -translate-y-1/2 sm:-right-14"
+                  >
+                    <div className={["grid h-11 w-11 place-items-center rounded-full text-white shadow-card transition hover:scale-110", modalColor.gradient].join(" ")}>
+                      <ChevronRight className="h-6 w-6" strokeWidth={2.5} />
+                    </div>
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })()}
+      </div>
     </section>
   );
 }
