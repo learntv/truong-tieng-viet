@@ -175,7 +175,7 @@ export function LearningTab() {
                   <button
                     onClick={() => setCurrentNoiDungIndex((i) => Math.max(0, i - 1))}
                     aria-label="Trang trước"
-                    className="absolute left-2 top-1/2 z-50 -translate-y-1/2 sm:-left-14"
+                    className={["absolute left-2 top-1/2 z-50 -translate-y-1/2", !isFullscreen && "sm:-left-14"].filter(Boolean).join(" ")}
                   >
                     <div className="grid h-11 w-11 place-items-center rounded-full bg-white/90 text-navy shadow-card backdrop-blur transition hover:scale-110 hover:bg-white">
                       <ChevronLeft className="h-6 w-6" strokeWidth={2.5} />
@@ -187,7 +187,7 @@ export function LearningTab() {
                   <button
                     onClick={() => setCurrentNoiDungIndex((i) => Math.min(noiDungCount - 1, i + 1))}
                     aria-label="Trang tiếp"
-                    className="absolute right-2 top-1/2 z-50 -translate-y-1/2 sm:-right-14"
+                    className={["absolute right-2 top-1/2 z-50 -translate-y-1/2", !isFullscreen && "sm:-right-14"].filter(Boolean).join(" ")}
                   >
                     <div className={["grid h-11 w-11 place-items-center rounded-full text-white shadow-card transition hover:scale-110", modalColor.gradient].join(" ")}>
                       <ChevronRight className="h-6 w-6" strokeWidth={2.5} />
