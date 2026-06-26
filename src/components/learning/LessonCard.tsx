@@ -194,7 +194,7 @@ export function LessonCard({
               {chang.title}
             </h3>
           </div>
-          {onToggleFullscreen && (
+          {onToggleFullscreen && !isMobile && (
             <button
               onClick={onToggleFullscreen}
               className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/20 text-white transition hover:bg-white/35"
