@@ -139,6 +139,7 @@ export function LessonCard({
   const isLastNoiDung = noiDungIndex === total - 1;
   const color = STAGE_COLORS[changIndex % STAGE_COLORS.length];
   const [showConfetti, setShowConfetti] = useState(false);
+  const isMobile = useIsMobile();
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, dragFree: false });
 
