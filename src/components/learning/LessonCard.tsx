@@ -4,6 +4,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import type { Chang, Hinh } from "@/lib/learning";
 import { STAGE_COLORS } from "./StageCard";
 import { ConfettiBurst } from "./ConfettiBurst";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type StageColor = (typeof STAGE_COLORS)[number];
 
