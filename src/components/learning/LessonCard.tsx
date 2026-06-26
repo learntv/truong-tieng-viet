@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Check, Maximize2, Minimize2, X } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import type { Chang, Hinh } from "@/lib/learning";
