@@ -1,5 +1,5 @@
 import { BookOpen, Flower2, Landmark, Headphones, ArrowRight } from "lucide-react";
-import heroImage from "@/assets/hero-learning.jpg";
+import heroImage from "@/assets/hero-students-fullwidth.jpg";
 
 export function InfoHero() {
   const stats = [
@@ -42,51 +42,57 @@ export function InfoHero() {
   ];
 
   return (
-    <section className="w-full px-4 pt-6 sm:px-6">
-      <div className="mx-auto max-w-6xl">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose-600 via-red-500 to-orange-400 shadow-xl">
-          {/* decorative blobs */}
-          <div className="pointer-events-none absolute -top-10 -right-10 h-48 w-48 rounded-full bg-yellow-400/20 blur-2xl" />
-          <div className="pointer-events-none absolute bottom-0 left-0 h-40 w-40 rounded-full bg-orange-300/20 blur-2xl" />
+    <section className="w-full">
+      {/* Full-width hero with background image */}
+      <div className="relative w-full overflow-hidden">
+        <img
+          src={heroImage}
+          alt="Trẻ em Việt Nam đọc sách Tiếng Việt"
+          width={1920}
+          height={1024}
+          className="absolute inset-0 h-full w-full object-cover object-right"
+        />
+        {/* Readability overlay: stronger on left, fades to transparent on the right */}
+        <div className="absolute inset-0 bg-gradient-to-r from-stone-900/80 via-stone-900/55 to-transparent sm:from-stone-900/75 sm:via-stone-900/35 sm:to-transparent" />
+        {/* Subtle bottom fade for safe mobile contrast */}
+        <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 via-transparent to-transparent sm:hidden" />
 
-          <div className="grid grid-cols-1 items-center gap-4 p-4 sm:p-6 lg:grid-cols-2 lg:gap-4 lg:p-8">
-            <div className="relative z-10">
-              <span className="inline-block rounded-full bg-yellow-400/20 px-3 py-1 text-xs font-bold uppercase tracking-widest text-yellow-200">
-                Thông tin dự án
-              </span>
-              <h1 className="mt-2 font-display text-xl font-bold leading-tight text-white sm:text-3xl lg:text-4xl">
-                Trường Tiếng Việt Của Em
-              </h1>
-              <p className="mt-2 max-w-md text-sm text-red-100 sm:text-base">
-                Hành trình gìn giữ và lan tỏa tiếng Việt, văn hóa Việt đến với thế hệ trẻ kiều bào trên khắp thế giới.
-              </p>
-              <button
-                type="button"
-                className="mt-4 inline-flex items-center gap-2 rounded-full bg-yellow-400 px-5 py-2 text-sm font-bold text-red-800 shadow-md transition hover:bg-yellow-300 hover:shadow-lg"
-                onClick={() => {
-                  document.getElementById("info-cards-start")?.scrollIntoView({ behavior: "smooth" });
-                }}
-              >
-                Khám phá ngay
-                <ArrowRight className="h-5 w-5" />
-              </button>
-              <div className="mt-4 flex items-center gap-3">
-                <div className="flex -space-x-2">
-                  {["bg-yellow-300", "bg-rose-300", "bg-emerald-300", "bg-sky-300"].map((c, i) => (
-                    <div key={i} className={`h-8 w-8 rounded-full border-2 border-rose-300 ${c} flex items-center justify-center text-xs`}>
-                      😊
-                    </div>
-                  ))}
-                </div>
-                <span className="text-sm font-medium text-red-100">Hơn 10.000 trẻ em đang học mỗi ngày</span>
+        <div className="relative mx-auto flex min-h-[480px] max-w-7xl items-center px-4 py-16 sm:min-h-[540px] sm:px-6 sm:py-20 lg:min-h-[600px] lg:px-10 lg:py-24">
+          <div className="max-w-xl text-left">
+            <span className="inline-block rounded-full bg-yellow-400/90 px-3 py-1 text-xs font-bold uppercase tracking-widest text-red-800 shadow-sm">
+              Thông tin dự án
+            </span>
+            <h1 className="mt-3 font-display text-3xl font-bold leading-tight text-white drop-shadow-md sm:text-4xl lg:text-5xl">
+              Trường Tiếng Việt Của Em
+            </h1>
+            <p className="mt-4 max-w-md text-base text-red-50/95 drop-shadow sm:text-lg">
+              Hành trình gìn giữ và lan tỏa tiếng Việt, văn hóa Việt đến với thế hệ trẻ kiều bào trên khắp thế giới.
+            </p>
+            <button
+              type="button"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-yellow-400 px-6 py-3 text-sm font-bold text-red-800 shadow-lg transition hover:bg-yellow-300 hover:shadow-xl sm:text-base"
+              onClick={() => {
+                document.getElementById("info-cards-start")?.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
+              Khám phá ngay
+              <ArrowRight className="h-5 w-5" />
+            </button>
+            <div className="mt-6 flex items-center gap-3">
+              <div className="flex -space-x-2">
+                {["bg-yellow-300", "bg-rose-300", "bg-emerald-300", "bg-sky-300"].map((c, i) => (
+                  <div key={i} className={`h-8 w-8 rounded-full border-2 border-white/80 ${c} flex items-center justify-center text-xs`}>
+                    😊
+                  </div>
+                ))}
               </div>
-            </div>
-            <div className="relative">
-              <img src={heroImage} alt="Trẻ em Việt Nam mặc áo dài đọc sách bên hồ sen" className="h-full w-full rounded-2xl object-cover ring-4 ring-white/20" width={1600} height={800} />
+              <span className="text-sm font-medium text-white/95 drop-shadow">Hơn 10.000 trẻ em đang học mỗi ngày</span>
             </div>
           </div>
         </div>
+      </div>
 
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div id="info-cards-start" className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((s, i) => (
             <div key={i} className={`flex items-center gap-4 rounded-2xl p-5 shadow-md ${s.cardBg}`}>
