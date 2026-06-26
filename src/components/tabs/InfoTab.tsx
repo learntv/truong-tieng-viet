@@ -43,10 +43,10 @@ export function InfoTab() {
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
         <header className="mb-8 flex flex-col items-center text-center sm:mb-12">
           <div className="flex items-center gap-3">
-            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-primary text-white shadow-card">
+            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-red-500 to-orange-400 text-white shadow-lg">
               <Info className="h-5 w-5" strokeWidth={2.5} />
             </span>
-            <h2 className="font-display text-3xl font-extrabold text-navy sm:text-5xl">
+            <h2 className="font-display text-3xl font-extrabold text-red-700 sm:text-5xl">
               Giới thiệu
             </h2>
           </div>
@@ -61,15 +61,17 @@ export function InfoTab() {
           ))}
         </div>
 
-        <article className="relative mt-6 overflow-hidden rounded-3xl border-2 border-pink/40 bg-gradient-thanks p-6 shadow-soft sm:mt-8 sm:p-10">
+        <article className="relative mt-6 overflow-hidden rounded-3xl bg-gradient-to-br from-pink-500 via-rose-500 to-red-400 p-6 shadow-xl sm:mt-8 sm:p-10">
+          <div className="pointer-events-none absolute -top-8 -right-8 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+          <div className="pointer-events-none absolute -bottom-6 -left-6 h-32 w-32 rounded-full bg-yellow-300/20 blur-2xl" />
           <div className="flex items-center justify-center gap-3">
-            <Heart className="h-6 w-6 text-pink" fill="currentColor" />
-            <h3 className="font-display text-2xl font-extrabold text-pink sm:text-3xl">
+            <Heart className="h-6 w-6 text-white" fill="currentColor" />
+            <h3 className="font-display text-2xl font-extrabold text-white sm:text-3xl">
               Lời cảm ơn
             </h3>
-            <Heart className="h-6 w-6 text-pink" fill="currentColor" />
+            <Heart className="h-6 w-6 text-white" fill="currentColor" />
           </div>
-          <p className="mt-4 text-center text-[15px] leading-relaxed text-foreground/85 sm:text-base">
+          <p className="mt-4 text-center text-[15px] leading-relaxed text-white/90 sm:text-base">
             Ban quản lý dự án xin được gửi lời cảm ơn chân thành tới Ủy ban Nhà
             nước về người Việt Nam ở nước ngoài - Bộ Ngoại giao&nbsp;nước Cộng hòa xã hội chủ nghĩa Việt Nam đã luôn đồng hành
             và định hướng. Chúng tôi xin gửi lời tri ân sâu sắc tới các Đại sứ
