@@ -55,7 +55,7 @@ export function RoadmapMap({
   }, "");
 
   return (
-    <div className="relative flex h-full w-full flex-col overflow-hidden rounded-3xl shadow-soft">
+    <div className="relative flex h-full w-full flex-col overflow-x-auto overflow-y-hidden rounded-3xl shadow-soft sm:overflow-hidden">
       <img
         src={halongScene}
         alt="Phong cảnh Việt Nam — Vịnh Hạ Long và Hội An"
