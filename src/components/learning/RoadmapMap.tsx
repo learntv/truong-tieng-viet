@@ -55,7 +55,8 @@ export function RoadmapMap({
   }, "");
 
   return (
-    <div className="relative flex h-full w-full flex-col overflow-x-auto overflow-y-hidden rounded-3xl shadow-soft sm:overflow-hidden">
+    <div className="relative flex h-full w-full flex-col overflow-hidden rounded-3xl shadow-soft">
+
       <img
         src={halongScene}
         alt="Phong cảnh Việt Nam — Vịnh Hạ Long và Hội An"
@@ -107,45 +108,47 @@ export function RoadmapMap({
       </div>
 
       {/* Map area: SVG path + stage cards + buffalo */}
-      <div className="relative z-20 mt-2 min-h-0 w-full flex-1">
-        <svg
-          className="absolute inset-0 h-full w-full"
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-        >
-          <path
-            d={pathD}
-            fill="none"
-            stroke="white"
-            strokeWidth="1.4"
-            strokeDasharray="2.5 2.5"
-            strokeLinecap="round"
-            opacity="0.95"
-          />
-        </svg>
-
-        {NODE_POSITIONS.map((p, i) => (
-          <div
-            key={i}
-            className="absolute -translate-x-1/2 -translate-y-1/2"
-            style={{ left: `${p.x}%`, top: `${p.y}%` }}
+      <div className="relative z-20 mt-2 min-h-0 w-full flex-1 overflow-x-auto overflow-y-hidden sm:overflow-hidden">
+        <div className="relative h-full min-w-[760px] sm:min-w-0">
+          <svg
+            className="absolute inset-0 h-full w-full"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
           >
-            <StageCard
-              index={i}
-              title={changTitles[i] ?? ""}
-              emoji={changEmojis[i] ?? "📖"}
-              isCurrent={i === currentChangIndex}
-              isCompleted={completedChangs.has(i)}
-              compact
-              onClick={() => onSelectStage(i)}
+            <path
+              d={pathD}
+              fill="none"
+              stroke="white"
+              strokeWidth="1.4"
+              strokeDasharray="2.5 2.5"
+              strokeLinecap="round"
+              opacity="0.95"
             />
-          </div>
-        ))}
+          </svg>
 
-        <BuffaloMascot
-          xPercent={Math.max(6, (NODE_POSITIONS[currentChangIndex]?.x ?? 10) - 6)}
-          yPercent={NODE_POSITIONS[currentChangIndex]?.y ?? 58}
-        />
+          {NODE_POSITIONS.map((p, i) => (
+            <div
+              key={i}
+              className="absolute -translate-x-1/2 -translate-y-1/2"
+              style={{ left: `${p.x}%`, top: `${p.y}%` }}
+            >
+              <StageCard
+                index={i}
+                title={changTitles[i] ?? ""}
+                emoji={changEmojis[i] ?? "📖"}
+                isCurrent={i === currentChangIndex}
+                isCompleted={completedChangs.has(i)}
+                compact
+                onClick={() => onSelectStage(i)}
+              />
+            </div>
+          ))}
+
+          <BuffaloMascot
+            xPercent={Math.max(6, (NODE_POSITIONS[currentChangIndex]?.x ?? 10) - 6)}
+            yPercent={NODE_POSITIONS[currentChangIndex]?.y ?? 58}
+          />
+        </div>
       </div>
 
       {/* Tips bar */}
