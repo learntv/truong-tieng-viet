@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Check, Maximize2, Minimize2, X } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import type { Chang, Hinh } from "@/lib/learning";
 import { STAGE_COLORS } from "./StageCard";
 import { ConfettiBurst } from "./ConfettiBurst";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type StageColor = (typeof STAGE_COLORS)[number];
 
@@ -138,6 +139,7 @@ export function LessonCard({
   const isLastNoiDung = noiDungIndex === total - 1;
   const color = STAGE_COLORS[changIndex % STAGE_COLORS.length];
   const [showConfetti, setShowConfetti] = useState(false);
+  const isMobile = useIsMobile();
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, dragFree: false });
 
@@ -192,7 +194,7 @@ export function LessonCard({
               {chang.title}
             </h3>
           </div>
-          {onToggleFullscreen && (
+          {onToggleFullscreen && !isMobile && (
             <button
               onClick={onToggleFullscreen}
               className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/20 text-white transition hover:bg-white/35"
