@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, X } from "lucide-react";
+import { Check, Maximize2, Minimize2, X } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import type { Chang, Hinh } from "@/lib/learning";
 import { STAGE_COLORS } from "./StageCard";
@@ -113,6 +113,8 @@ export function LessonCard({
   changIndex,
   noiDungIndex,
   isCompleted,
+  isFullscreen,
+  onToggleFullscreen,
   onPrevNoiDung,
   onNextNoiDung,
   onNoiDungChange,
@@ -123,6 +125,8 @@ export function LessonCard({
   changIndex: number;
   noiDungIndex: number;
   isCompleted: boolean;
+  isFullscreen?: boolean;
+  onToggleFullscreen?: () => void;
   onPrevNoiDung: () => void;
   onNextNoiDung: () => void;
   onNoiDungChange?: (i: number) => void;
@@ -188,6 +192,18 @@ export function LessonCard({
               {chang.title}
             </h3>
           </div>
+          {onToggleFullscreen && (
+            <button
+              onClick={onToggleFullscreen}
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/20 text-white transition hover:bg-white/35"
+              aria-label={isFullscreen ? "Thu nhỏ" : "Toàn màn hình"}
+            >
+              {isFullscreen
+                ? <Minimize2 className="h-4 w-4" strokeWidth={2.5} />
+                : <Maximize2 className="h-4 w-4" strokeWidth={2.5} />
+              }
+            </button>
+          )}
           <button
             onClick={onClose}
             className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/20 text-white transition hover:bg-white/35"

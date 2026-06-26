@@ -15,6 +15,8 @@ export function LearningTab() {
   const [currentNoiDungIndex, setCurrentNoiDungIndex] = useState(0);
   const [completedByChuDe, setCompletedByChuDe] = useState<Record<number, number[]>>({});
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const chuDes = useMemo(() => (data ?? []).map((d) => d.chuDe), [data]);
   const chuDe = chuDes[currentChuDeIndex];
@@ -38,10 +40,20 @@ export function LearningTab() {
     });
   };
 
+  const closeModal = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsDetailOpen(false);
+      setIsClosing(false);
+      setIsFullscreen(false);
+    }, 200);
+  };
+
   const openChang = (i: number) => {
     setCurrentChangIndex(i);
     setCurrentNoiDungIndex(0);
     setIsDetailOpen(false);
+    setIsFullscreen(false);
 
     const urls =
       changs[i]?.noiDungs.flatMap((nd) =>
@@ -70,7 +82,7 @@ export function LearningTab() {
   useEffect(() => {
     if (!isDetailOpen) return;
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setIsDetailOpen(false);
+      if (e.key === "Escape") closeModal();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -126,25 +138,37 @@ export function LearningTab() {
           const canNext = currentNoiDungIndex < noiDungCount - 1;
           return (
             <div
-              className="fixed inset-0 z-40 flex h-dvh items-center justify-center bg-navy/70 p-0 backdrop-blur-sm animate-modal-overlay-in sm:p-4"
-              onClick={() => setIsDetailOpen(false)}
+              className={[
+                "fixed inset-0 z-40 flex h-dvh items-center justify-center bg-navy/70 backdrop-blur-sm",
+                isFullscreen ? "p-0" : "p-0 sm:p-4",
+                isClosing ? "animate-modal-overlay-out" : "animate-modal-overlay-in",
+              ].join(" ")}
+              onClick={closeModal}
             >
               <div
                 onClick={(e) => e.stopPropagation()}
-                className="relative h-dvh w-full animate-modal-pop-in sm:h-[95dvh] sm:max-w-2xl"
+                className={[
+                  "relative",
+                  isClosing ? "animate-modal-pop-out" : "animate-modal-pop-in",
+                  isFullscreen
+                    ? "h-dvh w-full"
+                    : "h-dvh w-full sm:h-[95dvh] sm:max-w-2xl",
+                ].join(" ")}
               >
                 <LessonCard
                   chang={currentChang}
                   changIndex={currentChangIndex}
                   noiDungIndex={currentNoiDungIndex}
                   isCompleted={completedChangs.has(currentChangIndex)}
+                  isFullscreen={isFullscreen}
+                  onToggleFullscreen={() => setIsFullscreen((f) => !f)}
                   onPrevNoiDung={() => setCurrentNoiDungIndex((i) => Math.max(0, i - 1))}
                   onNextNoiDung={() =>
                     setCurrentNoiDungIndex((i) => Math.min(noiDungCount - 1, i + 1))
                   }
                   onNoiDungChange={setCurrentNoiDungIndex}
                   onComplete={completeChang}
-                  onClose={() => setIsDetailOpen(false)}
+                  onClose={closeModal}
                 />
 
                 {canPrev && (
