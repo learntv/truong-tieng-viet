@@ -52,8 +52,10 @@ export function InfoHero() {
           height={1024}
           className="absolute inset-0 h-full w-full object-cover object-right"
         />
+        {/* Blur layer: blurs the left side and fades out toward the right */}
+        <div className="absolute inset-0 backdrop-blur-none sm:backdrop-blur-sm sm:[mask-image:linear-gradient(to_right,black_40%,transparent_70%)]" />
         {/* Readability overlay: stronger on left, fades to transparent on the right */}
-        <div className="absolute inset-0 bg-gradient-to-r from-stone-900/80 via-stone-900/55 to-transparent sm:from-stone-900/75 sm:via-stone-900/35 sm:to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-stone-900/80 via-stone-900/30 to-transparent sm:from-stone-900/75 sm:via-stone-900/15 sm:to-transparent" />
         {/* Subtle bottom fade for safe mobile contrast */}
         <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 via-transparent to-transparent sm:hidden" />
 
