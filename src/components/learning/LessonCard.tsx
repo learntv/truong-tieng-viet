@@ -234,7 +234,7 @@ export function LessonCard({
           {noiDungs.map((nd, pageIdx) => (
             <div
               key={nd.id}
-              className="lesson-scroll flex-none w-full h-full overflow-y-auto overscroll-contain px-5 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-7 sm:py-8"
+              className={["lesson-scroll flex-none w-full h-full overflow-y-auto overscroll-contain px-5 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:py-8", isFullscreen ? "sm:px-48" : "sm:px-7"].join(" ")}
               style={{ "--scroll-thumb": color.scrollThumb, "--scroll-track": color.scrollTrack } as React.CSSProperties}
             >
               {/* NoiDung title pill */}
