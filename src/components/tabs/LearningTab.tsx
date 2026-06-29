@@ -101,13 +101,11 @@ export function LearningTab() {
       setSelectedChangIndex(changIdx);
     };
 
-    // Prefer the stage the user last opened (saved in sessionStorage by openChang),
-    // but only when there is progress data and the saved stage isn't completed.
-    // Empty progress means first visit or after a reset — ignore stale sessionStorage.
+    // Prefer the stage the user last opened (saved in sessionStorage by openChang).
+    // Reset clears sessionStorage explicitly, so no need to guard against stale data here.
     const saved = loadBuffaloPos();
     if (
       saved &&
-      activeProgressMap.size > 0 &&
       saved.chuDeIndex < data.length &&
       saved.changIndex < (data[saved.chuDeIndex]?.changs.length ?? 0)
     ) {
