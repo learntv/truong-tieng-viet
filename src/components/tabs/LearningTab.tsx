@@ -92,7 +92,7 @@ export function LearningTab() {
   // Priority: last-opened stage (sessionStorage) → in-progress "đang học" stage → first incomplete → last stage.
   const hasRestoredRef = useRef(false);
   useEffect(() => {
-    if (hasRestoredRef.current || !data || isProgressLoading) return;
+    if (hasRestoredRef.current || !data || authIsLoading || isProgressLoading) return;
     hasRestoredRef.current = true;
 
     const restore = (chuDeIdx: number, changIdx: number) => {
@@ -143,7 +143,7 @@ export function LearningTab() {
     // All done — land on the last stage of the last topic
     const lastTi = data.length - 1;
     restore(lastTi, Math.max(0, data[lastTi].changs.length - 1));
-  }, [data, isProgressLoading, activeProgressMap]);
+  }, [data, authIsLoading, isProgressLoading, activeProgressMap]);
 
   const chuDes = useMemo(() => (data ?? []).map((d) => d.chuDe), [data]);
   const chuDe = chuDes[currentChuDeIndex];
