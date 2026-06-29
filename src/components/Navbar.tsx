@@ -3,6 +3,7 @@ import { BookOpen, Home, LogOut, Menu, Star, User, UserCircle, X } from "lucide-
 import { Link, useRouterState } from "@tanstack/react-router";
 import iconLogo from "@/assets/icon.png";
 import { useAuth } from "@/hooks/useAuth";
+import { generateUsername } from "@/lib/profile";
 import { AuthModal } from "@/components/AuthModal";
 import {
   DropdownMenu,
@@ -37,6 +38,7 @@ export function Navbar() {
   const avatarLetter = displayName[0]?.toUpperCase() ?? "?";
   const avatarUrl = user?.user_metadata?.avatar_url as string | undefined;
   const avatarEmoji = user?.user_metadata?.avatar_emoji as string | undefined;
+  const myUsername = user ? generateUsername(displayName, user.id) : null;
 
   const closeSidebar = () => setSidebarOpen(false);
 
@@ -120,15 +122,18 @@ export function Navbar() {
                   <DropdownMenuLabel className="font-bold text-navy truncate">
                     {displayName}
                   </DropdownMenuLabel>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      to="/trang-ca-nhan"
-                      className="flex cursor-pointer items-center"
-                    >
-                      <UserCircle className="mr-2 h-4 w-4" />
-                      Trang cá nhân
-                    </Link>
-                  </DropdownMenuItem>
+                  {myUsername && (
+                    <DropdownMenuItem asChild>
+                      <Link
+                        to="/u/$username"
+                        params={{ username: myUsername }}
+                        className="flex cursor-pointer items-center"
+                      >
+                        <UserCircle className="mr-2 h-4 w-4" />
+                        Trang cá nhân
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={signOut}
@@ -210,14 +215,17 @@ export function Navbar() {
           )}
           {!isLoading && (user ? (
             <div className="flex flex-col gap-1">
-              <Link
-                to="/trang-ca-nhan"
-                onClick={closeSidebar}
-                className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-foreground/70 hover:bg-muted hover:text-foreground transition-all"
-              >
-                <UserCircle className="h-5 w-5 shrink-0" strokeWidth={2.5} />
-                <span>Trang cá nhân</span>
-              </Link>
+              {myUsername && (
+                <Link
+                  to="/u/$username"
+                  params={{ username: myUsername }}
+                  onClick={closeSidebar}
+                  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-foreground/70 hover:bg-muted hover:text-foreground transition-all"
+                >
+                  <UserCircle className="h-5 w-5 shrink-0" strokeWidth={2.5} />
+                  <span>Trang cá nhân</span>
+                </Link>
+              )}
               <button
                 onClick={() => { signOut(); closeSidebar(); }}
                 className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-destructive hover:bg-destructive/10 transition-all"

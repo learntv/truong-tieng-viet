@@ -9,18 +9,13 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TrangCaNhanRouteImport } from './routes/trang-ca-nhan'
 import { Route as SanPhamCuaEmRouteImport } from './routes/san-pham-cua-em'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as HocTiengVietRouteImport } from './routes/hoc-tieng-viet'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as UUsernameRouteImport } from './routes/u.$username'
 
-const TrangCaNhanRoute = TrangCaNhanRouteImport.update({
-  id: '/trang-ca-nhan',
-  path: '/trang-ca-nhan',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SanPhamCuaEmRoute = SanPhamCuaEmRouteImport.update({
   id: '/san-pham-cua-em',
   path: '/san-pham-cua-em',
@@ -46,6 +41,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UUsernameRoute = UUsernameRouteImport.update({
+  id: '/u/$username',
+  path: '/u/$username',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -53,7 +53,7 @@ export interface FileRoutesByFullPath {
   '/hoc-tieng-viet': typeof HocTiengVietRoute
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
-  '/trang-ca-nhan': typeof TrangCaNhanRoute
+  '/u/$username': typeof UUsernameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -61,7 +61,7 @@ export interface FileRoutesByTo {
   '/hoc-tieng-viet': typeof HocTiengVietRoute
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
-  '/trang-ca-nhan': typeof TrangCaNhanRoute
+  '/u/$username': typeof UUsernameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -70,7 +70,7 @@ export interface FileRoutesById {
   '/hoc-tieng-viet': typeof HocTiengVietRoute
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
-  '/trang-ca-nhan': typeof TrangCaNhanRoute
+  '/u/$username': typeof UUsernameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -80,7 +80,7 @@ export interface FileRouteTypes {
     | '/hoc-tieng-viet'
     | '/reset-password'
     | '/san-pham-cua-em'
-    | '/trang-ca-nhan'
+    | '/u/$username'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -88,7 +88,7 @@ export interface FileRouteTypes {
     | '/hoc-tieng-viet'
     | '/reset-password'
     | '/san-pham-cua-em'
-    | '/trang-ca-nhan'
+    | '/u/$username'
   id:
     | '__root__'
     | '/'
@@ -96,7 +96,7 @@ export interface FileRouteTypes {
     | '/hoc-tieng-viet'
     | '/reset-password'
     | '/san-pham-cua-em'
-    | '/trang-ca-nhan'
+    | '/u/$username'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -105,18 +105,11 @@ export interface RootRouteChildren {
   HocTiengVietRoute: typeof HocTiengVietRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SanPhamCuaEmRoute: typeof SanPhamCuaEmRoute
-  TrangCaNhanRoute: typeof TrangCaNhanRoute
+  UUsernameRoute: typeof UUsernameRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/trang-ca-nhan': {
-      id: '/trang-ca-nhan'
-      path: '/trang-ca-nhan'
-      fullPath: '/trang-ca-nhan'
-      preLoaderRoute: typeof TrangCaNhanRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/san-pham-cua-em': {
       id: '/san-pham-cua-em'
       path: '/san-pham-cua-em'
@@ -152,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/u/$username': {
+      id: '/u/$username'
+      path: '/u/$username'
+      fullPath: '/u/$username'
+      preLoaderRoute: typeof UUsernameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -161,7 +161,7 @@ const rootRouteChildren: RootRouteChildren = {
   HocTiengVietRoute: HocTiengVietRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SanPhamCuaEmRoute: SanPhamCuaEmRoute,
-  TrangCaNhanRoute: TrangCaNhanRoute,
+  UUsernameRoute: UUsernameRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

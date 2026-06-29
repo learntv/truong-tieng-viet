@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          id: string
+          username: string
+          display_name: string
+          avatar_emoji: string | null
+          avatar_url: string | null
+          country: string | null
+          completed_count: number
+          created_at: string
+        }
+        Insert: {
+          id: string
+          username: string
+          display_name?: string
+          avatar_emoji?: string | null
+          avatar_url?: string | null
+          country?: string | null
+          completed_count?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          username?: string
+          display_name?: string
+          avatar_emoji?: string | null
+          avatar_url?: string | null
+          country?: string | null
+          completed_count?: number
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bai: {
         Row: {
           id: string

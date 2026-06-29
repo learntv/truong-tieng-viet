@@ -3,6 +3,7 @@ import { Loader2, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { upsertProfile } from "@/lib/profile";
 import {
   Dialog,
   DialogContent,
@@ -142,6 +143,18 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
         profile_setup_completed: true,
       },
     });
+    if (!error) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await upsertProfile({
+          userId: user.id,
+          displayName: trimmedName,
+          avatarEmoji: selectedEmoji,
+          avatarUrl: user.user_metadata?.avatar_url as string | undefined,
+          country: countryCode || null,
+        });
+      }
+    }
     setSaving(false);
     if (error) {
       toast.error("Không thể lưu hồ sơ", { description: error.message });
