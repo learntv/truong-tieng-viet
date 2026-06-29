@@ -89,6 +89,10 @@ export function Navbar() {
           </ul>
 
           <div className="ml-auto flex shrink-0 items-center gap-2">
+            {isLoading && (
+              <div className="h-9 w-9 animate-pulse rounded-full bg-muted sm:w-28" />
+            )}
+
             {!isLoading && !user && (
               <button
                 onClick={() => setAuthOpen(true)}
@@ -200,37 +204,38 @@ export function Navbar() {
         </nav>
 
         {/* Sidebar footer — user actions */}
-        {!isLoading && (
-          <div className="border-t px-3 py-4">
-            {user ? (
-              <div className="flex flex-col gap-1">
-                <Link
-                  to="/trang-ca-nhan"
-                  onClick={closeSidebar}
-                  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-foreground/70 hover:bg-muted hover:text-foreground transition-all"
-                >
-                  <UserCircle className="h-5 w-5 shrink-0" strokeWidth={2.5} />
-                  <span>Trang cá nhân</span>
-                </Link>
-                <button
-                  onClick={() => { signOut(); closeSidebar(); }}
-                  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-destructive hover:bg-destructive/10 transition-all"
-                >
-                  <LogOut className="h-5 w-5 shrink-0" strokeWidth={2.5} />
-                  <span>Đăng xuất</span>
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => { setAuthOpen(true); closeSidebar(); }}
-                className="flex w-full items-center gap-3 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-primary/90"
+        <div className="border-t px-3 py-4">
+          {isLoading && (
+            <div className="h-12 animate-pulse rounded-2xl bg-muted" />
+          )}
+          {!isLoading && (user ? (
+            <div className="flex flex-col gap-1">
+              <Link
+                to="/trang-ca-nhan"
+                onClick={closeSidebar}
+                className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-foreground/70 hover:bg-muted hover:text-foreground transition-all"
               >
-                <User className="h-5 w-5 shrink-0" strokeWidth={2.5} />
-                <span>Đăng nhập</span>
+                <UserCircle className="h-5 w-5 shrink-0" strokeWidth={2.5} />
+                <span>Trang cá nhân</span>
+              </Link>
+              <button
+                onClick={() => { signOut(); closeSidebar(); }}
+                className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-destructive hover:bg-destructive/10 transition-all"
+              >
+                <LogOut className="h-5 w-5 shrink-0" strokeWidth={2.5} />
+                <span>Đăng xuất</span>
               </button>
-            )}
-          </div>
-        )}
+            </div>
+          ) : (
+            <button
+              onClick={() => { setAuthOpen(true); closeSidebar(); }}
+              className="flex w-full items-center gap-3 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-primary/90"
+            >
+              <User className="h-5 w-5 shrink-0" strokeWidth={2.5} />
+              <span>Đăng nhập</span>
+            </button>
+          ))}
+        </div>
       </aside>
 
       <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
