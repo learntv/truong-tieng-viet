@@ -41,6 +41,7 @@ export function RoadmapMap({
   allCurrentDone,
   isLast,
   onAdvance,
+  changProgress,
 }: {
   chuDes: ChuDe[];
   chuDe: ChuDe;
@@ -58,6 +59,7 @@ export function RoadmapMap({
   allCurrentDone: boolean;
   isLast: boolean;
   onAdvance: () => void;
+  changProgress: Map<number, { current: number; total: number }>;
 }) {
   const bookNumber = chuDeIndex < 4 ? 1 : 2;
   const buffaloIndex = buffaloChangIndex;
@@ -124,7 +126,8 @@ export function RoadmapMap({
 
       {/* Map area: SVG path + stage cards + buffalo */}
       <div
-        className="relative z-20 mt-2 min-h-0 w-full flex-1 overflow-x-auto sm:overflow-x-hidden"
+        className="relative z-20 min-h-0 w-full flex-1 overflow-x-auto sm:overflow-x-hidden"
+        style={{ marginTop: 'calc(0.5rem - 3.5rem)', paddingTop: '3.5rem' }}
       >
         <div className="relative h-full min-w-[760px] sm:min-w-0">
           <svg
@@ -157,7 +160,6 @@ export function RoadmapMap({
                     <div className={["rounded-xl px-3 py-1.5 text-[11px] font-extrabold text-white shadow-lg bg-gradient-to-r", STAGE_COLORS[i % STAGE_COLORS.length].stripe].join(" ")}>
                       Đang học
                     </div>
-                    {/* Downward triangle */}
                     <div
                       className="h-0 w-0"
                       style={{
@@ -178,6 +180,7 @@ export function RoadmapMap({
                   isSelected={!isLocked && selectedChangIndex === i}
                   openLabel={getLessonButtonLabel(i, completedChangs, startedChangs)}
                   compact
+                  noiDungProgress={changProgress.get(i)}
                   onClick={() => { if (!isLocked) onSelectStage(i); }}
                   onOpen={() => { if (!isLocked) onOpenLesson(i); }}
                 />

@@ -186,6 +186,35 @@ export type Database = {
         }
         Relationships: []
       }
+      user_progress: {
+        Row: {
+          user_id: string    // uuid
+          chang_id: string   // text (matches chang.id type)
+          noidung_index: number
+          completed_at: string | null
+        }
+        Insert: {
+          user_id: string
+          chang_id: string
+          noidung_index?: number
+          completed_at?: string | null
+        }
+        Update: {
+          user_id?: string
+          chang_id?: string
+          noidung_index?: number
+          completed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_progress_chang_id_fkey"
+            columns: ["chang_id"]
+            isOneToOne: false
+            referencedRelation: "chang"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

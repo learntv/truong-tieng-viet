@@ -79,6 +79,7 @@ export function StageCard({
   isSelected = false,
   compact = false,
   openLabel,
+  noiDungProgress,
   onClick,
   onOpen,
 }: {
@@ -91,6 +92,7 @@ export function StageCard({
   isSelected?: boolean;
   compact?: boolean;
   openLabel?: string;
+  noiDungProgress?: { current: number; total: number };
   onClick: () => void;
   onOpen?: () => void;
 }) {
@@ -168,6 +170,19 @@ export function StageCard({
         <p className="line-clamp-2 font-display text-sm font-extrabold leading-tight text-navy">
           {title}
         </p>
+        {noiDungProgress && !isCompleted && (
+          <div className="mt-1.5 px-1">
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-stone-200">
+              <div
+                className={["h-full rounded-full transition-all", color.bg].join(" ")}
+                style={{ width: `${(noiDungProgress.current / noiDungProgress.total) * 100}%` }}
+              />
+            </div>
+            <p className={["mt-0.5 text-[9px] font-bold", color.text].join(" ")}>
+              {noiDungProgress.current}/{noiDungProgress.total} trang
+            </p>
+          </div>
+        )}
       </button>
 
       {/* Expanding action section */}

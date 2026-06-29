@@ -6,6 +6,9 @@ import { learningDataQueryOptions } from "@/lib/learning";
 import { RoadmapMap } from "@/components/learning/RoadmapMap";
 import { LessonCard } from "@/components/learning/LessonCard";
 import { STAGE_COLORS } from "@/components/learning/StageCard";
+import { useAuth } from "@/hooks/useAuth";
+import { useUserProgress } from "@/hooks/useUserProgress";
+import type { ChangProgress } from "@/hooks/useUserProgress";
 
 export function LearningTab() {
   const { data, isLoading, error } = useQuery(learningDataQueryOptions);
@@ -13,7 +16,11 @@ export function LearningTab() {
   const [currentChuDeIndex, setCurrentChuDeIndex] = useState(0);
   const [currentChangIndex, setCurrentChangIndex] = useState(0);
   const [currentNoiDungIndex, setCurrentNoiDungIndex] = useState(0);
-  const [completedByChuDe, setCompletedByChuDe] = useState<Record<number, number[]>>({});
+  const { user, isLoading: authIsLoading } = useAuth();
+  const { progressMap, isProgressLoading, markComplete, savePosition } = useUserProgress(user?.id ?? null);
+  const [localProgressMap, setLocalProgressMap] = useState<Map<string, ChangProgress>>(new Map());
+  const activeProgressMap = user ? progressMap : localProgressMap;
+
   const [startedByChuDe, setStartedByChuDe] = useState<Record<number, number[]>>({});
   const [selectedChangIndex, setSelectedChangIndex] = useState<number | null>(null);
   const [buffaloChangIndex, setBuffaloChangIndex] = useState(0);
@@ -26,21 +33,50 @@ export function LearningTab() {
   const changs = useMemo(() => data?.[currentChuDeIndex]?.changs ?? [], [data, currentChuDeIndex]);
   const changTitles = useMemo(() => changs.map((s) => s.title), [changs]);
   const changEmojis = useMemo(() => changs.map((s) => s.emoji), [changs]);
+  const completedByChuDe = useMemo<Record<number, number[]>>(() => {
+    if (!data) return {};
+    const result: Record<number, number[]> = {};
+    data.forEach((chuDeData, chuDeIdx) => {
+      result[chuDeIdx] = chuDeData.changs
+        .map((ch, changIdx) => (activeProgressMap.get(ch.id)?.isCompleted ? changIdx : -1))
+        .filter((idx) => idx !== -1);
+    });
+    return result;
+  }, [data, activeProgressMap]);
+
   const completedChangs = useMemo(
     () => new Set(completedByChuDe[currentChuDeIndex] ?? []),
     [completedByChuDe, currentChuDeIndex],
   );
+
+  const changProgress = useMemo(() => {
+    const map = new Map<number, { current: number; total: number }>();
+    changs.forEach((ch, i) => {
+      const prog = activeProgressMap.get(ch.id);
+      if (prog && !prog.isCompleted && prog.noiDungIndex > 0) {
+        map.set(i, { current: prog.noiDungIndex + 1, total: ch.noiDungs.length });
+      }
+    });
+    return map;
+  }, [changs, activeProgressMap]);
+
   const startedChangs = useMemo(
     () => new Set(startedByChuDe[currentChuDeIndex] ?? []),
     [startedByChuDe, currentChuDeIndex],
   );
 
   const completeChang = () => {
-    setCompletedByChuDe((prev) => {
-      const cur = new Set(prev[currentChuDeIndex] ?? []);
-      cur.add(currentChangIndex);
-      return { ...prev, [currentChuDeIndex]: Array.from(cur) };
-    });
+    const changId = changs[currentChangIndex]?.id;
+    if (!changId) return;
+    if (user) {
+      markComplete(changId);
+    } else {
+      setLocalProgressMap((prev) => {
+        const next = new Map(prev);
+        next.set(changId, { noiDungIndex: currentNoiDungIndex, isCompleted: true });
+        return next;
+      });
+    }
     toast.success(`Chặng ${currentChangIndex + 1} hoàn thành! 🎉`, {
       description: "Tiếp tục giỏi nhé!",
       duration: 3000,
@@ -48,6 +84,19 @@ export function LearningTab() {
   };
 
   const closeModal = () => {
+    const changId = changs[currentChangIndex]?.id;
+    if (changId && !completedChangs.has(currentChangIndex)) {
+      if (user) {
+        savePosition(changId, currentNoiDungIndex);
+      } else {
+        setLocalProgressMap((prev) => {
+          const next = new Map(prev);
+          const existing = next.get(changId);
+          next.set(changId, { noiDungIndex: currentNoiDungIndex, isCompleted: existing?.isCompleted ?? false });
+          return next;
+        });
+      }
+    }
     setIsClosing(true);
     setTimeout(() => {
       setIsDetailOpen(false);
@@ -58,7 +107,8 @@ export function LearningTab() {
 
   const openChang = (i: number) => {
     setCurrentChangIndex(i);
-    setCurrentNoiDungIndex(0);
+    const savedProgress = activeProgressMap.get(changs[i]?.id ?? "");
+    setCurrentNoiDungIndex(savedProgress?.noiDungIndex ?? 0);
     setIsFullscreen(false);
     setIsDetailOpen(true);
 
@@ -84,7 +134,6 @@ export function LearningTab() {
     setCurrentChangIndex(0);
     setCurrentNoiDungIndex(0);
     setSelectedChangIndex(null);
-    setCompletedByChuDe((prev) => ({ ...prev, [currentChuDeIndex + 1]: [] }));
     setIsDetailOpen(false);
   };
 
@@ -100,7 +149,7 @@ export function LearningTab() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [isDetailOpen]);
 
-  if (isLoading) {
+  if (isLoading || authIsLoading || isProgressLoading) {
     return (
       <section className="w-full px-4 py-16 text-center text-navy">
         <p className="font-display text-lg font-bold">Đang tải bài học…</p>
@@ -144,6 +193,7 @@ export function LearningTab() {
             allCurrentDone={allDone}
             isLast={isLast}
             onAdvance={nextChuDe}
+            changProgress={changProgress}
           />
         </div>
 
