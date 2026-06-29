@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { KeyRound, Lock, Loader2, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProgress } from "@/hooks/useUserProgress";
@@ -39,6 +39,26 @@ const BADGES = [
   { emoji: "🦸", label: "Anh hùng", sublabel: "Hoàn thành 10 bài", threshold: 10 },
 ];
 
+function computeStreak(completedAts: string[]): { days: number; studiedToday: boolean } {
+  const MS_PER_DAY = 86400_000;
+  const toDay = (iso: string) => {
+    const d = new Date(iso);
+    d.setHours(0, 0, 0, 0);
+    return d.getTime();
+  };
+  const today = (() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime(); })();
+  if (completedAts.length === 0) return { days: 0, studiedToday: false };
+  const days = [...new Set(completedAts.map(toDay))].sort((a, b) => b - a);
+  const studiedToday = days[0] === today;
+  if (days[0] < today - MS_PER_DAY) return { days: 0, studiedToday: false };
+  let streak = 1;
+  for (let i = 1; i < days.length; i++) {
+    if (days[i] === days[i - 1] - MS_PER_DAY) streak++;
+    else break;
+  }
+  return { days: streak, studiedToday };
+}
+
 function TrangCaNhan() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -46,6 +66,20 @@ function TrangCaNhan() {
   const { progressMap, isProgressLoading } = useUserProgress(user?.id ?? null);
   const [isSendingReset, setIsSendingReset] = useState(false);
   const [isRestarting, setIsRestarting] = useState(false);
+
+  const { data: streak = { days: 0, studiedToday: false } } = useQuery({
+    queryKey: ["streak", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("user_progress")
+        .select("completed_at")
+        .not("completed_at", "is", null);
+      if (error) throw error;
+      return computeStreak(data.map((r) => r.completed_at as string));
+    },
+    enabled: !!user,
+    staleTime: 60_000,
+  });
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -82,7 +116,6 @@ function TrangCaNhan() {
   const inProgressCount = [...progressMap.values()].filter(
     (p) => !p.isCompleted && p.noiDungIndex > 0,
   ).length;
-  const totalStarted = progressMap.size;
 
   const isEmailUser = user.app_metadata?.provider !== "google";
 
@@ -115,6 +148,7 @@ function TrangCaNhan() {
     localStorage.removeItem("vui-hoc-progress");
     try { sessionStorage.removeItem("vui-hoc-buffalo-pos"); } catch { /* ignore */ }
     queryClient.setQueryData(["user-progress", user.id], new Map());
+    queryClient.setQueryData(["streak", user.id], { days: 0, studiedToday: false });
     setIsRestarting(false);
     toast.success("Tiến độ đã được đặt lại! Hãy bắt đầu lại nhé 🌱");
   };
@@ -174,14 +208,10 @@ function TrangCaNhan() {
           {[
             { emoji: "🎯", value: completedCount, label: "Bài hoàn thành", color: "bg-green/10 border-green/30 text-green" },
             { emoji: "📖", value: inProgressCount, label: "Đang học", color: "bg-yellow/20 border-yellow/40 text-navy" },
-            { emoji: "🗂️", value: totalStarted, label: "Đã mở", color: "bg-purple/10 border-purple/30 text-purple" },
           ].map(({ emoji, value, label, color }) => (
             <div
               key={label}
-              className={[
-                "rounded-2xl border p-4 text-center shadow-sm",
-                color,
-              ].join(" ")}
+              className={["rounded-2xl border p-4 text-center shadow-sm", color].join(" ")}
             >
               <div className="text-2xl mb-1">{emoji}</div>
               <div className="font-display text-2xl font-extrabold text-navy leading-none">
@@ -192,6 +222,20 @@ function TrangCaNhan() {
               </div>
             </div>
           ))}
+
+          {/* Streak card */}
+          <div className="rounded-2xl border p-4 text-center shadow-sm bg-orange-50 border-orange-200 text-orange-600">
+            <div className="text-2xl mb-1">🔥</div>
+            <div className="font-display text-2xl font-extrabold text-navy leading-none">
+              {streak.days}
+            </div>
+            <div className="text-xs font-semibold mt-1 text-muted-foreground leading-tight">
+              Ngày liên tiếp
+            </div>
+            <div className={["mt-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold inline-block", streak.studiedToday ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-600"].join(" ")}>
+              {streak.studiedToday ? "✓ Hôm nay xong" : "Chưa học hôm nay"}
+            </div>
+          </div>
         </div>
 
         {/* Badges */}
