@@ -1,5 +1,5 @@
 import type { User } from "@supabase/supabase-js";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { KeyRound, Lock, Loader2, RotateCcw, Globe, Pencil, Check, Home, LogOut } from "lucide-react";
@@ -261,6 +261,7 @@ function CountryPickerDialog({
 
 function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { progressMap, isProgressLoading } = useUserProgress(user.id);
   const [isSendingReset, setIsSendingReset] = useState(false);
   const [isRestarting, setIsRestarting] = useState(false);
@@ -306,11 +307,15 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
     setSavingName(true);
     const { error } = await supabase.auth.updateUser({ data: { full_name: trimmed } });
     if (!error && user) {
-      await upsertProfile({ userId: user.id, displayName: trimmed, avatarEmoji, avatarUrl, country: countryCode });
+      const { username } = await upsertProfile({ userId: user.id, displayName: trimmed, avatarEmoji, avatarUrl, country: countryCode });
+      setSavingName(false);
+      setEditingName(false);
+      toast.success("Đã lưu tên!");
+      navigate({ to: "/u/$username", params: { username }, replace: true });
+      return;
     }
     setSavingName(false);
     if (error) { toast.error("Không thể lưu tên", { description: error.message }); }
-    else { setEditingName(false); toast.success("Đã lưu tên!"); }
   };
 
   const handleResetPassword = async () => {
