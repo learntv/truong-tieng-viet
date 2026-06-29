@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -17,9 +17,20 @@ export function LearningTab() {
   const [currentChangIndex, setCurrentChangIndex] = useState(0);
   const [currentNoiDungIndex, setCurrentNoiDungIndex] = useState(0);
   const { user, isLoading: authIsLoading } = useAuth();
-  const { progressMap, isProgressLoading, markComplete, savePosition } = useUserProgress(user?.id ?? null);
+  const { progressMap, isProgressLoading, markComplete, savePosition, mergeLocalProgress } = useUserProgress(user?.id ?? null);
   const [localProgressMap, setLocalProgressMap] = useState<Map<string, ChangProgress>>(new Map());
   const activeProgressMap = user ? progressMap : localProgressMap;
+
+  // Merge anonymous progress into DB when user logs in
+  const prevUserIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    const prevId = prevUserIdRef.current;
+    const currentId = user?.id ?? null;
+    prevUserIdRef.current = currentId;
+    if (currentId && !prevId && localProgressMap.size > 0) {
+      mergeLocalProgress(localProgressMap).then(() => setLocalProgressMap(new Map()));
+    }
+  }, [user?.id]);
 
   const [startedByChuDe, setStartedByChuDe] = useState<Record<number, number[]>>({});
   const [selectedChangIndex, setSelectedChangIndex] = useState<number | null>(null);
@@ -33,6 +44,7 @@ export function LearningTab() {
   const changs = useMemo(() => data?.[currentChuDeIndex]?.changs ?? [], [data, currentChuDeIndex]);
   const changTitles = useMemo(() => changs.map((s) => s.title), [changs]);
   const changEmojis = useMemo(() => changs.map((s) => s.emoji), [changs]);
+
   const completedByChuDe = useMemo<Record<number, number[]>>(() => {
     if (!data) return {};
     const result: Record<number, number[]> = {};
@@ -52,9 +64,12 @@ export function LearningTab() {
   const changProgress = useMemo(() => {
     const map = new Map<number, { current: number; total: number }>();
     changs.forEach((ch, i) => {
+      const total = ch.noiDungs.length;
+      if (total === 0) return;
       const prog = activeProgressMap.get(ch.id);
       if (prog && !prog.isCompleted && prog.noiDungIndex > 0) {
-        map.set(i, { current: prog.noiDungIndex + 1, total: ch.noiDungs.length });
+        const current = Math.min(prog.noiDungIndex + 1, total);
+        map.set(i, { current, total });
       }
     });
     return map;
@@ -66,6 +81,8 @@ export function LearningTab() {
   );
 
   const completeChang = () => {
+    // Guard: already completed or no valid chang
+    if (completedChangs.has(currentChangIndex)) return;
     const changId = changs[currentChangIndex]?.id;
     if (!changId) return;
     if (user) {
@@ -84,6 +101,7 @@ export function LearningTab() {
   };
 
   const closeModal = () => {
+    if (!isDetailOpen) return;
     const changId = changs[currentChangIndex]?.id;
     if (changId && !completedChangs.has(currentChangIndex)) {
       if (user) {
@@ -106,16 +124,19 @@ export function LearningTab() {
   };
 
   const openChang = (i: number) => {
+    if (i < 0 || i >= changs.length) return;
+    const chang = changs[i];
+    const savedProgress = activeProgressMap.get(chang.id);
+    const maxSlide = Math.max(0, chang.noiDungs.length - 1);
     setCurrentChangIndex(i);
-    const savedProgress = activeProgressMap.get(changs[i]?.id ?? "");
-    setCurrentNoiDungIndex(savedProgress?.noiDungIndex ?? 0);
+    setCurrentNoiDungIndex(Math.min(savedProgress?.noiDungIndex ?? 0, maxSlide));
     setIsFullscreen(false);
     setIsDetailOpen(true);
 
     const urls =
-      changs[i]?.noiDungs.flatMap((nd) =>
+      chang.noiDungs.flatMap((nd) =>
         nd.bais.flatMap((b) => b.hinhs.map((h) => h.url)),
-      ) ?? [];
+      );
     urls.filter(Boolean).forEach((url) => {
       const img = new Image();
       img.src = url;
@@ -134,6 +155,7 @@ export function LearningTab() {
     setCurrentChangIndex(0);
     setCurrentNoiDungIndex(0);
     setSelectedChangIndex(null);
+    setBuffaloChangIndex(0);
     setIsDetailOpen(false);
   };
 

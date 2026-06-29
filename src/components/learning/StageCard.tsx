@@ -102,7 +102,7 @@ export function StageCard({
 
   useEffect(() => {
     wasCompletedRef.current = isCompleted;
-  });
+  }, [isCompleted]);
 
   if (isLocked) {
     return (
