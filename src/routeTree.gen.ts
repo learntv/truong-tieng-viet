@@ -9,14 +9,26 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TrangCaNhanRouteImport } from './routes/trang-ca-nhan'
 import { Route as SanPhamCuaEmRouteImport } from './routes/san-pham-cua-em'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as HocTiengVietRouteImport } from './routes/hoc-tieng-viet'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TrangCaNhanRoute = TrangCaNhanRouteImport.update({
+  id: '/trang-ca-nhan',
+  path: '/trang-ca-nhan',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SanPhamCuaEmRoute = SanPhamCuaEmRouteImport.update({
   id: '/san-pham-cua-em',
   path: '/san-pham-cua-em',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HocTiengVietRoute = HocTiengVietRouteImport.update({
@@ -39,43 +51,84 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/hoc-tieng-viet': typeof HocTiengVietRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
+  '/trang-ca-nhan': typeof TrangCaNhanRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/hoc-tieng-viet': typeof HocTiengVietRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
+  '/trang-ca-nhan': typeof TrangCaNhanRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/hoc-tieng-viet': typeof HocTiengVietRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
+  '/trang-ca-nhan': typeof TrangCaNhanRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/hoc-tieng-viet' | '/san-pham-cua-em'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/hoc-tieng-viet'
+    | '/reset-password'
+    | '/san-pham-cua-em'
+    | '/trang-ca-nhan'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/hoc-tieng-viet' | '/san-pham-cua-em'
-  id: '__root__' | '/' | '/dashboard' | '/hoc-tieng-viet' | '/san-pham-cua-em'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/hoc-tieng-viet'
+    | '/reset-password'
+    | '/san-pham-cua-em'
+    | '/trang-ca-nhan'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/hoc-tieng-viet'
+    | '/reset-password'
+    | '/san-pham-cua-em'
+    | '/trang-ca-nhan'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   HocTiengVietRoute: typeof HocTiengVietRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SanPhamCuaEmRoute: typeof SanPhamCuaEmRoute
+  TrangCaNhanRoute: typeof TrangCaNhanRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/trang-ca-nhan': {
+      id: '/trang-ca-nhan'
+      path: '/trang-ca-nhan'
+      fullPath: '/trang-ca-nhan'
+      preLoaderRoute: typeof TrangCaNhanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/san-pham-cua-em': {
       id: '/san-pham-cua-em'
       path: '/san-pham-cua-em'
       fullPath: '/san-pham-cua-em'
       preLoaderRoute: typeof SanPhamCuaEmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hoc-tieng-viet': {
@@ -106,8 +159,20 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   HocTiengVietRoute: HocTiengVietRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SanPhamCuaEmRoute: SanPhamCuaEmRoute,
+  TrangCaNhanRoute: TrangCaNhanRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BookOpen, Home, LogOut, Star, User } from "lucide-react";
+import { BookOpen, Home, LogOut, Star, User, UserCircle } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import iconLogo from "@/assets/icon.png";
 import { useAuth } from "@/hooks/useAuth";
@@ -114,6 +114,15 @@ export function Navbar() {
                   <DropdownMenuLabel className="truncate text-xs font-normal text-muted-foreground">
                     {user.email}
                   </DropdownMenuLabel>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/trang-ca-nhan"
+                      className="flex cursor-pointer items-center"
+                    >
+                      <UserCircle className="mr-2 h-4 w-4" />
+                      Trang cá nhân
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={signOut}
