@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { learningDataQueryOptions } from "@/lib/learning";
 import { RoadmapMap } from "@/components/learning/RoadmapMap";
+import { RoadmapSkeleton } from "@/components/learning/RoadmapSkeleton";
 import { LessonCard } from "@/components/learning/LessonCard";
 import { STAGE_COLORS } from "@/components/learning/StageCard";
 import { useAuth } from "@/hooks/useAuth";
@@ -292,8 +293,12 @@ export function LearningTab() {
 
   if (isLoading || authIsLoading || isProgressLoading) {
     return (
-      <section className="w-full px-4 py-16 text-center text-navy">
-        <p className="font-display text-lg font-bold">Đang tải bài học…</p>
+      <section className="h-full w-full px-4 py-3 sm:px-6 sm:py-4 lg:px-10">
+        <div className="relative mx-auto h-full max-w-7xl">
+          <div className="h-full">
+            <RoadmapSkeleton />
+          </div>
+        </div>
       </section>
     );
   }
