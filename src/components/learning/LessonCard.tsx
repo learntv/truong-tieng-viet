@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Maximize2, Minimize2, X } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import type { Chang, Hinh } from "@/lib/learning";
@@ -142,10 +142,13 @@ export function LessonCard({
   const isMobile = useIsMobile();
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, dragFree: false });
+  const hasInitialScrolled = useRef(false);
 
-  /* Sync parent index → carousel */
+  /* Sync parent index → carousel; jump instantly on first render, animate on navigation */
   useEffect(() => {
-    emblaApi?.scrollTo(noiDungIndex, false);
+    if (!emblaApi) return;
+    emblaApi.scrollTo(noiDungIndex, !hasInitialScrolled.current);
+    hasInitialScrolled.current = true;
   }, [emblaApi, noiDungIndex]);
 
   /* Sync swipe gesture → parent */

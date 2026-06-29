@@ -11,6 +11,27 @@ import { useUserProgress } from "@/hooks/useUserProgress";
 import type { ChangProgress } from "@/hooks/useUserProgress";
 
 const LOCAL_PROGRESS_KEY = "vui-hoc-progress";
+const BUFFALO_POS_KEY = "vui-hoc-buffalo-pos";
+
+type BuffaloPos = { chuDeIndex: number; changIndex: number };
+
+function loadBuffaloPos(): BuffaloPos | null {
+  try {
+    const raw = sessionStorage.getItem(BUFFALO_POS_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as BuffaloPos;
+  } catch {
+    return null;
+  }
+}
+
+function saveBuffaloPos(pos: BuffaloPos) {
+  try {
+    sessionStorage.setItem(BUFFALO_POS_KEY, JSON.stringify(pos));
+  } catch {
+    // sessionStorage unavailable
+  }
+}
 
 function loadLocalProgress(): Map<string, ChangProgress> {
   try {
@@ -60,35 +81,58 @@ export function LearningTab() {
     }
   }, [user?.id]);
 
-  // Restore position to the first incomplete stage once data + progress are both ready
-  const hasRestoredRef = useRef(false);
-  useEffect(() => {
-    if (hasRestoredRef.current || !data || isProgressLoading) return;
-    hasRestoredRef.current = true;
-    for (let ti = 0; ti < data.length; ti++) {
-      const topicChangs = data[ti].changs;
-      const firstIncomplete = topicChangs.findIndex((ch) => !activeProgressMap.get(ch.id)?.isCompleted);
-      if (firstIncomplete !== -1) {
-        setCurrentChuDeIndex(ti);
-        setCurrentChangIndex(firstIncomplete);
-        setBuffaloChangIndex(firstIncomplete);
-        return;
-      }
-    }
-    // All done — land on the last stage of the last topic
-    const lastTi = data.length - 1;
-    const lastCi = Math.max(0, data[lastTi].changs.length - 1);
-    setCurrentChuDeIndex(lastTi);
-    setCurrentChangIndex(lastCi);
-    setBuffaloChangIndex(lastCi);
-  }, [data, isProgressLoading, activeProgressMap]);
-
-  const [startedByChuDe, setStartedByChuDe] = useState<Record<number, number[]>>({});
   const [selectedChangIndex, setSelectedChangIndex] = useState<number | null>(null);
   const [buffaloChangIndex, setBuffaloChangIndex] = useState(0);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Restore position once data + progress are both ready.
+  // Priority: last-opened stage (sessionStorage) → in-progress "đang học" stage → first incomplete → last stage.
+  const hasRestoredRef = useRef(false);
+  useEffect(() => {
+    if (hasRestoredRef.current || !data || isProgressLoading) return;
+    hasRestoredRef.current = true;
+
+    const restore = (chuDeIdx: number, changIdx: number) => {
+      setCurrentChuDeIndex(chuDeIdx);
+      setCurrentChangIndex(changIdx);
+      setBuffaloChangIndex(changIdx);
+      setSelectedChangIndex(changIdx);
+    };
+
+    // Prefer the stage the user last opened (saved in sessionStorage by openChang)
+    const saved = loadBuffaloPos();
+    if (
+      saved &&
+      saved.chuDeIndex < data.length &&
+      saved.changIndex < (data[saved.chuDeIndex]?.changs.length ?? 0)
+    ) {
+      restore(saved.chuDeIndex, saved.changIndex);
+      return;
+    }
+
+    // Fall back to the in-progress "đang học" stage (has saved progress > slide 0)
+    for (let ti = 0; ti < data.length; ti++) {
+      const topicChangs = data[ti].changs;
+      const inProgress = topicChangs.findIndex((ch) => {
+        const prog = activeProgressMap.get(ch.id);
+        return prog && !prog.isCompleted && prog.noiDungIndex > 0;
+      });
+      if (inProgress !== -1) { restore(ti, inProgress); return; }
+    }
+
+    // Fall back to first incomplete
+    for (let ti = 0; ti < data.length; ti++) {
+      const topicChangs = data[ti].changs;
+      const firstIncomplete = topicChangs.findIndex((ch) => !activeProgressMap.get(ch.id)?.isCompleted);
+      if (firstIncomplete !== -1) { restore(ti, firstIncomplete); return; }
+    }
+
+    // All done — land on the last stage of the last topic
+    const lastTi = data.length - 1;
+    restore(lastTi, Math.max(0, data[lastTi].changs.length - 1));
+  }, [data, isProgressLoading, activeProgressMap]);
 
   const chuDes = useMemo(() => (data ?? []).map((d) => d.chuDe), [data]);
   const chuDe = chuDes[currentChuDeIndex];
@@ -126,9 +170,19 @@ export function LearningTab() {
     return map;
   }, [changs, activeProgressMap]);
 
+  // A stage is "started" if it has a saved progress record that isn't completed yet
   const startedChangs = useMemo(
-    () => new Set(startedByChuDe[currentChuDeIndex] ?? []),
-    [startedByChuDe, currentChuDeIndex],
+    () =>
+      new Set(
+        changs
+          .map((ch, i) => ({ ch, i }))
+          .filter(({ ch }) => {
+            const prog = activeProgressMap.get(ch.id);
+            return prog !== undefined && !prog.isCompleted;
+          })
+          .map(({ i }) => i),
+      ),
+    [changs, activeProgressMap],
   );
 
   const completeChang = () => {
@@ -183,6 +237,7 @@ export function LearningTab() {
     setCurrentNoiDungIndex(Math.min(savedProgress?.noiDungIndex ?? 0, maxSlide));
     setIsFullscreen(false);
     setIsDetailOpen(true);
+    saveBuffaloPos({ chuDeIndex: currentChuDeIndex, changIndex: i });
 
     const urls =
       chang.noiDungs.flatMap((nd) =>
@@ -193,21 +248,18 @@ export function LearningTab() {
       img.src = url;
     });
 
-    setStartedByChuDe((prev) => {
-      const cur = new Set(prev[currentChuDeIndex] ?? []);
-      cur.add(i);
-      return { ...prev, [currentChuDeIndex]: Array.from(cur) };
-    });
   };
 
   const nextChuDe = () => {
     if (currentChuDeIndex >= chuDes.length - 1) return;
-    setCurrentChuDeIndex((i) => i + 1);
+    const nextIndex = currentChuDeIndex + 1;
+    setCurrentChuDeIndex(nextIndex);
     setCurrentChangIndex(0);
     setCurrentNoiDungIndex(0);
     setSelectedChangIndex(null);
     setBuffaloChangIndex(0);
     setIsDetailOpen(false);
+    try { sessionStorage.removeItem(BUFFALO_POS_KEY); } catch { /* ignore */ }
   };
 
   const allDone = changs.length > 0 && completedChangs.size >= changs.length;
