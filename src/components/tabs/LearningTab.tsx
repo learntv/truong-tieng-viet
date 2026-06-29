@@ -14,6 +14,9 @@ export function LearningTab() {
   const [currentChangIndex, setCurrentChangIndex] = useState(0);
   const [currentNoiDungIndex, setCurrentNoiDungIndex] = useState(0);
   const [completedByChuDe, setCompletedByChuDe] = useState<Record<number, number[]>>({});
+  const [startedByChuDe, setStartedByChuDe] = useState<Record<number, number[]>>({});
+  const [selectedChangIndex, setSelectedChangIndex] = useState<number | null>(null);
+  const [buffaloChangIndex, setBuffaloChangIndex] = useState(0);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -26,6 +29,10 @@ export function LearningTab() {
   const completedChangs = useMemo(
     () => new Set(completedByChuDe[currentChuDeIndex] ?? []),
     [completedByChuDe, currentChuDeIndex],
+  );
+  const startedChangs = useMemo(
+    () => new Set(startedByChuDe[currentChuDeIndex] ?? []),
+    [startedByChuDe, currentChuDeIndex],
   );
 
   const completeChang = () => {
@@ -52,8 +59,8 @@ export function LearningTab() {
   const openChang = (i: number) => {
     setCurrentChangIndex(i);
     setCurrentNoiDungIndex(0);
-    setIsDetailOpen(false);
     setIsFullscreen(false);
+    setIsDetailOpen(true);
 
     const urls =
       changs[i]?.noiDungs.flatMap((nd) =>
@@ -64,7 +71,11 @@ export function LearningTab() {
       img.src = url;
     });
 
-    window.setTimeout(() => setIsDetailOpen(true), 400);
+    setStartedByChuDe((prev) => {
+      const cur = new Set(prev[currentChuDeIndex] ?? []);
+      cur.add(i);
+      return { ...prev, [currentChuDeIndex]: Array.from(cur) };
+    });
   };
 
   const nextChuDe = () => {
@@ -72,6 +83,7 @@ export function LearningTab() {
     setCurrentChuDeIndex((i) => i + 1);
     setCurrentChangIndex(0);
     setCurrentNoiDungIndex(0);
+    setSelectedChangIndex(null);
     setCompletedByChuDe((prev) => ({ ...prev, [currentChuDeIndex + 1]: [] }));
     setIsDetailOpen(false);
   };
@@ -122,8 +134,12 @@ export function LearningTab() {
             changTitles={changTitles}
             changEmojis={changEmojis}
             currentChangIndex={currentChangIndex}
+            buffaloChangIndex={buffaloChangIndex}
             completedChangs={completedChangs}
-            onSelectStage={openChang}
+            startedChangs={startedChangs}
+            selectedChangIndex={selectedChangIndex}
+            onSelectStage={(i) => { setSelectedChangIndex(i); setBuffaloChangIndex(i); }}
+            onOpenLesson={openChang}
             completedCount={completedChangs.size}
             allCurrentDone={allDone}
             isLast={isLast}

@@ -255,6 +255,14 @@
 }
 @utility animate-badge-expand { animation: badge-expand 0.22s ease-out; transform-origin: top right; }
 
+@keyframes float-badge {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@utility animate-float-badge {
+  animation: float-badge 1.8s ease-in-out infinite;
+}
+
 @keyframes glow-gold {
   0%, 100% { box-shadow: 0 0 0 3px oklch(0.87 0.16 75 / 0.5); }
   50%       { box-shadow: 0 0 0 7px oklch(0.87 0.16 75 / 0.7), 0 0 24px oklch(0.87 0.16 75 / 0.4); }

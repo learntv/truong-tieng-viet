@@ -1,7 +1,7 @@
-import { Heart, Gift, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import type { ChuDe } from "@/data/topics";
 import { BuffaloMascot } from "./BuffaloMascot";
-import { StageCard } from "./StageCard";
+import { StageCard, STAGE_COLORS } from "./StageCard";
 import { ProgressBadge } from "./ProgressBadge";
 import halongScene from "@/assets/halong-scene.jpg";
 
@@ -13,10 +13,16 @@ const NODE_POSITIONS = [
   { x: 90, y: 52 },
 ];
 
-const TIPS = [
-  { Icon: Heart, iconBg: "bg-rose-100 text-rose-600", lines: ["Học mỗi ngày một chút,", "Tiếng Việt thêm yêu hơn!"] },
-  { Icon: Gift, iconBg: "bg-orange-100 text-orange-600", lines: ["Cố gắng hôm nay", "Tự tin ngày mai"] },
-];
+
+function getLessonButtonLabel(
+  index: number,
+  completedChangs: Set<number>,
+  startedChangs: Set<number>,
+): string {
+  if (completedChangs.has(index)) return "Ôn tập";
+  if (startedChangs.has(index)) return "Tiếp tục";
+  return "Bắt đầu";
+}
 
 export function RoadmapMap({
   chuDes,
@@ -25,8 +31,12 @@ export function RoadmapMap({
   changTitles,
   changEmojis,
   currentChangIndex,
+  buffaloChangIndex,
   completedChangs,
+  startedChangs,
+  selectedChangIndex,
   onSelectStage,
+  onOpenLesson,
   completedCount,
   allCurrentDone,
   isLast,
@@ -38,14 +48,19 @@ export function RoadmapMap({
   changTitles: string[];
   changEmojis: string[];
   currentChangIndex: number;
+  buffaloChangIndex: number;
   completedChangs: Set<number>;
+  startedChangs: Set<number>;
+  selectedChangIndex: number | null;
   onSelectStage: (i: number) => void;
+  onOpenLesson: (i: number) => void;
   completedCount: number;
   allCurrentDone: boolean;
   isLast: boolean;
   onAdvance: () => void;
 }) {
   const bookNumber = chuDeIndex < 4 ? 1 : 2;
+  const buffaloIndex = buffaloChangIndex;
 
   const pathD = NODE_POSITIONS.reduce((acc, p, i, arr) => {
     if (i === 0) return `M ${p.x} ${p.y}`;
@@ -108,7 +123,9 @@ export function RoadmapMap({
       </div>
 
       {/* Map area: SVG path + stage cards + buffalo */}
-      <div className="relative z-20 mt-2 min-h-0 w-full flex-1 overflow-x-auto overflow-y-hidden sm:overflow-hidden">
+      <div
+        className="relative z-20 mt-2 min-h-0 w-full flex-1 overflow-x-auto sm:overflow-x-hidden"
+      >
         <div className="relative h-full min-w-[760px] sm:min-w-0">
           <svg
             className="absolute inset-0 h-full w-full"
@@ -126,49 +143,55 @@ export function RoadmapMap({
             />
           </svg>
 
-          {NODE_POSITIONS.map((p, i) => (
-            <div
-              key={i}
-              className="absolute -translate-x-1/2 -translate-y-1/2"
-              style={{ left: `${p.x}%`, top: `${p.y}%` }}
-            >
-              <StageCard
-                index={i}
-                title={changTitles[i] ?? ""}
-                emoji={changEmojis[i] ?? "📖"}
-                isCurrent={i === currentChangIndex}
-                isCompleted={completedChangs.has(i)}
-                compact
-                onClick={() => onSelectStage(i)}
-              />
-            </div>
-          ))}
+          {NODE_POSITIONS.map((p, i) => {
+            const isLocked = i > 0 && !completedChangs.has(i - 1);
+            return (
+              <div
+                key={i}
+                className="absolute"
+                style={{ left: `${p.x}%`, top: `${p.y}%`, transform: "translateX(-50%) translateY(-72px)" }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {i === currentChangIndex && !isLocked && (
+                  <div className="animate-float-badge absolute -top-11 left-1/2 flex -translate-x-1/2 flex-col items-center whitespace-nowrap">
+                    <div className={["rounded-xl px-3 py-1.5 text-[11px] font-extrabold text-white shadow-lg bg-gradient-to-r", STAGE_COLORS[i % STAGE_COLORS.length].stripe].join(" ")}>
+                      Đang học
+                    </div>
+                    {/* Downward triangle */}
+                    <div
+                      className="h-0 w-0"
+                      style={{
+                        borderLeft: "6px solid transparent",
+                        borderRight: "6px solid transparent",
+                        borderTop: `8px solid ${STAGE_COLORS[i % STAGE_COLORS.length].scrollThumb}`,
+                      }}
+                    />
+                  </div>
+                )}
+                <StageCard
+                  index={i}
+                  title={changTitles[i] ?? ""}
+                  emoji={changEmojis[i] ?? "📖"}
+                  isCurrent={i === currentChangIndex}
+                  isCompleted={completedChangs.has(i)}
+                  isLocked={isLocked}
+                  isSelected={!isLocked && selectedChangIndex === i}
+                  openLabel={getLessonButtonLabel(i, completedChangs, startedChangs)}
+                  compact
+                  onClick={() => { if (!isLocked) onSelectStage(i); }}
+                  onOpen={() => { if (!isLocked) onOpenLesson(i); }}
+                />
+              </div>
+            );
+          })}
 
           <BuffaloMascot
-            xPercent={Math.max(6, (NODE_POSITIONS[currentChangIndex]?.x ?? 10) - 6)}
-            yPercent={NODE_POSITIONS[currentChangIndex]?.y ?? 58}
+            xPercent={Math.max(6, (NODE_POSITIONS[buffaloIndex]?.x ?? 10) - 6)}
+            yPercent={NODE_POSITIONS[buffaloIndex]?.y ?? 58}
           />
         </div>
       </div>
 
-      {/* Tips bar */}
-      <div className="relative z-20 hidden shrink-0 grid-cols-2 gap-3 p-4 sm:grid">
-        {TIPS.map(({ Icon, iconBg, lines }, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-3 rounded-2xl bg-white/95 px-4 py-2.5 shadow-card backdrop-blur"
-          >
-            <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${iconBg}`}>
-              <Icon className="h-5 w-5" />
-            </div>
-            <div className="text-xs font-bold leading-tight text-stone-700">
-              {lines.map((l, j) => (
-                <p key={j}>{l}</p>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
