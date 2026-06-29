@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { KeyRound, Lock, Loader2, RotateCcw } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { KeyRound, Lock, Loader2, RotateCcw, Globe, Pencil, Check } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUserProgress } from "@/hooks/useUserProgress";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +46,207 @@ const BADGES = [
   { emoji: "🦸", label: "Anh hùng", sublabel: "Hoàn thành 10 bài", threshold: 10 },
 ];
 
+const COUNTRIES = [
+  { code: "VN", name: "Việt Nam" },
+  { code: "US", name: "United States" },
+  { code: "AU", name: "Australia" },
+  { code: "CA", name: "Canada" },
+  { code: "GB", name: "United Kingdom" },
+  { code: "DE", name: "Germany" },
+  { code: "FR", name: "France" },
+  { code: "JP", name: "Japan" },
+  { code: "KR", name: "South Korea" },
+  { code: "CN", name: "China" },
+  { code: "TW", name: "Taiwan" },
+  { code: "TH", name: "Thailand" },
+  { code: "SG", name: "Singapore" },
+  { code: "MY", name: "Malaysia" },
+  { code: "PH", name: "Philippines" },
+  { code: "ID", name: "Indonesia" },
+  { code: "KH", name: "Cambodia" },
+  { code: "LA", name: "Laos" },
+  { code: "NZ", name: "New Zealand" },
+  { code: "NL", name: "Netherlands" },
+  { code: "BE", name: "Belgium" },
+  { code: "CH", name: "Switzerland" },
+  { code: "AT", name: "Austria" },
+  { code: "SE", name: "Sweden" },
+  { code: "NO", name: "Norway" },
+  { code: "DK", name: "Denmark" },
+  { code: "FI", name: "Finland" },
+  { code: "PL", name: "Poland" },
+  { code: "CZ", name: "Czech Republic" },
+  { code: "IT", name: "Italy" },
+  { code: "ES", name: "Spain" },
+  { code: "PT", name: "Portugal" },
+  { code: "RU", name: "Russia" },
+  { code: "UA", name: "Ukraine" },
+  { code: "BR", name: "Brazil" },
+  { code: "MX", name: "Mexico" },
+  { code: "AR", name: "Argentina" },
+  { code: "ZA", name: "South Africa" },
+  { code: "IN", name: "India" },
+  { code: "AE", name: "UAE" },
+  { code: "SA", name: "Saudi Arabia" },
+  { code: "IL", name: "Israel" },
+  { code: "TR", name: "Turkey" },
+  { code: "EG", name: "Egypt" },
+  { code: "HK", name: "Hong Kong" },
+  { code: "MO", name: "Macau" },
+];
+
+const AVATAR_OPTIONS = [
+  "🐯", "🐼", "🐨", "🦊", "🐸",
+  "🐙", "🦋", "🐬", "🦁", "🐺",
+  "🐻", "🦝", "🦄", "🐲", "🐧",
+  "🦜", "🐳", "🦔", "🐮", "🐱",
+];
+
+function AvatarPickerDialog({
+  current,
+  open,
+  onOpenChange,
+  onSelect,
+}: {
+  current: string | undefined;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onSelect: (emoji: string) => void;
+}) {
+  const [saving, setSaving] = useState(false);
+
+  const handleSelect = async (emoji: string) => {
+    setSaving(true);
+    const { error } = await supabase.auth.updateUser({ data: { avatar_emoji: emoji } });
+    setSaving(false);
+    if (error) {
+      toast.error("Không thể lưu avatar", { description: error.message });
+    } else {
+      onSelect(emoji);
+      onOpenChange(false);
+      toast.success("Đã lưu avatar!");
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="rounded-3xl max-w-xs p-5">
+        <DialogHeader>
+          <DialogTitle className="font-display text-xl font-extrabold text-navy">
+            Chọn avatar của em 🎨
+          </DialogTitle>
+        </DialogHeader>
+        <div className="grid grid-cols-5 gap-2">
+          {AVATAR_OPTIONS.map((emoji) => (
+            <button
+              key={emoji}
+              onClick={() => handleSelect(emoji)}
+              disabled={saving}
+              className={[
+                "h-12 w-full rounded-xl text-2xl flex items-center justify-center transition-all active:scale-90 disabled:opacity-50",
+                current === emoji
+                  ? "bg-sky/50 ring-2 ring-sky scale-110 shadow-sm"
+                  : "bg-muted/40 hover:bg-sky/20",
+              ].join(" ")}
+            >
+              {emoji}
+            </button>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function FlagImg({ code, size = 24 }: { code: string; size?: number }) {
+  return (
+    <img
+      src={`https://flagcdn.com/w40/${code.toLowerCase()}.png`}
+      width={size}
+      height={size * 0.75}
+      alt={code}
+      className="block object-cover"
+    />
+  );
+}
+
+function CountryPickerDialog({
+  current,
+  open,
+  onOpenChange,
+  onSelect,
+}: {
+  current: string | undefined;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onSelect: (code: string) => void;
+}) {
+  const [search, setSearch] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const filtered = COUNTRIES.filter(
+    (c) =>
+      c.name.toLowerCase().includes(search.toLowerCase()) ||
+      c.code.toLowerCase().includes(search.toLowerCase()),
+  );
+
+  const handleSelect = async (code: string) => {
+    setSaving(true);
+    const { error } = await supabase.auth.updateUser({ data: { country: code } });
+    setSaving(false);
+    if (error) {
+      toast.error("Không thể lưu quốc gia", { description: error.message });
+    } else {
+      onSelect(code);
+      onOpenChange(false);
+      toast.success("Đã lưu quốc gia!");
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="rounded-3xl max-w-sm p-5">
+        <DialogHeader>
+          <DialogTitle className="font-display text-xl font-extrabold text-navy">
+            Chọn quốc gia của em 🌍
+          </DialogTitle>
+        </DialogHeader>
+        <Input
+          placeholder="Tìm kiếm..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="rounded-xl"
+          autoFocus
+        />
+        <div className="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto pr-1">
+          {filtered.map((c) => (
+            <button
+              key={c.code}
+              onClick={() => handleSelect(c.code)}
+              disabled={saving}
+              title={c.name}
+              className={[
+                "flex flex-col items-center gap-0.5 rounded-xl p-2 transition-all text-center hover:bg-sky/30 active:scale-95",
+                current === c.code ? "bg-sky/40 ring-2 ring-sky" : "",
+              ].join(" ")}
+            >
+              <FlagImg code={c.code} size={28} />
+              <span className="text-[9px] font-semibold text-navy leading-tight line-clamp-1">
+                {c.name}
+              </span>
+            </button>
+          ))}
+          {filtered.length === 0 && (
+            <p className="col-span-4 text-center text-sm text-muted-foreground py-4">
+              Không tìm thấy quốc gia
+            </p>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function computeStreak(completedAts: string[]): { days: number; studiedToday: boolean } {
   const MS_PER_DAY = 86400_000;
   const toDay = (iso: string) => {
@@ -66,6 +274,21 @@ function TrangCaNhan() {
   const { progressMap, isProgressLoading } = useUserProgress(user?.id ?? null);
   const [isSendingReset, setIsSendingReset] = useState(false);
   const [isRestarting, setIsRestarting] = useState(false);
+  const [countryCode, setCountryCode] = useState<string | undefined>(undefined);
+  const [countryPickerOpen, setCountryPickerOpen] = useState(false);
+  const [avatarPickerOpen, setAvatarPickerOpen] = useState(false);
+  const [avatarEmoji, setAvatarEmoji] = useState<string | undefined>(undefined);
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+  const [savingName, setSavingName] = useState(false);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (user) {
+      setCountryCode(user.user_metadata?.country as string | undefined);
+      setAvatarEmoji(user.user_metadata?.avatar_emoji as string | undefined);
+    }
+  }, [user]);
 
   const { data: streak = { days: 0, studiedToday: false } } = useQuery({
     queryKey: ["streak", user?.id],
@@ -104,6 +327,20 @@ function TrangCaNhan() {
   const avatarLetter = displayName[0]?.toUpperCase() ?? "?";
   const avatarColorClass =
     AVATAR_COLORS[avatarLetter.charCodeAt(0) % AVATAR_COLORS.length];
+
+  const handleSaveName = async () => {
+    const trimmed = nameInput.trim();
+    if (!trimmed || trimmed === displayName) { setEditingName(false); return; }
+    setSavingName(true);
+    const { error } = await supabase.auth.updateUser({ data: { full_name: trimmed } });
+    setSavingName(false);
+    if (error) {
+      toast.error("Không thể lưu tên", { description: error.message });
+    } else {
+      setEditingName(false);
+      toast.success("Đã lưu tên!");
+    }
+  };
 
   const memberSince = new Date(user.created_at).toLocaleDateString("vi-VN", {
     year: "numeric",
@@ -168,8 +405,8 @@ function TrangCaNhan() {
             <div className="relative shrink-0">
               <div
                 className={[
-                  "h-24 w-24 rounded-full shadow-lg ring-4 ring-white overflow-hidden flex items-center justify-center text-3xl font-extrabold font-display",
-                  avatarUrl ? "" : avatarColorClass,
+                  "h-24 w-24 rounded-full shadow-lg ring-4 ring-white overflow-hidden flex items-center justify-center font-extrabold font-display",
+                  avatarUrl || avatarEmoji ? "bg-sky/30" : avatarColorClass,
                 ].join(" ")}
               >
                 {avatarUrl ? (
@@ -179,20 +416,80 @@ function TrangCaNhan() {
                     className="h-full w-full object-cover"
                     referrerPolicy="no-referrer"
                   />
+                ) : avatarEmoji ? (
+                  <span className="text-5xl">{avatarEmoji}</span>
                 ) : (
-                  avatarLetter
+                  <span className="text-3xl">{avatarLetter}</span>
                 )}
               </div>
-              <span className="absolute -bottom-1 -right-1 text-2xl animate-bob inline-block">
-                🐃
-              </span>
+              {!avatarUrl && (
+                <button
+                  onClick={() => setAvatarPickerOpen(true)}
+                  className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-white shadow-md border border-border flex items-center justify-center hover:bg-muted transition-colors"
+                  title="Đổi avatar"
+                >
+                  <Pencil className="h-3.5 w-3.5 text-navy" />
+                </button>
+              )}
+              <AvatarPickerDialog
+                current={avatarEmoji}
+                open={avatarPickerOpen}
+                onOpenChange={setAvatarPickerOpen}
+                onSelect={setAvatarEmoji}
+              />
             </div>
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-              <h1 className="font-display text-2xl font-extrabold text-navy leading-tight truncate">
-                {displayName}
-              </h1>
+              <div className="flex items-center gap-2 flex-wrap">
+                {editingName ? (
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <input
+                      ref={nameInputRef}
+                      value={nameInput}
+                      onChange={(e) => setNameInput(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") handleSaveName(); if (e.key === "Escape") setEditingName(false); }}
+                      className="font-display text-2xl font-extrabold text-navy bg-white/70 rounded-lg px-2 py-0.5 border border-sky outline-none min-w-0 w-full"
+                      maxLength={40}
+                      autoFocus
+                    />
+                    <button
+                      onClick={handleSaveName}
+                      disabled={savingName}
+                      className="shrink-0 h-8 w-8 rounded-full bg-green/20 hover:bg-green/30 flex items-center justify-center transition-colors"
+                    >
+                      {savingName ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4 text-green-700" />}
+                    </button>
+                  </div>
+                ) : (
+                  <h1 className="font-display text-2xl font-extrabold text-navy leading-tight flex items-center gap-2 flex-wrap">
+                    <span className="truncate">{displayName}</span>
+                    <button
+                      onClick={() => { setNameInput(displayName); setEditingName(true); setTimeout(() => nameInputRef.current?.select(), 0); }}
+                      className="shrink-0 h-7 w-7 rounded-full bg-white/60 hover:bg-white flex items-center justify-center shadow-sm transition-colors"
+                      title="Đổi tên"
+                    >
+                      <Pencil className="h-3.5 w-3.5 text-navy/60" />
+                    </button>
+                    <button
+                      onClick={() => setCountryPickerOpen(true)}
+                      className="shrink-0 rounded-md border border-white/60 bg-white/50 shadow-sm hover:bg-white hover:shadow-md active:scale-95 transition-all overflow-hidden cursor-pointer"
+                      title="Chọn quốc gia"
+                    >
+                      {countryCode
+                        ? <FlagImg code={countryCode} size={32} />
+                        : <Globe className="h-5 w-5 text-navy/50 m-1" />
+                      }
+                    </button>
+                  </h1>
+                )}
+              </div>
+              <CountryPickerDialog
+                current={countryCode}
+                open={countryPickerOpen}
+                onOpenChange={setCountryPickerOpen}
+                onSelect={setCountryCode}
+              />
               <p className="text-sm text-muted-foreground mt-0.5 truncate">
                 {user.email}
               </p>

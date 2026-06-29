@@ -8,10 +8,12 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { Toaster } from "sonner";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { useAuth } from "@/hooks/useAuth";
+import { ProfileSetupModal } from "@/components/ProfileSetupModal";
 
 function NotFoundComponent() {
   return (
@@ -119,12 +121,28 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function NewUserSetup() {
+  const { user, isLoading } = useAuth();
+  const [dismissed, setDismissed] = useState(false);
+
+  if (isLoading || !user || dismissed) return null;
+  if (user.user_metadata?.profile_setup_completed) return null;
+
+  return (
+    <ProfileSetupModal
+      user={user}
+      onComplete={() => setDismissed(true)}
+    />
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
+      <NewUserSetup />
       <Toaster richColors position="top-center" />
     </QueryClientProvider>
   );

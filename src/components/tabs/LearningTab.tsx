@@ -109,13 +109,16 @@ export function LearningTab() {
       saved.chuDeIndex < data.length &&
       saved.changIndex < (data[saved.chuDeIndex]?.changs.length ?? 0)
     ) {
-      const savedChang = data[saved.chuDeIndex].changs[saved.changIndex];
+      const savedChangs = data[saved.chuDeIndex].changs;
+      const savedChang = savedChangs[saved.changIndex];
       const savedProg = activeProgressMap.get(savedChang.id);
-      if (!savedProg?.isCompleted) {
+      const prevChangId = saved.changIndex > 0 ? savedChangs[saved.changIndex - 1]?.id : null;
+      const isLocked = prevChangId ? !activeProgressMap.get(prevChangId)?.isCompleted : false;
+      if (!savedProg?.isCompleted && !isLocked) {
         restore(saved.chuDeIndex, saved.changIndex);
         return;
       }
-      // Saved stage is now completed — discard stale position
+      // Saved stage is completed or locked — discard stale position
       try { sessionStorage.removeItem(BUFFALO_POS_KEY); } catch { /* ignore */ }
     }
 

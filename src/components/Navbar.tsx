@@ -30,8 +30,13 @@ export function Navbar() {
   const [authOpen, setAuthOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const avatarLetter = user?.email?.[0]?.toUpperCase() ?? "?";
+  const displayName =
+    (user?.user_metadata?.full_name as string | undefined) ||
+    user?.email?.split("@")[0] ||
+    "Học sinh";
+  const avatarLetter = displayName[0]?.toUpperCase() ?? "?";
   const avatarUrl = user?.user_metadata?.avatar_url as string | undefined;
+  const avatarEmoji = user?.user_metadata?.avatar_emoji as string | undefined;
 
   const closeSidebar = () => setSidebarOpen(false);
 
@@ -100,14 +105,16 @@ export function Navbar() {
                   <button className="relative h-9 w-9 overflow-hidden rounded-full bg-primary text-sm font-bold text-white shadow-sm ring-2 ring-transparent transition-all hover:ring-primary/40">
                     {avatarUrl ? (
                       <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+                    ) : avatarEmoji ? (
+                      <span className="grid h-full w-full place-items-center text-lg">{avatarEmoji}</span>
                     ) : (
                       <span className="grid h-full w-full place-items-center">{avatarLetter}</span>
                     )}
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52">
-                  <DropdownMenuLabel className="truncate text-xs font-normal text-muted-foreground">
-                    {user.email}
+                  <DropdownMenuLabel className="font-bold text-navy truncate">
+                    {displayName}
                   </DropdownMenuLabel>
                   <DropdownMenuItem asChild>
                     <Link
