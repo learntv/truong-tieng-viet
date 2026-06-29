@@ -51,6 +51,11 @@ export function useUserProgress(userId: string | null) {
       if (error) {
         queryClient.setQueryData(key, snapshot);
         console.error("Failed to save completion:", error);
+      } else {
+        // DB trigger updates profiles.completed_count — invalidate dependent caches
+        queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
+        queryClient.invalidateQueries({ queryKey: ["streak", userId] });
+        queryClient.invalidateQueries({ queryKey: ["public-profile"] });
       }
     },
     [userId, queryClient],
@@ -115,8 +120,11 @@ export function useUserProgress(userId: string | null) {
         );
       }
       await Promise.all(ops);
-      // Refetch to get the authoritative merged state from DB
+      // Refetch progress and invalidate dependent caches
       await queryClient.invalidateQueries({ queryKey: progressQueryKey(userId) });
+      queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
+      queryClient.invalidateQueries({ queryKey: ["streak", userId] });
+      queryClient.invalidateQueries({ queryKey: ["public-profile"] });
     },
     [userId, queryClient],
   );

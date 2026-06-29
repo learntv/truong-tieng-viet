@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BookOpen, Home, LogOut, Menu, Star, User, UserCircle, X } from "lucide-react";
+import { BookOpen, Home, LogOut, Menu, Star, Trophy, User, UserCircle, X } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import iconLogo from "@/assets/icon.png";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,13 +15,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const tabs: {
-  to: "/" | "/hoc-tieng-viet" | "/san-pham-cua-em";
+  to: "/" | "/hoc-tieng-viet" | "/san-pham-cua-em" | "/bang-xep-hang";
   label: string;
   Icon: typeof Home;
 }[] = [
   { to: "/", label: "Trang chủ", Icon: Home },
   { to: "/hoc-tieng-viet", label: "Học Tiếng Việt", Icon: BookOpen },
   { to: "/san-pham-cua-em", label: "Sản phẩm của em", Icon: Star },
+  { to: "/bang-xep-hang", label: "Bảng xếp hạng", Icon: Trophy },
 ];
 
 export function Navbar() {

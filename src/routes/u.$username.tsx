@@ -337,6 +337,8 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
     try { sessionStorage.removeItem("vui-hoc-buffalo-pos"); } catch { /* ignore */ }
     queryClient.setQueryData(["user-progress", user.id], new Map());
     queryClient.setQueryData(["streak", user.id], { days: 0, studiedToday: false });
+    queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
+    queryClient.invalidateQueries({ queryKey: ["public-profile"] });
     setIsRestarting(false);
     toast.success("Tiến độ đã được đặt lại! Hãy bắt đầu lại nhé 🌱");
   };
