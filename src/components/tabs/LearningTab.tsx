@@ -101,15 +101,24 @@ export function LearningTab() {
       setSelectedChangIndex(changIdx);
     };
 
-    // Prefer the stage the user last opened (saved in sessionStorage by openChang)
+    // Prefer the stage the user last opened (saved in sessionStorage by openChang),
+    // but only when there is progress data and the saved stage isn't completed.
+    // Empty progress means first visit or after a reset — ignore stale sessionStorage.
     const saved = loadBuffaloPos();
     if (
       saved &&
+      activeProgressMap.size > 0 &&
       saved.chuDeIndex < data.length &&
       saved.changIndex < (data[saved.chuDeIndex]?.changs.length ?? 0)
     ) {
-      restore(saved.chuDeIndex, saved.changIndex);
-      return;
+      const savedChang = data[saved.chuDeIndex].changs[saved.changIndex];
+      const savedProg = activeProgressMap.get(savedChang.id);
+      if (!savedProg?.isCompleted) {
+        restore(saved.chuDeIndex, saved.changIndex);
+        return;
+      }
+      // Saved stage is now completed — discard stale position
+      try { sessionStorage.removeItem(BUFFALO_POS_KEY); } catch { /* ignore */ }
     }
 
     // Fall back to the in-progress "đang học" stage (has saved progress > slide 0)
@@ -162,13 +171,19 @@ export function LearningTab() {
       const total = ch.noiDungs.length;
       if (total === 0) return;
       const prog = activeProgressMap.get(ch.id);
-      if (prog && !prog.isCompleted && prog.noiDungIndex > 0) {
-        const current = Math.min(prog.noiDungIndex + 1, total);
-        map.set(i, { current, total });
+      if (prog && !prog.isCompleted) {
+        map.set(i, { current: Math.min(prog.noiDungIndex + 1, total), total });
       }
     });
+    // Reflect live slide position while the modal is open
+    if (isDetailOpen && !completedChangs.has(currentChangIndex)) {
+      const total = changs[currentChangIndex]?.noiDungs.length ?? 0;
+      if (total > 0) {
+        map.set(currentChangIndex, { current: currentNoiDungIndex + 1, total });
+      }
+    }
     return map;
-  }, [changs, activeProgressMap]);
+  }, [changs, activeProgressMap, isDetailOpen, currentChangIndex, currentNoiDungIndex, completedChangs]);
 
   // A stage is "started" if it has a saved progress record that isn't completed yet
   const startedChangs = useMemo(

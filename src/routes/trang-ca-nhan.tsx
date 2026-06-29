@@ -113,6 +113,7 @@ function TrangCaNhan() {
       return;
     }
     localStorage.removeItem("vui-hoc-progress");
+    try { sessionStorage.removeItem("vui-hoc-buffalo-pos"); } catch { /* ignore */ }
     queryClient.setQueryData(["user-progress", user.id], new Map());
     setIsRestarting(false);
     toast.success("Tiến độ đã được đặt lại! Hãy bắt đầu lại nhé 🌱");
