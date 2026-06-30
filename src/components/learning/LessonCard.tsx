@@ -312,6 +312,7 @@ export function LessonCard({
                 {nd.bais.map((bai, li) => {
                   const hasAudio = !!bai.audioUrl;
                   const hasVideo = !!bai.meta?.video_url;
+                  const hasEmbed = !!bai.meta?.embed;
                   const hinhs = bai.hinhs;
                   const isSingle = hinhs.length === 1;
                   return (
@@ -342,7 +343,16 @@ export function LessonCard({
                         </div>
                       </div>
 
-                      {hinhs.length > 0 && (
+                      {hasEmbed ? (
+                        <div className="mt-3 w-full overflow-hidden rounded-xl ring-1 ring-border/60">
+                          <iframe
+                            src={bai.meta!.embed!}
+                            className="h-64 w-full sm:h-80"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </div>
+                      ) : hinhs.length > 0 && (
                         <div
                           className={
                             isSingle

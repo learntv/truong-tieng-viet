@@ -26,7 +26,7 @@ function titleCase(s: string): string {
 }
 
 export type Hinh = { id: string; captions: string[]; url: string };
-export type BaiMeta = { audio_storage_path?: string; video_url?: string };
+export type BaiMeta = { audio_storage_path?: string; video_url?: string; embed?: string };
 export type Bai = { id: string; texts: string[]; hinhs: Hinh[]; meta?: BaiMeta | null; audioUrl?: string };
 export type NoiDung = { id: string; title: string; bais: Bai[] };
 export type Chang = {
