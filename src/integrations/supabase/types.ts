@@ -58,18 +58,21 @@ export type Database = {
       bai: {
         Row: {
           id: string
+          meta: Json | null
           noidung_id: string
           position: number
           text: Json
         }
         Insert: {
           id: string
+          meta?: Json | null
           noidung_id: string
           position: number
           text: Json
         }
         Update: {
           id?: string
+          meta?: Json | null
           noidung_id?: string
           position?: number
           text?: Json

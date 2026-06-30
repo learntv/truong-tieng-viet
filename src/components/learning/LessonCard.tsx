@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, Maximize2, Minimize2, X } from "lucide-react";
+import { Check, Headphones, Maximize2, Minimize2, X } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import type { Chang, Hinh } from "@/lib/learning";
 import { STAGE_COLORS } from "./StageCard";
@@ -17,6 +17,58 @@ function speak(text: string, onEnd?: () => void) {
   u.pitch = 1.05;
   if (onEnd) u.onend = onEnd;
   window.speechSynthesis.speak(u);
+}
+
+function toYouTubeEmbed(url: string): string | null {
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  return m ? `https://www.youtube.com/embed/${m[1]}` : null;
+}
+
+function AudioButton({ src }: { src: string }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [playing, setPlaying] = useState(false);
+  const toggle = () => {
+    const el = audioRef.current;
+    if (!el) return;
+    if (playing) { el.pause(); setPlaying(false); }
+    else { el.play(); setPlaying(true); }
+  };
+  return (
+    <>
+      <audio ref={audioRef} src={src} preload="auto" onEnded={() => setPlaying(false)} />
+      <button
+        onClick={toggle}
+        aria-label={playing ? "Dừng" : "Nghe"}
+        className={[
+          "cursor-pointer grid h-8 w-8 shrink-0 place-items-center rounded-full transition active:scale-95",
+          playing ? "animate-pulse bg-blue-500 text-white" : "bg-blue-100 text-blue-600 hover:bg-blue-200",
+        ].join(" ")}
+      >
+        <Headphones className="h-4 w-4" strokeWidth={2.5} />
+      </button>
+    </>
+  );
+}
+
+function VideoEmbed({ url }: { url: string }) {
+  const embedUrl = toYouTubeEmbed(url);
+  if (embedUrl) {
+    return (
+      <div className="mt-3 aspect-video w-full overflow-hidden rounded-xl ring-1 ring-border/60">
+        <iframe
+          src={embedUrl}
+          className="h-full w-full"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+    );
+  }
+  return (
+    <div className="mt-3 aspect-video w-full overflow-hidden rounded-xl ring-1 ring-border/60">
+      <video src={url} controls className="h-full w-full" />
+    </div>
+  );
 }
 
 function CloudWord({ text, color }: { text: string; color: StageColor }) {
@@ -257,6 +309,8 @@ export function LessonCard({
               {/* Bai items */}
               <div className="flex flex-col gap-6 divide-y divide-border/60">
                 {nd.bais.map((bai, li) => {
+                  const hasAudio = !!bai.audioUrl;
+                  const hasVideo = !!bai.meta?.video_url;
                   const hinhs = bai.hinhs;
                   const isSingle = hinhs.length === 1;
                   return (
@@ -277,6 +331,11 @@ export function LessonCard({
                               className="whitespace-pre-line font-display text-base font-bold text-navy sm:text-lg"
                             >
                               {t}
+                              {hasAudio && i === bai.texts.length - 1 && (
+                                <span className="ml-2 inline-flex align-middle">
+                                  <AudioButton src={bai.audioUrl!} />
+                                </span>
+                              )}
                             </p>
                           ))}
                         </div>
@@ -291,7 +350,7 @@ export function LessonCard({
                           }
                         >
                           {hinhs.map((hinh) => {
-                            const captions = hinh.captions.filter((c) => c.trim().length > 1);
+                            const captions = hasAudio ? [] : hinh.captions.filter((c) => c.trim().length > 1);
                             return (
                               <HinhBlock
                                 key={hinh.id}
@@ -304,6 +363,8 @@ export function LessonCard({
                           })}
                         </div>
                       )}
+
+                      {hasVideo && <VideoEmbed url={bai.meta!.video_url!} />}
                     </article>
                   );
                 })}

@@ -26,7 +26,8 @@ function titleCase(s: string): string {
 }
 
 export type Hinh = { id: string; captions: string[]; url: string };
-export type Bai = { id: string; texts: string[]; hinhs: Hinh[] };
+export type BaiMeta = { audio_storage_path?: string; video_url?: string };
+export type Bai = { id: string; texts: string[]; hinhs: Hinh[]; meta?: BaiMeta | null; audioUrl?: string };
 export type NoiDung = { id: string; title: string; bais: Bai[] };
 export type Chang = {
   id: string;
@@ -44,7 +45,7 @@ async function fetchLearningData(): Promise<ChuDeWithChangs[]> {
     supabase.from("chude").select("id, position, text").order("position", { ascending: true }),
     supabase.from("chang").select("id, position, text, chude_id").order("position", { ascending: true }),
     supabase.from("noidung").select("id, position, text, chang_id").order("position", { ascending: true }),
-    supabase.from("bai").select("id, position, text, noidung_id").order("position", { ascending: true }),
+    supabase.from("bai").select("id, position, text, noidung_id, meta").order("position", { ascending: true }),
     supabase.from("hinh").select("id, position, text, bai_id, storage_bucket, storage_path").order("position", { ascending: true }),
   ]);
 
@@ -58,12 +59,22 @@ async function fetchLearningData(): Promise<ChuDeWithChangs[]> {
   const bai = baiRes.data ?? [];
   const hinh = hinhRes.data ?? [];
 
-  // Batch sign URLs per bucket
+  // Batch sign URLs per bucket (images + audio share the same bucket)
   const byBucket = new Map<string, string[]>();
   for (const h of hinh) {
     const arr = byBucket.get(h.storage_bucket) ?? [];
     arr.push(h.storage_path);
     byBucket.set(h.storage_bucket, arr);
+  }
+  // Collect audio paths into the shared storage bucket
+  const audioBucket = "sgk";
+  for (const b of bai) {
+    const m = b.meta && typeof b.meta === "object" && !Array.isArray(b.meta) ? (b.meta as BaiMeta) : null;
+    if (m?.audio_storage_path) {
+      const arr = byBucket.get(audioBucket) ?? [];
+      arr.push(m.audio_storage_path);
+      byBucket.set(audioBucket, arr);
+    }
   }
   const urlByKey = new Map<string, string>();
   await Promise.all(
@@ -87,11 +98,17 @@ async function fetchLearningData(): Promise<ChuDeWithChangs[]> {
 
   const baiByNd = new Map<string, Bai[]>();
   for (const b of bai) {
+    const meta = (b.meta && typeof b.meta === "object" && !Array.isArray(b.meta)) ? (b.meta as BaiMeta) : null;
+    const audioUrl = meta?.audio_storage_path && audioBucket
+      ? (urlByKey.get(`${audioBucket}/${meta.audio_storage_path}`) ?? "")
+      : undefined;
     const arr = baiByNd.get(b.noidung_id) ?? [];
     arr.push({
       id: b.id,
       texts: allTexts(b.text),
       hinhs: hinhByBai.get(b.id) ?? [],
+      meta,
+      audioUrl: audioUrl || undefined,
     });
     baiByNd.set(b.noidung_id, arr);
   }
