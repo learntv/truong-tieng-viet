@@ -35,7 +35,7 @@ function AudioButton({ src }: { src: string }) {
   };
   return (
     <>
-      <audio ref={audioRef} src={src} preload="auto" onEnded={() => setPlaying(false)} />
+      <audio ref={audioRef} src={src} preload="auto" onEnded={() => setPlaying(false)} onPause={() => setPlaying(false)} />
       <button
         onClick={toggle}
         aria-label={playing ? "Dừng" : "Nghe"}
@@ -214,12 +214,13 @@ export function LessonCard({
     return () => { emblaApi.off("select", onSelect); };
   }, [emblaApi, onNoiDungChange]);
 
-  /* Cancel TTS on unmount / page change */
+  /* Cancel TTS and audio on unmount / page change */
   useEffect(() => {
     return () => {
       if (typeof window !== "undefined" && "speechSynthesis" in window) {
         window.speechSynthesis.cancel();
       }
+      document.querySelectorAll("audio").forEach((el) => el.pause());
     };
   }, [noiDungIndex, changIndex]);
 
@@ -350,7 +351,7 @@ export function LessonCard({
                           }
                         >
                           {hinhs.map((hinh) => {
-                            const captions = hasAudio ? [] : hinh.captions.filter((c) => c.trim().length > 1);
+                            const captions = (hasAudio || hasVideo) ? [] : hinh.captions.filter((c) => c.trim().length > 1);
                             return (
                               <HinhBlock
                                 key={hinh.id}
