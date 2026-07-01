@@ -13,6 +13,7 @@ import { Route as SanPhamCuaEmRouteImport } from './routes/san-pham-cua-em'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as HocTiengVietRouteImport } from './routes/hoc-tieng-viet'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as BangXepHangRouteImport } from './routes/bang-xep-hang'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 
@@ -36,6 +37,11 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BangXepHangRoute = BangXepHangRouteImport.update({
+  id: '/bang-xep-hang',
+  path: '/bang-xep-hang',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -49,6 +55,7 @@ const UUsernameRoute = UUsernameRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bang-xep-hang': typeof BangXepHangRoute
   '/dashboard': typeof DashboardRoute
   '/hoc-tieng-viet': typeof HocTiengVietRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -57,6 +64,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bang-xep-hang': typeof BangXepHangRoute
   '/dashboard': typeof DashboardRoute
   '/hoc-tieng-viet': typeof HocTiengVietRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/bang-xep-hang': typeof BangXepHangRoute
   '/dashboard': typeof DashboardRoute
   '/hoc-tieng-viet': typeof HocTiengVietRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -76,6 +85,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/bang-xep-hang'
     | '/dashboard'
     | '/hoc-tieng-viet'
     | '/reset-password'
@@ -84,6 +94,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/bang-xep-hang'
     | '/dashboard'
     | '/hoc-tieng-viet'
     | '/reset-password'
@@ -92,6 +103,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/bang-xep-hang'
     | '/dashboard'
     | '/hoc-tieng-viet'
     | '/reset-password'
@@ -101,6 +113,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BangXepHangRoute: typeof BangXepHangRoute
   DashboardRoute: typeof DashboardRoute
   HocTiengVietRoute: typeof HocTiengVietRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -138,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bang-xep-hang': {
+      id: '/bang-xep-hang'
+      path: '/bang-xep-hang'
+      fullPath: '/bang-xep-hang'
+      preLoaderRoute: typeof BangXepHangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -157,6 +177,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BangXepHangRoute: BangXepHangRoute,
   DashboardRoute: DashboardRoute,
   HocTiengVietRoute: HocTiengVietRoute,
   ResetPasswordRoute: ResetPasswordRoute,
@@ -166,13 +187,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
