@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, Headphones, Maximize2, Minimize2, X } from "lucide-react";
-import useEmblaCarousel from "embla-carousel-react";
+import { Headphones } from "lucide-react";
 import type { Chang, Hinh } from "@/lib/learning";
 import { STAGE_COLORS } from "./StageCard";
 import { ConfettiBurst } from "./ConfettiBurst";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 type StageColor = (typeof STAGE_COLORS)[number];
 
@@ -161,60 +159,33 @@ function HinhBlock({
   );
 }
 
+/**
+ * Inline blog-post style lesson content. Renders a single noidung as a
+ * scrollable article. Parent controls navigation between noidungs / stages.
+ */
 export function LessonCard({
   chang,
   changIndex,
   noiDungIndex,
   isCompleted,
-  isFullscreen,
-  onToggleFullscreen,
-  onPrevNoiDung,
-  onNextNoiDung,
-  onNoiDungChange,
+  isLastNoiDungOfLastChang,
   onComplete,
-  onClose,
 }: {
   chang: Chang;
   changIndex: number;
   noiDungIndex: number;
   isCompleted: boolean;
-  isFullscreen?: boolean;
-  onToggleFullscreen?: () => void;
-  onPrevNoiDung: () => void;
-  onNextNoiDung: () => void;
-  onNoiDungChange?: (i: number) => void;
+  isLastNoiDungOfLastChang?: boolean;
   onComplete: () => void;
-  onClose: () => void;
 }) {
   const noiDungs = chang.noiDungs;
   const total = noiDungs.length;
-  const isLastNoiDung = noiDungIndex === total - 1;
+  const nd = noiDungs[noiDungIndex];
   const color = STAGE_COLORS[changIndex % STAGE_COLORS.length];
   const [showConfetti, setShowConfetti] = useState(false);
-  const isMobile = useIsMobile();
+  const isLastNoiDung = noiDungIndex === total - 1;
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, dragFree: false });
-  const hasInitialScrolled = useRef(false);
-
-  /* Sync parent index → carousel; jump instantly on first render, animate on navigation */
-  useEffect(() => {
-    if (!emblaApi) return;
-    emblaApi.scrollTo(noiDungIndex, !hasInitialScrolled.current);
-    hasInitialScrolled.current = true;
-  }, [emblaApi, noiDungIndex]);
-
-  /* Sync swipe gesture → parent */
-  useEffect(() => {
-    if (!emblaApi) return;
-    const onSelect = () => {
-      const i = emblaApi.selectedScrollSnap();
-      onNoiDungChange?.(i);
-    };
-    emblaApi.on("select", onSelect);
-    return () => { emblaApi.off("select", onSelect); };
-  }, [emblaApi, onNoiDungChange]);
-
-  /* Cancel TTS and audio on unmount / page change */
+  /* Cancel TTS and audio when switching noidung/chang */
   useEffect(() => {
     return () => {
       if (typeof window !== "undefined" && "speechSynthesis" in window) {
@@ -230,197 +201,148 @@ export function LessonCard({
     onComplete();
   };
 
+  if (!nd) {
+    return (
+      <div className="rounded-3xl bg-card p-8 text-center text-sm text-muted-foreground shadow-card">
+        Chặng này chưa có nội dung.
+      </div>
+    );
+  }
+
   return (
-    <div className="relative flex h-full w-full flex-col overflow-hidden bg-card shadow-2xl sm:rounded-3xl">
-
-      {/* ── Gradient header ── */}
-      <div
-        className={[
-          "relative shrink-0 px-5 pb-3 pt-[max(1rem,env(safe-area-inset-top))] sm:px-6 sm:pt-4",
-          color.gradient,
-        ].join(" ")}
-      >
+    <article className="overflow-hidden rounded-3xl bg-card shadow-card">
+      {/* Header with stage info */}
+      <header className={["px-6 py-5 sm:px-10 sm:py-6", color.gradient].join(" ")}>
         <div className="flex items-center gap-3">
-          <span className="text-2xl leading-none">{chang.emoji}</span>
+          <span className="text-3xl leading-none">{chang.emoji}</span>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-extrabold uppercase tracking-wider text-white/70">
-              Chặng {changIndex + 1}
+            <p className="text-xs font-extrabold uppercase tracking-wider text-white/75">
+              Chặng {changIndex + 1} · Trang {noiDungIndex + 1}/{total}
             </p>
-            <h3 className="truncate font-display text-lg font-extrabold text-white sm:text-xl">
+            <h2 className="truncate font-display text-xl font-extrabold text-white sm:text-2xl">
               {chang.title}
-            </h3>
+            </h2>
           </div>
-          {onToggleFullscreen && !isMobile && (
-            <button
-              onClick={onToggleFullscreen}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/20 text-white transition hover:bg-white/35"
-              aria-label={isFullscreen ? "Thu nhỏ" : "Toàn màn hình"}
-            >
-              {isFullscreen
-                ? <Minimize2 className="h-4 w-4" strokeWidth={2.5} />
-                : <Maximize2 className="h-4 w-4" strokeWidth={2.5} />
-              }
-            </button>
-          )}
-          <button
-            onClick={onClose}
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/20 text-white transition hover:bg-white/35"
-            aria-label="Đóng"
-          >
-            <X className="h-4 w-4" strokeWidth={2.5} />
-          </button>
         </div>
-
-        {/* Slim progress bar */}
-        <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-white/25">
+        <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-white/25">
           <div
             className="h-full rounded-full bg-white transition-[width] duration-500 ease-out"
             style={{ width: total > 0 ? `${((noiDungIndex + 1) / total) * 100}%` : "0%" }}
           />
         </div>
-        <div className="mt-1 flex justify-between text-[10px] font-bold text-white/60">
-          <span>Trang {noiDungIndex + 1}</span>
-          <span>{total} trang</span>
-        </div>
-      </div>
+      </header>
 
-      {/* ── Embla carousel (horizontal pages) ── */}
-      <div ref={emblaRef} className="min-h-0 flex-1 overflow-hidden">
-        <div className="flex h-full">
-          {noiDungs.map((nd, pageIdx) => (
-            <div
-              key={nd.id}
-              className={["lesson-scroll flex-none w-full h-full overflow-y-auto overscroll-contain px-5 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:py-8", isFullscreen ? "sm:px-48" : "sm:px-7"].join(" ")}
-              style={{ "--scroll-thumb": color.scrollThumb, "--scroll-track": color.scrollTrack } as React.CSSProperties}
-            >
-              {/* NoiDung title pill */}
-              {nd.title && (
-                <div
-                  className={[
-                    "mb-6 rounded-2xl px-5 py-4 text-center shadow-card",
-                    color.gradient,
-                  ].join(" ")}
-                >
-                  <p className="font-display text-xl font-extrabold text-white sm:text-2xl">
-                    {nd.title}
-                  </p>
-                </div>
-              )}
+      {/* Blog-style body */}
+      <div className="px-5 py-8 sm:px-10 sm:py-10">
+        {nd.title && (
+          <div className={["mb-8 rounded-2xl px-5 py-4 text-center shadow-card", color.gradient].join(" ")}>
+            <p className="font-display text-xl font-extrabold text-white sm:text-2xl">
+              {nd.title}
+            </p>
+          </div>
+        )}
 
-              {/* Bai items */}
-              <div className="flex flex-col gap-6 divide-y divide-border/60">
-                {nd.bais.map((bai, li) => {
-                  const hasAudio = !!bai.audioUrl;
-                  const hasVideo = !!bai.meta?.video_url;
-                  const hasEmbed = !!bai.meta?.embed;
-                  const hinhs = bai.hinhs;
-                  const isSingle = hinhs.length === 1;
-                  return (
-                    <article key={bai.id} className={li > 0 ? "pt-6" : ""}>
-                      <div className="mb-4 flex items-start gap-3">
-                        <span
-                          className={[
-                            "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-display text-sm font-extrabold text-white",
-                            color.gradient,
-                          ].join(" ")}
-                        >
-                          {li + 1}
-                        </span>
-                        <div className="flex-1 space-y-1.5">
-                          {bai.texts.map((t, i) => (
-                            <p
-                              key={i}
-                              className="whitespace-pre-line font-display text-base font-bold text-navy sm:text-lg"
-                            >
-                              {t}
-                              {hasAudio && i === bai.texts.length - 1 && (
-                                <span className="ml-2 inline-flex align-middle">
-                                  <AudioButton src={bai.audioUrl!} />
-                                </span>
-                              )}
-                            </p>
-                          ))}
-                        </div>
-                      </div>
-
-                      {hasEmbed ? (
-                        <div className="mt-3 w-full overflow-hidden rounded-xl ring-1 ring-border/60">
-                          <iframe
-                            src={bai.meta!.embed!}
-                            className="h-64 w-full sm:h-80"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                          />
-                        </div>
-                      ) : hinhs.length > 0 && (
-                        <div
-                          className={
-                            isSingle
-                              ? "flex flex-col gap-4 sm:flex-row sm:items-start"
-                              : "grid grid-cols-2 gap-4"
-                          }
-                        >
-                          {hinhs.map((hinh) => {
-                            const captions = (hasAudio || hasVideo) ? [] : hinh.captions.filter((c) => c.trim().length > 1);
-                            return (
-                              <HinhBlock
-                                key={hinh.id}
-                                hinh={hinh}
-                                captions={captions}
-                                isSingle={isSingle}
-                                colorIndex={changIndex + li}
-                              />
-                            );
-                          })}
-                        </div>
-                      )}
-
-                      {hasVideo && <VideoEmbed url={bai.meta!.video_url!} />}
-                    </article>
-                  );
-                })}
-
-                {nd.bais.length === 0 && (
-                  <p className="text-center text-sm text-muted-foreground">
-                    Nội dung đang được cập nhật.
-                  </p>
-                )}
-              </div>
-
-              {/* Complete button on last page */}
-              {pageIdx === total - 1 && (
-                <div className="relative mt-10 flex justify-center pb-4">
-                  {showConfetti && <ConfettiBurst onDone={() => setShowConfetti(false)} />}
-                  <button
-                    onClick={handleComplete}
-                    disabled={isCompleted}
+        <div className="mx-auto flex max-w-3xl flex-col gap-8 divide-y divide-border/60">
+          {nd.bais.map((bai, li) => {
+            const hasAudio = !!bai.audioUrl;
+            const hasVideo = !!bai.meta?.video_url;
+            const hasEmbed = !!bai.meta?.embed;
+            const hinhs = bai.hinhs;
+            const isSingle = hinhs.length === 1;
+            return (
+              <section key={bai.id} className={li > 0 ? "pt-8" : ""}>
+                <div className="mb-4 flex items-start gap-3">
+                  <span
                     className={[
-                      "relative flex items-center justify-center gap-2 overflow-hidden rounded-full px-10 py-4 text-lg font-extrabold tracking-wide shadow-glow-green transition sm:px-12 sm:py-5 sm:text-xl",
-                      isCompleted
-                        ? "cursor-not-allowed bg-green-100 text-green-600 shadow-none ring-0"
-                        : "bg-gradient-to-r from-emerald-400 via-green-500 to-emerald-600 text-white ring-4 ring-white/70 hover:scale-105 active:scale-95",
+                      "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-display text-sm font-extrabold text-white",
+                      color.gradient,
                     ].join(" ")}
                   >
-                    {!isCompleted && (
-                      <span className="pointer-events-none absolute inset-0 animate-shine bg-gradient-to-r from-transparent via-white/50 to-transparent" />
-                    )}
-                    <Check className="h-6 w-6 shrink-0" strokeWidth={3} />
-                    {isCompleted ? "Đã hoàn thành ✓" : "Hoàn thành chặng 🎉"}
-                  </button>
+                    {li + 1}
+                  </span>
+                  <div className="flex-1 space-y-1.5">
+                    {bai.texts.map((t, i) => (
+                      <p
+                        key={i}
+                        className="whitespace-pre-line font-display text-base font-bold text-navy sm:text-lg"
+                      >
+                        {t}
+                        {hasAudio && i === bai.texts.length - 1 && (
+                          <span className="ml-2 inline-flex align-middle">
+                            <AudioButton src={bai.audioUrl!} />
+                          </span>
+                        )}
+                      </p>
+                    ))}
+                  </div>
                 </div>
-              )}
-            </div>
-          ))}
 
-          {/* Empty state */}
-          {noiDungs.length === 0 && (
-            <div className="flex-none w-full h-full flex items-center justify-center px-5 text-center text-sm text-muted-foreground">
-              Chặng này chưa có nội dung.
-            </div>
+                {hasEmbed ? (
+                  <div className="mt-3 w-full overflow-hidden rounded-xl ring-1 ring-border/60">
+                    <iframe
+                      src={bai.meta!.embed!}
+                      className="h-64 w-full sm:h-80"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : hinhs.length > 0 && (
+                  <div
+                    className={
+                      isSingle
+                        ? "flex flex-col gap-4 sm:flex-row sm:items-start"
+                        : "grid grid-cols-2 gap-4"
+                    }
+                  >
+                    {hinhs.map((hinh) => {
+                      const captions = (hasAudio || hasVideo) ? [] : hinh.captions.filter((c) => c.trim().length > 1);
+                      return (
+                        <HinhBlock
+                          key={hinh.id}
+                          hinh={hinh}
+                          captions={captions}
+                          isSingle={isSingle}
+                          colorIndex={changIndex + li}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+
+                {hasVideo && <VideoEmbed url={bai.meta!.video_url!} />}
+              </section>
+            );
+          })}
+
+          {nd.bais.length === 0 && (
+            <p className="text-center text-sm text-muted-foreground">
+              Nội dung đang được cập nhật.
+            </p>
           )}
         </div>
-      </div>
 
-    </div>
+        {/* Complete stage button on last noidung */}
+        {isLastNoiDung && !isLastNoiDungOfLastChang && (
+          <div className="relative mt-10 flex justify-center">
+            {showConfetti && <ConfettiBurst onDone={() => setShowConfetti(false)} />}
+            <button
+              onClick={handleComplete}
+              disabled={isCompleted}
+              className={[
+                "relative flex items-center justify-center gap-2 overflow-hidden rounded-full px-10 py-4 text-lg font-extrabold tracking-wide shadow-glow-green transition sm:px-12 sm:py-5 sm:text-xl",
+                isCompleted
+                  ? "cursor-not-allowed bg-green-100 text-green-600 shadow-none ring-0"
+                  : "bg-gradient-to-r from-emerald-400 via-green-500 to-emerald-600 text-white ring-4 ring-white/70 hover:scale-105 active:scale-95",
+              ].join(" ")}
+            >
+              {!isCompleted && (
+                <span className="pointer-events-none absolute inset-0 animate-shine bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+              )}
+              {isCompleted ? "Đã hoàn thành ✓" : "Hoàn thành chặng 🎉"}
+            </button>
+          </div>
+        )}
+      </div>
+    </article>
   );
 }
