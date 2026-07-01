@@ -14,47 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      profiles: {
-        Row: {
-          id: string
-          username: string
-          display_name: string
-          avatar_emoji: string | null
-          avatar_url: string | null
-          country: string | null
-          completed_count: number
-          created_at: string
-        }
-        Insert: {
-          id: string
-          username: string
-          display_name?: string
-          avatar_emoji?: string | null
-          avatar_url?: string | null
-          country?: string | null
-          completed_count?: number
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          username?: string
-          display_name?: string
-          avatar_emoji?: string | null
-          avatar_url?: string | null
-          country?: string | null
-          completed_count?: number
-          created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       bai: {
         Row: {
           id: string
@@ -212,6 +171,39 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          avatar_emoji: string | null
+          avatar_url: string | null
+          completed_count: number
+          country: string | null
+          created_at: string
+          display_name: string
+          id: string
+          username: string
+        }
+        Insert: {
+          avatar_emoji?: string | null
+          avatar_url?: string | null
+          completed_count?: number
+          country?: string | null
+          created_at?: string
+          display_name?: string
+          id: string
+          username: string
+        }
+        Update: {
+          avatar_emoji?: string | null
+          avatar_url?: string | null
+          completed_count?: number
+          country?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          username?: string
+        }
+        Relationships: []
+      }
       quyen: {
         Row: {
           created_at: string
@@ -232,22 +224,22 @@ export type Database = {
       }
       user_progress: {
         Row: {
-          user_id: string    // uuid
-          chang_id: string   // text (matches chang.id type)
-          noidung_index: number
+          chang_id: string
           completed_at: string | null
+          noidung_index: number
+          user_id: string
         }
         Insert: {
-          user_id: string
           chang_id: string
-          noidung_index?: number
           completed_at?: string | null
+          noidung_index?: number
+          user_id: string
         }
         Update: {
-          user_id?: string
           chang_id?: string
-          noidung_index?: number
           completed_at?: string | null
+          noidung_index?: number
+          user_id?: string
         }
         Relationships: [
           {
