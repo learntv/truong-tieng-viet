@@ -352,7 +352,7 @@ export function LessonCard({
                             allowFullScreen
                           />
                         </div>
-                      ) : hinhs.length > 0 && (
+                      ) : !hasVideo && hinhs.length > 0 && (
                         <div
                           className={
                             isSingle
