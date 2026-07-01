@@ -14,9 +14,9 @@ export const Route = createFileRoute("/hoc-tieng-viet")({
 
 function HocTiengViet() {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex h-screen flex-col overflow-hidden">
       <Navbar />
-      <main className="flex-1 animate-in fade-in slide-in-from-bottom-2 duration-300">
+      <main className="flex-1 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
         <LearningTab />
       </main>
     </div>

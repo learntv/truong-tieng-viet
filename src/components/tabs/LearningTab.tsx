@@ -48,7 +48,7 @@ function persistLocalProgress(map: Map<string, ChangProgress>) {
   try {
     localStorage.setItem(LOCAL_PROGRESS_KEY, JSON.stringify(Array.from(map.entries())));
   } catch {
-    // localStorage unavailable
+    // localStorage unavailable (private browsing, quota exceeded, etc.)
   }
 }
 
@@ -63,10 +63,12 @@ export function LearningTab() {
   const [localProgressMap, setLocalProgressMap] = useState<Map<string, ChangProgress>>(loadLocalProgress);
   const activeProgressMap = user ? progressMap : localProgressMap;
 
+  // Persist anonymous progress to localStorage whenever it changes
   useEffect(() => {
     if (!user) persistLocalProgress(localProgressMap);
   }, [localProgressMap, user]);
 
+  // Merge anonymous progress into DB when user logs in, then clear localStorage
   const prevUserIdRef = useRef<string | null>(null);
   useEffect(() => {
     const prevId = prevUserIdRef.current;
@@ -82,21 +84,26 @@ export function LearningTab() {
 
   const [selectedChangIndex, setSelectedChangIndex] = useState<number | null>(null);
   const [buffaloChangIndex, setBuffaloChangIndex] = useState(0);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Restore position once data + progress are ready
+  // Restore position once data + progress are both ready.
+  // Priority: last-opened stage (sessionStorage) → in-progress "đang học" stage → first incomplete → last stage.
   const hasRestoredRef = useRef(false);
   useEffect(() => {
     if (hasRestoredRef.current || !data || authIsLoading || isProgressLoading) return;
     hasRestoredRef.current = true;
 
-    const restore = (chuDeIdx: number, changIdx: number, noiDungIdx: number = 0) => {
+    const restore = (chuDeIdx: number, changIdx: number) => {
       setCurrentChuDeIndex(chuDeIdx);
       setCurrentChangIndex(changIdx);
-      setCurrentNoiDungIndex(noiDungIdx);
       setBuffaloChangIndex(changIdx);
       setSelectedChangIndex(changIdx);
     };
 
+    // Prefer the stage the user last opened (saved in sessionStorage by openChang).
+    // Reset clears sessionStorage explicitly, so no need to guard against stale data here.
     const saved = loadBuffaloPos();
     if (
       saved &&
@@ -109,31 +116,31 @@ export function LearningTab() {
       const prevChangId = saved.changIndex > 0 ? savedChangs[saved.changIndex - 1]?.id : null;
       const isLocked = prevChangId ? !activeProgressMap.get(prevChangId)?.isCompleted : false;
       if (!savedProg?.isCompleted && !isLocked) {
-        restore(saved.chuDeIndex, saved.changIndex, savedProg?.noiDungIndex ?? 0);
+        restore(saved.chuDeIndex, saved.changIndex);
         return;
       }
+      // Saved stage is completed or locked — discard stale position
       try { sessionStorage.removeItem(BUFFALO_POS_KEY); } catch { /* ignore */ }
     }
 
+    // Fall back to the in-progress "đang học" stage (has saved progress > slide 0)
     for (let ti = 0; ti < data.length; ti++) {
       const topicChangs = data[ti].changs;
       const inProgress = topicChangs.findIndex((ch) => {
         const prog = activeProgressMap.get(ch.id);
         return prog && !prog.isCompleted && prog.noiDungIndex > 0;
       });
-      if (inProgress !== -1) {
-        const prog = activeProgressMap.get(topicChangs[inProgress].id);
-        restore(ti, inProgress, prog?.noiDungIndex ?? 0);
-        return;
-      }
+      if (inProgress !== -1) { restore(ti, inProgress); return; }
     }
 
+    // Fall back to first incomplete
     for (let ti = 0; ti < data.length; ti++) {
       const topicChangs = data[ti].changs;
       const firstIncomplete = topicChangs.findIndex((ch) => !activeProgressMap.get(ch.id)?.isCompleted);
       if (firstIncomplete !== -1) { restore(ti, firstIncomplete); return; }
     }
 
+    // All done — land on the last stage of the last topic
     const lastTi = data.length - 1;
     restore(lastTi, Math.max(0, data[lastTi].changs.length - 1));
   }, [data, authIsLoading, isProgressLoading, activeProgressMap]);
@@ -170,15 +177,17 @@ export function LearningTab() {
         map.set(i, { current: Math.min(prog.noiDungIndex + 1, total), total });
       }
     });
-    if (!completedChangs.has(currentChangIndex)) {
+    // Reflect live slide position while the modal is open
+    if (isDetailOpen && !completedChangs.has(currentChangIndex)) {
       const total = changs[currentChangIndex]?.noiDungs.length ?? 0;
       if (total > 0) {
         map.set(currentChangIndex, { current: currentNoiDungIndex + 1, total });
       }
     }
     return map;
-  }, [changs, activeProgressMap, currentChangIndex, currentNoiDungIndex, completedChangs]);
+  }, [changs, activeProgressMap, isDetailOpen, currentChangIndex, currentNoiDungIndex, completedChangs]);
 
+  // A stage is "started" if it has a saved progress record that isn't completed yet
   const startedChangs = useMemo(
     () =>
       new Set(
@@ -193,20 +202,8 @@ export function LearningTab() {
     [changs, activeProgressMap],
   );
 
-  const persistPosition = (changId: string, noiDungIdx: number) => {
-    if (user) {
-      savePosition(changId, noiDungIdx);
-    } else {
-      setLocalProgressMap((prev) => {
-        const next = new Map(prev);
-        const existing = next.get(changId);
-        next.set(changId, { noiDungIndex: noiDungIdx, isCompleted: existing?.isCompleted ?? false });
-        return next;
-      });
-    }
-  };
-
   const completeChang = () => {
+    // Guard: already completed or no valid chang
     if (completedChangs.has(currentChangIndex)) return;
     const changId = changs[currentChangIndex]?.id;
     if (!changId) return;
@@ -225,6 +222,29 @@ export function LearningTab() {
     });
   };
 
+  const closeModal = () => {
+    if (!isDetailOpen) return;
+    const changId = changs[currentChangIndex]?.id;
+    if (changId && !completedChangs.has(currentChangIndex)) {
+      if (user) {
+        savePosition(changId, currentNoiDungIndex);
+      } else {
+        setLocalProgressMap((prev) => {
+          const next = new Map(prev);
+          const existing = next.get(changId);
+          next.set(changId, { noiDungIndex: currentNoiDungIndex, isCompleted: existing?.isCompleted ?? false });
+          return next;
+        });
+      }
+    }
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsDetailOpen(false);
+      setIsClosing(false);
+      setIsFullscreen(false);
+    }, 200);
+  };
+
   const openChang = (i: number) => {
     if (i < 0 || i >= changs.length) return;
     const chang = changs[i];
@@ -232,14 +252,9 @@ export function LearningTab() {
     const maxSlide = Math.max(0, chang.noiDungs.length - 1);
     setCurrentChangIndex(i);
     setCurrentNoiDungIndex(Math.min(savedProgress?.noiDungIndex ?? 0, maxSlide));
-    setSelectedChangIndex(i);
-    setBuffaloChangIndex(i);
+    setIsFullscreen(false);
+    setIsDetailOpen(true);
     saveBuffaloPos({ chuDeIndex: currentChuDeIndex, changIndex: i });
-
-    // Scroll to lesson section
-    setTimeout(() => {
-      document.getElementById("lesson-content")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 50);
 
     const urls =
       chang.noiDungs.flatMap((nd) =>
@@ -249,6 +264,7 @@ export function LearningTab() {
       const img = new Image();
       img.src = url;
     });
+
   };
 
   const nextChuDe = () => {
@@ -259,17 +275,27 @@ export function LearningTab() {
     setCurrentNoiDungIndex(0);
     setSelectedChangIndex(null);
     setBuffaloChangIndex(0);
+    setIsDetailOpen(false);
     try { sessionStorage.removeItem(BUFFALO_POS_KEY); } catch { /* ignore */ }
   };
 
   const allDone = changs.length > 0 && completedChangs.size >= changs.length;
   const isLast = currentChuDeIndex >= chuDes.length - 1;
 
+  useEffect(() => {
+    if (!isDetailOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeModal();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isDetailOpen]);
+
   if (isLoading || authIsLoading || isProgressLoading) {
     return (
-      <section className="w-full px-4 py-3 sm:px-6 sm:py-4 lg:px-10">
-        <div className="mx-auto max-w-7xl">
-          <div className="h-[70vh]">
+      <section className="h-full w-full px-4 py-3 sm:px-6 sm:py-4 lg:px-10">
+        <div className="relative mx-auto h-full max-w-7xl">
+          <div className="h-full">
             <RoadmapSkeleton />
           </div>
         </div>
@@ -290,49 +316,12 @@ export function LearningTab() {
 
   const currentChang = changs[currentChangIndex];
   const noiDungCount = currentChang?.noiDungs.length ?? 0;
-  const canPrev = currentNoiDungIndex > 0 || currentChangIndex > 0;
-  const canNext =
-    currentNoiDungIndex < noiDungCount - 1 || currentChangIndex < changs.length - 1;
-  const modalColor = STAGE_COLORS[currentChangIndex % STAGE_COLORS.length];
-
-  const goPrev = () => {
-    if (currentNoiDungIndex > 0) {
-      const nextIdx = currentNoiDungIndex - 1;
-      setCurrentNoiDungIndex(nextIdx);
-      const changId = currentChang?.id;
-      if (changId && !completedChangs.has(currentChangIndex)) persistPosition(changId, nextIdx);
-    } else if (currentChangIndex > 0) {
-      openChang(currentChangIndex - 1);
-    }
-    setTimeout(() => {
-      document.getElementById("lesson-content")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 50);
-  };
-
-  const goNext = () => {
-    if (currentNoiDungIndex < noiDungCount - 1) {
-      const nextIdx = currentNoiDungIndex + 1;
-      setCurrentNoiDungIndex(nextIdx);
-      const changId = currentChang?.id;
-      if (changId && !completedChangs.has(currentChangIndex)) persistPosition(changId, nextIdx);
-    } else if (currentChangIndex < changs.length - 1) {
-      openChang(currentChangIndex + 1);
-      return;
-    }
-    setTimeout(() => {
-      document.getElementById("lesson-content")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 50);
-  };
-
-  const isLastNoiDungOfLastChang =
-    currentChangIndex === changs.length - 1 && currentNoiDungIndex === noiDungCount - 1;
 
   return (
-    <section className="w-full px-4 py-3 sm:px-6 sm:py-4 lg:px-10">
-      <div className="mx-auto max-w-7xl space-y-6" id="roadmap-start">
+    <section className="h-full w-full px-4 py-3 sm:px-6 sm:py-4 lg:px-10">
+      <div className="relative mx-auto h-full max-w-7xl" id="roadmap-start">
 
-        {/* Map — always at top */}
-        <div className="h-[65vh] min-h-[420px] sm:h-[70vh]">
+        <div className="h-full">
           <RoadmapMap
             chuDes={chuDes}
             chuDe={chuDe}
@@ -354,57 +343,71 @@ export function LearningTab() {
           />
         </div>
 
-        {/* Inline lesson content — blog post style */}
-        {currentChang && (
-          <div id="lesson-content" className="scroll-mt-4">
-            <LessonCard
-              chang={currentChang}
-              changIndex={currentChangIndex}
-              noiDungIndex={currentNoiDungIndex}
-              isCompleted={completedChangs.has(currentChangIndex)}
-              isLastNoiDungOfLastChang={isLastNoiDungOfLastChang}
-              onComplete={completeChang}
-            />
-
-            {/* Prev / Next navigation */}
-            <div className="mt-6 flex items-center justify-between gap-3">
-              <button
-                onClick={goPrev}
-                disabled={!canPrev}
+        {/* Centered modal overlay */}
+        {isDetailOpen && currentChang && (() => {
+          const modalColor = STAGE_COLORS[currentChangIndex % STAGE_COLORS.length];
+          const canPrev = currentNoiDungIndex > 0;
+          const canNext = currentNoiDungIndex < noiDungCount - 1;
+          return (
+            <div
+              className={[
+                "fixed inset-0 z-40 flex h-dvh items-center justify-center bg-navy/70 backdrop-blur-sm",
+                isFullscreen ? "p-0" : "p-0 sm:p-4",
+                isClosing ? "animate-modal-overlay-out" : "animate-modal-overlay-in",
+              ].join(" ")}
+              onClick={closeModal}
+            >
+              <div
+                onClick={(e) => e.stopPropagation()}
                 className={[
-                  "flex items-center gap-2 rounded-full bg-white px-5 py-3 font-display text-sm font-bold text-navy shadow-card transition sm:text-base",
-                  canPrev ? "hover:scale-105 hover:shadow-lg" : "opacity-40 cursor-not-allowed",
+                  "relative",
+                  isClosing ? "animate-modal-pop-out" : "animate-modal-pop-in",
+                  isFullscreen
+                    ? "h-dvh w-full"
+                    : "h-dvh w-full sm:h-[95dvh] sm:max-w-2xl",
                 ].join(" ")}
               >
-                <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
-                <span>Trang trước</span>
-              </button>
+                <LessonCard
+                  chang={currentChang}
+                  changIndex={currentChangIndex}
+                  noiDungIndex={currentNoiDungIndex}
+                  isCompleted={completedChangs.has(currentChangIndex)}
+                  isFullscreen={isFullscreen}
+                  onToggleFullscreen={() => setIsFullscreen((f) => !f)}
+                  onPrevNoiDung={() => setCurrentNoiDungIndex((i) => Math.max(0, i - 1))}
+                  onNextNoiDung={() =>
+                    setCurrentNoiDungIndex((i) => Math.min(noiDungCount - 1, i + 1))
+                  }
+                  onNoiDungChange={setCurrentNoiDungIndex}
+                  onComplete={completeChang}
+                  onClose={closeModal}
+                />
 
-              <span className="hidden text-sm font-bold text-navy/70 sm:inline">
-                Trang {currentNoiDungIndex + 1} / {noiDungCount}
-              </span>
+                <button
+                  onClick={() => setCurrentNoiDungIndex((i) => Math.max(0, i - 1))}
+                  aria-label="Trang trước"
+                  disabled={!canPrev}
+                  className={["absolute left-2 top-1/2 z-50 -translate-y-1/2", !isFullscreen && "sm:-left-14"].filter(Boolean).join(" ")}
+                >
+                  <div className={["grid h-11 w-11 place-items-center rounded-full bg-white/90 text-navy shadow-card backdrop-blur transition", canPrev ? "hover:scale-110 hover:bg-white" : "opacity-30 cursor-not-allowed"].join(" ")}>
+                    <ChevronLeft className="h-6 w-6" strokeWidth={2.5} />
+                  </div>
+                </button>
 
-              <button
-                onClick={goNext}
-                disabled={!canNext}
-                className={[
-                  "flex items-center gap-2 rounded-full px-5 py-3 font-display text-sm font-bold text-white shadow-card transition sm:text-base",
-                  modalColor.gradient,
-                  canNext ? "hover:scale-105 hover:shadow-lg" : "opacity-40 cursor-not-allowed",
-                ].join(" ")}
-              >
-                <span>
-                  {currentNoiDungIndex < noiDungCount - 1
-                    ? "Trang tiếp"
-                    : currentChangIndex < changs.length - 1
-                      ? "Chặng tiếp"
-                      : "Hết"}
-                </span>
-                <ChevronRight className="h-5 w-5" strokeWidth={2.5} />
-              </button>
+                <button
+                  onClick={() => setCurrentNoiDungIndex((i) => Math.min(noiDungCount - 1, i + 1))}
+                  aria-label="Trang tiếp"
+                  disabled={!canNext}
+                  className={["absolute right-2 top-1/2 z-50 -translate-y-1/2", !isFullscreen && "sm:-right-14"].filter(Boolean).join(" ")}
+                >
+                  <div className={["grid h-11 w-11 place-items-center rounded-full text-white shadow-card transition", modalColor.gradient, canNext ? "hover:scale-110" : "opacity-30 cursor-not-allowed"].join(" ")}>
+                    <ChevronRight className="h-6 w-6" strokeWidth={2.5} />
+                  </div>
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
     </section>
   );
