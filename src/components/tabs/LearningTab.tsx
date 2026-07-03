@@ -70,21 +70,22 @@ export function LearningTab({ isLessonView, changId }: { isLessonView: boolean; 
     return idx !== -1 ? idx : currentChangIndex;
   }, [isLessonView, changId, data, currentChuDeIndex, currentChangIndex]);
 
-  // Measures the actual on-screen position of the displayed stage's node so the connector
-  // triangle's tip lands exactly on its bottom edge, and centers on it horizontally.
-  const [connector, setConnector] = useState<{ leftPx: number; triangleHeight: number } | null>(null);
+  // Measures the connector triangle's height: the vertical distance from the displayed
+  // node's bottom edge down to the map's own bottom edge. This is unaffected by horizontal
+  // scroll (both ends move together), so it only needs to be measured on lesson switches
+  // and resize — the triangle itself is rendered in-flow with the map's nodes (see
+  // RoadmapMap), positioned by the same percentage the nodes use, so it scrolls natively
+  // with zero JS-driven lag and touches on it fall through to the map's own scrolling.
+  const [connectorHeight, setConnectorHeight] = useState<number | null>(null);
   useEffect(() => {
-    if (!isLessonView) { setConnector(null); return; }
+    if (!isLessonView) { setConnectorHeight(null); return; }
     const measure = () => {
       const node = activeNodeRef.current;
       const inner = mapInnerRef.current;
       if (!node || !inner) return;
       const nodeRect = node.getBoundingClientRect();
       const innerRect = inner.getBoundingClientRect();
-      setConnector({
-        leftPx: nodeRect.left + nodeRect.width / 2 - innerRect.left,
-        triangleHeight: Math.max(24, innerRect.bottom - nodeRect.bottom),
-      });
+      setConnectorHeight(Math.max(24, innerRect.bottom - nodeRect.bottom));
     };
     measure();
     // Re-measure shortly after mount too, since fonts/images can still be settling.
@@ -319,43 +320,8 @@ export function LearningTab({ isLessonView, changId }: { isLessonView: boolean; 
           onAdvance={nextChuDe}
           changProgress={changProgress}
           activeNodeRef={activeNodeRef}
+          connectorHeight={connectorHeight ?? undefined}
         />
-
-        {/* Connector — a curved callout tail on the map, tip touching the current stage
-            node's bottom edge, base flush with the map's own bottom. Colored to match the
-            page background (not white) with a short matching stem below to mask the map's
-            own drop shadow, so it reads as one smooth surface instead of a separated card.
-            Its position/height transition smoothly when switching to a different stage. */}
-        {isLessonView && connector && (
-          <>
-            <svg
-              className="absolute bottom-0 z-20"
-              viewBox="0 0 140 100"
-              preserveAspectRatio="none"
-              style={{
-                left: connector.leftPx,
-                width: 140,
-                height: connector.triangleHeight,
-                transform: "translateX(-50%) translateY(1px)",
-                transition: `left ${CONNECTOR_TRANSITION_MS}ms ease, height ${CONNECTOR_TRANSITION_MS}ms ease`,
-              }}
-              aria-hidden
-            >
-              <path d="M 0 100 Q 60 70 70 0 Q 80 70 140 100 Z" fill="var(--background)" />
-            </svg>
-            <div
-              className="absolute top-full z-20 w-14"
-              style={{
-                left: connector.leftPx,
-                transform: "translateX(-50%) translateY(1px)",
-                height: "32px",
-                background: "var(--background)",
-                transition: `left ${CONNECTOR_TRANSITION_MS}ms ease`,
-              }}
-              aria-hidden
-            />
-          </>
-        )}
       </div>
     </section>
   );

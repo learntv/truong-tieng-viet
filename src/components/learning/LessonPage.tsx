@@ -188,7 +188,7 @@ function HinhBlock({
               className={[
                 "mx-auto rounded-xl object-contain ring-1 ring-border/60 transition-opacity duration-300",
                 isLoaded ? "opacity-100" : "opacity-0",
-                !isSingle ? "w-full" : stackVertical ? "w-[80%]" : "w-[85%]",
+                !isSingle ? "w-full" : stackVertical ? "w-full sm:w-[80%]" : "w-full sm:w-[85%]",
               ].join(" ")}
             />
           </div>

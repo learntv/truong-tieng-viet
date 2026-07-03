@@ -45,6 +45,7 @@ export function RoadmapMap({
   changProgress,
   activeNodeRef,
   connectorChangIndex,
+  connectorHeight,
 }: {
   chuDes: ChuDe[];
   chuDe: ChuDe;
@@ -68,6 +69,11 @@ export function RoadmapMap({
    * actually being displayed, which can differ from `currentChangIndex` (the last saved
    * "Đang học" position) right after a refresh lands directly on a different lesson. */
   connectorChangIndex?: number;
+  /** Height (px) of the connector triangle, measured from the node's bottom edge down to
+   * the map's own bottom edge. Rendered in-flow with the map's nodes (not as an outside
+   * overlay) so it scrolls natively with the map on mobile — no JS-driven lag, and touches
+   * on it scroll the map like touching anywhere else. */
+  connectorHeight?: number;
 }) {
   const bookNumber = chuDeIndex < 4 ? 1 : 2;
   const buffaloIndex = buffaloChangIndex;
@@ -201,6 +207,27 @@ export function RoadmapMap({
             xPercent={Math.max(6, (NODE_POSITIONS[buffaloIndex]?.x ?? 10) - 6)}
             yPercent={NODE_POSITIONS[buffaloIndex]?.y ?? 58}
           />
+
+          {/* Connector — a curved callout tail pointing up at the lesson's node, base flush
+              with the map's own bottom edge. Rendered here (in-flow with the nodes) rather
+              than as an outside overlay, so it scrolls natively with the map. */}
+          {connectorChangIndex != null && connectorHeight != null && (
+            <svg
+              className="pointer-events-none absolute bottom-0 z-10"
+              style={{
+                left: `${NODE_POSITIONS[connectorChangIndex % NODE_POSITIONS.length].x}%`,
+                width: 140,
+                height: connectorHeight,
+                transform: "translateX(-50%) translateY(1px)",
+                transition: "left 450ms ease, height 450ms ease",
+              }}
+              viewBox="0 0 140 100"
+              preserveAspectRatio="none"
+              aria-hidden
+            >
+              <path d="M 0 100 Q 60 70 70 0 Q 80 70 140 100 Z" fill="var(--background)" />
+            </svg>
+          )}
         </div>
       </div>
 
