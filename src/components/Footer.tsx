@@ -20,7 +20,7 @@ export function Footer() {
               </div>
             </div>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Nền tảng học tiếng Việt dành cho trẻ em Việt Nam tiêu học ở trong và ngoài nước.
+              Nền tảng học tiếng Việt dành cho trẻ em Việt Nam tiểu học ở trong và ngoài nước.
             </p>
             <div className="flex items-center gap-3">
               <a href="#" aria-label="Facebook" className="grid h-8 w-8 place-items-center rounded-full bg-white shadow-card transition-transform hover:scale-110 hover:shadow-md text-[#1877F2]">
