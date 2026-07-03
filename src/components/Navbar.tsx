@@ -71,7 +71,7 @@ export function Navbar() {
           {/* Desktop nav */}
           <ul className="hidden flex-1 items-center justify-center gap-1 md:flex">
             {tabs.map(({ to, label, Icon }) => {
-              const isActive = pathname === to;
+              const isActive = pathname === to || pathname.startsWith(`${to}/`);
               return (
                 <li key={to}>
                   <Link
@@ -187,7 +187,7 @@ export function Navbar() {
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           <ul className="flex flex-col gap-1">
             {tabs.map(({ to, label, Icon }) => {
-              const isActive = pathname === to;
+              const isActive = pathname === to || pathname.startsWith(`${to}/`);
               return (
                 <li key={to}>
                   <Link

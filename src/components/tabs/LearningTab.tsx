@@ -4,6 +4,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { learningDataQueryOptions } from "@/lib/learning";
 import { RoadmapMap } from "@/components/learning/RoadmapMap";
 import { RoadmapSkeleton } from "@/components/learning/RoadmapSkeleton";
+import { buildSlides } from "@/components/learning/LessonPage";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
 
 const BUFFALO_POS_KEY = "vui-hoc-buffalo-pos";
@@ -57,7 +58,19 @@ export function LearningTab({ isLessonView, changId }: { isLessonView: boolean; 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [changId]);
 
-  // Measures the actual on-screen position of the current stage's node so the connector
+  // The lesson actually being displayed (from the URL), which can differ from
+  // `currentChangIndex` — e.g. right after a refresh, `currentChangIndex` still reflects
+  // the last saved "Đang học" position until the restore effect below (re)confirms it,
+  // but the page shown is whatever `changId` says. The buffalo and connector should
+  // always track this, not the saved position, to avoid a visible mismatch.
+  const displayedChangIndex = useMemo(() => {
+    if (!isLessonView || !changId) return currentChangIndex;
+    const changsForTopic = data?.[currentChuDeIndex]?.changs ?? [];
+    const idx = changsForTopic.findIndex((ch) => ch.id === changId);
+    return idx !== -1 ? idx : currentChangIndex;
+  }, [isLessonView, changId, data, currentChuDeIndex, currentChangIndex]);
+
+  // Measures the actual on-screen position of the displayed stage's node so the connector
   // triangle's tip lands exactly on its bottom edge, and centers on it horizontally.
   const [connector, setConnector] = useState<{ leftPx: number; triangleHeight: number } | null>(null);
   useEffect(() => {
@@ -81,7 +94,7 @@ export function LearningTab({ isLessonView, changId }: { isLessonView: boolean; 
       clearTimeout(t);
       window.removeEventListener("resize", measure);
     };
-  }, [isLessonView, changId, currentChangIndex]);
+  }, [isLessonView, changId, displayedChangIndex]);
 
   // The full map's height in lesson view (a normal document-flow section, so it needs an
   // explicit pixel height): one viewport minus the navbar, matching the immersive roadmap.
@@ -194,14 +207,19 @@ export function LearningTab({ isLessonView, changId }: { isLessonView: boolean; 
     [completedByChuDe, currentChuDeIndex],
   );
 
+  // "X/Y trang" tracks flattened slides (one per bai, matching what the lesson page itself
+  // calls a "trang") — not raw noiDung steps, which are usually fewer and give a wrong count.
   const changProgress = useMemo(() => {
     const map = new Map<number, { current: number; total: number }>();
     changs.forEach((ch, i) => {
-      const total = ch.noiDungs.length;
+      const slides = buildSlides(ch.noiDungs);
+      const total = slides.length;
       if (total === 0) return;
       const prog = activeProgressMap.get(ch.id);
       if (prog && !prog.isCompleted) {
-        map.set(i, { current: Math.min(prog.noiDungIndex + 1, total), total });
+        const firstOfStep = slides.findIndex((s) => s.ndIndex === prog.noiDungIndex);
+        const current = firstOfStep !== -1 ? firstOfStep + 1 : 1;
+        map.set(i, { current: Math.min(current, total), total });
       }
     });
     return map;
@@ -288,7 +306,8 @@ export function LearningTab({ isLessonView, changId }: { isLessonView: boolean; 
           changTitles={changTitles}
           changEmojis={changEmojis}
           currentChangIndex={currentChangIndex}
-          buffaloChangIndex={buffaloChangIndex}
+          buffaloChangIndex={isLessonView ? displayedChangIndex : buffaloChangIndex}
+          connectorChangIndex={displayedChangIndex}
           completedChangs={completedChangs}
           startedChangs={startedChangs}
           selectedChangIndex={selectedChangIndex}

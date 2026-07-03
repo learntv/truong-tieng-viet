@@ -44,6 +44,7 @@ export function RoadmapMap({
   onAdvance,
   changProgress,
   activeNodeRef,
+  connectorChangIndex,
 }: {
   chuDes: ChuDe[];
   chuDe: ChuDe;
@@ -63,6 +64,10 @@ export function RoadmapMap({
   onAdvance: () => void;
   changProgress: Map<number, { current: number; total: number }>;
   activeNodeRef?: RefObject<HTMLDivElement | null>;
+  /** Which node the connector triangle (in lesson view) should point at — the lesson
+   * actually being displayed, which can differ from `currentChangIndex` (the last saved
+   * "Đang học" position) right after a refresh lands directly on a different lesson. */
+  connectorChangIndex?: number;
 }) {
   const bookNumber = chuDeIndex < 4 ? 1 : 2;
   const buffaloIndex = buffaloChangIndex;
@@ -154,7 +159,7 @@ export function RoadmapMap({
             return (
               <div
                 key={i}
-                ref={i === currentChangIndex ? activeNodeRef : undefined}
+                ref={i === (connectorChangIndex ?? currentChangIndex) ? activeNodeRef : undefined}
                 className="absolute"
                 style={{ left: `${p.x}%`, top: `${p.y}%`, transform: "translateX(-50%) translateY(-72px)" }}
                 onClick={(e) => e.stopPropagation()}

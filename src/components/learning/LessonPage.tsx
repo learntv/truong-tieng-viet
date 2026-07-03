@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ArrowLeft, Check, ChevronLeft, ChevronRight, Headphones, Loader2 } from "lucide-react";
@@ -220,7 +220,7 @@ function HinhBlock({
   );
 }
 
-type Slide = {
+export type Slide = {
   ndIndex: number;
   nd: NoiDung;
   bai: Bai | null;
@@ -228,7 +228,7 @@ type Slide = {
   baiCount: number;
 };
 
-function buildSlides(noiDungs: NoiDung[]): Slide[] {
+export function buildSlides(noiDungs: NoiDung[]): Slide[] {
   return noiDungs.flatMap((nd, ndIndex): Slide[] =>
     nd.bais.length > 0
       ? nd.bais.map((bai, baiIndex) => ({ ndIndex, nd, bai, baiIndex, baiCount: nd.bais.length }))
@@ -271,13 +271,20 @@ export function LessonPage({ changId }: { changId: string }) {
   const sidebarBoxRef = useRef<HTMLDivElement>(null);
   const sidebarStyle = useStickySidebar(sidebarWrapRef, sidebarBoxRef);
 
-  const hasRestoredRef = useRef(false);
-  useEffect(() => {
-    if (hasRestoredRef.current || !found || slides.length === 0) return;
-    hasRestoredRef.current = true;
+  // Resets to the right starting slide every time the lesson changes (not just on first
+  // mount) — continuing from the saved position, or from the start if this is a review of
+  // an already-completed lesson. Runs before paint so switching lessons never flashes the
+  // previous lesson's slide index against the new lesson's content.
+  useLayoutEffect(() => {
+    if (!found || slides.length === 0) return;
+    if (isCompleted) {
+      setSlideIndex(0);
+      return;
+    }
     const firstOfStep = slides.findIndex((s) => s.ndIndex === savedNoiDungIndex);
     setSlideIndex(firstOfStep !== -1 ? firstOfStep : 0);
-  }, [found, savedNoiDungIndex, slides]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [changId]);
 
   useEffect(() => () => { if (fadeTimeoutRef.current) clearTimeout(fadeTimeoutRef.current); }, []);
 
@@ -372,13 +379,13 @@ export function LessonPage({ changId }: { changId: string }) {
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
 
       <div className="mb-5">
-        <Link
-          to="/hoc-tieng-viet"
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           className="inline-flex items-center gap-1.5 text-sm font-bold text-muted-foreground transition-colors hover:text-navy"
         >
           <ArrowLeft className="h-4 w-4" />
           Quay lại lộ trình
-        </Link>
+        </button>
       </div>
 
       <div className="mb-6">
