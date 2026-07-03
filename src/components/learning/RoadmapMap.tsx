@@ -140,7 +140,7 @@ export function RoadmapMap({
 
       {/* Map area: SVG path + stage cards + buffalo */}
       <div
-        className="relative z-20 min-h-0 w-full flex-1 overflow-x-auto sm:overflow-x-hidden"
+        className="relative z-20 min-h-0 w-full flex-1 overflow-x-auto overflow-y-hidden sm:overflow-x-hidden"
         style={{ marginTop: 'calc(0.5rem - 3.5rem)', paddingTop: '3.5rem' }}
       >
         <div className="relative h-full min-w-[760px] sm:min-w-0">
