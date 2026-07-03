@@ -15,7 +15,9 @@ import { Route as HocTiengVietRouteImport } from './routes/hoc-tieng-viet'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BangXepHangRouteImport } from './routes/bang-xep-hang'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HocTiengVietIndexRouteImport } from './routes/hoc-tieng-viet.index'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
+import { Route as HocTiengVietChangIdRouteImport } from './routes/hoc-tieng-viet.$changId'
 
 const SanPhamCuaEmRoute = SanPhamCuaEmRouteImport.update({
   id: '/san-pham-cua-em',
@@ -47,39 +49,54 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HocTiengVietIndexRoute = HocTiengVietIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => HocTiengVietRoute,
+} as any)
 const UUsernameRoute = UUsernameRouteImport.update({
   id: '/u/$username',
   path: '/u/$username',
   getParentRoute: () => rootRouteImport,
+} as any)
+const HocTiengVietChangIdRoute = HocTiengVietChangIdRouteImport.update({
+  id: '/$changId',
+  path: '/$changId',
+  getParentRoute: () => HocTiengVietRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bang-xep-hang': typeof BangXepHangRoute
   '/dashboard': typeof DashboardRoute
-  '/hoc-tieng-viet': typeof HocTiengVietRoute
+  '/hoc-tieng-viet': typeof HocTiengVietRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
+  '/hoc-tieng-viet/$changId': typeof HocTiengVietChangIdRoute
   '/u/$username': typeof UUsernameRoute
+  '/hoc-tieng-viet/': typeof HocTiengVietIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bang-xep-hang': typeof BangXepHangRoute
   '/dashboard': typeof DashboardRoute
-  '/hoc-tieng-viet': typeof HocTiengVietRoute
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
+  '/hoc-tieng-viet/$changId': typeof HocTiengVietChangIdRoute
   '/u/$username': typeof UUsernameRoute
+  '/hoc-tieng-viet': typeof HocTiengVietIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/bang-xep-hang': typeof BangXepHangRoute
   '/dashboard': typeof DashboardRoute
-  '/hoc-tieng-viet': typeof HocTiengVietRoute
+  '/hoc-tieng-viet': typeof HocTiengVietRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
+  '/hoc-tieng-viet/$changId': typeof HocTiengVietChangIdRoute
   '/u/$username': typeof UUsernameRoute
+  '/hoc-tieng-viet/': typeof HocTiengVietIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -90,16 +107,19 @@ export interface FileRouteTypes {
     | '/hoc-tieng-viet'
     | '/reset-password'
     | '/san-pham-cua-em'
+    | '/hoc-tieng-viet/$changId'
     | '/u/$username'
+    | '/hoc-tieng-viet/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/bang-xep-hang'
     | '/dashboard'
-    | '/hoc-tieng-viet'
     | '/reset-password'
     | '/san-pham-cua-em'
+    | '/hoc-tieng-viet/$changId'
     | '/u/$username'
+    | '/hoc-tieng-viet'
   id:
     | '__root__'
     | '/'
@@ -108,14 +128,16 @@ export interface FileRouteTypes {
     | '/hoc-tieng-viet'
     | '/reset-password'
     | '/san-pham-cua-em'
+    | '/hoc-tieng-viet/$changId'
     | '/u/$username'
+    | '/hoc-tieng-viet/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BangXepHangRoute: typeof BangXepHangRoute
   DashboardRoute: typeof DashboardRoute
-  HocTiengVietRoute: typeof HocTiengVietRoute
+  HocTiengVietRoute: typeof HocTiengVietRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   SanPhamCuaEmRoute: typeof SanPhamCuaEmRoute
   UUsernameRoute: typeof UUsernameRoute
@@ -165,6 +187,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hoc-tieng-viet/': {
+      id: '/hoc-tieng-viet/'
+      path: '/'
+      fullPath: '/hoc-tieng-viet/'
+      preLoaderRoute: typeof HocTiengVietIndexRouteImport
+      parentRoute: typeof HocTiengVietRoute
+    }
     '/u/$username': {
       id: '/u/$username'
       path: '/u/$username'
@@ -172,14 +201,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hoc-tieng-viet/$changId': {
+      id: '/hoc-tieng-viet/$changId'
+      path: '/$changId'
+      fullPath: '/hoc-tieng-viet/$changId'
+      preLoaderRoute: typeof HocTiengVietChangIdRouteImport
+      parentRoute: typeof HocTiengVietRoute
+    }
   }
 }
+
+interface HocTiengVietRouteChildren {
+  HocTiengVietChangIdRoute: typeof HocTiengVietChangIdRoute
+  HocTiengVietIndexRoute: typeof HocTiengVietIndexRoute
+}
+
+const HocTiengVietRouteChildren: HocTiengVietRouteChildren = {
+  HocTiengVietChangIdRoute: HocTiengVietChangIdRoute,
+  HocTiengVietIndexRoute: HocTiengVietIndexRoute,
+}
+
+const HocTiengVietRouteWithChildren = HocTiengVietRoute._addFileChildren(
+  HocTiengVietRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BangXepHangRoute: BangXepHangRoute,
   DashboardRoute: DashboardRoute,
-  HocTiengVietRoute: HocTiengVietRoute,
+  HocTiengVietRoute: HocTiengVietRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   SanPhamCuaEmRoute: SanPhamCuaEmRoute,
   UUsernameRoute: UUsernameRoute,
