@@ -1,24 +1,23 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { LearningTab } from "@/components/tabs/LearningTab";
 
 export const Route = createFileRoute("/hoc-tieng-viet")({
-  head: () => ({
-    meta: [
-      { title: "Học Tiếng Việt — Trường Tiếng Việt Của Em" },
-      { name: "description", content: "Lộ trình học tiếng Việt với 40 bài học qua 8 chủ đề dành cho trẻ em kiều bào." },
-    ],
-  }),
-  component: HocTiengViet,
+  component: HocTiengVietLayout,
 });
 
-function HocTiengViet() {
+function HocTiengVietLayout() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isLessonView = pathname !== "/hoc-tieng-viet" && pathname !== "/hoc-tieng-viet/";
+  const changId = isLessonView ? decodeURIComponent(pathname.split("/").filter(Boolean).pop() ?? "") : null;
+
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
+    <div className={isLessonView ? "flex min-h-screen flex-col" : "flex h-screen flex-col overflow-hidden"}>
       <Navbar />
-      <main className="flex-1 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
-        <LearningTab />
-      </main>
+      <LearningTab isLessonView={isLessonView} changId={changId} />
+      <Outlet />
+      {isLessonView && <Footer />}
     </div>
   );
 }

@@ -1,17 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { learningDataQueryOptions } from "@/lib/learning";
 import { RoadmapMap } from "@/components/learning/RoadmapMap";
 import { RoadmapSkeleton } from "@/components/learning/RoadmapSkeleton";
-import { LessonCard } from "@/components/learning/LessonCard";
-import { STAGE_COLORS } from "@/components/learning/StageCard";
-import { useAuth } from "@/hooks/useAuth";
-import { useUserProgress } from "@/hooks/useUserProgress";
-import type { ChangProgress } from "@/hooks/useUserProgress";
+import { useLearningProgress } from "@/hooks/useLearningProgress";
 
-const LOCAL_PROGRESS_KEY = "vui-hoc-progress";
 const BUFFALO_POS_KEY = "vui-hoc-buffalo-pos";
 
 type BuffaloPos = { chuDeIndex: number; changIndex: number };
@@ -34,59 +28,92 @@ function saveBuffaloPos(pos: BuffaloPos) {
   }
 }
 
-function loadLocalProgress(): Map<string, ChangProgress> {
-  try {
-    const raw = localStorage.getItem(LOCAL_PROGRESS_KEY);
-    if (!raw) return new Map();
-    return new Map(JSON.parse(raw) as [string, ChangProgress][]);
-  } catch {
-    return new Map();
-  }
-}
+// How long the connector triangle takes to glide to its new position/height.
+const CONNECTOR_TRANSITION_MS = 450;
 
-function persistLocalProgress(map: Map<string, ChangProgress>) {
-  try {
-    localStorage.setItem(LOCAL_PROGRESS_KEY, JSON.stringify(Array.from(map.entries())));
-  } catch {
-    // localStorage unavailable (private browsing, quota exceeded, etc.)
-  }
-}
-
-export function LearningTab() {
+export function LearningTab({ isLessonView, changId }: { isLessonView: boolean; changId: string | null }) {
   const { data, isLoading, error } = useQuery(learningDataQueryOptions);
+  const navigate = useNavigate();
 
   const [currentChuDeIndex, setCurrentChuDeIndex] = useState(0);
   const [currentChangIndex, setCurrentChangIndex] = useState(0);
-  const [currentNoiDungIndex, setCurrentNoiDungIndex] = useState(0);
-  const { user, isLoading: authIsLoading } = useAuth();
-  const { progressMap, isProgressLoading, markComplete, savePosition, mergeLocalProgress } = useUserProgress(user?.id ?? null);
-  const [localProgressMap, setLocalProgressMap] = useState<Map<string, ChangProgress>>(loadLocalProgress);
-  const activeProgressMap = user ? progressMap : localProgressMap;
-
-  // Persist anonymous progress to localStorage whenever it changes
-  useEffect(() => {
-    if (!user) persistLocalProgress(localProgressMap);
-  }, [localProgressMap, user]);
-
-  // Merge anonymous progress into DB when user logs in, then clear localStorage
-  const prevUserIdRef = useRef<string | null>(null);
-  useEffect(() => {
-    const prevId = prevUserIdRef.current;
-    const currentId = user?.id ?? null;
-    prevUserIdRef.current = currentId;
-    if (currentId && !prevId && localProgressMap.size > 0) {
-      mergeLocalProgress(localProgressMap).then(() => {
-        setLocalProgressMap(new Map());
-        try { localStorage.removeItem(LOCAL_PROGRESS_KEY); } catch { /* ignore */ }
-      });
-    }
-  }, [user?.id]);
+  const { authIsLoading, activeProgressMap, isProgressLoading } = useLearningProgress();
 
   const [selectedChangIndex, setSelectedChangIndex] = useState<number | null>(null);
   const [buffaloChangIndex, setBuffaloChangIndex] = useState(0);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const mapSectionRef = useRef<HTMLElement>(null);
+  const mapInnerRef = useRef<HTMLDivElement>(null);
+  const activeNodeRef = useRef<HTMLDivElement>(null);
+
+  // Scroll position at the moment a lesson is opened/switched, so it can be restored
+  // before paint — otherwise the router's own scroll-restoration snaps to 0 first,
+  // producing a visible jump before our own smooth scroll-to-target kicks in.
+  const pendingScrollYRef = useRef<number | null>(null);
+  useLayoutEffect(() => {
+    if (!isLessonView || pendingScrollYRef.current == null) return;
+    window.scrollTo(0, pendingScrollYRef.current);
+    pendingScrollYRef.current = null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [changId]);
+
+  // Measures the actual on-screen position of the current stage's node so the connector
+  // triangle's tip lands exactly on its bottom edge, and centers on it horizontally.
+  const [connector, setConnector] = useState<{ leftPx: number; triangleHeight: number } | null>(null);
+  useEffect(() => {
+    if (!isLessonView) { setConnector(null); return; }
+    const measure = () => {
+      const node = activeNodeRef.current;
+      const inner = mapInnerRef.current;
+      if (!node || !inner) return;
+      const nodeRect = node.getBoundingClientRect();
+      const innerRect = inner.getBoundingClientRect();
+      setConnector({
+        leftPx: nodeRect.left + nodeRect.width / 2 - innerRect.left,
+        triangleHeight: Math.max(24, innerRect.bottom - nodeRect.bottom),
+      });
+    };
+    measure();
+    // Re-measure shortly after mount too, since fonts/images can still be settling.
+    const t = setTimeout(measure, 300);
+    window.addEventListener("resize", measure);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("resize", measure);
+    };
+  }, [isLessonView, changId, currentChangIndex]);
+
+  // The full map's height in lesson view (a normal document-flow section, so it needs an
+  // explicit pixel height): one viewport minus the navbar, matching the immersive roadmap.
+  const [fullHeightPx, setFullHeightPx] = useState<number | null>(null);
+  useEffect(() => {
+    const measure = () => {
+      const navbarHeight = document.querySelector("header")?.getBoundingClientRect().height ?? 0;
+      setFullHeightPx(window.innerHeight - navbarHeight);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  // Whenever a lesson is opened or switched, scroll just past the full map so the lesson
+  // content is immediately visible. The map itself never changes size, so this is a plain
+  // scroll — no layout feedback loop. Scrolling back up past this point naturally reveals
+  // the full map again, in normal flow.
+  useEffect(() => {
+    if (!isLessonView) return;
+    // Delayed past both the router's own scroll-restoration-to-top (which otherwise fights
+    // and wins over a scrollTo issued immediately on navigation) and the connector's own
+    // glide-into-position transition, so the triangle finishes moving before the page scrolls.
+    const id = setTimeout(() => {
+      const section = mapSectionRef.current;
+      if (!section) return;
+      const target = section.getBoundingClientRect().bottom + window.scrollY - 24;
+      window.scrollTo({ top: target, behavior: "smooth" });
+    }, CONNECTOR_TRANSITION_MS + 50);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLessonView, changId]);
 
   // Restore position once data + progress are both ready.
   // Priority: last-opened stage (sessionStorage) → in-progress "đang học" stage → first incomplete → last stage.
@@ -177,15 +204,8 @@ export function LearningTab() {
         map.set(i, { current: Math.min(prog.noiDungIndex + 1, total), total });
       }
     });
-    // Reflect live slide position while the modal is open
-    if (isDetailOpen && !completedChangs.has(currentChangIndex)) {
-      const total = changs[currentChangIndex]?.noiDungs.length ?? 0;
-      if (total > 0) {
-        map.set(currentChangIndex, { current: currentNoiDungIndex + 1, total });
-      }
-    }
     return map;
-  }, [changs, activeProgressMap, isDetailOpen, currentChangIndex, currentNoiDungIndex, completedChangs]);
+  }, [changs, activeProgressMap]);
 
   // A stage is "started" if it has a saved progress record that isn't completed yet
   const startedChangs = useMemo(
@@ -202,69 +222,13 @@ export function LearningTab() {
     [changs, activeProgressMap],
   );
 
-  const completeChang = () => {
-    // Guard: already completed or no valid chang
-    if (completedChangs.has(currentChangIndex)) return;
-    const changId = changs[currentChangIndex]?.id;
-    if (!changId) return;
-    if (user) {
-      markComplete(changId);
-    } else {
-      setLocalProgressMap((prev) => {
-        const next = new Map(prev);
-        next.set(changId, { noiDungIndex: currentNoiDungIndex, isCompleted: true });
-        return next;
-      });
-    }
-    toast.success(`Chặng ${currentChangIndex + 1} hoàn thành! 🎉`, {
-      description: "Tiếp tục giỏi nhé!",
-      duration: 3000,
-    });
-  };
-
-  const closeModal = () => {
-    if (!isDetailOpen) return;
-    const changId = changs[currentChangIndex]?.id;
-    if (changId && !completedChangs.has(currentChangIndex)) {
-      if (user) {
-        savePosition(changId, currentNoiDungIndex);
-      } else {
-        setLocalProgressMap((prev) => {
-          const next = new Map(prev);
-          const existing = next.get(changId);
-          next.set(changId, { noiDungIndex: currentNoiDungIndex, isCompleted: existing?.isCompleted ?? false });
-          return next;
-        });
-      }
-    }
-    setIsClosing(true);
-    setTimeout(() => {
-      setIsDetailOpen(false);
-      setIsClosing(false);
-      setIsFullscreen(false);
-    }, 200);
-  };
-
   const openChang = (i: number) => {
     if (i < 0 || i >= changs.length) return;
     const chang = changs[i];
-    const savedProgress = activeProgressMap.get(chang.id);
-    const maxSlide = Math.max(0, chang.noiDungs.length - 1);
+    pendingScrollYRef.current = window.scrollY;
     setCurrentChangIndex(i);
-    setCurrentNoiDungIndex(Math.min(savedProgress?.noiDungIndex ?? 0, maxSlide));
-    setIsFullscreen(false);
-    setIsDetailOpen(true);
     saveBuffaloPos({ chuDeIndex: currentChuDeIndex, changIndex: i });
-
-    const urls =
-      chang.noiDungs.flatMap((nd) =>
-        nd.bais.flatMap((b) => b.hinhs.map((h) => h.url)),
-      );
-    urls.filter(Boolean).forEach((url) => {
-      const img = new Image();
-      img.src = url;
-    });
-
+    navigate({ to: "/hoc-tieng-viet/$changId", params: { changId: chang.id } });
   };
 
   const nextChuDe = () => {
@@ -272,26 +236,18 @@ export function LearningTab() {
     const nextIndex = currentChuDeIndex + 1;
     setCurrentChuDeIndex(nextIndex);
     setCurrentChangIndex(0);
-    setCurrentNoiDungIndex(0);
     setSelectedChangIndex(null);
     setBuffaloChangIndex(0);
-    setIsDetailOpen(false);
     try { sessionStorage.removeItem(BUFFALO_POS_KEY); } catch { /* ignore */ }
   };
 
   const allDone = changs.length > 0 && completedChangs.size >= changs.length;
   const isLast = currentChuDeIndex >= chuDes.length - 1;
 
-  useEffect(() => {
-    if (!isDetailOpen) return;
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeModal();
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isDetailOpen]);
-
   if (isLoading || authIsLoading || isProgressLoading) {
+    if (isLessonView) {
+      return <div className="h-16 w-full shrink-0 animate-pulse rounded-2xl bg-muted/40" />;
+    }
     return (
       <section className="h-full w-full px-4 py-3 sm:px-6 sm:py-4 lg:px-10">
         <div className="relative mx-auto h-full max-w-7xl">
@@ -304,6 +260,7 @@ export function LearningTab() {
   }
 
   if (error || !chuDe || changs.length === 0) {
+    if (isLessonView) return null;
     return (
       <section className="w-full px-4 py-16 text-center text-navy">
         <p className="font-display text-lg font-bold">Chưa có dữ liệu bài học.</p>
@@ -314,100 +271,72 @@ export function LearningTab() {
     );
   }
 
-  const currentChang = changs[currentChangIndex];
-  const noiDungCount = currentChang?.noiDungs.length ?? 0;
-
   return (
-    <section className="h-full w-full px-4 py-3 sm:px-6 sm:py-4 lg:px-10">
-      <div className="relative mx-auto h-full max-w-7xl" id="roadmap-start">
+    <section
+      ref={mapSectionRef}
+      className={[
+        "w-full shrink-0 px-4 py-3 sm:px-6 sm:py-4 lg:px-10",
+        isLessonView ? "" : "h-full flex-1",
+      ].join(" ")}
+      style={isLessonView ? { height: `${fullHeightPx ?? 600}px` } : undefined}
+    >
+      <div ref={mapInnerRef} className="relative mx-auto h-full max-w-7xl" id="roadmap-start">
+        <RoadmapMap
+          chuDes={chuDes}
+          chuDe={chuDe}
+          chuDeIndex={currentChuDeIndex}
+          changTitles={changTitles}
+          changEmojis={changEmojis}
+          currentChangIndex={currentChangIndex}
+          buffaloChangIndex={buffaloChangIndex}
+          completedChangs={completedChangs}
+          startedChangs={startedChangs}
+          selectedChangIndex={selectedChangIndex}
+          onSelectStage={(i) => { setSelectedChangIndex(i); setBuffaloChangIndex(i); }}
+          onOpenLesson={openChang}
+          completedCount={completedChangs.size}
+          allCurrentDone={allDone}
+          isLast={isLast}
+          onAdvance={nextChuDe}
+          changProgress={changProgress}
+          activeNodeRef={activeNodeRef}
+        />
 
-        <div className="h-full">
-          <RoadmapMap
-            chuDes={chuDes}
-            chuDe={chuDe}
-            chuDeIndex={currentChuDeIndex}
-            changTitles={changTitles}
-            changEmojis={changEmojis}
-            currentChangIndex={currentChangIndex}
-            buffaloChangIndex={buffaloChangIndex}
-            completedChangs={completedChangs}
-            startedChangs={startedChangs}
-            selectedChangIndex={selectedChangIndex}
-            onSelectStage={(i) => { setSelectedChangIndex(i); setBuffaloChangIndex(i); }}
-            onOpenLesson={openChang}
-            completedCount={completedChangs.size}
-            allCurrentDone={allDone}
-            isLast={isLast}
-            onAdvance={nextChuDe}
-            changProgress={changProgress}
-          />
-        </div>
-
-        {/* Centered modal overlay */}
-        {isDetailOpen && currentChang && (() => {
-          const modalColor = STAGE_COLORS[currentChangIndex % STAGE_COLORS.length];
-          const canPrev = currentNoiDungIndex > 0;
-          const canNext = currentNoiDungIndex < noiDungCount - 1;
-          return (
-            <div
-              className={[
-                "fixed inset-0 z-40 flex h-dvh items-center justify-center bg-navy/70 backdrop-blur-sm",
-                isFullscreen ? "p-0" : "p-0 sm:p-4",
-                isClosing ? "animate-modal-overlay-out" : "animate-modal-overlay-in",
-              ].join(" ")}
-              onClick={closeModal}
+        {/* Connector — a curved callout tail on the map, tip touching the current stage
+            node's bottom edge, base flush with the map's own bottom. Colored to match the
+            page background (not white) with a short matching stem below to mask the map's
+            own drop shadow, so it reads as one smooth surface instead of a separated card.
+            Its position/height transition smoothly when switching to a different stage. */}
+        {isLessonView && connector && (
+          <>
+            <svg
+              className="absolute bottom-0 z-20"
+              viewBox="0 0 140 100"
+              preserveAspectRatio="none"
+              style={{
+                left: connector.leftPx,
+                width: 140,
+                height: connector.triangleHeight,
+                transform: "translateX(-50%) translateY(1px)",
+                transition: `left ${CONNECTOR_TRANSITION_MS}ms ease, height ${CONNECTOR_TRANSITION_MS}ms ease`,
+              }}
+              aria-hidden
             >
-              <div
-                onClick={(e) => e.stopPropagation()}
-                className={[
-                  "relative",
-                  isClosing ? "animate-modal-pop-out" : "animate-modal-pop-in",
-                  isFullscreen
-                    ? "h-dvh w-full"
-                    : "h-dvh w-full sm:h-[95dvh] sm:max-w-2xl",
-                ].join(" ")}
-              >
-                <LessonCard
-                  chang={currentChang}
-                  changIndex={currentChangIndex}
-                  noiDungIndex={currentNoiDungIndex}
-                  isCompleted={completedChangs.has(currentChangIndex)}
-                  isFullscreen={isFullscreen}
-                  onToggleFullscreen={() => setIsFullscreen((f) => !f)}
-                  onPrevNoiDung={() => setCurrentNoiDungIndex((i) => Math.max(0, i - 1))}
-                  onNextNoiDung={() =>
-                    setCurrentNoiDungIndex((i) => Math.min(noiDungCount - 1, i + 1))
-                  }
-                  onNoiDungChange={setCurrentNoiDungIndex}
-                  onComplete={completeChang}
-                  onClose={closeModal}
-                />
-
-                <button
-                  onClick={() => setCurrentNoiDungIndex((i) => Math.max(0, i - 1))}
-                  aria-label="Trang trước"
-                  disabled={!canPrev}
-                  className={["absolute left-2 top-1/2 z-50 -translate-y-1/2", !isFullscreen && "sm:-left-14"].filter(Boolean).join(" ")}
-                >
-                  <div className={["grid h-11 w-11 place-items-center rounded-full bg-white/90 text-navy shadow-card backdrop-blur transition", canPrev ? "hover:scale-110 hover:bg-white" : "opacity-30 cursor-not-allowed"].join(" ")}>
-                    <ChevronLeft className="h-6 w-6" strokeWidth={2.5} />
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => setCurrentNoiDungIndex((i) => Math.min(noiDungCount - 1, i + 1))}
-                  aria-label="Trang tiếp"
-                  disabled={!canNext}
-                  className={["absolute right-2 top-1/2 z-50 -translate-y-1/2", !isFullscreen && "sm:-right-14"].filter(Boolean).join(" ")}
-                >
-                  <div className={["grid h-11 w-11 place-items-center rounded-full text-white shadow-card transition", modalColor.gradient, canNext ? "hover:scale-110" : "opacity-30 cursor-not-allowed"].join(" ")}>
-                    <ChevronRight className="h-6 w-6" strokeWidth={2.5} />
-                  </div>
-                </button>
-              </div>
-            </div>
-          );
-        })()}
+              <path d="M 0 100 Q 60 70 70 0 Q 80 70 140 100 Z" fill="var(--background)" />
+            </svg>
+            <div
+              className="absolute top-full z-20 w-14"
+              style={{
+                left: connector.leftPx,
+                transform: "translateX(-50%) translateY(1px)",
+                height: "32px",
+                background: "var(--background)",
+                transition: `left ${CONNECTOR_TRANSITION_MS}ms ease`,
+              }}
+              aria-hidden
+            />
+          </>
+        )}
       </div>
     </section>
   );

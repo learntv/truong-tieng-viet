@@ -37,7 +37,10 @@ export const getRouter = () => {
   const router = createRouter({
     routeTree,
     context: { queryClient },
-    scrollRestoration: true,
+    // The learning routes (/hoc-tieng-viet/*) manage their own scroll position (collapsing
+    // the map, gliding the connector into place) — the library's default restore-to-top
+    // fights that and wins the race, producing a visible jump before our own scroll runs.
+    scrollRestoration: ({ location }) => !location.pathname.startsWith("/hoc-tieng-viet"),
     defaultPreloadStaleTime: 0,
     defaultErrorComponent: DefaultErrorComponent,
   });

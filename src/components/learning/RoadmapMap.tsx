@@ -1,3 +1,4 @@
+import type { RefObject } from "react";
 import { Sparkles } from "lucide-react";
 import type { ChuDe } from "@/data/topics";
 import { BuffaloMascot } from "./BuffaloMascot";
@@ -5,7 +6,7 @@ import { StageCard, STAGE_COLORS } from "./StageCard";
 import { ProgressBadge } from "./ProgressBadge";
 import halongScene from "@/assets/halong-scene.jpg";
 
-const NODE_POSITIONS = [
+export const NODE_POSITIONS = [
   { x: 10, y: 58 },
   { x: 28, y: 30 },
   { x: 50, y: 52 },
@@ -42,6 +43,7 @@ export function RoadmapMap({
   isLast,
   onAdvance,
   changProgress,
+  activeNodeRef,
 }: {
   chuDes: ChuDe[];
   chuDe: ChuDe;
@@ -60,6 +62,7 @@ export function RoadmapMap({
   isLast: boolean;
   onAdvance: () => void;
   changProgress: Map<number, { current: number; total: number }>;
+  activeNodeRef?: RefObject<HTMLDivElement | null>;
 }) {
   const bookNumber = chuDeIndex < 4 ? 1 : 2;
   const buffaloIndex = buffaloChangIndex;
@@ -72,7 +75,7 @@ export function RoadmapMap({
   }, "");
 
   return (
-    <div className="relative flex h-full w-full flex-col overflow-hidden rounded-3xl shadow-soft">
+    <div className="relative flex h-full w-full flex-col overflow-hidden rounded-3xl">
 
       <img
         src={halongScene}
@@ -151,6 +154,7 @@ export function RoadmapMap({
             return (
               <div
                 key={i}
+                ref={i === currentChangIndex ? activeNodeRef : undefined}
                 className="absolute"
                 style={{ left: `${p.x}%`, top: `${p.y}%`, transform: "translateX(-50%) translateY(-72px)" }}
                 onClick={(e) => e.stopPropagation()}
