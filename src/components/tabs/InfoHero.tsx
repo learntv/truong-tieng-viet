@@ -61,7 +61,7 @@ export function InfoHero() {
 
         <div className="relative mx-auto flex min-h-[480px] max-w-7xl items-center px-4 py-16 sm:min-h-[540px] sm:px-6 sm:py-20 lg:min-h-[600px] lg:px-10 lg:py-24">
           <div className="max-w-xl text-left">
-            <span className="inline-block rounded-full bg-primary px-3 py-1 text-xs font-bold uppercase tracking-widest text-white shadow-sm">
+            <span className="inline-block rounded-full bg-primary px-3 py-1 text-xs font-bold uppercase tracking-widest text-white shadow-glow-primary">
               Thông tin dự án
             </span>
             <h1 className="mt-3 font-display text-3xl font-bold leading-tight text-white drop-shadow-md sm:text-4xl lg:text-5xl">
