@@ -72,7 +72,7 @@ export function InfoHero() {
             </p>
             <button
               type="button"
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary border-2 border-white px-6 py-3 text-sm font-bold text-white shadow-lg transition hover:brightness-110 hover:shadow-xl sm:text-base"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-primary/90 hover:shadow-xl sm:text-base"
               onClick={() => {
                 document.getElementById("info-cards-start")?.scrollIntoView({ behavior: "smooth" });
               }}
