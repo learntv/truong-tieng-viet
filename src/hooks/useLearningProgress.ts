@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProgress } from "@/hooks/useUserProgress";
 import type { ChangProgress } from "@/hooks/useUserProgress";
 
 const LOCAL_PROGRESS_KEY = "vui-hoc-progress";
+const LOCAL_PROGRESS_QUERY_KEY = ["local-progress"] as const;
 
 function loadLocalProgress(): Map<string, ChangProgress> {
   try {
@@ -26,8 +28,21 @@ function persistLocalProgress(map: Map<string, ChangProgress>) {
 export function useLearningProgress() {
   const { user, isLoading: authIsLoading } = useAuth();
   const { progressMap, isProgressLoading, markComplete, savePosition, mergeLocalProgress } = useUserProgress(user?.id ?? null);
-  const [localProgressMap, setLocalProgressMap] = useState<Map<string, ChangProgress>>(loadLocalProgress);
+  const queryClient = useQueryClient();
+  // Shared across all hook instances via the QueryClient cache, so completing a
+  // stage in one mounted component (e.g. LessonPage) is immediately reflected
+  // in others (e.g. the roadmap) without a page refresh.
+  const { data: localProgressMap = new Map<string, ChangProgress>() } = useQuery({
+    queryKey: LOCAL_PROGRESS_QUERY_KEY,
+    queryFn: loadLocalProgress,
+    enabled: !user,
+    staleTime: Infinity,
+  });
   const activeProgressMap = user ? progressMap : localProgressMap;
+
+  const setLocalProgressMap = (updater: (prev: Map<string, ChangProgress>) => Map<string, ChangProgress>) => {
+    queryClient.setQueryData<Map<string, ChangProgress>>(LOCAL_PROGRESS_QUERY_KEY, (prev) => updater(prev ?? new Map()));
+  };
 
   // Persist anonymous progress to localStorage whenever it changes
   useEffect(() => {
@@ -42,7 +57,7 @@ export function useLearningProgress() {
     prevUserIdRef.current = currentId;
     if (currentId && !prevId && localProgressMap.size > 0) {
       mergeLocalProgress(localProgressMap).then(() => {
-        setLocalProgressMap(new Map());
+        setLocalProgressMap(() => new Map());
         try { localStorage.removeItem(LOCAL_PROGRESS_KEY); } catch { /* ignore */ }
       });
     }
