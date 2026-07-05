@@ -290,6 +290,15 @@ export function LessonPage({ changId }: { changId: string }) {
 
   const [showConfetti, setShowConfetti] = useState(false);
 
+  // Reset scroll to the top of the card on every slide change (not the initial
+  // mount), so the prev/next buttons always land in a predictable spot regardless
+  // of the new slide's height.
+  const isFirstScrollReset = useRef(true);
+  useEffect(() => {
+    if (isFirstScrollReset.current) { isFirstScrollReset.current = false; return; }
+    cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [slideIndex]);
+
   // Cancel TTS and audio on step change / unmount
   useEffect(() => {
     return () => {
@@ -351,7 +360,6 @@ export function LessonPage({ changId }: { changId: string }) {
       window.speechSynthesis.cancel();
     }
     document.querySelectorAll("audio").forEach((el) => el.pause());
-    cardRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
     setFading(true);
     if (fadeTimeoutRef.current) clearTimeout(fadeTimeoutRef.current);
