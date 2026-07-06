@@ -299,6 +299,18 @@ export function LessonPage({ changId }: { changId: string }) {
     cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [slideIndex]);
 
+  // Preload the next couple of slides' images so they're already cached by the time
+  // the user clicks next, avoiding a blank/loading flash on navigation.
+  useEffect(() => {
+    for (const s of slides.slice(slideIndex + 1, slideIndex + 3)) {
+      for (const hinh of s.bai?.hinhs ?? []) {
+        if (!hinh.url) continue;
+        const img = new Image();
+        img.src = hinh.url;
+      }
+    }
+  }, [slideIndex, slides]);
+
   // Cancel TTS and audio on step change / unmount
   useEffect(() => {
     return () => {
