@@ -39,6 +39,21 @@ export type ChuDeWithChangs = {
   changs: Chang[];
 };
 
+// Supabase caps PostgREST responses at 1000 rows by default. These queries fetch whole
+// tables, so hitting the cap means rows were silently dropped — lessons would lose
+// content with no error anywhere. Warn loudly so it's caught before users notice.
+const SUPABASE_DEFAULT_ROW_LIMIT = 1000;
+
+function warnIfTruncated(table: string, rowCount: number) {
+  if (rowCount >= SUPABASE_DEFAULT_ROW_LIMIT) {
+    console.warn(
+      `[learning] Table "${table}" returned ${rowCount} rows — at Supabase's default ` +
+        `${SUPABASE_DEFAULT_ROW_LIMIT}-row limit, so results are likely truncated and lesson ` +
+        `content may be missing. Split the query (e.g. per chang) or raise the limit.`,
+    );
+  }
+}
+
 async function fetchLearningData(): Promise<ChuDeWithChangs[]> {
   const [chudeRes, changRes, ndRes, baiRes, hinhRes] = await Promise.all([
     supabase.from("chude").select("id, position, text").order("position", { ascending: true }),
@@ -51,6 +66,12 @@ async function fetchLearningData(): Promise<ChuDeWithChangs[]> {
   for (const r of [chudeRes, changRes, ndRes, baiRes, hinhRes]) {
     if (r.error) throw r.error;
   }
+
+  warnIfTruncated("chude", chudeRes.data?.length ?? 0);
+  warnIfTruncated("chang", changRes.data?.length ?? 0);
+  warnIfTruncated("noidung", ndRes.data?.length ?? 0);
+  warnIfTruncated("bai", baiRes.data?.length ?? 0);
+  warnIfTruncated("hinh", hinhRes.data?.length ?? 0);
 
   const chude = chudeRes.data ?? [];
   const chang = changRes.data ?? [];

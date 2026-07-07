@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { learningDataQueryOptions } from "@/lib/learning";
-import { RoadmapMap } from "@/components/learning/RoadmapMap";
+import { RoadmapMap, NODE_POSITIONS } from "@/components/learning/RoadmapMap";
 import { RoadmapSkeleton } from "@/components/learning/RoadmapSkeleton";
 import { buildSlides } from "@/components/learning/LessonPage";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
@@ -42,6 +42,21 @@ export function LearningTab({ isLessonView, changId }: { isLessonView: boolean; 
 
   const [selectedChangIndex, setSelectedChangIndex] = useState<number | null>(null);
   const [buffaloChangIndex, setBuffaloChangIndex] = useState(0);
+
+  // The roadmap renders exactly NODE_POSITIONS.length nodes per topic. A topic with more
+  // stages in the DB silently hides the extras; fewer renders empty cards. Warn so a
+  // content-shape change is caught in the console instead of by a confused user.
+  useEffect(() => {
+    if (!data) return;
+    for (const { chuDe, changs: topicChangs } of data) {
+      if (topicChangs.length !== NODE_POSITIONS.length) {
+        console.warn(
+          `[roadmap] Topic "${chuDe.title}" has ${topicChangs.length} stages but the map ` +
+            `renders exactly ${NODE_POSITIONS.length} — extra stages are hidden, missing ones show empty cards.`,
+        );
+      }
+    }
+  }, [data]);
 
   const mapSectionRef = useRef<HTMLElement>(null);
   const mapInnerRef = useRef<HTMLDivElement>(null);

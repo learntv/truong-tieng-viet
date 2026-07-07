@@ -1,6 +1,16 @@
 import { useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+
+// Deduped via a fixed toast id: repeated failures (e.g. flipping through slides
+// while offline) replace the existing toast instead of stacking.
+function notifySaveFailed() {
+  toast.error("Chưa lưu được tiến độ", {
+    id: "progress-save-failed",
+    description: "Em kiểm tra kết nối mạng rồi thử lại nhé!",
+  });
+}
 
 export type ChangProgress = { noiDungIndex: number; isCompleted: boolean };
 
@@ -51,6 +61,7 @@ export function useUserProgress(userId: string | null) {
       if (error) {
         queryClient.setQueryData(key, snapshot);
         console.error("Failed to save completion:", error);
+        notifySaveFailed();
       } else {
         // DB trigger updates profiles.completed_count — invalidate dependent caches
         queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
@@ -81,6 +92,7 @@ export function useUserProgress(userId: string | null) {
       if (error) {
         queryClient.setQueryData(key, snapshot);
         console.error("Failed to save position:", error);
+        notifySaveFailed();
       }
     },
     [userId, queryClient],
@@ -104,22 +116,28 @@ export function useUserProgress(userId: string | null) {
         }
       });
 
+      let mergeFailed = false;
       const ops: Promise<void>[] = [];
       if (completedRows.length > 0) {
         ops.push(
           Promise.resolve(
             supabase.from("user_progress").upsert(completedRows, { onConflict: "user_id,chang_id" })
-          ).then(({ error }) => { if (error) console.error("Merge completed error:", error); }),
+          ).then(({ error }) => { if (error) { mergeFailed = true; console.error("Merge completed error:", error); } }),
         );
       }
       if (inProgressRows.length > 0) {
         ops.push(
           Promise.resolve(
             supabase.from("user_progress").upsert(inProgressRows, { onConflict: "user_id,chang_id", ignoreDuplicates: true })
-          ).then(({ error }) => { if (error) console.error("Merge in-progress error:", error); }),
+          ).then(({ error }) => { if (error) { mergeFailed = true; console.error("Merge in-progress error:", error); } }),
         );
       }
       await Promise.all(ops);
+      if (mergeFailed) {
+        toast.error("Một phần tiến độ cũ chưa lưu được vào tài khoản", {
+          description: "Em kiểm tra mạng rồi tải lại trang nhé!",
+        });
+      }
       // Refetch progress and invalidate dependent caches
       await queryClient.invalidateQueries({ queryKey: progressQueryKey(userId) });
       queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
