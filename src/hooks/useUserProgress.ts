@@ -26,7 +26,8 @@ export function useUserProgress(userId: string | null) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("user_progress")
-        .select("chang_id, noidung_index, completed_at");
+        .select("chang_id, noidung_index, completed_at")
+        .eq("user_id", userId!);
       if (error) throw error;
       const map = new Map<string, ChangProgress>();
       for (const r of data) {
@@ -38,8 +39,10 @@ export function useUserProgress(userId: string | null) {
       return map;
     },
     enabled: userId != null,
-    staleTime: Infinity,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
   });
+
 
   const markComplete = useCallback(
     async (changId: string) => {
