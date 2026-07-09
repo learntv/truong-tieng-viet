@@ -116,7 +116,9 @@ export function RoadmapMap({
           allCurrentDone={allCurrentDone}
           isLast={isLast}
           onAdvance={onAdvance}
+          onSelectChuDe={onSelectChuDe}
         />
+
       </div>
 
       {/* Title */}
