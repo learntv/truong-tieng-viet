@@ -65,7 +65,9 @@ export function RoadmapMap({
   allCurrentDone: boolean;
   isLast: boolean;
   onAdvance: () => void;
+  onSelectChuDe?: (i: number) => void;
   changProgress: Map<number, { current: number; total: number }>;
+
   activeNodeRef?: RefObject<HTMLDivElement | null>;
   /** Which node the connector triangle (in lesson view) should point at — the lesson
    * actually being displayed, which can differ from `currentChangIndex` (the last saved
