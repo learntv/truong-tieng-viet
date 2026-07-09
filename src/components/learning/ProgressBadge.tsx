@@ -87,12 +87,23 @@ export function ProgressBadge({
               const isNext = i === currentChuDeIndex + 1 && allCurrentDone;
               const isLocked = i > currentChuDeIndex && !isNext;
               const label = t.title.split(":")[1]?.trim() || t.title;
+              const canSelect = isPast && !!onSelectChuDe;
+              const handleSelect = () => {
+                if (!canSelect) return;
+                onSelectChuDe!(i);
+                setExpanded(false);
+              };
               return (
                 <li
                   key={t.id}
+                  onClick={canSelect ? handleSelect : undefined}
+                  role={canSelect ? "button" : undefined}
+                  tabIndex={canSelect ? 0 : undefined}
+                  onKeyDown={canSelect ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleSelect(); } } : undefined}
                   className={[
                     "flex items-center gap-3 px-4 py-2 text-sm",
                     isCurrent ? "bg-primary/8" : "",
+                    canSelect ? "cursor-pointer hover:bg-primary/10" : "",
                   ].join(" ")}
                 >
                   <span
@@ -120,6 +131,7 @@ export function ProgressBadge({
                 </li>
               );
             })}
+
           </ul>
           {canAdvance && (
             <div className="border-t border-border/60 p-3">
