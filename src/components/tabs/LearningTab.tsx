@@ -277,6 +277,40 @@ export function LearningTab({ isLessonView, changId }: { isLessonView: boolean; 
     try { sessionStorage.removeItem(BUFFALO_POS_KEY); } catch { /* ignore */ }
   };
 
+  const selectChuDe = (index: number) => {
+    if (index < 0 || index >= chuDes.length || index === currentChuDeIndex) return;
+    setCurrentChuDeIndex(index);
+    setCurrentChangIndex(0);
+    setSelectedChangIndex(null);
+    setBuffaloChangIndex(0);
+    try { sessionStorage.removeItem(BUFFALO_POS_KEY); } catch { /* ignore */ }
+  };
+
+  // One-time celebration when the entire roadmap is complete.
+  const CELEBRATION_SEEN_KEY = "vui-hoc-celebration-seen";
+  const totalStages = useMemo(
+    () => (data ?? []).reduce((sum, d) => sum + d.changs.length, 0),
+    [data],
+  );
+  const totalCompleted = useMemo(
+    () => Object.values(completedByChuDe).reduce((s, a) => s + a.length, 0),
+    [completedByChuDe],
+  );
+  const allEverythingDone = totalStages > 0 && totalCompleted >= totalStages;
+  const [showCelebration, setShowCelebration] = useState(false);
+  useEffect(() => {
+    if (!allEverythingDone) return;
+    try {
+      if (localStorage.getItem(CELEBRATION_SEEN_KEY)) return;
+    } catch { /* ignore */ }
+    setShowCelebration(true);
+  }, [allEverythingDone]);
+  const dismissCelebration = () => {
+    setShowCelebration(false);
+    try { localStorage.setItem(CELEBRATION_SEEN_KEY, "1"); } catch { /* ignore */ }
+  };
+
+
   const allDone = changs.length > 0 && completedChangs.size >= changs.length;
   const isLast = currentChuDeIndex >= chuDes.length - 1;
 
