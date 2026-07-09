@@ -10,6 +10,7 @@ export function ProgressBadge({
   allCurrentDone,
   isLast,
   onAdvance,
+  onSelectChuDe,
 }: {
   chuDes: ChuDe[];
   currentChuDeIndex: number;
@@ -18,7 +19,9 @@ export function ProgressBadge({
   allCurrentDone: boolean;
   isLast: boolean;
   onAdvance: () => void;
+  onSelectChuDe?: (index: number) => void;
 }) {
+
   const [expanded, setExpanded] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const canAdvance = allCurrentDone && !isLast;
