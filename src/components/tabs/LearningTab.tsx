@@ -5,7 +5,9 @@ import { learningDataQueryOptions } from "@/lib/learning";
 import { RoadmapMap, NODE_POSITIONS } from "@/components/learning/RoadmapMap";
 import { RoadmapSkeleton } from "@/components/learning/RoadmapSkeleton";
 import { buildSlides } from "@/components/learning/LessonPage";
+import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
+
 
 const BUFFALO_POS_KEY = "vui-hoc-buffalo-pos";
 
