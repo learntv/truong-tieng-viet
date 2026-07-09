@@ -42,10 +42,12 @@ export function RoadmapMap({
   allCurrentDone,
   isLast,
   onAdvance,
+  onSelectChuDe,
   changProgress,
   activeNodeRef,
   connectorChangIndex,
   connectorHeight,
+
 }: {
   chuDes: ChuDe[];
   chuDe: ChuDe;
