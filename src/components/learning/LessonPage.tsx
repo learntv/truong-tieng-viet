@@ -119,12 +119,45 @@ function VideoEmbed({ url }: { url: string }) {
   );
 }
 
+function useHasVietnameseVoice(): boolean {
+  const [hasVoice, setHasVoice] = useState<boolean>(() => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return false;
+    return window.speechSynthesis.getVoices().some((v) => v.lang?.toLowerCase().startsWith("vi"));
+  });
+  useEffect(() => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    const check = () => {
+      const ok = window.speechSynthesis.getVoices().some((v) => v.lang?.toLowerCase().startsWith("vi"));
+      setHasVoice(ok);
+    };
+    check();
+    window.speechSynthesis.addEventListener("voiceschanged", check);
+    return () => window.speechSynthesis.removeEventListener("voiceschanged", check);
+  }, []);
+  return hasVoice;
+}
+
 function CloudWord({ text, color }: { text: string; color: StageColor }) {
   const [playing, setPlaying] = useState(false);
+  const hasVietnameseVoice = useHasVietnameseVoice();
   const onClick = useCallback(() => {
     setPlaying(true);
     speak(text, () => setPlaying(false));
   }, [text]);
+  if (!hasVietnameseVoice) {
+    return (
+      <span
+        className={[
+          "rounded-full border-2 px-3 py-1.5 font-display text-base leading-tight",
+          color.bgSoft,
+          color.border,
+          color.text,
+        ].join(" ")}
+      >
+        {text}
+      </span>
+    );
+  }
   return (
     <button
       onClick={onClick}
@@ -143,6 +176,7 @@ function CloudWord({ text, color }: { text: string; color: StageColor }) {
     </button>
   );
 }
+
 
 function HinhBlock({
   hinh,

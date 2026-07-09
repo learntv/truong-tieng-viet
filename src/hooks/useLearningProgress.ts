@@ -32,7 +32,10 @@ export function useLearningProgress() {
   // Shared across all hook instances via the QueryClient cache, so completing a
   // stage in one mounted component (e.g. LessonPage) is immediately reflected
   // in others (e.g. the roadmap) without a page refresh.
-  const { data: localProgressMap = new Map<string, ChangProgress>() } = useQuery({
+  // Shared across all hook instances via the QueryClient cache, so completing a
+  // stage in one mounted component (e.g. LessonPage) is immediately reflected
+  // in others (e.g. the roadmap) without a page refresh.
+  const { data: localProgressMap = new Map<string, ChangProgress>(), isSuccess: isLocalProgressLoaded } = useQuery({
     queryKey: LOCAL_PROGRESS_QUERY_KEY,
     queryFn: loadLocalProgress,
     enabled: !user,
@@ -50,18 +53,21 @@ export function useLearningProgress() {
   }, [localProgressMap, user]);
 
   // Merge anonymous progress into DB when user logs in, then clear localStorage
+  // only if all upserts succeeded — otherwise keep the child's local progress intact.
   const prevUserIdRef = useRef<string | null>(null);
   useEffect(() => {
     const prevId = prevUserIdRef.current;
     const currentId = user?.id ?? null;
     prevUserIdRef.current = currentId;
-    if (currentId && !prevId && localProgressMap.size > 0) {
-      mergeLocalProgress(localProgressMap).then(() => {
+    if (currentId && !prevId && isLocalProgressLoaded && localProgressMap.size > 0) {
+      mergeLocalProgress(localProgressMap).then((ok) => {
+        if (!ok) return;
         setLocalProgressMap(() => new Map());
         try { localStorage.removeItem(LOCAL_PROGRESS_KEY); } catch { /* ignore */ }
       });
     }
-  }, [user?.id]);
+  }, [user?.id, isLocalProgressLoaded]);
+
 
   const markChangComplete = (changId: string, noiDungIndex: number) => {
     if (user) {

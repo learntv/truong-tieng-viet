@@ -5,7 +5,9 @@ import { learningDataQueryOptions } from "@/lib/learning";
 import { RoadmapMap, NODE_POSITIONS } from "@/components/learning/RoadmapMap";
 import { RoadmapSkeleton } from "@/components/learning/RoadmapSkeleton";
 import { buildSlides } from "@/components/learning/LessonPage";
+import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
+
 
 const BUFFALO_POS_KEY = "vui-hoc-buffalo-pos";
 
@@ -275,6 +277,40 @@ export function LearningTab({ isLessonView, changId }: { isLessonView: boolean; 
     try { sessionStorage.removeItem(BUFFALO_POS_KEY); } catch { /* ignore */ }
   };
 
+  const selectChuDe = (index: number) => {
+    if (index < 0 || index >= chuDes.length || index === currentChuDeIndex) return;
+    setCurrentChuDeIndex(index);
+    setCurrentChangIndex(0);
+    setSelectedChangIndex(null);
+    setBuffaloChangIndex(0);
+    try { sessionStorage.removeItem(BUFFALO_POS_KEY); } catch { /* ignore */ }
+  };
+
+  // One-time celebration when the entire roadmap is complete.
+  const CELEBRATION_SEEN_KEY = "vui-hoc-celebration-seen";
+  const totalStages = useMemo(
+    () => (data ?? []).reduce((sum, d) => sum + d.changs.length, 0),
+    [data],
+  );
+  const totalCompleted = useMemo(
+    () => Object.values(completedByChuDe).reduce((s, a) => s + a.length, 0),
+    [completedByChuDe],
+  );
+  const allEverythingDone = totalStages > 0 && totalCompleted >= totalStages;
+  const [showCelebration, setShowCelebration] = useState(false);
+  useEffect(() => {
+    if (!allEverythingDone) return;
+    try {
+      if (localStorage.getItem(CELEBRATION_SEEN_KEY)) return;
+    } catch { /* ignore */ }
+    setShowCelebration(true);
+  }, [allEverythingDone]);
+  const dismissCelebration = () => {
+    setShowCelebration(false);
+    try { localStorage.setItem(CELEBRATION_SEEN_KEY, "1"); } catch { /* ignore */ }
+  };
+
+
   const allDone = changs.length > 0 && completedChangs.size >= changs.length;
   const isLast = currentChuDeIndex >= chuDes.length - 1;
 
@@ -333,11 +369,29 @@ export function LearningTab({ isLessonView, changId }: { isLessonView: boolean; 
           allCurrentDone={allDone}
           isLast={isLast}
           onAdvance={nextChuDe}
+          onSelectChuDe={selectChuDe}
           changProgress={changProgress}
           activeNodeRef={activeNodeRef}
           connectorHeight={connectorHeight ?? undefined}
         />
       </div>
+      {showCelebration && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+          <div className="relative w-full max-w-md rounded-3xl bg-white p-8 text-center shadow-soft">
+            <ConfettiBurst onDone={() => { /* keep card visible until user dismisses */ }} />
+            <p className="font-display text-xl font-extrabold text-navy sm:text-2xl">
+              🎉 Em đã hoàn thành cả lộ trình! Em giỏi lắm!
+            </p>
+            <button
+              onClick={dismissCelebration}
+              className="mt-6 rounded-full bg-gradient-sunset px-6 py-3 font-display text-base font-extrabold text-navy shadow-card transition hover:scale-105"
+            >
+              Ôn tập lại
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
+

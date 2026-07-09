@@ -26,7 +26,8 @@ export function useUserProgress(userId: string | null) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("user_progress")
-        .select("chang_id, noidung_index, completed_at");
+        .select("chang_id, noidung_index, completed_at")
+        .eq("user_id", userId!);
       if (error) throw error;
       const map = new Map<string, ChangProgress>();
       for (const r of data) {
@@ -38,8 +39,10 @@ export function useUserProgress(userId: string | null) {
       return map;
     },
     enabled: userId != null,
-    staleTime: Infinity,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
   });
+
 
   const markComplete = useCallback(
     async (changId: string) => {
@@ -102,8 +105,9 @@ export function useUserProgress(userId: string | null) {
   // Completed stages are always upserted. In-progress stages are inserted only if no DB row
   // exists yet (ignoreDuplicates) to avoid overwriting further DB progress with local.
   const mergeLocalProgress = useCallback(
-    async (localMap: Map<string, ChangProgress>) => {
-      if (!userId || localMap.size === 0) return;
+    async (localMap: Map<string, ChangProgress>): Promise<boolean> => {
+      if (!userId || localMap.size === 0) return true;
+
 
       const completedRows: { user_id: string; chang_id: string; noidung_index: number; completed_at: string }[] = [];
       const inProgressRows: { user_id: string; chang_id: string; noidung_index: number; completed_at: null }[] = [];
@@ -143,7 +147,9 @@ export function useUserProgress(userId: string | null) {
       queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
       queryClient.invalidateQueries({ queryKey: ["streak", userId] });
       queryClient.invalidateQueries({ queryKey: ["public-profile"] });
+      return !mergeFailed;
     },
+
     [userId, queryClient],
   );
 
