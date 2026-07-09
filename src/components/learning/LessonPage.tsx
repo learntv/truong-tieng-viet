@@ -7,6 +7,7 @@ import { learningDataQueryOptions } from "@/lib/learning";
 import type { Bai, Hinh, NoiDung } from "@/lib/learning";
 import { STAGE_COLORS } from "./StageCard";
 import { ConfettiBurst } from "./ConfettiBurst";
+import { ImageHighlightOverlay } from "./ImageHighlightOverlay";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
 
 type StageColor = (typeof STAGE_COLORS)[number];
@@ -191,6 +192,8 @@ function HinhBlock({
 }) {
   const [isLandscape, setIsLandscape] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const highlightTargets = hinh.highlightTargets ?? [];
+  const hasHighlights = highlightTargets.length > 0;
   const hasCaptions = captions.length > 0;
   const stackVertical = !isSingle || isLandscape || !hasCaptions;
 
@@ -210,26 +213,43 @@ function HinhBlock({
               !isLoaded ? "min-h-48 animate-pulse bg-stone-100 sm:min-h-64" : "",
             ].join(" ")}
           >
-            <img
-              src={hinh.url}
-              alt={captions[0] || "Hình minh họa"}
-              loading="eager"
-              decoding="async"
-              onLoad={(e) => {
-                setIsLandscape(e.currentTarget.naturalWidth > e.currentTarget.naturalHeight);
-                setIsLoaded(true);
-              }}
+            {/* Relative wrapper hugging the image exactly, so the %-based highlight
+                overlay stays aligned with the image at every screen size. */}
+            <div
               className={[
-                "mx-auto rounded-xl object-contain ring-1 ring-border/60 transition-opacity duration-300",
-                isLoaded ? "opacity-100" : "opacity-0",
+                "relative mx-auto",
                 !isSingle ? "w-full" : stackVertical ? "w-full sm:w-[80%]" : "w-full sm:w-[85%]",
               ].join(" ")}
-            />
+            >
+              <img
+                src={hinh.url}
+                alt={captions[0] || "Hình minh họa"}
+                loading="eager"
+                decoding="async"
+                onLoad={(e) => {
+                  setIsLandscape(e.currentTarget.naturalWidth > e.currentTarget.naturalHeight);
+                  setIsLoaded(true);
+                }}
+                className={[
+                  "w-full rounded-xl object-contain ring-1 ring-border/60 transition-opacity duration-300",
+                  isLoaded ? "opacity-100" : "opacity-0",
+                ].join(" ")}
+              />
+              {hasHighlights && isLoaded && (
+                <ImageHighlightOverlay targets={highlightTargets} />
+              )}
+            </div>
           </div>
         ) : (
           <div className="grid aspect-video w-full place-items-center rounded-xl bg-stone-50 text-xs text-muted-foreground ring-1 ring-border/60">
             (Không tải được hình)
           </div>
+        )}
+
+        {hasHighlights && hinh.url && (
+          <p className="mt-3 text-center text-sm font-bold text-amber-600">
+            🔍 Rê chuột hoặc chạm vào hình để xem gợi ý
+          </p>
         )}
       </div>
 

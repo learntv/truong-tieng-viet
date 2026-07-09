@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { ChuDe } from "@/data/topics";
+import { LESSON_HIGHLIGHTS, type HighlightTarget } from "@/data/lessonHighlights";
 
 const STAGE_EMOJIS = ["👋", "📚", "💬", "📖", "✏️"];
 const TOPIC_EMOJIS = ["👨‍👩‍👧", "🏫", "🧑‍🤝‍🧑", "🧸", "🌳", "🏞️", "👩‍⚕️", "🌏"];
@@ -24,7 +25,7 @@ function titleCase(s: string): string {
     .replace(/(^|\s)\p{L}/gu, (m) => m.toLocaleUpperCase("vi"));
 }
 
-export type Hinh = { id: string; captions: string[]; url: string };
+export type Hinh = { id: string; captions: string[]; url: string; highlightTargets?: HighlightTarget[] };
 export type BaiMeta = { audio_url?: string; video_url?: string; link?: string };
 export type Bai = { id: string; texts: string[]; hinhs: Hinh[]; meta?: BaiMeta | null; audioUrl?: string };
 export type NoiDung = { id: string; title: string; bais: Bai[] };
@@ -83,7 +84,7 @@ async function fetchLearningData(): Promise<ChuDeWithChangs[]> {
   const hinhByBai = new Map<string, Hinh[]>();
   for (const h of hinh) {
     const arr = hinhByBai.get(h.bai_id) ?? [];
-    arr.push({ id: h.id, captions: allTexts(h.text), url: h.storage_path ?? "" });
+    arr.push({ id: h.id, captions: allTexts(h.text), url: h.storage_path ?? "", highlightTargets: LESSON_HIGHLIGHTS[h.id] });
     hinhByBai.set(h.bai_id, arr);
   }
 
