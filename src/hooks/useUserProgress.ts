@@ -105,8 +105,9 @@ export function useUserProgress(userId: string | null) {
   // Completed stages are always upserted. In-progress stages are inserted only if no DB row
   // exists yet (ignoreDuplicates) to avoid overwriting further DB progress with local.
   const mergeLocalProgress = useCallback(
-    async (localMap: Map<string, ChangProgress>) => {
-      if (!userId || localMap.size === 0) return;
+    async (localMap: Map<string, ChangProgress>): Promise<boolean> => {
+      if (!userId || localMap.size === 0) return true;
+
 
       const completedRows: { user_id: string; chang_id: string; noidung_index: number; completed_at: string }[] = [];
       const inProgressRows: { user_id: string; chang_id: string; noidung_index: number; completed_at: null }[] = [];
