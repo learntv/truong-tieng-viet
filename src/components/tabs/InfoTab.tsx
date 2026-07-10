@@ -6,6 +6,7 @@ import nonLa from "@/assets/symbols/non-la.png";
 import tre from "@/assets/symbols/tre.png";
 import pho from "@/assets/symbols/pho.png";
 import hoaSen from "@/assets/symbols/hoa-sen.png";
+import tilePattern from "@/assets/symbols/tile-pattern.svg";
 
 const ROWS = [
   {
@@ -110,8 +111,22 @@ export function InfoTab() {
             </div>
           ))}
         </div>
+      </div>
 
-        <div className="relative mt-24 sm:mt-28">
+      <div
+        className="w-full bg-indigo-400 px-4 py-14 sm:px-6 sm:py-20"
+        style={{ backgroundImage: `url(${tilePattern})`, backgroundRepeat: "repeat" }}
+      >
+        <h3 className="text-center font-display text-2xl font-extrabold text-white opacity-90 sm:text-4xl">
+          Lộ trình học thú vị
+        </h3>
+        <div className="mt-10 sm:mt-12">
+          <InfoStats />
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-6xl px-4 pb-10 pt-16 sm:px-6 sm:pb-14 sm:pt-20">
+        <div className="relative">
           <div className="flex justify-center">
             <img
               src={hoaSen}
@@ -119,7 +134,7 @@ export function InfoTab() {
               className="relative z-10 -mb-12 h-28 w-28 object-contain sm:-mb-16 sm:h-36 sm:w-36"
             />
           </div>
-          <article className="rounded-3xl bg-pink-100 px-8 pb-8 pt-16 sm:px-14 sm:pb-10 sm:pt-20">
+          <article className="rounded-3xl bg-pink-100 px-12 pb-8 pt-16 sm:px-20 sm:pb-10 sm:pt-20">
             <div className="flex items-center justify-center">
               <h3
                 className="font-display text-2xl font-extrabold text-red-600 sm:text-3xl"
@@ -144,10 +159,6 @@ export function InfoTab() {
               riêng và trên toàn thế giới nói chung.
             </p>
           </article>
-        </div>
-
-        <div className="mt-16 sm:mt-20">
-          <InfoStats />
         </div>
       </div>
     </section>

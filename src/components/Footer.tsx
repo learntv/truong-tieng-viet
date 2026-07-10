@@ -6,7 +6,7 @@ const COPYRIGHT_YEAR = 2026;
 
 export function Footer() {
   return (
-    <footer className="mt-16 border-t border-border">
+    <footer className="mt-8 border-t border-border">
       <div className="bg-[oklch(0.98_0.008_75)] py-12">
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 sm:px-6 md:grid-cols-4">
           <div className="flex flex-col gap-4">
