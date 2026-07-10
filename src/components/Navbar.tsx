@@ -46,8 +46,8 @@ export function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full bg-white shadow-[0_2px_8px_-2px_oklch(0.22_0.05_30/0.12)]">
-        <nav className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
+      <header className="sticky top-3 z-40 w-full px-3 sm:top-4 sm:px-4">
+        <nav className="mx-auto flex max-w-7xl items-center gap-4 rounded-full border border-black/5 bg-white/80 px-4 py-2.5 shadow-[0_8px_24px_-8px_oklch(0.22_0.05_30/0.18)] backdrop-blur-md sm:px-5">
 
           {/* Hamburger — mobile only */}
           <button
@@ -62,7 +62,7 @@ export function Navbar() {
             to="/"
             className="flex shrink-0 items-center gap-2.5 transition-transform hover:scale-[1.02]"
           >
-            <img src={iconLogo} alt="Logo" className="h-16 w-16 rounded-xl object-cover shadow-card" />
+            <img src={iconLogo} alt="Logo" className="h-12 w-12 rounded-xl object-cover shadow-card" />
             <div className="text-left leading-tight">
               <div className="font-display text-base font-extrabold text-primary leading-none">Trường Tiếng Việt</div>
               <div className="font-display text-base font-extrabold text-navy leading-none">Của Em</div>

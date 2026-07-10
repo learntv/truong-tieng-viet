@@ -354,12 +354,12 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
   const isEmailUser = user.app_metadata?.provider !== "google";
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="min-h-screen">
       <Navbar />
       <main className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
 
         {/* Hero card */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-cream via-sky/40 to-purple/20 p-8 shadow-card mb-6">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-cream via-sky/40 to-purple/20 p-8 ring-[3px] ring-white shadow-card mb-6">
           <div className="absolute -top-8 -right-8 h-40 w-40 rounded-full bg-yellow/20 blur-2xl" />
           <div className="absolute -bottom-6 -left-6 h-32 w-32 rounded-full bg-pink/20 blur-2xl" />
 
@@ -381,7 +381,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
               {!avatarUrl && (
                 <button
                   onClick={() => setAvatarPickerOpen(true)}
-                  className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-white shadow-md border border-border flex items-center justify-center hover:bg-muted transition-colors"
+                  className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-white shadow-bevel-neutral flex items-center justify-center transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-neutral-active"
                   title="Đổi avatar"
                 >
                   <Pencil className="h-3.5 w-3.5 text-navy" />
@@ -407,9 +407,9 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                     <button
                       onClick={handleSaveName}
                       disabled={savingName}
-                      className="shrink-0 h-8 w-8 rounded-full bg-green/20 hover:bg-green/30 flex items-center justify-center transition-colors"
+                      className="shrink-0 h-8 w-8 rounded-full bg-green shadow-bevel-green flex items-center justify-center text-white transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-green-active disabled:opacity-50 disabled:pointer-events-none"
                     >
-                      {savingName ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4 text-green-700" />}
+                      {savingName ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                     </button>
                   </div>
                 ) : (
@@ -417,14 +417,14 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                     <span className="truncate">{displayName}</span>
                     <button
                       onClick={() => { setNameInput(displayName); setEditingName(true); setTimeout(() => nameInputRef.current?.select(), 0); }}
-                      className="shrink-0 h-7 w-7 rounded-full bg-white/60 hover:bg-white flex items-center justify-center shadow-sm transition-colors"
+                      className="shrink-0 h-7 w-7 rounded-full bg-white shadow-bevel-neutral flex items-center justify-center transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-neutral-active"
                       title="Đổi tên"
                     >
                       <Pencil className="h-3.5 w-3.5 text-navy/60" />
                     </button>
                     <button
                       onClick={() => setCountryPickerOpen(true)}
-                      className="shrink-0 rounded-md border border-white/60 bg-white/50 shadow-sm hover:bg-white hover:shadow-md active:scale-95 transition-all overflow-hidden cursor-pointer"
+                      className="shrink-0 rounded-md border border-white/60 bg-white/50 shadow-sm ease-bounce transition-all hover:-translate-y-0.5 hover:bg-white hover:shadow-md active:translate-y-0 active:scale-95 overflow-hidden cursor-pointer"
                       title="Chọn quốc gia"
                     >
                       {countryCode ? <FlagImg code={countryCode} size={32} /> : <Globe className="h-5 w-5 text-navy/50 m-1" />}
@@ -442,16 +442,16 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
         {/* Stats row */}
         <div className="grid grid-cols-3 gap-3 mb-6">
           {[
-            { emoji: "🎯", value: completedCount, label: "Bài hoàn thành", color: "bg-green/10 border-green/30 text-green" },
-            { emoji: "📖", value: inProgressCount, label: "Đang học", color: "bg-yellow/20 border-yellow/40 text-navy" },
+            { emoji: "🎯", value: completedCount, label: "Bài hoàn thành", color: "bg-green/10 text-green" },
+            { emoji: "📖", value: inProgressCount, label: "Đang học", color: "bg-yellow/20 text-navy" },
           ].map(({ emoji, value, label, color }) => (
-            <div key={label} className={["rounded-2xl border p-4 text-center shadow-sm", color].join(" ")}>
+            <div key={label} className={["rounded-2xl p-4 text-center ring-[3px] ring-white shadow-card", color].join(" ")}>
               <div className="text-2xl mb-1">{emoji}</div>
               <div className="font-display text-2xl font-extrabold text-navy leading-none">{isProgressLoading ? "—" : value}</div>
               <div className="text-xs font-semibold mt-1 text-muted-foreground leading-tight">{label}</div>
             </div>
           ))}
-          <div className="rounded-2xl border p-4 text-center shadow-sm bg-orange-50 border-orange-200 text-orange-600">
+          <div className="rounded-2xl p-4 text-center ring-[3px] ring-white shadow-card bg-orange-50 text-orange-600">
             <div className="text-2xl mb-1">🔥</div>
             <div className="font-display text-2xl font-extrabold text-navy leading-none">{streak.days}</div>
             <div className="text-xs font-semibold mt-1 text-muted-foreground leading-tight">Ngày liên tiếp</div>
@@ -462,7 +462,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
         </div>
 
         {/* Badges */}
-        <div className="rounded-3xl bg-white shadow-card p-6 mb-6">
+        <div className="rounded-3xl bg-white ring-[3px] ring-white shadow-card p-6 mb-6">
           <h2 className="font-display text-lg font-extrabold text-navy mb-4">🏅 Huy hiệu của em</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {BADGES.map(({ emoji, label, sublabel, threshold }) => {
@@ -480,7 +480,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
         </div>
 
         {/* Account actions */}
-        <div className="rounded-3xl bg-white shadow-card p-6 space-y-3">
+        <div className="rounded-3xl bg-white ring-[3px] ring-white shadow-card p-6 space-y-3">
           <h2 className="font-display text-lg font-extrabold text-navy mb-4">⚙️ Tài khoản</h2>
 
           {isEmailUser && (
@@ -556,7 +556,7 @@ function PublicView({ username }: { username: string }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-cream">
+      <div className="min-h-screen">
         <Navbar />
         <div className="flex items-center justify-center py-32">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -567,7 +567,7 @@ function PublicView({ username }: { username: string }) {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-cream">
+      <div className="min-h-screen">
         <Navbar />
         <main className="mx-auto max-w-lg px-4 py-20 text-center">
           <div className="text-6xl mb-4">🔍</div>
@@ -575,7 +575,7 @@ function PublicView({ username }: { username: string }) {
           <p className="text-muted-foreground mb-6">
             Hồ sơ <span className="font-semibold text-navy">@{username}</span> không tồn tại.
           </p>
-          <Link to="/" className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white hover:bg-primary/90 transition-colors">
+          <Link to="/" className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-display text-sm font-extrabold text-white shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active">
             <Home className="h-4 w-4" />
             Về trang chủ
           </Link>
@@ -588,12 +588,12 @@ function PublicView({ username }: { username: string }) {
   const memberSince = new Date(profile.created_at).toLocaleDateString("vi-VN", { year: "numeric", month: "long" });
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="min-h-screen">
       <Navbar />
       <main className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
 
         {/* Hero card */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-cream via-sky/40 to-purple/20 p-8 shadow-card mb-6">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-cream via-sky/40 to-purple/20 p-8 ring-[3px] ring-white shadow-card mb-6">
           <div className="absolute -top-8 -right-8 h-40 w-40 rounded-full bg-yellow/20 blur-2xl" />
           <div className="absolute -bottom-6 -left-6 h-32 w-32 rounded-full bg-pink/20 blur-2xl" />
           <div className="relative flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
@@ -625,12 +625,12 @@ function PublicView({ username }: { username: string }) {
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="rounded-2xl border p-4 text-center shadow-sm bg-green/10 border-green/30">
+          <div className="rounded-2xl p-4 text-center ring-[3px] ring-white shadow-card bg-green/10">
             <div className="text-2xl mb-1">🎯</div>
             <div className="font-display text-2xl font-extrabold text-navy leading-none">{profile.completed_count}</div>
             <div className="text-xs font-semibold mt-1 text-muted-foreground">Bài hoàn thành</div>
           </div>
-          <div className="rounded-2xl border p-4 text-center shadow-sm bg-yellow/20 border-yellow/40">
+          <div className="rounded-2xl p-4 text-center ring-[3px] ring-white shadow-card bg-yellow/20">
             <div className="text-2xl mb-1">🏅</div>
             <div className="font-display text-xl font-extrabold text-navy leading-none">
               {(() => { const earned = BADGES.filter((b) => profile.completed_count >= b.threshold); return earned[earned.length - 1]?.label ?? "—"; })()}
@@ -640,7 +640,7 @@ function PublicView({ username }: { username: string }) {
         </div>
 
         {/* Badges */}
-        <div className="rounded-3xl bg-white shadow-card p-6 mb-6">
+        <div className="rounded-3xl bg-white ring-[3px] ring-white shadow-card p-6 mb-6">
           <h2 className="font-display text-lg font-extrabold text-navy mb-4">🏅 Huy hiệu</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {BADGES.map(({ emoji, label, sublabel, threshold }) => {
@@ -671,7 +671,7 @@ function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-cream">
+      <div className="min-h-screen">
         <Navbar />
         <div className="flex items-center justify-center py-32">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />

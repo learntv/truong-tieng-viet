@@ -48,7 +48,7 @@ function BangXepHang() {
   });
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="min-h-screen">
       <Navbar />
       <main className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
 
@@ -65,7 +65,7 @@ function BangXepHang() {
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         ) : !profiles || profiles.length === 0 ? (
-          <div className="rounded-3xl bg-white shadow-card p-12 text-center">
+          <div className="rounded-3xl bg-white ring-[3px] ring-white shadow-card p-12 text-center">
             <div className="text-5xl mb-3">🌱</div>
             <p className="font-display text-lg font-bold text-navy">Chưa có học sinh nào!</p>
             <p className="text-sm text-muted-foreground mt-1">Hãy là người đầu tiên bắt đầu học nhé.</p>

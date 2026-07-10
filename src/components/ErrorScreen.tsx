@@ -28,13 +28,13 @@ export function ErrorScreen({ error, reset }: { error: Error; reset: () => void 
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 font-display text-sm font-extrabold text-primary-foreground shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active"
           >
             Thử lại
           </button>
           <a
             href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            className="inline-flex items-center justify-center rounded-full border-2 border-input bg-background px-4 py-2 font-display text-sm font-extrabold text-foreground shadow-bevel-neutral transition-[transform,box-shadow,background-color] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-accent active:translate-y-[3px] active:scale-100 active:shadow-bevel-neutral-active"
           >
             Về trang chủ
           </a>
@@ -56,7 +56,7 @@ export function NotFoundScreen() {
         <div className="mt-6">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 font-display text-sm font-extrabold text-primary-foreground shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active"
           >
             Về trang chủ
           </Link>

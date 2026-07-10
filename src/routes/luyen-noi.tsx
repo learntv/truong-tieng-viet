@@ -30,7 +30,7 @@ function LuyenNoiLayout() {
   const hasChild = useChildMatches().length > 0;
 
   return (
-    <div className="flex min-h-screen flex-col bg-cream">
+    <div className="flex min-h-screen flex-col">
       <Navbar />
       <main className="flex-1 animate-in fade-in slide-in-from-bottom-2 duration-300">
         {hasChild ? <Outlet /> : <TopicPicker />}
@@ -66,7 +66,7 @@ function TopicCard({ card }: { card: TopicCardData }) {
     <Link
       to="/luyen-noi/$chuDeId"
       params={{ chuDeId: card.id }}
-      className="group rounded-3xl bg-white p-5 text-center shadow-card transition-all hover:-translate-y-1 hover:shadow-soft active:scale-[0.98]"
+      className="group rounded-3xl bg-white p-5 text-center ring-[3px] ring-white shadow-card transition-all ease-bounce hover:-translate-y-1 hover:shadow-soft active:scale-[0.98]"
     >
       <div className="mb-2 text-4xl transition-transform group-hover:scale-110">{card.emoji}</div>
       <p className="font-display text-base font-extrabold leading-tight text-navy">{card.label}</p>

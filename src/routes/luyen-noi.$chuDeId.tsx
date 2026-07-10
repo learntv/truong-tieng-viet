@@ -47,7 +47,7 @@ function SpeakingRoute() {
         <p className="mb-6 text-muted-foreground">Chủ đề này không tồn tại hoặc đã bị đổi.</p>
         <Link
           to="/luyen-noi"
-          className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary/90"
+          className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-display font-extrabold text-white shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active"
         >
           <ArrowLeft className="h-4 w-4" />
           Chọn chủ đề khác

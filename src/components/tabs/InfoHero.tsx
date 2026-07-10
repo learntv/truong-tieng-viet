@@ -43,8 +43,8 @@ export function InfoHero() {
 
   return (
     <section className="w-full">
-      {/* Full-width hero with background image */}
-      <div className="relative w-full overflow-hidden">
+      {/* Full-width hero with background image — extends up behind the floating navbar */}
+      <div className="relative -mt-24 w-full overflow-hidden">
         <img
           src={heroImage}
           alt="Trẻ em Việt Nam đọc sách Tiếng Việt"
@@ -59,7 +59,7 @@ export function InfoHero() {
         {/* Subtle bottom fade for safe mobile contrast */}
         <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 via-transparent to-transparent sm:hidden" />
 
-        <div className="relative mx-auto flex min-h-[480px] max-w-7xl items-center px-4 py-16 sm:min-h-[540px] sm:px-6 sm:py-20 lg:min-h-[600px] lg:px-10 lg:py-24">
+        <div className="relative mx-auto flex min-h-[576px] max-w-7xl items-center px-4 pb-16 pt-40 sm:min-h-[636px] sm:px-6 sm:pb-20 sm:pt-44 lg:min-h-[696px] lg:px-10 lg:pb-24 lg:pt-48">
           <div className="max-w-xl text-left">
             <span className="inline-block rounded-full bg-primary px-3 py-1 text-xs font-bold uppercase tracking-widest text-white shadow-glow-primary">
               Thông tin dự án

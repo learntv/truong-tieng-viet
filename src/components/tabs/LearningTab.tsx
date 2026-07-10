@@ -377,14 +377,14 @@ export function LearningTab({ isLessonView, changId }: { isLessonView: boolean; 
       </div>
       {showCelebration && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-          <div className="relative w-full max-w-md rounded-3xl bg-white p-8 text-center shadow-soft">
+          <div className="relative w-full max-w-md rounded-3xl bg-white p-8 text-center ring-[3px] ring-white shadow-soft">
             <ConfettiBurst onDone={() => { /* keep card visible until user dismisses */ }} />
             <p className="font-display text-xl font-extrabold text-navy sm:text-2xl">
               🎉 Em đã hoàn thành cả lộ trình! Em giỏi lắm!
             </p>
             <button
               onClick={dismissCelebration}
-              className="mt-6 rounded-full bg-gradient-sunset px-6 py-3 font-display text-base font-extrabold text-navy shadow-card transition hover:scale-105"
+              className="mt-6 rounded-full bg-gradient-sunset px-6 py-3 font-display text-base font-extrabold text-navy shadow-bevel-yellow transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-yellow-active"
             >
               Ôn tập lại
             </button>
