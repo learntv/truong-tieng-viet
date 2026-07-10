@@ -49,7 +49,7 @@
 :root {
   --radius: 1rem;
 
-  --background: oklch(0.985 0.008 75);
+  --background: oklch(1 0 0);
   --foreground: oklch(0.22 0.05 30);
 
   --card: oklch(1 0 0);
@@ -111,7 +111,7 @@
   }
 
   body {
-    background: oklch(0.985 0.008 75);
+    background: var(--background);
     color: var(--color-foreground);
     min-height: 100vh;
   }

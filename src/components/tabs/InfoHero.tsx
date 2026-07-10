@@ -1,46 +1,7 @@
-import { BookOpen, Flower2, Landmark, Headphones, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import heroImage from "@/assets/hero-students-fullwidth.jpg";
 
 export function InfoHero() {
-  const stats = [
-    {
-      icon: BookOpen,
-      iconBg: "bg-white/30 text-white",
-      cardBg: "bg-amber-500",
-      titleColor: "text-white",
-      descColor: "text-amber-100",
-      title: (<><span className="text-white font-extrabold">40</span> bài học</>),
-      desc: "Bám sát 2 quyển sách Vui học Tiếng Việt",
-    },
-    {
-      icon: Flower2,
-      iconBg: "bg-white/30 text-white",
-      cardBg: "bg-emerald-500",
-      titleColor: "text-white",
-      descColor: "text-emerald-100",
-      title: (<><span className="text-white font-extrabold">8</span> chủ đề</>),
-      desc: "Mỗi quyển có 4 chủ đề, mỗi chủ đề 5 bài học",
-    },
-    {
-      icon: Landmark,
-      iconBg: "bg-yellow-900/20 text-yellow-900",
-      cardBg: "bg-yellow-400",
-      titleColor: "text-yellow-900",
-      descColor: "text-yellow-800",
-      title: "Hình ảnh Việt Nam",
-      desc: "Giới thiệu phong cảnh, văn hóa và con người Việt",
-    },
-    {
-      icon: Headphones,
-      iconBg: "bg-white/30 text-white",
-      cardBg: "bg-indigo-500",
-      titleColor: "text-white",
-      descColor: "text-indigo-100",
-      title: "Luyện đọc – viết – nghe – nói",
-      desc: "Phát triển toàn diện 4 kỹ năng tiếng Việt",
-    },
-  ];
-
   return (
     <section className="w-full">
       {/* Full-width hero with background image — extends up behind the floating navbar */}
@@ -74,7 +35,7 @@ export function InfoHero() {
               type="button"
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-primary px-6 py-3 text-sm font-bold text-white shadow-glow-primary transition-all hover:brightness-110 hover:shadow-[0_0_0_8px_oklch(0.65_0.18_22/0.35),0_16px_40px_-8px_oklch(0.52_0.22_22/0.45)] sm:text-base"
               onClick={() => {
-                document.getElementById("info-cards-start")?.scrollIntoView({ behavior: "smooth" });
+                document.getElementById("info-rows-start")?.scrollIntoView({ behavior: "smooth" });
               }}
             >
               Khám phá ngay
@@ -92,21 +53,10 @@ export function InfoHero() {
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div id="info-cards-start" className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((s, i) => (
-            <div key={i} className={`flex items-center gap-4 rounded-2xl p-5 shadow-md ${s.cardBg}`}>
-              <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full ${s.iconBg}`}>
-                <s.icon className="h-7 w-7" />
-              </div>
-              <div className="min-w-0">
-                <div className={`text-lg font-bold ${s.titleColor}`}>{s.title}</div>
-                <div className={`text-sm ${s.descColor}`}>{s.desc}</div>
-              </div>
-            </div>
-          ))}
+        {/* Oval divider: the page curves up over the bottom of the hero */}
+        <div className="pointer-events-none absolute inset-x-0 -bottom-1 flex justify-center">
+          <div className="h-24 w-[260%] translate-y-1/2 rounded-[100%] bg-white sm:h-32 sm:w-[220%]" />
         </div>
       </div>
     </section>

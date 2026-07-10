@@ -1,25 +1,54 @@
-import { BookMarked, Copyright, Heart, Info, Network, ShieldCheck } from "lucide-react";
+import { Info } from "lucide-react";
 import { InfoHero } from "./InfoHero";
-import { InfoCard } from "./InfoCard";
+import { InfoStats } from "./InfoStats";
+import aoDai from "@/assets/symbols/ao-dai.png";
+import nonLa from "@/assets/symbols/non-la.png";
+import tre from "@/assets/symbols/tre.png";
+import pho from "@/assets/symbols/pho.png";
+import hoaSen from "@/assets/symbols/hoa-sen.png";
 
-const CARDS = [
+const ROWS = [
   {
     heading: "Bảo trợ chuyên môn",
-    body: "Dự án thực hiện dưới sự bảo trợ và ủng hộ của Ủy ban Nhà nước về người Việt Nam ở nước ngoài – Bộ Ngoại giao.",
-    Icon: ShieldCheck,
-    accent: "primary" as const,
+    body: (
+      <>
+        Dự án thực hiện dưới sự bảo trợ và ủng hộ của{" "}
+        <strong className="font-bold text-foreground">
+          Ủy ban Nhà nước về người Việt Nam ở nước ngoài – Bộ Ngoại giao
+        </strong>
+        .
+      </>
+    ),
+    image: aoDai,
+    headingColor: "text-sky-600",
   },
   {
     heading: "Dự án số hóa",
-    body: "Dự án số hóa hai cuốn sách của NXB ĐH Sư Phạm TP Hồ Chí Minh, được thực hiện trong khuôn khổ Chương trình Tôn vinh tiếng Việt trong cộng đồng người Việt Nam ở nước ngoài, do UBNVONN – Bộ Ngoại giao phát động.",
-    Icon: BookMarked,
-    accent: "green" as const,
+    body: (
+      <>
+        Dự án số hóa hai cuốn sách của{" "}
+        <strong className="font-bold text-foreground">NXB ĐH Sư Phạm TP Hồ Chí Minh</strong>, được thực
+        hiện trong khuôn khổ Chương trình Tôn vinh tiếng Việt trong cộng đồng người Việt Nam ở nước
+        ngoài, do <strong className="font-bold text-foreground">UBNVONN – Bộ Ngoại giao</strong> phát
+        động.
+      </>
+    ),
+    image: nonLa,
+    headingColor: "text-amber-700",
   },
   {
     heading: "Hệ sinh thái",
-    body: "Dự án là thành viên tích cực nằm trong Mạng lưới các cơ sở giảng dạy tiếng Việt và văn hóa Việt Nam ở nước ngoài.",
-    Icon: Network,
-    accent: "purple" as const,
+    body: (
+      <>
+        Dự án là thành viên tích cực nằm trong{" "}
+        <strong className="font-bold text-foreground">
+          Mạng lưới các cơ sở giảng dạy tiếng Việt và văn hóa Việt Nam ở nước ngoài
+        </strong>
+        .
+      </>
+    ),
+    image: tre,
+    headingColor: "text-green-600",
   },
   {
     heading: "Bản quyền",
@@ -27,11 +56,15 @@ const CARDS = [
       <>
         Dự án được bảo hộ bản quyền bởi đồng tác giả:
         <br />
-        Phan Thị Quỳnh Trang - Nguyễn Trần Thanh Hải - Đỗ Thị Phương Mai - Trần Thanh Phúc - Trần Văn Nhật.
+        <strong className="font-bold text-foreground">
+          Phan Thị Quỳnh Trang - Nguyễn Trần Thanh Hải - Đỗ Thị Phương Mai - Trần Thanh Phúc - Trần Văn
+          Nhật
+        </strong>
+        .
       </>
     ),
-    Icon: Copyright,
-    accent: "orange" as const,
+    image: pho,
+    headingColor: "text-orange-600",
   },
 ];
 
@@ -55,34 +88,67 @@ export function InfoTab() {
           </p>
         </header>
 
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-          {CARDS.map((c) => (
-            <InfoCard key={c.heading} {...c} />
+        <div id="info-rows-start" className="mx-auto flex max-w-4xl flex-col gap-24 sm:gap-32">
+          {ROWS.map((r, i) => (
+            <div
+              key={r.heading}
+              className={`flex flex-col items-center gap-8 text-center sm:gap-14 sm:text-left ${
+                i % 2 === 1 ? "sm:flex-row-reverse" : "sm:flex-row"
+              }`}
+            >
+              <div className="shrink-0">
+                <img src={r.image} alt="" className="h-32 w-32 object-contain sm:h-40 sm:w-40" />
+              </div>
+              <div>
+                <h3 className={`font-display text-3xl font-extrabold sm:text-4xl ${r.headingColor}`}>
+                  {r.heading}
+                </h3>
+                <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-foreground/70 sm:mx-0">
+                  {r.body}
+                </p>
+              </div>
+            </div>
           ))}
         </div>
 
-        <article className="relative mt-6 overflow-hidden rounded-3xl bg-gradient-to-br from-pink-500 via-rose-500 to-red-400 p-6 shadow-xl sm:mt-8 sm:p-10">
-          <div className="pointer-events-none absolute -top-8 -right-8 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
-          <div className="pointer-events-none absolute -bottom-6 -left-6 h-32 w-32 rounded-full bg-yellow-300/20 blur-2xl" />
-          <div className="flex items-center justify-center gap-3">
-            <Heart className="h-6 w-6 text-white" fill="currentColor" />
-            <h3 className="font-display text-2xl font-extrabold text-white sm:text-3xl">
-              Lời cảm ơn
-            </h3>
-            <Heart className="h-6 w-6 text-white" fill="currentColor" />
+        <div className="relative mt-24 sm:mt-28">
+          <div className="flex justify-center">
+            <img
+              src={hoaSen}
+              alt=""
+              className="relative z-10 -mb-12 h-28 w-28 object-contain sm:-mb-16 sm:h-36 sm:w-36"
+            />
           </div>
-          <p className="mt-4 text-center text-[15px] leading-relaxed text-white/90 sm:text-base">
-            Ban quản lý dự án xin được gửi lời cảm ơn chân thành tới Ủy ban Nhà
-            nước về người Việt Nam ở nước ngoài - Bộ Ngoại giao&nbsp;nước Cộng hòa xã hội chủ nghĩa Việt Nam đã luôn đồng hành
-            và định hướng. Chúng tôi xin gửi lời tri ân sâu sắc tới các Đại sứ
-            quán, các cơ quan ban ngành tại Việt Nam và Canada, cùng Mạng lưới
-            giảng dạy tiếng Việt đã tạo điều kiện và hỗ trợ quý báu để dự án
-            &quot;Trường Tiếng Việt Của Em&quot; được hoàn thiện và đi vào vận hành. Sự
-            đồng hành của quý vị là nguồn động lực to lớn giúp chúng tôi gìn giữ
-            và lan tỏa ngôn ngữ, văn hóa Việt đến với thế hệ trẻ tại Canada nói
-            riêng và trên toàn thế giới nói chung.
-          </p>
-        </article>
+          <article className="rounded-3xl bg-pink-100 px-8 pb-8 pt-16 sm:px-14 sm:pb-10 sm:pt-20">
+            <div className="flex items-center justify-center">
+              <h3
+                className="font-display text-2xl font-extrabold text-red-600 sm:text-3xl"
+                style={{ WebkitTextStroke: "1.5px white", paintOrder: "stroke fill" }}
+              >
+                Lời cảm ơn
+              </h3>
+            </div>
+            <p className="mt-4 text-center text-[15px] leading-relaxed text-black/80 sm:text-base">
+              Ban quản lý dự án xin được gửi lời cảm ơn chân thành tới{" "}
+              <strong className="font-bold text-black">
+                Ủy ban Nhà nước về người Việt Nam ở nước ngoài - Bộ Ngoại giao
+              </strong>{" "}
+              nước Cộng hòa xã hội chủ nghĩa Việt Nam đã luôn đồng hành
+              và định hướng. Chúng tôi xin gửi lời tri ân sâu sắc tới các Đại sứ
+              quán, các cơ quan ban ngành tại Việt Nam và Canada, cùng Mạng lưới
+              giảng dạy tiếng Việt đã tạo điều kiện và hỗ trợ quý báu để dự án{" "}
+              <strong className="font-bold text-black">&quot;Trường Tiếng Việt Của Em&quot;</strong>{" "}
+              được hoàn thiện và đi vào vận hành. Sự
+              đồng hành của quý vị là nguồn động lực to lớn giúp chúng tôi gìn giữ
+              và lan tỏa ngôn ngữ, văn hóa Việt đến với thế hệ trẻ tại Canada nói
+              riêng và trên toàn thế giới nói chung.
+            </p>
+          </article>
+        </div>
+
+        <div className="mt-16 sm:mt-20">
+          <InfoStats />
+        </div>
       </div>
     </section>
   );
