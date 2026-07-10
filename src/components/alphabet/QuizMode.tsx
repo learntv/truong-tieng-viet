@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Volume2, RefreshCw, Trophy, Star } from "lucide-react";
 import { ALPHABET, type AlphabetLetter } from "@/data/alphabet";
 import trauCon from "@/assets/trau-con.png";
@@ -254,5 +254,3 @@ export function QuizMode({
   );
 }
 
-// Kept for future variants — unused in this bundle.
-export const _internal = { buildGame, makeRound, shuffle, useMemo };

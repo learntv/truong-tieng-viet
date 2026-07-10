@@ -19,6 +19,7 @@ import { Route as HocTapIndexRouteImport } from './routes/hoc-tap.index'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 import { Route as HocTapLuyenNoiRouteImport } from './routes/hoc-tap.luyen-noi'
 import { Route as HocTapLoTrinhRouteImport } from './routes/hoc-tap.lo-trinh'
+import { Route as HocTapBangChuCaiRouteImport } from './routes/hoc-tap.bang-chu-cai'
 import { Route as HocTapLoTrinhIndexRouteImport } from './routes/hoc-tap.lo-trinh.index'
 import { Route as HocTapLuyenNoiChuDeIdRouteImport } from './routes/hoc-tap.luyen-noi.$chuDeId'
 import { Route as HocTapLoTrinhQuyen2RouteImport } from './routes/hoc-tap.lo-trinh.quyen-2'
@@ -75,6 +76,11 @@ const HocTapLoTrinhRoute = HocTapLoTrinhRouteImport.update({
   path: '/lo-trinh',
   getParentRoute: () => HocTapRoute,
 } as any)
+const HocTapBangChuCaiRoute = HocTapBangChuCaiRouteImport.update({
+  id: '/bang-chu-cai',
+  path: '/bang-chu-cai',
+  getParentRoute: () => HocTapRoute,
+} as any)
 const HocTapLoTrinhIndexRoute = HocTapLoTrinhIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/hoc-tap': typeof HocTapRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
+  '/hoc-tap/bang-chu-cai': typeof HocTapBangChuCaiRoute
   '/hoc-tap/lo-trinh': typeof HocTapLoTrinhRouteWithChildren
   '/hoc-tap/luyen-noi': typeof HocTapLuyenNoiRouteWithChildren
   '/u/$username': typeof UUsernameRoute
@@ -125,6 +132,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
+  '/hoc-tap/bang-chu-cai': typeof HocTapBangChuCaiRoute
   '/hoc-tap/luyen-noi': typeof HocTapLuyenNoiRouteWithChildren
   '/u/$username': typeof UUsernameRoute
   '/hoc-tap': typeof HocTapIndexRoute
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/hoc-tap': typeof HocTapRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
+  '/hoc-tap/bang-chu-cai': typeof HocTapBangChuCaiRoute
   '/hoc-tap/lo-trinh': typeof HocTapLoTrinhRouteWithChildren
   '/hoc-tap/luyen-noi': typeof HocTapLuyenNoiRouteWithChildren
   '/u/$username': typeof UUsernameRoute
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/hoc-tap'
     | '/reset-password'
     | '/san-pham-cua-em'
+    | '/hoc-tap/bang-chu-cai'
     | '/hoc-tap/lo-trinh'
     | '/hoc-tap/luyen-noi'
     | '/u/$username'
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/reset-password'
     | '/san-pham-cua-em'
+    | '/hoc-tap/bang-chu-cai'
     | '/hoc-tap/luyen-noi'
     | '/u/$username'
     | '/hoc-tap'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/hoc-tap'
     | '/reset-password'
     | '/san-pham-cua-em'
+    | '/hoc-tap/bang-chu-cai'
     | '/hoc-tap/lo-trinh'
     | '/hoc-tap/luyen-noi'
     | '/u/$username'
@@ -286,6 +298,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HocTapLoTrinhRouteImport
       parentRoute: typeof HocTapRoute
     }
+    '/hoc-tap/bang-chu-cai': {
+      id: '/hoc-tap/bang-chu-cai'
+      path: '/bang-chu-cai'
+      fullPath: '/hoc-tap/bang-chu-cai'
+      preLoaderRoute: typeof HocTapBangChuCaiRouteImport
+      parentRoute: typeof HocTapRoute
+    }
     '/hoc-tap/lo-trinh/': {
       id: '/hoc-tap/lo-trinh/'
       path: '/'
@@ -364,12 +383,14 @@ const HocTapLuyenNoiRouteWithChildren = HocTapLuyenNoiRoute._addFileChildren(
 )
 
 interface HocTapRouteChildren {
+  HocTapBangChuCaiRoute: typeof HocTapBangChuCaiRoute
   HocTapLoTrinhRoute: typeof HocTapLoTrinhRouteWithChildren
   HocTapLuyenNoiRoute: typeof HocTapLuyenNoiRouteWithChildren
   HocTapIndexRoute: typeof HocTapIndexRoute
 }
 
 const HocTapRouteChildren: HocTapRouteChildren = {
+  HocTapBangChuCaiRoute: HocTapBangChuCaiRoute,
   HocTapLoTrinhRoute: HocTapLoTrinhRouteWithChildren,
   HocTapLuyenNoiRoute: HocTapLuyenNoiRouteWithChildren,
   HocTapIndexRoute: HocTapIndexRoute,
