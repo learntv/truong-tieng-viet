@@ -22,7 +22,7 @@ const tabs: {
   { to: "/", label: "Trang chủ", Icon: Home },
   { to: "/hoc-tap", label: "Học tập", Icon: BookOpen },
   { to: "/san-pham-cua-em", label: "Sản phẩm của em", Icon: Star },
-  { to: "/bang-xep-hang", label: "Bảng xếp hạng", Icon: Trophy },
+  { to: "/bang-xep-hang", label: "Xếp hạng", Icon: Trophy },
 ];
 
 export function Navbar() {
