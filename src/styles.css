@@ -227,6 +227,13 @@
 }
 @utility bg-paper { background: var(--paper-bg); }
 
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-6deg); }
+  75% { transform: rotate(6deg); }
+}
+@utility animate-wiggle { animation: wiggle 0.4s ease-in-out; }
+
 @keyframes hop {
   0%   { transform: translateY(0) scaleX(1); }
   30%  { transform: translateY(-22px) scaleX(0.92); }
