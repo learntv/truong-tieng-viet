@@ -6,6 +6,8 @@ export type AlphabetWord = {
   vi: string;
   en: string;
   emoji: string;
+  /** Rough English phonetic respelling to help English-speaking readers say the word aloud. */
+  pronunciation: string;
 };
 
 export type AlphabetLetter = {
@@ -23,9 +25,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "a",
     soundName: "a",
     words: [
-      { vi: "Ba", en: "dad", emoji: "👨" },
-      { vi: "Cá", en: "fish", emoji: "🐟" },
-      { vi: "Áo", en: "shirt", emoji: "👕" },
+      { vi: "Ba", en: "dad", emoji: "👨", pronunciation: "bah" },
+      { vi: "Cá", en: "fish", emoji: "🐟", pronunciation: "kah" },
+      { vi: "Áo", en: "shirt", emoji: "👕", pronunciation: "ow" },
     ],
   },
   {
@@ -33,9 +35,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "ă",
     soundName: "á",
     words: [
-      { vi: "Ăn", en: "to eat", emoji: "🍽️" },
-      { vi: "Măng", en: "bamboo shoot", emoji: "🎋" },
-      { vi: "Khăn", en: "scarf", emoji: "🧣" },
+      { vi: "Ăn", en: "to eat", emoji: "🍽️", pronunciation: "an" },
+      { vi: "Măng", en: "bamboo shoot", emoji: "🎋", pronunciation: "mahng" },
+      { vi: "Khăn", en: "scarf", emoji: "🧣", pronunciation: "khan" },
     ],
   },
   {
@@ -43,9 +45,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "â",
     soundName: "ớ",
     words: [
-      { vi: "Ấm", en: "kettle", emoji: "☕" },
-      { vi: "Cầu", en: "bridge", emoji: "🌉" },
-      { vi: "Gấu", en: "bear", emoji: "🐻" },
+      { vi: "Ấm", en: "kettle", emoji: "☕", pronunciation: "uhm" },
+      { vi: "Cầu", en: "bridge", emoji: "🌉", pronunciation: "koh" },
+      { vi: "Gấu", en: "bear", emoji: "🐻", pronunciation: "gohw" },
     ],
   },
   {
@@ -53,9 +55,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "b",
     soundName: "bờ",
     words: [
-      { vi: "Bà", en: "grandma", emoji: "👵" },
-      { vi: "Bóng", en: "ball", emoji: "⚽" },
-      { vi: "Bút", en: "pen", emoji: "🖊️" },
+      { vi: "Bà", en: "grandma", emoji: "👵", pronunciation: "bah" },
+      { vi: "Bóng", en: "ball", emoji: "⚽", pronunciation: "bawng" },
+      { vi: "Bút", en: "pen", emoji: "🖊️", pronunciation: "boot" },
     ],
   },
   {
@@ -63,9 +65,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "c",
     soundName: "cờ",
     words: [
-      { vi: "Cây", en: "tree", emoji: "🌳" },
-      { vi: "Cua", en: "crab", emoji: "🦀" },
-      { vi: "Cam", en: "orange", emoji: "🍊" },
+      { vi: "Cây", en: "tree", emoji: "🌳", pronunciation: "kay" },
+      { vi: "Cua", en: "crab", emoji: "🦀", pronunciation: "kwah" },
+      { vi: "Cam", en: "orange", emoji: "🍊", pronunciation: "kahm" },
     ],
   },
   {
@@ -73,9 +75,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "d",
     soundName: "dờ",
     words: [
-      { vi: "Dê", en: "goat", emoji: "🐐" },
-      { vi: "Dừa", en: "coconut", emoji: "🥥" },
-      { vi: "Dao", en: "knife", emoji: "🔪" },
+      { vi: "Dê", en: "goat", emoji: "🐐", pronunciation: "zay" },
+      { vi: "Dừa", en: "coconut", emoji: "🥥", pronunciation: "zeu-uh" },
+      { vi: "Dao", en: "knife", emoji: "🔪", pronunciation: "zow" },
     ],
   },
   {
@@ -83,9 +85,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "đ",
     soundName: "đờ",
     words: [
-      { vi: "Đèn", en: "lamp", emoji: "💡" },
-      { vi: "Đá", en: "rock / ice", emoji: "🧊" },
-      { vi: "Đũa", en: "chopsticks", emoji: "🥢" },
+      { vi: "Đèn", en: "lamp", emoji: "💡", pronunciation: "den" },
+      { vi: "Đá", en: "rock / ice", emoji: "🧊", pronunciation: "dah" },
+      { vi: "Đũa", en: "chopsticks", emoji: "🥢", pronunciation: "doo-ah" },
     ],
   },
   {
@@ -93,9 +95,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "e",
     soundName: "e",
     words: [
-      { vi: "Mẹ", en: "mom", emoji: "👩" },
-      { vi: "Xe", en: "car", emoji: "🚗" },
-      { vi: "Én", en: "swallow (bird)", emoji: "🐦" },
+      { vi: "Mẹ", en: "mom", emoji: "👩", pronunciation: "meh" },
+      { vi: "Xe", en: "car", emoji: "🚗", pronunciation: "seh" },
+      { vi: "Én", en: "swallow (bird)", emoji: "🐦", pronunciation: "en" },
     ],
   },
   {
@@ -103,9 +105,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "ê",
     soundName: "ê",
     words: [
-      { vi: "Bê", en: "calf", emoji: "🐄" },
-      { vi: "Ghế", en: "chair", emoji: "🪑" },
-      { vi: "Đêm", en: "night", emoji: "🌙" },
+      { vi: "Bê", en: "calf", emoji: "🐄", pronunciation: "bay" },
+      { vi: "Ghế", en: "chair", emoji: "🪑", pronunciation: "gay" },
+      { vi: "Đêm", en: "night", emoji: "🌙", pronunciation: "daym" },
     ],
   },
   {
@@ -113,9 +115,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "g",
     soundName: "gờ",
     words: [
-      { vi: "Gà", en: "chicken", emoji: "🐔" },
-      { vi: "Gấu", en: "bear", emoji: "🐻" },
-      { vi: "Gạo", en: "rice", emoji: "🍚" },
+      { vi: "Gà", en: "chicken", emoji: "🐔", pronunciation: "gah" },
+      { vi: "Gấu", en: "bear", emoji: "🐻", pronunciation: "gohw" },
+      { vi: "Gạo", en: "rice", emoji: "🍚", pronunciation: "gow" },
     ],
   },
   {
@@ -123,9 +125,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "h",
     soundName: "hờ",
     words: [
-      { vi: "Hoa", en: "flower", emoji: "🌸" },
-      { vi: "Heo", en: "pig", emoji: "🐷" },
-      { vi: "Hồ", en: "lake", emoji: "🏞️" },
+      { vi: "Hoa", en: "flower", emoji: "🌸", pronunciation: "hwah" },
+      { vi: "Heo", en: "pig", emoji: "🐷", pronunciation: "heh-oh" },
+      { vi: "Hồ", en: "lake", emoji: "🏞️", pronunciation: "hoh" },
     ],
   },
   {
@@ -133,9 +135,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "i",
     soundName: "i",
     words: [
-      { vi: "Chim", en: "bird", emoji: "🐦" },
-      { vi: "Kim", en: "needle", emoji: "🪡" },
-      { vi: "Bi", en: "marble", emoji: "🔵" },
+      { vi: "Chim", en: "bird", emoji: "🐦", pronunciation: "chim" },
+      { vi: "Kim", en: "needle", emoji: "🪡", pronunciation: "kim" },
+      { vi: "Bi", en: "marble", emoji: "🔵", pronunciation: "bee" },
     ],
   },
   {
@@ -143,9 +145,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "k",
     soundName: "ca",
     words: [
-      { vi: "Kem", en: "ice cream", emoji: "🍦" },
-      { vi: "Kẹo", en: "candy", emoji: "🍬" },
-      { vi: "Kiến", en: "ant", emoji: "🐜" },
+      { vi: "Kem", en: "ice cream", emoji: "🍦", pronunciation: "kehm" },
+      { vi: "Kẹo", en: "candy", emoji: "🍬", pronunciation: "keh-oh" },
+      { vi: "Kiến", en: "ant", emoji: "🐜", pronunciation: "kee-en" },
     ],
   },
   {
@@ -153,9 +155,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "l",
     soundName: "lờ",
     words: [
-      { vi: "Lá", en: "leaf", emoji: "🍃" },
-      { vi: "Lợn", en: "pig", emoji: "🐖" },
-      { vi: "Lúa", en: "rice plant", emoji: "🌾" },
+      { vi: "Lá", en: "leaf", emoji: "🍃", pronunciation: "lah" },
+      { vi: "Lợn", en: "pig", emoji: "🐖", pronunciation: "luhn" },
+      { vi: "Lúa", en: "rice plant", emoji: "🌾", pronunciation: "loo-ah" },
     ],
   },
   {
@@ -163,9 +165,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "m",
     soundName: "mờ",
     words: [
-      { vi: "Mèo", en: "cat", emoji: "🐱" },
-      { vi: "Mưa", en: "rain", emoji: "🌧️" },
-      { vi: "Mũ", en: "hat", emoji: "🧢" },
+      { vi: "Mèo", en: "cat", emoji: "🐱", pronunciation: "meh-oh" },
+      { vi: "Mưa", en: "rain", emoji: "🌧️", pronunciation: "muh-uh" },
+      { vi: "Mũ", en: "hat", emoji: "🧢", pronunciation: "moo" },
     ],
   },
   {
@@ -173,9 +175,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "n",
     soundName: "nờ",
     words: [
-      { vi: "Nước", en: "water", emoji: "💧" },
-      { vi: "Nai", en: "deer", emoji: "🦌" },
-      { vi: "Nón", en: "conical hat", emoji: "👒" },
+      { vi: "Nước", en: "water", emoji: "💧", pronunciation: "nuh-uhk" },
+      { vi: "Nai", en: "deer", emoji: "🦌", pronunciation: "nai" },
+      { vi: "Nón", en: "conical hat", emoji: "👒", pronunciation: "nawn" },
     ],
   },
   {
@@ -183,9 +185,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "o",
     soundName: "o",
     words: [
-      { vi: "Bò", en: "cow", emoji: "🐄" },
-      { vi: "Cỏ", en: "grass", emoji: "🌱" },
-      { vi: "Ong", en: "bee", emoji: "🐝" },
+      { vi: "Bò", en: "cow", emoji: "🐄", pronunciation: "baw" },
+      { vi: "Cỏ", en: "grass", emoji: "🌱", pronunciation: "kaw" },
+      { vi: "Ong", en: "bee", emoji: "🐝", pronunciation: "awng" },
     ],
   },
   {
@@ -193,9 +195,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "ô",
     soundName: "ô",
     words: [
-      { vi: "Ô", en: "umbrella", emoji: "☂️" },
-      { vi: "Bố", en: "dad", emoji: "👨" },
-      { vi: "Cô", en: "teacher (female)", emoji: "👩‍🏫" },
+      { vi: "Ô", en: "umbrella", emoji: "☂️", pronunciation: "oh" },
+      { vi: "Bố", en: "dad", emoji: "👨", pronunciation: "boh" },
+      { vi: "Cô", en: "teacher (female)", emoji: "👩‍🏫", pronunciation: "koh" },
     ],
   },
   {
@@ -203,9 +205,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "ơ",
     soundName: "ơ",
     words: [
-      { vi: "Cờ", en: "flag", emoji: "🚩" },
-      { vi: "Bơi", en: "to swim", emoji: "🏊" },
-      { vi: "Bơ", en: "avocado", emoji: "🥑" },
+      { vi: "Cờ", en: "flag", emoji: "🚩", pronunciation: "kuh" },
+      { vi: "Bơi", en: "to swim", emoji: "🏊", pronunciation: "boy" },
+      { vi: "Bơ", en: "avocado", emoji: "🥑", pronunciation: "buh" },
     ],
   },
   {
@@ -213,9 +215,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "p",
     soundName: "pờ",
     words: [
-      { vi: "Pin", en: "battery", emoji: "🔋" },
-      { vi: "Piano", en: "piano", emoji: "🎹" },
-      { vi: "Pizza", en: "pizza", emoji: "🍕" },
+      { vi: "Pin", en: "battery", emoji: "🔋", pronunciation: "pin" },
+      { vi: "Piano", en: "piano", emoji: "🎹", pronunciation: "pee-ah-noh" },
+      { vi: "Pizza", en: "pizza", emoji: "🍕", pronunciation: "pit-sah" },
     ],
   },
   {
@@ -223,9 +225,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "q",
     soundName: "quy",
     words: [
-      { vi: "Quả", en: "fruit", emoji: "🍎" },
-      { vi: "Quạt", en: "fan", emoji: "🌀" },
-      { vi: "Quê", en: "hometown", emoji: "🏡" },
+      { vi: "Quả", en: "fruit", emoji: "🍎", pronunciation: "kwah" },
+      { vi: "Quạt", en: "fan", emoji: "🌀", pronunciation: "kwaht" },
+      { vi: "Quê", en: "hometown", emoji: "🏡", pronunciation: "kway" },
     ],
   },
   {
@@ -233,9 +235,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "r",
     soundName: "rờ",
     words: [
-      { vi: "Rắn", en: "snake", emoji: "🐍" },
-      { vi: "Rùa", en: "turtle", emoji: "🐢" },
-      { vi: "Răng", en: "tooth", emoji: "🦷" },
+      { vi: "Rắn", en: "snake", emoji: "🐍", pronunciation: "ran" },
+      { vi: "Rùa", en: "turtle", emoji: "🐢", pronunciation: "roo-ah" },
+      { vi: "Răng", en: "tooth", emoji: "🦷", pronunciation: "rahng" },
     ],
   },
   {
@@ -243,9 +245,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "s",
     soundName: "sờ",
     words: [
-      { vi: "Sư tử", en: "lion", emoji: "🦁" },
-      { vi: "Sao", en: "star", emoji: "⭐" },
-      { vi: "Sách", en: "book", emoji: "📖" },
+      { vi: "Sư tử", en: "lion", emoji: "🦁", pronunciation: "seu tuh" },
+      { vi: "Sao", en: "star", emoji: "⭐", pronunciation: "sow" },
+      { vi: "Sách", en: "book", emoji: "📖", pronunciation: "sahk" },
     ],
   },
   {
@@ -253,9 +255,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "t",
     soundName: "tờ",
     words: [
-      { vi: "Táo", en: "apple", emoji: "🍎" },
-      { vi: "Tôm", en: "shrimp", emoji: "🦐" },
-      { vi: "Tay", en: "hand", emoji: "✋" },
+      { vi: "Táo", en: "apple", emoji: "🍎", pronunciation: "tow" },
+      { vi: "Tôm", en: "shrimp", emoji: "🦐", pronunciation: "tohm" },
+      { vi: "Tay", en: "hand", emoji: "✋", pronunciation: "tay" },
     ],
   },
   {
@@ -263,9 +265,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "u",
     soundName: "u",
     words: [
-      { vi: "Cún", en: "puppy", emoji: "🐶" },
-      { vi: "Thu", en: "autumn", emoji: "🍂" },
-      { vi: "Múa", en: "to dance", emoji: "💃" },
+      { vi: "Cún", en: "puppy", emoji: "🐶", pronunciation: "koon" },
+      { vi: "Thu", en: "autumn", emoji: "🍂", pronunciation: "too" },
+      { vi: "Múa", en: "to dance", emoji: "💃", pronunciation: "moo-ah" },
     ],
   },
   {
@@ -273,9 +275,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "ư",
     soundName: "ư",
     words: [
-      { vi: "Thư", en: "letter (mail)", emoji: "✉️" },
-      { vi: "Sữa", en: "milk", emoji: "🥛" },
-      { vi: "Cưa", en: "saw", emoji: "🪚" },
+      { vi: "Thư", en: "letter (mail)", emoji: "✉️", pronunciation: "teu" },
+      { vi: "Sữa", en: "milk", emoji: "🥛", pronunciation: "seu-uh" },
+      { vi: "Cưa", en: "saw", emoji: "🪚", pronunciation: "keu-uh" },
     ],
   },
   {
@@ -283,9 +285,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "v",
     soundName: "vờ",
     words: [
-      { vi: "Voi", en: "elephant", emoji: "🐘" },
-      { vi: "Vịt", en: "duck", emoji: "🦆" },
-      { vi: "Váy", en: "dress", emoji: "👗" },
+      { vi: "Voi", en: "elephant", emoji: "🐘", pronunciation: "voy" },
+      { vi: "Vịt", en: "duck", emoji: "🦆", pronunciation: "vit" },
+      { vi: "Váy", en: "dress", emoji: "👗", pronunciation: "vay" },
     ],
   },
   {
@@ -293,9 +295,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "x",
     soundName: "xờ",
     words: [
-      { vi: "Xoài", en: "mango", emoji: "🥭" },
-      { vi: "Xanh", en: "blue / green", emoji: "💙" },
-      { vi: "Xúc xắc", en: "dice", emoji: "🎲" },
+      { vi: "Xoài", en: "mango", emoji: "🥭", pronunciation: "swai" },
+      { vi: "Xanh", en: "blue / green", emoji: "💙", pronunciation: "sahn" },
+      { vi: "Xúc xắc", en: "dice", emoji: "🎲", pronunciation: "sook sahk" },
     ],
   },
   {
@@ -303,9 +305,9 @@ export const ALPHABET: AlphabetLetter[] = [
     letter: "y",
     soundName: "i dài",
     words: [
-      { vi: "Y tá", en: "nurse", emoji: "👩‍⚕️" },
-      { vi: "Yêu", en: "to love", emoji: "❤️" },
-      { vi: "Ý", en: "idea", emoji: "💭" },
+      { vi: "Y tá", en: "nurse", emoji: "👩‍⚕️", pronunciation: "ee tah" },
+      { vi: "Yêu", en: "to love", emoji: "❤️", pronunciation: "yew" },
+      { vi: "Ý", en: "idea", emoji: "💭", pronunciation: "ee" },
     ],
   },
 ];

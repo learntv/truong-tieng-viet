@@ -161,6 +161,14 @@
   animation: bob 2.4s ease-in-out infinite;
 }
 
+@keyframes breathe {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(0.98, 1.04); }
+}
+@utility animate-breathe {
+  animation: breathe 2.6s ease-in-out infinite;
+}
+
 @keyframes float-slow {
   0%, 100% { transform: translateY(0) translateX(0); }
   50% { transform: translateY(-10px) translateX(4px); }

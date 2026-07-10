@@ -235,7 +235,7 @@ function LetterDetailDialog({
               <img
                 src={LETTER_IMAGES[letter.id]}
                 alt={`Bạn thú chữ ${letter.letter}`}
-                className="h-56 w-auto object-contain drop-shadow-md animate-bob sm:h-64"
+                className="h-56 w-auto object-contain drop-shadow-md animate-breathe sm:h-64"
               />
             </div>
 
@@ -271,7 +271,10 @@ function LetterDetailDialog({
                   >
                     <span className="text-3xl transition-transform group-hover:scale-110">{word.emoji}</span>
                     <span className="flex-1">
-                      <span className="block font-display text-base font-extrabold text-navy">{word.vi}</span>
+                      <span className="flex items-baseline gap-1.5">
+                        <span className="font-display text-base font-extrabold text-navy">{word.vi}</span>
+                        <span className="text-xs italic text-navy/50">/{word.pronunciation}/</span>
+                      </span>
                       <span className="block text-sm text-muted-foreground">{word.en}</span>
                     </span>
                   </button>
