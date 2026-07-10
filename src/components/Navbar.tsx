@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { BookOpen, Home, LogOut, Menu, Star, Trophy, User, UserCircle, X } from "lucide-react";
+import { useRef, useState } from "react";
+import { BookOpen, ChevronDown, ChevronRight, Home, LogOut, Menu, Mic, Sparkles, Star, Trophy, User, UserCircle, X } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import iconLogo from "@/assets/icon.png";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,12 +25,33 @@ const tabs: {
   { to: "/bang-xep-hang", label: "Xếp hạng", Icon: Trophy },
 ];
 
+const HOC_TAP_SECTIONS = [
+  { to: "/hoc-tap/lo-trinh", label: "Lộ trình", Icon: BookOpen },
+  { to: "/hoc-tap/luyen-noi", label: "Luyện nói", Icon: Mic },
+  { to: "/hoc-tap/bang-chu-cai", label: "Bảng chữ cái", Icon: Sparkles },
+] as const;
+
 export function Navbar() {
   const { location } = useRouterState();
   const pathname = location.pathname;
   const { user, isLoading, signOut } = useAuth();
   const [authOpen, setAuthOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [hocTapMenuOpen, setHocTapMenuOpen] = useState(false);
+  const [mobileHocTapOpen, setMobileHocTapOpen] = useState(() => pathname.startsWith("/hoc-tap"));
+  const hocTapCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const openHocTapMenu = () => {
+    if (hocTapCloseTimer.current) {
+      clearTimeout(hocTapCloseTimer.current);
+      hocTapCloseTimer.current = null;
+    }
+    setHocTapMenuOpen(true);
+  };
+
+  const scheduleCloseHocTapMenu = () => {
+    hocTapCloseTimer.current = setTimeout(() => setHocTapMenuOpen(false), 150);
+  };
 
   const displayName =
     (user?.user_metadata?.full_name as string | undefined) ||
@@ -72,6 +93,51 @@ export function Navbar() {
           <ul className="hidden flex-1 items-center justify-center gap-1 md:flex">
             {tabs.map(({ to, label, Icon }) => {
               const isActive = pathname === to || pathname.startsWith(`${to}/`);
+
+              if (to === "/hoc-tap") {
+                return (
+                  <li
+                    key={to}
+                    onMouseEnter={openHocTapMenu}
+                    onMouseLeave={scheduleCloseHocTapMenu}
+                  >
+                    <DropdownMenu modal={false} open={hocTapMenuOpen} onOpenChange={setHocTapMenuOpen}>
+                      <DropdownMenuTrigger
+                        className={[
+                          "flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold outline-none transition-all",
+                          isActive
+                            ? "bg-primary text-white shadow-sm"
+                            : "text-foreground/70 hover:bg-muted hover:text-foreground",
+                        ].join(" ")}
+                      >
+                        <Icon className="h-4 w-4" strokeWidth={2.5} />
+                        <span>{label}</span>
+                        <ChevronDown className="h-3.5 w-3.5" strokeWidth={2.5} />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="center"
+                        onMouseEnter={openHocTapMenu}
+                        onMouseLeave={scheduleCloseHocTapMenu}
+                        className="flex w-64 flex-col gap-1 rounded-2xl border-2 border-primary/15 bg-white p-2 shadow-xl"
+                      >
+                        {HOC_TAP_SECTIONS.map(({ to: sectionTo, label: sectionLabel, Icon: SectionIcon }) => (
+                          <DropdownMenuItem
+                            asChild
+                            key={sectionTo}
+                            className="rounded-xl px-3 py-2.5 text-sm font-bold focus:bg-primary/10 focus:text-primary"
+                          >
+                            <Link to={sectionTo} className="flex cursor-pointer items-center gap-3">
+                              <SectionIcon className="h-4 w-4 text-primary" strokeWidth={2.5} />
+                              {sectionLabel}
+                            </Link>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </li>
+                );
+              }
+
               return (
                 <li key={to}>
                   <Link
@@ -188,6 +254,55 @@ export function Navbar() {
           <ul className="flex flex-col gap-1">
             {tabs.map(({ to, label, Icon }) => {
               const isActive = pathname === to || pathname.startsWith(`${to}/`);
+
+              if (to === "/hoc-tap") {
+                return (
+                  <li key={to}>
+                    <button
+                      onClick={() => setMobileHocTapOpen((open) => !open)}
+                      className={[
+                        "flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all",
+                        isActive
+                          ? "bg-primary text-white shadow-sm"
+                          : "text-foreground/70 hover:bg-muted hover:text-foreground",
+                      ].join(" ")}
+                    >
+                      <Icon className="h-5 w-5 shrink-0" strokeWidth={2.5} />
+                      <span className="flex-1 text-left">{label}</span>
+                      <ChevronDown
+                        className={["h-4 w-4 shrink-0 transition-transform", mobileHocTapOpen ? "rotate-180" : ""].join(" ")}
+                        strokeWidth={2.5}
+                      />
+                    </button>
+                    {mobileHocTapOpen && (
+                      <ul className="mt-1 flex flex-col gap-1 pl-4">
+                        {HOC_TAP_SECTIONS.map(({ to: sectionTo, label: sectionLabel, Icon: SectionIcon }) => {
+                          const isSectionActive = pathname === sectionTo || pathname.startsWith(`${sectionTo}/`);
+                          return (
+                            <li key={sectionTo}>
+                              <Link
+                                to={sectionTo}
+                                onClick={closeSidebar}
+                                className={[
+                                  "flex items-center gap-3 rounded-2xl px-4 py-2.5 text-sm font-bold transition-all",
+                                  isSectionActive
+                                    ? "bg-primary/10 text-primary"
+                                    : "text-foreground/60 hover:bg-muted hover:text-foreground",
+                                ].join(" ")}
+                              >
+                                <ChevronRight className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />
+                                <SectionIcon className="h-4 w-4 shrink-0" strokeWidth={2.5} />
+                                <span>{sectionLabel}</span>
+                              </Link>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </li>
+                );
+              }
+
               return (
                 <li key={to}>
                   <Link

@@ -99,7 +99,7 @@ function BangChuCaiTab() {
   };
 
   return (
-    <main className="relative -mb-8 flex-1 overflow-hidden bg-gradient-to-b from-sky-300 to-sky-200 animate-in fade-in slide-in-from-bottom-2 duration-300">
+    <main className="relative flex-1 overflow-hidden pb-24 animate-in fade-in slide-in-from-bottom-2 duration-300">
       <SkyClouds />
 
       <div className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6">
