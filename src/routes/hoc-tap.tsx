@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useChildMatches, useRouterState } from "@tanstack/react-router";
-import { BookOpen, Mic, Sparkles } from "lucide-react";
+import { BookOpen, Mic } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 
@@ -9,7 +9,6 @@ export const Route = createFileRoute("/hoc-tap")({
 
 const TABS = [
   { to: "/hoc-tap/lo-trinh", label: "Lộ trình", Icon: BookOpen },
-  { to: "/hoc-tap/bang-chu-cai", label: "Bảng chữ cái", Icon: Sparkles },
   { to: "/hoc-tap/luyen-noi", label: "Luyện nói", Icon: Mic },
 ] as const;
 
@@ -20,12 +19,9 @@ function HocTapLayout() {
   const childMatches = useChildMatches();
   const isLessonView = childMatches.some((m) => m.routeId === "/hoc-tap/lo-trinh/quyen-1/$changId");
   const isImmersive = pathname.startsWith("/hoc-tap/lo-trinh/quyen-1") && !isLessonView;
-  // Only the top-level list screens show the tab switcher — once a book or a topic is
+  // Only the two top-level list screens show the tab switcher — once a book or a topic is
   // open, the switcher just adds clutter above content that already has its own back link.
-  const isTopLevel =
-    pathname === "/hoc-tap/lo-trinh" ||
-    pathname === "/hoc-tap/luyen-noi" ||
-    pathname === "/hoc-tap/bang-chu-cai";
+  const isTopLevel = pathname === "/hoc-tap/lo-trinh" || pathname === "/hoc-tap/luyen-noi";
 
   return (
     <div className={isImmersive ? "flex h-screen flex-col overflow-hidden" : "flex min-h-screen flex-col"}>
