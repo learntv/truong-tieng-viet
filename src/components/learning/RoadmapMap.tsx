@@ -1,5 +1,6 @@
 import type { RefObject } from "react";
-import { Sparkles } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import type { ChuDe } from "@/data/topics";
 import { BuffaloMascot } from "./BuffaloMascot";
 import { StageCard, STAGE_COLORS } from "./StageCard";
@@ -79,7 +80,6 @@ export function RoadmapMap({
    * on it scroll the map like touching anywhere else. */
   connectorHeight?: number;
 }) {
-  const bookNumber = chuDeIndex < 4 ? 1 : 2;
   const buffaloIndex = buffaloChangIndex;
 
   const pathD = NODE_POSITIONS.reduce((acc, p, i, arr) => {
@@ -103,11 +103,13 @@ export function RoadmapMap({
 
       {/* Top bar */}
       <div className="relative z-30 flex flex-wrap items-center justify-between gap-2 px-4 pt-3 sm:px-6 sm:pt-4">
-        <div className="flex items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-navy shadow-card backdrop-blur sm:px-4 sm:py-2 sm:text-sm">
-          <span>Quyển {bookNumber}</span>
-          <span className="text-muted-foreground">›</span>
-          <span>Vui học Tiếng Việt</span>
-        </div>
+        <Link
+          to="/hoc-tap/lo-trinh"
+          className="flex cursor-pointer items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-navy shadow-card backdrop-blur transition-colors hover:bg-white sm:px-4 sm:py-2 sm:text-sm"
+        >
+          <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={2.5} />
+          Quay lại
+        </Link>
         <ProgressBadge
           chuDes={chuDes}
           currentChuDeIndex={chuDeIndex}

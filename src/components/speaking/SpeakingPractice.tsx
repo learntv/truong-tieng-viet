@@ -189,7 +189,7 @@ export function SpeakingPractice({
         </h1>
         <p className="mb-6 text-muted-foreground">Em chọn chủ đề khác để luyện nói nhé!</p>
         <Link
-          to="/luyen-noi"
+          to="/hoc-tap/luyen-noi"
           className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary/90"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -207,7 +207,7 @@ export function SpeakingPractice({
     <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
       <div className="mb-5">
         <Link
-          to="/luyen-noi"
+          to="/hoc-tap/luyen-noi"
           className="inline-flex items-center gap-1.5 text-sm font-bold text-muted-foreground transition-colors hover:text-navy"
         >
           <ArrowLeft className="h-4 w-4" />

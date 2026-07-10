@@ -264,7 +264,7 @@ export function LearningTab({ isLessonView, changId }: { isLessonView: boolean; 
     pendingScrollYRef.current = window.scrollY;
     setCurrentChangIndex(i);
     saveBuffaloPos({ chuDeIndex: currentChuDeIndex, changIndex: i });
-    navigate({ to: "/hoc-tieng-viet/$changId", params: { changId: chang.id } });
+    navigate({ to: "/hoc-tap/lo-trinh/quyen-1/$changId", params: { changId: chang.id } });
   };
 
   const nextChuDe = () => {
@@ -345,7 +345,7 @@ export function LearningTab({ isLessonView, changId }: { isLessonView: boolean; 
     <section
       ref={mapSectionRef}
       className={[
-        "w-full shrink-0 px-4 py-3 sm:px-6 sm:py-4 lg:px-10",
+        "w-full shrink-0 px-4 pt-4 pb-3 sm:px-6 sm:pt-6 sm:pb-4 lg:px-10",
         isLessonView ? "" : "h-full flex-1",
       ].join(" ")}
       style={isLessonView ? { height: `${fullHeightPx ?? 600}px` } : undefined}

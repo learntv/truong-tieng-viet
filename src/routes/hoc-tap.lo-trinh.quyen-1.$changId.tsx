@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LessonPage } from "@/components/learning/LessonPage";
 
-export const Route = createFileRoute("/hoc-tieng-viet/$changId")({
+export const Route = createFileRoute("/hoc-tap/lo-trinh/quyen-1/$changId")({
   component: LessonRoute,
 });
 

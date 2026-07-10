@@ -7,11 +7,9 @@ import { extractSpeakingSentences } from "@/lib/speech";
 import { loadSpeakingProgress, type SpeakingProgress } from "@/lib/speaking-progress";
 import { SPEAKING_TOPICS, staticTopicSentences } from "@/data/speaking-topics";
 import { STAGE_COLORS } from "@/components/learning/StageCard";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import trauCon from "@/assets/trau-con.png";
 
-export const Route = createFileRoute("/luyen-noi")({
+export const Route = createFileRoute("/hoc-tap/luyen-noi")({
   head: () => ({
     meta: [
       { title: "Luyện nói — Trường Tiếng Việt Của Em" },
@@ -21,22 +19,18 @@ export const Route = createFileRoute("/luyen-noi")({
       },
     ],
   }),
-  component: LuyenNoiLayout,
+  component: LuyenNoiTab,
 });
 
-function LuyenNoiLayout() {
-  // This file is both the /luyen-noi screen and the layout for /luyen-noi/$chuDeId;
-  // when a child route matches, render only the child.
+function LuyenNoiTab() {
+  // This file is both the /hoc-tap/luyen-noi screen and the layout for
+  // /hoc-tap/luyen-noi/$chuDeId; when a child route matched, render only the child.
   const hasChild = useChildMatches().length > 0;
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Navbar />
-      <main className="flex-1 animate-in fade-in slide-in-from-bottom-2 duration-300">
-        {hasChild ? <Outlet /> : <TopicPicker />}
-      </main>
-      <Footer />
-    </div>
+    <main className="flex-1 animate-in fade-in slide-in-from-bottom-2 duration-300">
+      {hasChild ? <Outlet /> : <TopicPicker />}
+    </main>
   );
 }
 
@@ -64,7 +58,7 @@ function TopicCard({ card }: { card: TopicCardData }) {
   const color = STAGE_COLORS[card.colorIndex % STAGE_COLORS.length];
   return (
     <Link
-      to="/luyen-noi/$chuDeId"
+      to="/hoc-tap/luyen-noi/$chuDeId"
       params={{ chuDeId: card.id }}
       className="group rounded-3xl bg-white p-5 text-center ring-[3px] ring-white shadow-card transition-all ease-bounce hover:-translate-y-1 hover:shadow-soft active:scale-[0.98]"
     >
