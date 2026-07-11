@@ -6,6 +6,10 @@ import aImg from "@/assets/alphabet/a.png";
 import bImg from "@/assets/alphabet/b.png";
 import cImg from "@/assets/alphabet/c.png";
 import aoDai from "@/assets/symbols/ao-dai.png";
+import hoaSen from "@/assets/symbols/hoa-sen.png";
+import chimLac from "@/assets/symbols/chim-lac.png";
+import nonLa from "@/assets/symbols/non-la.png";
+import trau from "@/assets/symbols/trau.png";
 
 export function HocTapHome() {
   return (
@@ -195,16 +199,29 @@ function TileCard({
 function FloatingDecor() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div className="absolute left-[4%] top-6 text-3xl opacity-70 animate-float-slow">✨</div>
-      <div className="absolute right-[6%] top-16 text-3xl opacity-70 animate-bob" style={{ animationDelay: "0.6s" }}>
-        🌈
-      </div>
-      <div className="absolute left-[8%] bottom-10 text-3xl opacity-60 animate-float-slow" style={{ animationDelay: "1.2s" }}>
-        ⭐
-      </div>
-      <div className="absolute right-[10%] bottom-16 text-3xl opacity-60 animate-bob" style={{ animationDelay: "0.3s" }}>
-        🎈
-      </div>
+      <img
+        src={hoaSen}
+        alt=""
+        className="absolute left-[4%] top-6 h-10 w-auto opacity-70 drop-shadow animate-float-slow sm:h-12"
+      />
+      <img
+        src={chimLac}
+        alt=""
+        className="absolute right-[6%] top-16 h-10 w-auto opacity-70 drop-shadow animate-bob sm:h-12"
+        style={{ animationDelay: "0.6s" }}
+      />
+      <img
+        src={nonLa}
+        alt=""
+        className="absolute left-[8%] bottom-10 h-10 w-auto opacity-60 drop-shadow animate-float-slow sm:h-12"
+        style={{ animationDelay: "1.2s" }}
+      />
+      <img
+        src={trau}
+        alt=""
+        className="absolute right-[10%] bottom-16 h-10 w-auto opacity-60 drop-shadow animate-bob sm:h-12"
+        style={{ animationDelay: "0.3s" }}
+      />
     </div>
   );
 }
