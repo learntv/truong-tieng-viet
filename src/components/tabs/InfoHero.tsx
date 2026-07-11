@@ -1,4 +1,5 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import heroImage from "@/assets/hero-students-fullwidth.jpg";
 
 export function InfoHero() {
@@ -21,7 +22,7 @@ export function InfoHero() {
         <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 via-transparent to-transparent sm:hidden" />
 
         <div className="relative mx-auto flex min-h-[576px] max-w-7xl items-center px-4 pb-16 pt-40 sm:min-h-[636px] sm:px-6 sm:pb-20 sm:pt-44 lg:min-h-[696px] lg:px-10 lg:pb-24 lg:pt-48">
-          <div className="max-w-xl text-left">
+          <div className="max-w-xl animate-in fade-in slide-in-from-bottom-4 text-left duration-700">
             <span className="inline-block rounded-full bg-primary px-3 py-1 text-xs font-bold uppercase tracking-widest text-white shadow-glow-primary">
               Thông tin dự án
             </span>
@@ -31,16 +32,13 @@ export function InfoHero() {
             <p className="mt-4 max-w-md text-base text-red-50/95 drop-shadow sm:text-lg">
               Hành trình gìn giữ và lan tỏa tiếng Việt, văn hóa Việt đến với thế hệ trẻ kiều bào trên khắp thế giới.
             </p>
-            <button
-              type="button"
+            <Link
+              to="/hoc-tap"
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-primary px-6 py-3 text-sm font-bold text-white shadow-glow-primary transition-all hover:brightness-110 hover:shadow-[0_0_0_8px_oklch(0.65_0.18_22/0.35),0_16px_40px_-8px_oklch(0.52_0.22_22/0.45)] sm:text-base"
-              onClick={() => {
-                document.getElementById("info-rows-start")?.scrollIntoView({ behavior: "smooth" });
-              }}
             >
-              Khám phá ngay
+              Học ngay
               <ArrowRight className="h-5 w-5" />
-            </button>
+            </Link>
             <div className="mt-6 flex items-center gap-3">
               <div className="flex -space-x-2">
                 {["bg-yellow-300", "bg-rose-300", "bg-emerald-300", "bg-sky-300"].map((c, i) => (
@@ -53,6 +51,19 @@ export function InfoHero() {
             </div>
           </div>
         </div>
+
+        {/* Scroll-down indicator: bounces to invite the user to explore, jumps to "Giới thiệu" */}
+        <button
+          type="button"
+          aria-label="Cuộn xuống phần Giới thiệu"
+          onClick={() => {
+            document.getElementById("gioi-thieu")?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
+          className="group absolute inset-x-0 bottom-10 z-10 mx-auto flex w-fit flex-col items-center gap-1 text-white/90 transition-colors hover:text-white sm:bottom-14"
+        >
+          <span className="text-xs font-semibold uppercase tracking-widest drop-shadow">Khám phá</span>
+          <ChevronDown className="h-6 w-6 animate-bounce drop-shadow" />
+        </button>
 
         {/* Oval divider: the page curves up over the bottom of the hero */}
         <div className="pointer-events-none absolute inset-x-0 -bottom-1 flex justify-center">

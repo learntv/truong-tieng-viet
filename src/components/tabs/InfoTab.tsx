@@ -75,7 +75,7 @@ export function InfoTab() {
       <InfoHero />
 
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-        <header className="mb-8 flex flex-col items-center text-center sm:mb-12">
+        <header id="gioi-thieu" className="mb-8 flex flex-col items-center text-center sm:mb-12 scroll-mt-24">
           <div className="flex items-center gap-3">
             <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-red-500 to-orange-400 text-white shadow-lg">
               <Info className="h-5 w-5" strokeWidth={2.5} />
