@@ -399,7 +399,7 @@ export function LessonPage({ changId }: { changId: string }) {
         <div className="mb-4 text-6xl">🔍</div>
         <h1 className="mb-2 font-display text-2xl font-extrabold text-navy">Không tìm thấy bài học</h1>
         <p className="mb-6 text-muted-foreground">Chặng học này không tồn tại hoặc đã bị xóa.</p>
-        <Link to="/hoc-tap/lo-trinh/quyen-1" className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary/90">
+        <Link to="/hoc-tap/quyen-1" className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary/90">
           <ArrowLeft className="h-4 w-4" />
           Quay lại lộ trình
         </Link>

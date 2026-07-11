@@ -104,7 +104,7 @@ export function RoadmapMap({
       {/* Top bar */}
       <div className="relative z-30 flex flex-wrap items-center justify-between gap-2 px-4 pt-3 sm:px-6 sm:pt-4">
         <Link
-          to="/hoc-tap/lo-trinh"
+          to="/hoc-tap"
           className="flex cursor-pointer items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-navy shadow-card backdrop-blur transition-colors hover:bg-white sm:px-4 sm:py-2 sm:text-sm"
         >
           <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={2.5} />

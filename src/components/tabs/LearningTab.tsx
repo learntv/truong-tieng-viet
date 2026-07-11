@@ -264,7 +264,7 @@ export function LearningTab({ isLessonView, changId }: { isLessonView: boolean; 
     pendingScrollYRef.current = window.scrollY;
     setCurrentChangIndex(i);
     saveBuffaloPos({ chuDeIndex: currentChuDeIndex, changIndex: i });
-    navigate({ to: "/hoc-tap/lo-trinh/quyen-1/$changId", params: { changId: chang.id } });
+    navigate({ to: "/hoc-tap/quyen-1/$changId", params: { changId: chang.id } });
   };
 
   const nextChuDe = () => {
