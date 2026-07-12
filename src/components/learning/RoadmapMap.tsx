@@ -1,11 +1,8 @@
-import type { RefObject } from "react";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import type { ChuDe } from "@/data/topics";
 import { BuffaloMascot } from "./BuffaloMascot";
 import { StageCard, STAGE_COLORS } from "./StageCard";
-import { ProgressBadge } from "./ProgressBadge";
-import halongScene from "@/assets/halong-scene.jpg";
 
 export const NODE_POSITIONS = [
   { x: 10, y: 58 },
@@ -27,9 +24,13 @@ function getLessonButtonLabel(
 }
 
 export function RoadmapMap({
-  chuDes,
   chuDe,
   chuDeIndex,
+  chuDeCount,
+  canGoPrevChuDe,
+  canGoNextChuDe,
+  onPrevChuDe,
+  onNextChuDe,
   changTitles,
   changEmojis,
   currentChangIndex,
@@ -39,20 +40,15 @@ export function RoadmapMap({
   selectedChangIndex,
   onSelectStage,
   onOpenLesson,
-  completedCount,
-  allCurrentDone,
-  isLast,
-  onAdvance,
-  onSelectChuDe,
   changProgress,
-  activeNodeRef,
-  connectorChangIndex,
-  connectorHeight,
-
 }: {
-  chuDes: ChuDe[];
   chuDe: ChuDe;
   chuDeIndex: number;
+  chuDeCount: number;
+  canGoPrevChuDe: boolean;
+  canGoNextChuDe: boolean;
+  onPrevChuDe: () => void;
+  onNextChuDe: () => void;
   changTitles: string[];
   changEmojis: string[];
   currentChangIndex: number;
@@ -62,23 +58,7 @@ export function RoadmapMap({
   selectedChangIndex: number | null;
   onSelectStage: (i: number) => void;
   onOpenLesson: (i: number) => void;
-  completedCount: number;
-  allCurrentDone: boolean;
-  isLast: boolean;
-  onAdvance: () => void;
-  onSelectChuDe?: (i: number) => void;
   changProgress: Map<number, { current: number; total: number }>;
-
-  activeNodeRef?: RefObject<HTMLDivElement | null>;
-  /** Which node the connector triangle (in lesson view) should point at — the lesson
-   * actually being displayed, which can differ from `currentChangIndex` (the last saved
-   * "Đang học" position) right after a refresh lands directly on a different lesson. */
-  connectorChangIndex?: number;
-  /** Height (px) of the connector triangle, measured from the node's bottom edge down to
-   * the map's own bottom edge. Rendered in-flow with the map's nodes (not as an outside
-   * overlay) so it scrolls natively with the map on mobile — no JS-driven lag, and touches
-   * on it scroll the map like touching anywhere else. */
-  connectorHeight?: number;
 }) {
   const buffaloIndex = buffaloChangIndex;
 
@@ -90,37 +70,50 @@ export function RoadmapMap({
   }, "");
 
   return (
-    <div className="relative flex h-full w-full flex-col overflow-hidden rounded-3xl">
+    <div className="relative flex h-full w-full flex-col overflow-hidden">
 
-      <img
-        src={halongScene}
-        alt="Phong cảnh Việt Nam — Vịnh Hạ Long và Hội An"
-        width={1600}
-        height={1100}
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-sky/60 via-transparent to-white/10" />
+      {/* Bottom drop shadow — grounds the map against whatever sits below it */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-28 bg-gradient-to-t from-black/35 to-transparent" />
 
       {/* Top bar */}
-      <div className="relative z-30 flex flex-wrap items-center justify-between gap-2 px-4 pt-3 sm:px-6 sm:pt-4">
+      <div className="relative z-30 flex flex-wrap items-center justify-between gap-2 px-4 pt-6 sm:px-6 sm:pt-8">
         <Link
           to="/hoc-tap"
-          className="flex cursor-pointer items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-navy shadow-card backdrop-blur transition-colors hover:bg-white sm:px-4 sm:py-2 sm:text-sm"
+          className="flex cursor-pointer items-center gap-1.5 rounded-full bg-gradient-primary px-4 py-2 text-xs font-extrabold text-white shadow-glow-primary ring-2 ring-white/80 transition hover:scale-105 sm:px-5 sm:py-2.5 sm:text-sm"
         >
           <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={2.5} />
           Quay lại
         </Link>
-        <ProgressBadge
-          chuDes={chuDes}
-          currentChuDeIndex={chuDeIndex}
-          completedCount={completedCount}
-          totalChangs={changTitles.length}
-          allCurrentDone={allCurrentDone}
-          isLast={isLast}
-          onAdvance={onAdvance}
-          onSelectChuDe={onSelectChuDe}
-        />
 
+        {/* Switch/review a different chủ đề — only shown once there's more than one, since
+            with a single topic there's nothing to switch to. */}
+        {chuDeCount > 1 && (
+          <div className="flex items-center gap-1 rounded-full bg-white/95 px-1.5 py-1 text-xs font-extrabold text-navy shadow-card backdrop-blur sm:text-sm">
+            <button
+              onClick={onPrevChuDe}
+              disabled={!canGoPrevChuDe}
+              aria-label="Chủ đề trước"
+              className={[
+                "grid h-6 w-6 shrink-0 place-items-center rounded-full transition sm:h-7 sm:w-7",
+                canGoPrevChuDe ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed opacity-30",
+              ].join(" ")}
+            >
+              <ChevronLeft className="h-4 w-4" strokeWidth={3} />
+            </button>
+            <span className="px-1">Chủ đề {chuDeIndex + 1}/{chuDeCount}</span>
+            <button
+              onClick={onNextChuDe}
+              disabled={!canGoNextChuDe}
+              aria-label="Chủ đề tiếp theo"
+              className={[
+                "grid h-6 w-6 shrink-0 place-items-center rounded-full transition sm:h-7 sm:w-7",
+                canGoNextChuDe ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed opacity-30",
+              ].join(" ")}
+            >
+              <ChevronRight className="h-4 w-4" strokeWidth={3} />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Title */}
@@ -173,7 +166,6 @@ export function RoadmapMap({
             return (
               <div
                 key={i}
-                ref={i === (connectorChangIndex ?? currentChangIndex) ? activeNodeRef : undefined}
                 className="absolute"
                 style={{ left: `${p.x}%`, top: `${p.y}%`, transform: "translateX(-50%) translateY(-72px)" }}
                 onClick={(e) => e.stopPropagation()}
@@ -215,27 +207,6 @@ export function RoadmapMap({
             xPercent={Math.max(6, (NODE_POSITIONS[buffaloIndex]?.x ?? 10) - 6)}
             yPercent={NODE_POSITIONS[buffaloIndex]?.y ?? 58}
           />
-
-          {/* Connector — a curved callout tail pointing up at the lesson's node, base flush
-              with the map's own bottom edge. Rendered here (in-flow with the nodes) rather
-              than as an outside overlay, so it scrolls natively with the map. */}
-          {connectorChangIndex != null && connectorHeight != null && (
-            <svg
-              className="pointer-events-none absolute bottom-0 z-10"
-              style={{
-                left: `${NODE_POSITIONS[connectorChangIndex % NODE_POSITIONS.length].x}%`,
-                width: 140,
-                height: connectorHeight,
-                transform: "translateX(-50%) translateY(1px)",
-                transition: "left 450ms ease, height 450ms ease",
-              }}
-              viewBox="0 0 140 100"
-              preserveAspectRatio="none"
-              aria-hidden
-            >
-              <path d="M 0 100 Q 60 70 70 0 Q 80 70 140 100 Z" fill="var(--background)" />
-            </svg>
-          )}
         </div>
       </div>
 

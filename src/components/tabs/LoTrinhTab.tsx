@@ -3,10 +3,10 @@ import { Link } from "@tanstack/react-router";
 import { LearningTab } from "@/components/tabs/LearningTab";
 import quyen2Cover from "@/assets/quyen_2_cover.jpg";
 
-export function Quyen1Roadmap({ isLessonView, changId }: { isLessonView: boolean; changId: string | null }) {
+export function Quyen1Roadmap() {
   return (
-    <div className="relative flex flex-1 flex-col overflow-hidden">
-      <LearningTab isLessonView={isLessonView} changId={changId} />
+    <div className="relative flex h-full w-full flex-1 flex-col overflow-hidden">
+      <LearningTab />
     </div>
   );
 }

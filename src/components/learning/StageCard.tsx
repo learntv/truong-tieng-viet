@@ -170,7 +170,7 @@ export function StageCard({
         <p className="line-clamp-2 font-display text-sm font-extrabold leading-tight text-navy">
           {title}
         </p>
-        {noiDungProgress && !isCompleted && (
+        {noiDungProgress && (
           <div className="mt-1.5 px-1">
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-stone-200">
               <div
@@ -179,7 +179,7 @@ export function StageCard({
               />
             </div>
             <p className={["mt-0.5 text-[9px] font-bold", color.text].join(" ")}>
-              {noiDungProgress.current}/{noiDungProgress.total} trang
+              {noiDungProgress.current}/{noiDungProgress.total} bài
             </p>
           </div>
         )}

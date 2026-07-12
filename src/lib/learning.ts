@@ -145,3 +145,12 @@ export const learningDataQueryOptions = queryOptions({
   queryFn: fetchLearningData,
   staleTime: 5 * 60_000,
 });
+
+// The one shared definition of "is this the Quyển 1 roadmap" — used by both the immersive
+// layout branch (src/routes/hoc-tap.tsx) and the scroll-restoration opt-out (src/router.tsx).
+// A plain `pathname.startsWith("/hoc-tap/quyen-1")` would also match a future
+// "/hoc-tap/quyen-10" or "/hoc-tap/quyen-1-preview" route; matching the exact segment avoids
+// that, and keeping it in one place means both call sites can't drift out of sync.
+export function isQuyen1Path(pathname: string): boolean {
+  return pathname === "/hoc-tap/quyen-1" || pathname.startsWith("/hoc-tap/quyen-1/");
+}

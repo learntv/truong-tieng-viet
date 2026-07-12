@@ -1,5 +1,4 @@
 import { Sparkles } from "lucide-react";
-import halongScene from "@/assets/halong-scene.jpg";
 
 const NODE_POSITIONS = [
   { x: 10, y: 58 },
@@ -18,20 +17,10 @@ const pathD = NODE_POSITIONS.reduce((acc, p, i, arr) => {
 
 export function RoadmapSkeleton() {
   return (
-    <div className="relative flex h-full w-full flex-col overflow-hidden rounded-3xl shadow-soft">
-      <img
-        src={halongScene}
-        alt=""
-        width={1600}
-        height={1100}
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-sky/60 via-transparent to-white/10" />
-
+    <div className="relative flex h-full w-full flex-col overflow-hidden">
       {/* Top bar */}
-      <div className="relative z-30 flex flex-wrap items-center justify-between gap-2 px-4 pt-3 sm:px-6 sm:pt-4">
+      <div className="relative z-30 flex flex-wrap items-center gap-2 px-4 pt-6 sm:px-6 sm:pt-8">
         <div className="h-8 w-40 animate-pulse rounded-full bg-white/70 sm:h-9 sm:w-52" />
-        <div className="h-8 w-28 animate-pulse rounded-full bg-white/70 sm:h-9 sm:w-36" />
       </div>
 
       {/* Title */}

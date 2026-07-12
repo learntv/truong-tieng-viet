@@ -1,60 +1,42 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowLeft, Check, ChevronLeft, ChevronRight, Headphones, Loader2 } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { ArrowLeft, Check, ChevronLeft, ChevronRight, Headphones, Loader2, X } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { learningDataQueryOptions } from "@/lib/learning";
 import type { Bai, Hinh, NoiDung } from "@/lib/learning";
 import { STAGE_COLORS } from "./StageCard";
 import { ConfettiBurst } from "./ConfettiBurst";
 import { ImageHighlightOverlay } from "./ImageHighlightOverlay";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
+import halongScene from "@/assets/halong-scene.jpg";
+import mapPinIcon from "@/assets/map-pin-icon.png";
 
 type StageColor = (typeof STAGE_COLORS)[number];
 
-const SIDEBAR_TOP_OFFSET = 16;
-
-// `position: sticky` doesn't work here because a global `overflow-x: hidden` on
-// html/body forces `overflow-y: auto` too, making <body> (not the viewport) the
-// sticky containing block — and body never scrolls internally since its own
-// box is always exactly as tall as its content. So the sidebar is pinned manually.
-function useStickySidebar(wrapRef: React.RefObject<HTMLElement | null>, boxRef: React.RefObject<HTMLDivElement | null>) {
-  const [style, setStyle] = useState<React.CSSProperties>({});
-
-  useEffect(() => {
-    let raf = 0;
-    const update = () => {
-      const wrap = wrapRef.current;
-      const box = boxRef.current;
-      if (!wrap || !box) return;
-      const wrapRect = wrap.getBoundingClientRect();
-      const boxHeight = box.offsetHeight;
-
-      if (wrapRect.top > SIDEBAR_TOP_OFFSET) {
-        setStyle({});
-      } else if (wrapRect.bottom < SIDEBAR_TOP_OFFSET + boxHeight) {
-        setStyle({ position: "absolute", bottom: 0, left: 0, right: 0, top: "auto" });
-      } else {
-        setStyle({ position: "fixed", top: SIDEBAR_TOP_OFFSET, left: wrapRect.left, width: wrapRect.width });
-      }
-    };
-
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(update);
-    };
-
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, [wrapRef, boxRef]);
-
-  return style;
+// Shared by the mobile inline bar and the desktop fixed pill (see their call sites below) —
+// only sizing/positioning differs between the two, passed in via className.
+function BackToMapButton({
+  color,
+  className,
+  arrowClassName,
+  iconClassName,
+}: {
+  color: StageColor;
+  className: string;
+  arrowClassName: string;
+  iconClassName: string;
+}) {
+  return (
+    <Link
+      to="/hoc-tap/quyen-1"
+      aria-label="Quay lại bản đồ"
+      className={[className, color.bgSoft].join(" ")}
+    >
+      <ArrowLeft className={[arrowClassName, color.text].join(" ")} strokeWidth={3} />
+      <img src={mapPinIcon} alt="" className={iconClassName} />
+    </Link>
+  );
 }
 
 function speak(text: string, onEnd?: () => void) {
@@ -103,7 +85,7 @@ function VideoEmbed({ url }: { url: string }) {
   const embedUrl = toYouTubeEmbed(url);
   if (embedUrl) {
     return (
-      <div className="mt-3 aspect-video w-full overflow-hidden rounded-xl ring-1 ring-border/60">
+      <div className="h-full w-full overflow-hidden rounded-none ring-1 ring-border/60 sm:rounded-xl">
         <iframe
           src={embedUrl}
           className="h-full w-full"
@@ -114,8 +96,8 @@ function VideoEmbed({ url }: { url: string }) {
     );
   }
   return (
-    <div className="mt-3 aspect-video w-full overflow-hidden rounded-xl ring-1 ring-border/60">
-      <video src={url} controls className="h-full w-full" />
+    <div className="h-full w-full overflow-hidden rounded-none ring-1 ring-border/60 sm:rounded-xl">
+      <video src={url} controls className="h-full w-full object-contain" />
     </div>
   );
 }
@@ -196,20 +178,38 @@ function HinhBlock({
   const hasHighlights = highlightTargets.length > 0;
   const hasCaptions = captions.length > 0;
   const stackVertical = !isSingle || isLandscape || !hasCaptions;
+  // Without captions, the image stretches to fill all available height (bigger image, no
+  // gap concerns). With captions, that same stretch left the image vertically centered in a
+  // tall box with the word cloud pushed far below it on mobile — so there it's content-sized
+  // instead, and only stretches again at sm+, where the side-by-side layout still wants it
+  // to fill the row's height. Shared by every wrapper down to the image itself so they all
+  // agree on whether to stretch.
+  const growClass = hasCaptions ? "sm:flex-1" : "flex-1";
 
   return (
     <figure
-      className={
+      className={[
+        "min-h-0",
+        growClass,
+        // Tighter gap on mobile so the word cloud sits close under the image (both branches
+        // still stack into a single column below sm, regardless of stackVertical).
         stackVertical
-          ? "flex flex-col items-center gap-3"
-          : "flex flex-1 flex-col gap-3 sm:flex-row sm:items-start"
-      }
+          ? "flex flex-col items-center gap-1 sm:gap-3"
+          : "flex flex-col gap-1 sm:flex-row sm:items-stretch sm:gap-3",
+      ].join(" ")}
     >
-      <div className={stackVertical ? "w-full" : "sm:w-[60%]"}>
+      <div
+        className={[
+          "flex min-h-0 flex-col",
+          growClass,
+          stackVertical ? "w-full" : "sm:w-[72%]",
+        ].join(" ")}
+      >
         {hinh.url ? (
           <div
             className={[
-              "overflow-hidden rounded-xl",
+              "relative min-h-0 overflow-hidden rounded-none sm:rounded-xl",
+              growClass,
               !isLoaded ? "min-h-48 animate-pulse bg-stone-100 sm:min-h-64" : "",
             ].join(" ")}
           >
@@ -217,8 +217,8 @@ function HinhBlock({
                 overlay stays aligned with the image at every screen size. */}
             <div
               className={[
-                "relative mx-auto",
-                !isSingle ? "w-full" : stackVertical ? "w-full sm:w-[80%]" : "w-full sm:w-[85%]",
+                "relative mx-auto w-full",
+                hasCaptions ? "sm:flex sm:h-full sm:items-center sm:justify-center" : "flex h-full items-center justify-center",
               ].join(" ")}
             >
               <img
@@ -231,7 +231,8 @@ function HinhBlock({
                   setIsLoaded(true);
                 }}
                 className={[
-                  "w-full rounded-xl object-contain ring-1 ring-border/60 transition-opacity duration-300",
+                  "w-full max-w-full rounded-none object-contain ring-1 ring-border/60 transition-opacity duration-300 sm:rounded-xl",
+                  hasCaptions ? "sm:h-full sm:max-h-full" : "h-full max-h-full",
                   isLoaded ? "opacity-100" : "opacity-0",
                 ].join(" ")}
               />
@@ -241,13 +242,13 @@ function HinhBlock({
             </div>
           </div>
         ) : (
-          <div className="grid aspect-video w-full place-items-center rounded-xl bg-stone-50 text-xs text-muted-foreground ring-1 ring-border/60">
+          <div className="grid min-h-0 flex-1 place-items-center rounded-none bg-stone-50 text-xs text-muted-foreground ring-1 ring-border/60 sm:rounded-xl">
             (Không tải được hình)
           </div>
         )}
 
         {hasHighlights && hinh.url && (
-          <p className="mt-3 text-center text-sm font-bold text-amber-600">
+          <p className="mt-3 shrink-0 text-center text-sm font-bold text-amber-600">
             🔍 Rê chuột hoặc chạm vào hình để xem gợi ý
           </p>
         )}
@@ -257,8 +258,8 @@ function HinhBlock({
         <div
           className={
             stackVertical
-              ? "flex flex-wrap items-center justify-center gap-2 pb-2"
-              : "flex flex-1 flex-wrap items-center justify-center gap-2 self-center pb-2 sm:pl-2"
+              ? "flex shrink-0 flex-wrap items-center justify-center gap-2 pb-2"
+              : "flex shrink-0 flex-wrap items-center justify-center gap-2 self-center pb-2 sm:pl-2"
           }
         >
           {captions.map((c, ci) => (
@@ -292,6 +293,7 @@ export function buildSlides(noiDungs: NoiDung[]): Slide[] {
 
 export function LessonPage({ changId }: { changId: string }) {
   const { data, isLoading, error } = useQuery(learningDataQueryOptions);
+  const navigate = useNavigate();
   const {
     authIsLoading,
     activeProgressMap,
@@ -319,39 +321,38 @@ export function LessonPage({ changId }: { changId: string }) {
   const [slideIndex, setSlideIndex] = useState(0);
   const [fading, setFading] = useState(false);
   const fadeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
 
-  const sidebarWrapRef = useRef<HTMLElement>(null);
-  const sidebarBoxRef = useRef<HTMLDivElement>(null);
-  const sidebarStyle = useStickySidebar(sidebarWrapRef, sidebarBoxRef);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [showNextPrompt, setShowNextPrompt] = useState(false);
 
-  // Resets to the right starting slide every time the lesson changes (not just on first
-  // mount) — continuing from the saved position, or from the start if this is a review of
-  // an already-completed lesson. Runs before paint so switching lessons never flashes the
-  // previous lesson's slide index against the new lesson's content.
+  // Dismiss any lingering "next lesson" prompt / confetti as soon as the lesson changes,
+  // regardless of whether data for the new lesson has loaded yet.
+  useEffect(() => {
+    setShowNextPrompt(false);
+    setShowConfetti(false);
+  }, [changId]);
+
+  // Resets to the right starting slide once per lesson — continuing from the saved position,
+  // or from the start if this is a review of an already-completed lesson. Guarded by the ref
+  // (not just `[changId]` deps) because `found`/`slides` can still be null/empty on the first
+  // run after a cold load or hard refresh (react-query hasn't resolved yet); without the guard,
+  // that early bail-out would never be retried once the data arrives, silently stranding the
+  // lesson at slide 0 instead of the saved position. Runs before paint so switching lessons
+  // never flashes the previous lesson's slide index against the new lesson's content.
+  const initializedChangIdRef = useRef<string | null>(null);
   useLayoutEffect(() => {
     if (!found || slides.length === 0) return;
+    if (initializedChangIdRef.current === changId) return;
+    initializedChangIdRef.current = changId;
     if (isCompleted) {
       setSlideIndex(0);
       return;
     }
     const firstOfStep = slides.findIndex((s) => s.ndIndex === savedNoiDungIndex);
     setSlideIndex(firstOfStep !== -1 ? firstOfStep : 0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [changId]);
+  }, [changId, found, slides, isCompleted, savedNoiDungIndex]);
 
   useEffect(() => () => { if (fadeTimeoutRef.current) clearTimeout(fadeTimeoutRef.current); }, []);
-
-  const [showConfetti, setShowConfetti] = useState(false);
-
-  // Reset scroll to the top of the card on every slide change (not the initial
-  // mount), so the prev/next buttons always land in a predictable spot regardless
-  // of the new slide's height.
-  const isFirstScrollReset = useRef(true);
-  useEffect(() => {
-    if (isFirstScrollReset.current) { isFirstScrollReset.current = false; return; }
-    cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [slideIndex]);
 
   // Preload the next couple of slides' images so they're already cached by the time
   // the user clicks next, avoiding a blank/loading flash on navigation.
@@ -387,7 +388,7 @@ export function LessonPage({ changId }: { changId: string }) {
 
   if (isLoading || authIsLoading || isProgressLoading) {
     return (
-      <div className="flex items-center justify-center py-32">
+      <div className="flex h-dvh w-full items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -395,7 +396,7 @@ export function LessonPage({ changId }: { changId: string }) {
 
   if (error || !found) {
     return (
-      <div className="mx-auto max-w-lg px-4 py-20 text-center">
+      <div className="flex h-dvh w-full flex-col items-center justify-center bg-background px-4 text-center">
         <div className="mb-4 text-6xl">🔍</div>
         <h1 className="mb-2 font-display text-2xl font-extrabold text-navy">Không tìm thấy bài học</h1>
         <p className="mb-6 text-muted-foreground">Chặng học này không tồn tại hoặc đã bị xóa.</p>
@@ -408,7 +409,6 @@ export function LessonPage({ changId }: { changId: string }) {
   }
 
   const { chuDe, changs, chang, changIndex } = found;
-  const noiDungs = chang.noiDungs;
   const total = slides.length;
   const currentSlide = slides[slideIndex];
   const currentNoiDung = currentSlide?.nd;
@@ -417,6 +417,8 @@ export function LessonPage({ changId }: { changId: string }) {
   const canPrev = slideIndex > 0;
   const canNext = slideIndex < total - 1;
   const isLastSlide = slideIndex === total - 1;
+  const nextChang = changs[changIndex + 1] ?? null;
+  const nextColor = STAGE_COLORS[(changIndex + 1) % STAGE_COLORS.length];
 
   const goTo = (i: number) => {
     const clamped = Math.max(0, Math.min(total - 1, i));
@@ -434,11 +436,6 @@ export function LessonPage({ changId }: { changId: string }) {
       requestAnimationFrame(() => setFading(false));
     }, 160);
   };
-  const goToStep = (ndIndex: number) => {
-    const first = slides.findIndex((s) => s.ndIndex === ndIndex);
-    if (first !== -1) goTo(first);
-  };
-
   const handleComplete = () => {
     if (isCompleted) return;
     setShowConfetti(true);
@@ -447,101 +444,110 @@ export function LessonPage({ changId }: { changId: string }) {
       description: "Tiếp tục giỏi nhé!",
       duration: 3000,
     });
+    if (nextChang) setShowNextPrompt(true);
+  };
+
+  const goToNextChang = () => {
+    if (!nextChang) return;
+    setShowNextPrompt(false);
+    navigate({ to: "/hoc-tap/quyen-1/$changId", params: { changId: nextChang.id } });
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+    <div className="relative flex h-dvh w-full flex-col overflow-hidden">
+      <img
+        src={halongScene}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 bg-black/45" />
 
-      <div className="mb-5">
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="inline-flex items-center gap-1.5 text-sm font-bold text-muted-foreground transition-colors hover:text-navy"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Quay lại lộ trình
-        </button>
-      </div>
-
-      <div className="mb-6">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl leading-none">{chang.emoji}</span>
-          <h1 className="font-display text-2xl font-extrabold text-navy sm:text-3xl">{chang.title}</h1>
+      {/* Breadcrumb bar */}
+      <div className={["relative z-10 flex shrink-0 flex-wrap items-center justify-between gap-2 bg-gradient-to-r px-4 py-2 sm:px-6", color.stripe].join(" ")}>
+        <div className="flex min-w-0 items-center gap-1.5 text-xs font-bold text-white/90 sm:text-sm">
+          <span className="shrink-0">Sách giáo khoa</span>
+          <ChevronRight className="h-3 w-3 shrink-0 opacity-70" />
+          <span className="shrink-0">Quyển 1</span>
+          <ChevronRight className="hidden h-3 w-3 shrink-0 opacity-70 sm:block" />
+          <span className="hidden truncate text-white/90 sm:inline">{chuDe.title}</span>
+          <ChevronRight className="h-3 w-3 shrink-0 opacity-70" />
+          <span className="truncate text-white">{chang.emoji} {chang.title}</span>
         </div>
-        <p className="mt-1 text-sm font-semibold text-muted-foreground">
-          Bài {changIndex + 1}/{changs.length} · {currentNoiDung?.title || chuDe.title}
-        </p>
+        <div className="shrink-0 rounded-full bg-white/20 px-3 py-1.5 text-xs font-extrabold text-white backdrop-blur">
+          Chặng {changIndex + 1}/{changs.length}
+        </div>
       </div>
 
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-stretch">
+      {/* Mobile-only back-to-map bar: sits between the breadcrumb and the card, in normal
+          flow. On sm+ the fixed floating button below (near the back-to-map Link further
+          down) is used instead, since there's enough margin around the card there. */}
+      <div className="relative z-10 flex shrink-0 px-2 pt-2 sm:hidden">
+        <BackToMapButton
+          color={color}
+          className="flex h-11 items-center gap-1 rounded-full px-3 transition active:scale-95"
+          arrowClassName="h-5 w-5 shrink-0"
+          iconClassName="h-7 w-7 shrink-0 object-contain"
+        />
+      </div>
 
-        {/* Sidebar */}
-        <aside ref={sidebarWrapRef} className="relative hidden shrink-0 lg:block lg:w-72">
-          <div ref={sidebarBoxRef} style={sidebarStyle} className="rounded-2xl bg-card p-4 shadow-card">
-            <p className="mb-2 text-xs font-extrabold uppercase tracking-wider text-muted-foreground">
-              Tiến độ bài học
-            </p>
-            <div className="mb-1 h-2 w-full overflow-hidden rounded-full bg-muted">
-              <div
-                className={["h-full rounded-full transition-[width] duration-500 ease-out", color.gradient].join(" ")}
-                style={{ width: total > 0 ? `${((slideIndex + 1) / total) * 100}%` : "0%" }}
-              />
-            </div>
-            <p className="mb-4 text-xs font-bold text-muted-foreground">{slideIndex + 1}/{total}</p>
+      <div className="relative z-10 mx-auto flex w-full min-h-0 max-w-4xl flex-1 gap-3 p-0 sm:gap-4 sm:p-4">
 
-            <ol className="flex flex-col gap-1">
-              {noiDungs.map((nd, i) => {
-                const isActive = i === currentSlide?.ndIndex;
-                return (
-                  <li key={nd.id}>
-                    <button
-                      onClick={() => goToStep(i)}
-                      className={[
-                        "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition",
-                        isActive ? [color.bgSoft, "ring-1", color.border].join(" ") : "hover:bg-muted/60",
-                      ].join(" ")}
-                    >
-                      <span
-                        className={[
-                          "grid h-7 w-7 shrink-0 place-items-center rounded-full font-display text-xs font-extrabold",
-                          isActive ? [color.gradient, "text-white"].join(" ") : "bg-muted text-muted-foreground",
-                        ].join(" ")}
-                      >
-                        {i + 1}
-                      </span>
-                      <span className={["truncate text-sm font-bold", isActive ? "text-navy" : "text-muted-foreground"].join(" ")}>
-                        {nd.title || `Bước ${i + 1}`}
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ol>
+        {/* Left: numbered slide pills */}
+        <aside className="hidden w-14 shrink-0 overflow-y-auto sm:flex sm:flex-col sm:items-center">
+          <div className="flex flex-col items-center gap-2 rounded-full bg-white/70 p-2 shadow-card ring-1 ring-black/5">
+            {slides.map((s, i) => {
+              const isActive = i === slideIndex;
+              const isDone = isCompleted || i < slideIndex;
+              return (
+                <button
+                  key={`${s.ndIndex}-${s.baiIndex}`}
+                  onClick={() => goTo(i)}
+                  aria-label={`Trang ${i + 1}`}
+                  className={[
+                    "grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-full font-display text-sm font-extrabold transition",
+                    isActive
+                      ? [color.gradient, "scale-110 text-white shadow-md"].join(" ")
+                      : isDone
+                        ? "bg-green-100 text-green-600 hover:bg-green-200"
+                        : "bg-white text-muted-foreground hover:bg-muted",
+                  ].join(" ")}
+                >
+                  {isDone && !isActive ? <Check className="h-4 w-4" strokeWidth={3} /> : i + 1}
+                </button>
+              );
+            })}
           </div>
         </aside>
 
         {/* Main content */}
-        <div className="min-w-0 flex-1">
-          <div ref={cardRef} className="rounded-2xl bg-card p-5 shadow-card sm:p-8">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-none shadow-card ring-2 ring-pink-100 sm:rounded-3xl">
 
+          {/* Card header strip */}
+          <div className="flex shrink-0 flex-wrap items-center gap-2 bg-amber-50 px-4 py-2">
+            <span className={["shrink-0 rounded-full px-3 py-1 font-display text-xs font-extrabold text-white shadow-sm sm:text-sm", color.gradient].join(" ")}>
+              Bài {slideIndex + 1}
+            </span>
+            {currentNoiDung?.title && (
+              <>
+                <ChevronRight className="h-3.5 w-3.5 shrink-0 text-sky-400" />
+                <span className="truncate text-sm font-bold text-sky-600">{currentNoiDung.title}</span>
+              </>
+            )}
             {/* Mobile step indicator */}
-            <p className="mb-4 text-xs font-extrabold uppercase tracking-wider text-muted-foreground lg:hidden">
-              {slideIndex + 1} / {total}
-            </p>
+            <span className="ml-auto shrink-0 text-xs font-extrabold text-muted-foreground sm:hidden">
+              {slideIndex + 1}/{total}
+            </span>
+          </div>
+
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-white p-3 sm:p-4">
 
             <div
               key={`${currentNoiDung?.id}-${currentSlide?.baiIndex}`}
               className={[
-                "transition-all duration-200 ease-out",
+                "flex min-h-0 flex-1 flex-col justify-center transition-all duration-200 ease-out",
                 fading ? "-translate-y-1.5 opacity-0" : "translate-y-0 opacity-100",
               ].join(" ")}
             >
-              {currentNoiDung?.title && (
-                <div className={["mb-6 rounded-2xl px-5 py-4 text-center shadow-card", color.gradient].join(" ")}>
-                  <p className="font-display text-xl font-extrabold text-white sm:text-2xl">
-                    {currentNoiDung.title}
-                  </p>
-                </div>
-              )}
               {bai ? (() => {
                 const hasAudio = !!bai.audioUrl;
                 const hasVideo = !!bai.meta?.video_url;
@@ -549,8 +555,8 @@ export function LessonPage({ changId }: { changId: string }) {
                 const hinhs = bai.hinhs;
                 const isSingle = hinhs.length === 1;
                 return (
-                  <article>
-                    <div className="mb-4 flex items-start gap-3">
+                  <article className="flex min-h-0 flex-1 flex-col gap-2">
+                    <div className="flex shrink-0 items-start gap-3">
                       <div className="flex-1 space-y-1.5">
                         {bai.texts.map((t, i) => (
                           <p
@@ -569,21 +575,25 @@ export function LessonPage({ changId }: { changId: string }) {
                     </div>
 
                     {hasEmbed ? (
-                      <div className="mt-3 w-full overflow-hidden rounded-xl ring-1 ring-border/60">
+                      <div className="-mx-3 min-h-0 w-auto flex-1 overflow-hidden rounded-none ring-1 ring-border/60 sm:mx-0 sm:w-full sm:rounded-xl">
                         <iframe
                           src={bai.meta!.link!}
-                          className="h-80 w-full sm:h-[30rem]"
+                          className="h-full w-full"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
                         />
                       </div>
                     ) : !hasVideo && hinhs.length > 0 && (
                       <div
-                        className={
+                        className={[
+                          "-mx-3 min-h-0 flex-1 sm:mx-0",
                           isSingle
-                            ? "flex flex-col gap-4 sm:flex-row sm:items-start"
-                            : "grid grid-cols-2 gap-4"
-                        }
+                            ? "flex flex-col justify-center gap-4 sm:flex-row sm:items-stretch"
+                            // Many images at once don't all fit on a short mobile screen without
+                            // scrolling — a single scrollable column there, reverting to the
+                            // fixed-height 2-column grid (no scroll) at sm+ where there's more room.
+                            : "grid grid-cols-1 gap-4 overflow-y-auto sm:grid-cols-2 sm:overflow-visible",
+                        ].join(" ")}
                       >
                         {hinhs.map((hinh) => {
                           const captions = (hasAudio || hasVideo) ? [] : hinh.captions.filter((c) => c.trim().length > 1);
@@ -600,7 +610,11 @@ export function LessonPage({ changId }: { changId: string }) {
                       </div>
                     )}
 
-                    {hasVideo && <VideoEmbed url={bai.meta!.video_url!} />}
+                    {hasVideo && (
+                      <div className="-mx-3 min-h-0 flex-1 sm:mx-0">
+                        <VideoEmbed url={bai.meta!.video_url!} />
+                      </div>
+                    )}
                   </article>
                 );
               })() : (
@@ -610,71 +624,112 @@ export function LessonPage({ changId }: { changId: string }) {
               )}
             </div>
 
-            {isLastSlide && (
-              <div className="relative mt-10 flex justify-center pb-2">
-                {showConfetti && <ConfettiBurst onDone={() => setShowConfetti(false)} />}
-                <button
-                  onClick={handleComplete}
-                  disabled={isCompleted}
-                  className={[
-                    "relative flex items-center justify-center gap-2 overflow-hidden rounded-full px-10 py-4 text-lg font-extrabold tracking-wide shadow-glow-green transition sm:px-12 sm:py-5 sm:text-xl",
-                    isCompleted
-                      ? "cursor-not-allowed bg-green-100 text-green-600 shadow-none ring-0"
-                      : "bg-gradient-to-r from-emerald-400 via-green-500 to-emerald-600 text-white ring-4 ring-white/70 hover:scale-105 active:scale-95",
-                  ].join(" ")}
-                >
-                  {!isCompleted && (
-                    <span className="pointer-events-none absolute inset-0 animate-shine bg-gradient-to-r from-transparent via-white/50 to-transparent" />
-                  )}
-                  <Check className="h-6 w-6 shrink-0" strokeWidth={3} />
-                  {isCompleted ? "Đã hoàn thành ✓" : "Hoàn thành chặng 🎉"}
-                </button>
-              </div>
-            )}
           </div>
 
-          {/* Bottom nav */}
-          <div className="mt-5 flex items-center justify-between gap-3">
+          {/* Bottom nav — three equal thirds spanning the card's full width */}
+          <div className="flex shrink-0 divide-x divide-border/60 border-t border-border/60 bg-white">
             <button
               onClick={() => goTo(slideIndex - 1)}
               disabled={!canPrev}
               className={[
-                "inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2.5 text-sm font-bold text-navy shadow-sm transition",
-                canPrev ? "hover:bg-muted" : "cursor-not-allowed opacity-40",
+                "flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-bold text-navy transition",
+                canPrev ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed opacity-40",
               ].join(" ")}
             >
               <ChevronLeft className="h-4 w-4" />
               Bài trước
             </button>
 
-            <div className="flex flex-wrap items-center justify-center gap-1.5">
-              {slides.map((s, i) => (
-                <button
-                  key={`${s.ndIndex}-${s.baiIndex}`}
-                  onClick={() => goTo(i)}
-                  aria-label={`Trang ${i + 1}`}
-                  className={[
-                    "h-2 rounded-full transition-all",
-                    i === slideIndex ? ["w-5", color.bg].join(" ") : "w-2 bg-muted hover:bg-muted-foreground/40",
-                  ].join(" ")}
-                />
-              ))}
+            <div className="relative flex-1">
+              {isLastSlide && (
+                <>
+                  {showConfetti && <ConfettiBurst onDone={() => setShowConfetti(false)} />}
+                  <button
+                    onClick={handleComplete}
+                    disabled={isCompleted}
+                    className={[
+                      "relative flex h-full w-full items-center justify-center gap-1.5 overflow-hidden text-sm font-bold transition",
+                      isCompleted
+                        ? "cursor-not-allowed bg-green-100 text-green-600"
+                        : "cursor-pointer bg-gradient-to-r from-emerald-400 via-green-500 to-emerald-600 text-white hover:brightness-110",
+                    ].join(" ")}
+                  >
+                    {!isCompleted && (
+                      <span className="pointer-events-none absolute inset-0 animate-shine bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+                    )}
+                    <Check className="h-4 w-4" strokeWidth={3} />
+                    {isCompleted ? "Đã hoàn thành" : "Hoàn thành"}
+                  </button>
+                </>
+              )}
             </div>
 
             <button
               onClick={() => goTo(slideIndex + 1)}
               disabled={!canNext}
               className={[
-                "inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-bold text-white shadow-sm transition",
-                canNext ? [color.gradient, "hover:brightness-110"].join(" ") : "cursor-not-allowed bg-muted text-muted-foreground opacity-60",
+                "flex flex-1 items-center justify-center gap-2 py-3 text-sm font-bold transition",
+                canNext ? "cursor-pointer text-navy hover:bg-muted" : "cursor-not-allowed text-muted-foreground opacity-40",
               ].join(" ")}
             >
-              Bài tiếp theo
-              <ChevronRight className="h-4 w-4" />
+              Bài kế tiếp
+              <span
+                className={[
+                  "grid h-6 w-6 shrink-0 place-items-center rounded-full",
+                  canNext ? color.gradient : "bg-muted-foreground/20",
+                ].join(" ")}
+              >
+                <ChevronRight className={["h-4 w-4", canNext ? "text-white" : "text-muted-foreground"].join(" ")} strokeWidth={3} />
+              </span>
             </button>
           </div>
         </div>
       </div>
+
+      {/* Back-to-map button — desktop only (pinned to the viewport edge, not the centered
+          column); mobile uses the inline bar above the card instead. */}
+      <BackToMapButton
+        color={color}
+        className="fixed bottom-4 left-4 z-20 hidden h-16 items-center gap-1 rounded-full px-4 transition hover:brightness-95 active:scale-95 sm:flex"
+        arrowClassName="h-7 w-7 shrink-0"
+        iconClassName="h-12 w-12 shrink-0 object-contain"
+      />
+
+      {/* "Next lesson" prompt — slides in from the right after completing a chặng. Raised
+          clear of the card's own footer buttons on mobile (no dedicated slot for this one,
+          since it's transient/dismissible rather than a persistent nav element). */}
+      {showNextPrompt && nextChang && (
+        <div className="fixed bottom-16 right-2 z-20 max-w-[calc(100vw-1rem)] animate-in slide-in-from-right fade-in duration-300 sm:bottom-4 sm:right-4">
+          <div className="relative flex items-stretch overflow-hidden rounded-3xl bg-white shadow-lg ring-2 ring-black/5">
+            <button
+              onClick={() => setShowNextPrompt(false)}
+              aria-label="Đóng"
+              className="absolute right-1.5 top-1.5 grid h-6 w-6 cursor-pointer place-items-center rounded-full text-muted-foreground transition hover:bg-muted"
+            >
+              <X className="h-3.5 w-3.5" strokeWidth={2.5} />
+            </button>
+            <button
+              onClick={goToNextChang}
+              className="flex cursor-pointer items-center gap-2 py-2.5 pl-3 pr-7 text-left transition hover:brightness-105 sm:gap-3 sm:py-3 sm:pl-4 sm:pr-8"
+            >
+              <span
+                className={["grid h-10 w-10 shrink-0 place-items-center rounded-2xl text-xl sm:h-12 sm:w-12 sm:text-2xl", nextColor.gradient].join(" ")}
+              >
+                {nextChang.emoji}
+              </span>
+              <span className="min-w-0">
+                <span className="block text-xs font-extrabold uppercase tracking-wide text-muted-foreground">
+                  Bài kế tiếp
+                </span>
+                <span className="block truncate font-display text-sm font-extrabold text-navy">
+                  {nextChang.title}
+                </span>
+              </span>
+              <ChevronRight className={["h-5 w-5 shrink-0", nextColor.text].join(" ")} strokeWidth={3} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
