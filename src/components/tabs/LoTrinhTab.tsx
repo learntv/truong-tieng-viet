@@ -4,10 +4,10 @@ import { LearningTab } from "@/components/tabs/LearningTab";
 import { Button } from "@/components/ui/button";
 import quyen2Cover from "@/assets/quyen_2_cover.jpg";
 
-export function Quyen1Roadmap() {
+export function Quyen1Roadmap({ chuDeIndex }: { chuDeIndex: number }) {
   return (
     <div className="relative flex w-full flex-col">
-      <LearningTab />
+      <LearningTab chuDeIndex={chuDeIndex} />
     </div>
   );
 }

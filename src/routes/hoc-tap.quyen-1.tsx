@@ -1,5 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Quyen1Roadmap } from "@/components/tabs/LoTrinhTab";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/hoc-tap/quyen-1")({
   head: () => ({
@@ -8,5 +7,5 @@ export const Route = createFileRoute("/hoc-tap/quyen-1")({
       { name: "description", content: "Lộ trình học tiếng Việt với 40 bài học qua 8 chủ đề dành cho trẻ em kiều bào." },
     ],
   }),
-  component: Quyen1Roadmap,
+  component: Outlet,
 });

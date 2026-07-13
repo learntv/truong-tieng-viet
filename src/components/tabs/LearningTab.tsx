@@ -11,11 +11,11 @@ import { useLearningProgress } from "@/hooks/useLearningProgress";
 import { Button } from "@/components/ui/button";
 
 
-const BUFFALO_POS_KEY = "vui-hoc-buffalo-pos";
+export const BUFFALO_POS_KEY = "vui-hoc-buffalo-pos";
 
-type BuffaloPos = { chuDeIndex: number; changIndex: number };
+export type BuffaloPos = { chuDeIndex: number; changIndex: number };
 
-function loadBuffaloPos(): BuffaloPos | null {
+export function loadBuffaloPos(): BuffaloPos | null {
   try {
     const raw = sessionStorage.getItem(BUFFALO_POS_KEY);
     if (!raw) return null;
@@ -33,19 +33,23 @@ function saveBuffaloPos(pos: BuffaloPos) {
   }
 }
 
-export function LearningTab() {
+export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: number }) {
   const { data, isLoading, error } = useQuery(learningDataQueryOptions);
   const navigate = useNavigate();
 
-  // Seed state from the last-saved position (if any) synchronously on mount, so the first
-  // paint already lands on the right stage — otherwise the buffalo would render at index 0
-  // for a frame and then visibly hop to its real position once the restore effect below runs.
-  const [currentChuDeIndex, setCurrentChuDeIndex] = useState(() => loadBuffaloPos()?.chuDeIndex ?? 0);
-  const [currentChangIndex, setCurrentChangIndex] = useState(() => loadBuffaloPos()?.changIndex ?? 0);
+  // The chủ đề itself now lives in the URL (source of truth). The stage *within* that chủ đề
+  // isn't part of the URL, so it's still seeded from the last-saved position (if any) — but
+  // only when that saved position actually belongs to the topic we're mounting on, otherwise
+  // it'd bleed a stage index from a different chủ đề into this one.
+  const seedChangIndex = () => {
+    const saved = loadBuffaloPos();
+    return saved && saved.chuDeIndex === currentChuDeIndex ? saved.changIndex : 0;
+  };
+  const [currentChangIndex, setCurrentChangIndex] = useState(seedChangIndex);
   const { authIsLoading, activeProgressMap, isProgressLoading } = useLearningProgress();
 
-  const [selectedChangIndex, setSelectedChangIndex] = useState<number | null>(() => loadBuffaloPos()?.changIndex ?? null);
-  const [buffaloChangIndex, setBuffaloChangIndex] = useState(() => loadBuffaloPos()?.changIndex ?? 0);
+  const [selectedChangIndex, setSelectedChangIndex] = useState<number | null>(seedChangIndex);
+  const [buffaloChangIndex, setBuffaloChangIndex] = useState(seedChangIndex);
 
   // The roadmap renders exactly NODE_POSITIONS.length nodes per topic. A topic with more
   // stages in the DB silently hides the extras; fewer renders empty cards. Warn so a
@@ -62,7 +66,11 @@ export function LearningTab() {
     }
   }, [data]);
 
-  // Restore position once data + progress are both ready.
+  // Restore the stage within the current chủ đề once data + progress are both ready. The chủ
+  // đề itself comes from the URL, so this only ever redirects to a *different* chủ đề for the
+  // one case where the URL doesn't pin a specific choice yet (fresh "/hoc-tap/quyen-1" entry
+  // with nothing in sessionStorage) — any deep link or back-navigation to a specific chủ đề is
+  // respected as-is.
   // Priority: last-opened stage (sessionStorage) → in-progress "đang học" stage → first incomplete → last stage.
   const hasRestoredRef = useRef(false);
   useEffect(() => {
@@ -70,54 +78,76 @@ export function LearningTab() {
     hasRestoredRef.current = true;
 
     const restore = (chuDeIdx: number, changIdx: number) => {
-      setCurrentChuDeIndex(chuDeIdx);
+      if (chuDeIdx !== currentChuDeIndex) {
+        navigate({
+          to: "/hoc-tap/quyen-1/chu-de-{$chuDeIndex}",
+          params: { chuDeIndex: String(chuDeIdx + 1) },
+          replace: true,
+        });
+      }
       setCurrentChangIndex(changIdx);
       setBuffaloChangIndex(changIdx);
       setSelectedChangIndex(changIdx);
     };
 
-    // Prefer the stage the user last opened (saved in sessionStorage by openChang).
-    // Reset clears sessionStorage explicitly, so no need to guard against stale data here.
+    const firstIncompleteWithin = (ti: number) => {
+      const topicChangs = data[ti]?.changs ?? [];
+      const inProgress = topicChangs.findIndex((ch) => {
+        const prog = activeProgressMap.get(ch.id);
+        return prog && !prog.isCompleted && prog.noiDungIndex > 0;
+      });
+      if (inProgress !== -1) return inProgress;
+      const firstIncomplete = topicChangs.findIndex((ch) => !activeProgressMap.get(ch.id)?.isCompleted);
+      if (firstIncomplete !== -1) return firstIncomplete;
+      return Math.max(0, topicChangs.length - 1);
+    };
+
+    // Prefer the stage the user last opened (saved in sessionStorage by openChang), but only
+    // when it belongs to the chủ đề we're actually on.
     const saved = loadBuffaloPos();
     if (
       saved &&
-      saved.chuDeIndex < data.length &&
-      saved.changIndex < (data[saved.chuDeIndex]?.changs.length ?? 0)
+      saved.chuDeIndex === currentChuDeIndex &&
+      saved.changIndex < (data[currentChuDeIndex]?.changs.length ?? 0)
     ) {
-      const savedChangs = data[saved.chuDeIndex].changs;
+      const savedChangs = data[currentChuDeIndex].changs;
       const savedChang = savedChangs[saved.changIndex];
       const savedProg = activeProgressMap.get(savedChang.id);
       const prevChangId = saved.changIndex > 0 ? savedChangs[saved.changIndex - 1]?.id : null;
       const isLocked = prevChangId ? !activeProgressMap.get(prevChangId)?.isCompleted : false;
       if (!savedProg?.isCompleted && !isLocked) {
-        restore(saved.chuDeIndex, saved.changIndex);
+        restore(currentChuDeIndex, saved.changIndex);
         return;
       }
       // Saved stage is completed or locked — discard stale position
       try { sessionStorage.removeItem(BUFFALO_POS_KEY); } catch { /* ignore */ }
     }
 
-    // Fall back to the in-progress "đang học" stage (has saved progress > slide 0)
-    for (let ti = 0; ti < data.length; ti++) {
-      const topicChangs = data[ti].changs;
-      const inProgress = topicChangs.findIndex((ch) => {
-        const prog = activeProgressMap.get(ch.id);
-        return prog && !prog.isCompleted && prog.noiDungIndex > 0;
-      });
-      if (inProgress !== -1) { restore(ti, inProgress); return; }
+    // Nothing usable was saved for this chủ đề. If we're on the default entry (chủ đề 1) with
+    // no saved position at all, pick up wherever the user left off across the whole roadmap.
+    // Otherwise the URL asked for this specific chủ đề on purpose — just land on the right
+    // stage inside it.
+    if (!saved && currentChuDeIndex === 0) {
+      for (let ti = 0; ti < data.length; ti++) {
+        const topicChangs = data[ti].changs;
+        const inProgress = topicChangs.findIndex((ch) => {
+          const prog = activeProgressMap.get(ch.id);
+          return prog && !prog.isCompleted && prog.noiDungIndex > 0;
+        });
+        if (inProgress !== -1) { restore(ti, inProgress); return; }
+      }
+      for (let ti = 0; ti < data.length; ti++) {
+        const topicChangs = data[ti].changs;
+        const firstIncomplete = topicChangs.findIndex((ch) => !activeProgressMap.get(ch.id)?.isCompleted);
+        if (firstIncomplete !== -1) { restore(ti, firstIncomplete); return; }
+      }
+      const lastTi = data.length - 1;
+      restore(lastTi, Math.max(0, data[lastTi].changs.length - 1));
+      return;
     }
 
-    // Fall back to first incomplete
-    for (let ti = 0; ti < data.length; ti++) {
-      const topicChangs = data[ti].changs;
-      const firstIncomplete = topicChangs.findIndex((ch) => !activeProgressMap.get(ch.id)?.isCompleted);
-      if (firstIncomplete !== -1) { restore(ti, firstIncomplete); return; }
-    }
-
-    // All done — land on the last stage of the last topic
-    const lastTi = data.length - 1;
-    restore(lastTi, Math.max(0, data[lastTi].changs.length - 1));
-  }, [data, authIsLoading, isProgressLoading, activeProgressMap]);
+    restore(currentChuDeIndex, firstIncompleteWithin(currentChuDeIndex));
+  }, [data, authIsLoading, isProgressLoading, activeProgressMap, currentChuDeIndex, navigate]);
 
   const chuDes = useMemo(() => (data ?? []).map((d) => d.chuDe), [data]);
 
@@ -222,11 +252,14 @@ export function LearningTab() {
   // since the map otherwise only auto-lands on one via the one-time restore effect above.
   const goToChuDe = (index: number) => {
     if (index < 0 || index > availableCount || index >= plannedCount || index === currentChuDeIndex) return;
-    setCurrentChuDeIndex(index);
     setCurrentChangIndex(0);
     setSelectedChangIndex(0);
     setBuffaloChangIndex(0);
     try { sessionStorage.removeItem(BUFFALO_POS_KEY); } catch { /* ignore */ }
+    navigate({
+      to: "/hoc-tap/quyen-1/chu-de-{$chuDeIndex}",
+      params: { chuDeIndex: String(index + 1) },
+    });
   };
 
   // One-time celebration when the entire roadmap is complete.
