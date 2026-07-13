@@ -43,14 +43,26 @@ function BackToMapButton({
   );
 }
 
+// speechSynthesis.cancel() does not reliably fire onend/onerror on the utterance it
+// interrupts, so the button that started it would otherwise stay stuck in "playing"
+// forever. Track whoever's currently playing and reset it ourselves before cancelling.
+let stopCurrentSpeech: (() => void) | null = null;
+
 function speak(text: string, onEnd?: () => void) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+  stopCurrentSpeech?.();
   window.speechSynthesis.cancel();
+  const finish = () => {
+    if (stopCurrentSpeech === finish) stopCurrentSpeech = null;
+    onEnd?.();
+  };
+  stopCurrentSpeech = finish;
   const u = new SpeechSynthesisUtterance(text);
   u.lang = "vi-VN";
   u.rate = 0.85;
   u.pitch = 1.05;
-  if (onEnd) u.onend = onEnd;
+  u.onend = finish;
+  u.onerror = finish;
   window.speechSynthesis.speak(u);
 }
 
@@ -170,15 +182,22 @@ function CloudWord({ text, color }: { text: string; color: StageColor }) {
       onClick={onClick}
       aria-label={`Nghe đọc: ${text}`}
       className={[
-        "cursor-pointer rounded-full border-2 px-3 py-1.5 font-display text-base leading-tight transition-[transform,box-shadow] ease-bounce",
-        color.bgSoft,
-        color.border,
-        color.text,
+        "relative cursor-pointer overflow-hidden rounded-full border-2 px-3 py-1.5 font-display text-base leading-tight transition-[transform,box-shadow,background-color,color] ease-bounce",
         playing
-          ? "animate-pulse scale-110"
-          : [color.bevel, color.bevelActive, "active:translate-y-[3px]"].join(" "),
+          ? ["text-white", color.bg, color.border, color.bevel].join(" ")
+          : [
+              color.bgSoft,
+              color.border,
+              color.text,
+              color.bevel,
+              color.bevelActive,
+              "active:translate-y-[3px]",
+            ].join(" "),
       ].join(" ")}
     >
+      {playing && (
+        <span className="pointer-events-none absolute inset-0 animate-shine bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+      )}
       {text}
     </button>
   );
