@@ -262,7 +262,7 @@ export function RoadmapMap({
               map content (rather than pinned to the scroll container) so the backdrop scrolls
               together with the map on mobile instead of stopping short and exposing blank page
               background past the visible edge. */}
-          <div className="relative h-[78vh] min-h-[560px] w-full overflow-x-auto overflow-y-hidden overscroll-x-contain touch-pan-x sm:overflow-x-hidden">
+          <div className="relative h-[78vh] min-h-[560px] w-full overflow-x-auto overflow-y-hidden overscroll-x-contain touch-pan-x touch-pan-y sm:overflow-x-hidden">
             <div
               className={["relative h-full", isLocked ? "w-full" : "min-w-[760px] sm:min-w-0"].join(" ")}
               style={{ paddingTop: '4rem' }}

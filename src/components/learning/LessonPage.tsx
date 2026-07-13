@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowLeft, Check, ChevronLeft, ChevronRight, Headphones, Loader2, X } from "lucide-react";
+import { ArrowLeft, Check, ChevronLeft, ChevronRight, ExternalLink, Headphones, Loader2, X } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { learningDataQueryOptions } from "@/lib/learning";
 import type { Bai, Hinh, NoiDung } from "@/lib/learning";
@@ -56,7 +56,12 @@ function speak(text: string, onEnd?: () => void) {
 
 function toYouTubeEmbed(url: string): string | null {
   const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
-  return m ? `https://www.youtube.com/embed/${m[1]}` : null;
+  if (!m) return null;
+  // youtube-nocookie.com + an explicit origin cut down on the third-party-cookie /
+  // storage-access checks that cause the embedded player to intermittently fail with
+  // "An error occurred" in browsers with strict tracking protection or ad blockers.
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  return `https://www.youtube-nocookie.com/embed/${m[1]}?origin=${encodeURIComponent(origin)}`;
 }
 
 function AudioButton({ src }: { src: string }) {
@@ -91,18 +96,31 @@ function VideoEmbed({ url }: { url: string }) {
   const embedUrl = toYouTubeEmbed(url);
   if (embedUrl) {
     return (
-      <div className="h-full w-full overflow-hidden rounded-none ring-1 ring-border/60 sm:rounded-xl">
-        <iframe
-          src={embedUrl}
-          className="h-full w-full"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
+      <div className="flex flex-col gap-1.5 sm:h-full">
+        <div className="aspect-video w-full overflow-hidden rounded-none ring-1 ring-border/60 sm:aspect-auto sm:min-h-0 sm:flex-1 sm:rounded-xl">
+          <iframe
+            src={embedUrl}
+            className="h-full w-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+        {/* Embedded playback can fail transiently (cookie/storage blocking, ad blockers) even
+            though the video itself is fine — this link always gives a way to actually watch it. */}
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex shrink-0 items-center gap-1 self-start text-xs font-bold text-sky-600 hover:underline"
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+          Video không phát được? Mở trên YouTube
+        </a>
       </div>
     );
   }
   return (
-    <div className="h-full w-full overflow-hidden rounded-none ring-1 ring-border/60 sm:rounded-xl">
+    <div className="aspect-video w-full overflow-hidden rounded-none ring-1 ring-border/60 sm:aspect-auto sm:h-full sm:rounded-xl">
       <video src={url} controls className="h-full w-full object-contain" />
     </div>
   );
@@ -184,13 +202,12 @@ function HinhBlock({
   const hasHighlights = highlightTargets.length > 0;
   const hasCaptions = captions.length > 0;
   const stackVertical = !isSingle || isLandscape || !hasCaptions;
-  // Without captions, the image stretches to fill all available height (bigger image, no
-  // gap concerns). With captions, that same stretch left the image vertically centered in a
-  // tall box with the word cloud pushed far below it on mobile — so there it's content-sized
-  // instead, and only stretches again at sm+, where the side-by-side layout still wants it
-  // to fill the row's height. Shared by every wrapper down to the image itself so they all
-  // agree on whether to stretch.
-  const growClass = hasCaptions ? "sm:flex-1" : "flex-1";
+  // On mobile the image is always content-sized (natural aspect ratio) so it never gets
+  // squeezed by flex when the surrounding text/captions push the available height down —
+  // the card scrolls instead. Only at sm+, where the layout has a stable fixed-height row,
+  // does it stretch to fill available space. Shared by every wrapper down to the image
+  // itself so they all agree on whether to stretch.
+  const growClass = "sm:flex-1";
 
   return (
     <figure
@@ -221,12 +238,7 @@ function HinhBlock({
           >
             {/* Relative wrapper hugging the image exactly, so the %-based highlight
                 overlay stays aligned with the image at every screen size. */}
-            <div
-              className={[
-                "relative mx-auto w-full",
-                hasCaptions ? "sm:flex sm:h-full sm:items-center sm:justify-center" : "flex h-full items-center justify-center",
-              ].join(" ")}
-            >
+            <div className="relative mx-auto w-full sm:flex sm:h-full sm:items-center sm:justify-center">
               <img
                 src={hinh.url}
                 alt={captions[0] || "Hình minh họa"}
@@ -237,8 +249,7 @@ function HinhBlock({
                   setIsLoaded(true);
                 }}
                 className={[
-                  "w-full max-w-full rounded-none object-contain ring-1 ring-border/60 transition-opacity duration-300 sm:rounded-xl",
-                  hasCaptions ? "sm:h-full sm:max-h-full" : "h-full max-h-full",
+                  "w-full max-w-full rounded-none object-contain ring-1 ring-border/60 transition-opacity duration-300 sm:h-full sm:max-h-full sm:rounded-xl",
                   isLoaded ? "opacity-100" : "opacity-0",
                 ].join(" ")}
               />
@@ -463,7 +474,7 @@ export function LessonPage({ changId }: { changId: string }) {
   };
 
   return (
-    <div className="relative flex h-dvh w-full flex-col overflow-hidden">
+    <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-navy">
       <img
         src={sceneForChuDe(topicIndex)}
         alt=""
@@ -549,12 +560,12 @@ export function LessonPage({ changId }: { changId: string }) {
             </span>
           </div>
 
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-white p-3 sm:p-4">
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white p-3 sm:overflow-hidden sm:p-4">
 
             <div
               key={`${currentNoiDung?.id}-${currentSlide?.baiIndex}`}
               className={[
-                "flex min-h-0 flex-1 flex-col justify-center transition-all duration-200 ease-out",
+                "flex min-h-0 flex-1 flex-col justify-center-safe transition-all duration-200 ease-out",
                 fading ? "-translate-y-1.5 opacity-0" : "translate-y-0 opacity-100",
               ].join(" ")}
             >
@@ -565,7 +576,7 @@ export function LessonPage({ changId }: { changId: string }) {
                 const hinhs = bai.hinhs;
                 const isSingle = hinhs.length === 1;
                 return (
-                  <article className="flex min-h-0 flex-1 flex-col gap-2">
+                  <article className="flex flex-col gap-2 sm:min-h-0 sm:flex-1">
                     <div className="flex shrink-0 items-start gap-3">
                       <div className="flex-1 space-y-1.5">
                         {bai.texts.map((t, i) => (
@@ -585,7 +596,7 @@ export function LessonPage({ changId }: { changId: string }) {
                     </div>
 
                     {hasEmbed ? (
-                      <div className="-mx-3 min-h-0 w-auto flex-1 overflow-hidden rounded-none ring-1 ring-border/60 sm:mx-0 sm:w-full sm:rounded-xl">
+                      <div className="-mx-3 aspect-video w-auto overflow-hidden rounded-none ring-1 ring-border/60 sm:mx-0 sm:aspect-auto sm:min-h-0 sm:w-full sm:flex-1 sm:rounded-xl">
                         <iframe
                           src={bai.meta!.link!}
                           className="h-full w-full"
@@ -596,13 +607,13 @@ export function LessonPage({ changId }: { changId: string }) {
                     ) : !hasVideo && hinhs.length > 0 && (
                       <div
                         className={[
-                          "-mx-3 min-h-0 flex-1 sm:mx-0",
+                          "-mx-3 sm:mx-0 sm:min-h-0 sm:flex-1",
                           isSingle
                             ? "flex flex-col justify-center gap-4 sm:flex-row sm:items-stretch"
-                            // Many images at once don't all fit on a short mobile screen without
-                            // scrolling — a single scrollable column there, reverting to the
-                            // fixed-height 2-column grid (no scroll) at sm+ where there's more room.
-                            : "grid grid-cols-1 gap-4 overflow-y-auto sm:grid-cols-2 sm:overflow-visible",
+                            // Many images at once now stack in the (scrollable) card on mobile
+                            // instead of their own nested scroll box, reverting to the
+                            // fixed-height 2-column grid at sm+ where there's more room.
+                            : "grid grid-cols-1 gap-4 sm:grid-cols-2",
                         ].join(" ")}
                       >
                         {hinhs.map((hinh) => {
@@ -621,7 +632,7 @@ export function LessonPage({ changId }: { changId: string }) {
                     )}
 
                     {hasVideo && (
-                      <div className="-mx-3 min-h-0 flex-1 sm:mx-0">
+                      <div className="-mx-3 sm:mx-0 sm:min-h-0 sm:flex-1">
                         <VideoEmbed url={bai.meta!.video_url!} />
                       </div>
                     )}
