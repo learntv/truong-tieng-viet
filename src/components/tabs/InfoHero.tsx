@@ -17,13 +17,13 @@ export function InfoHero() {
         {/* Blur layer: blurs the left side and fades out toward the right */}
         <div className="absolute inset-0 backdrop-blur-none sm:backdrop-blur-sm sm:[mask-image:linear-gradient(to_right,black_40%,transparent_70%)]" />
         {/* Readability overlay: stronger on left, fades to transparent on the right */}
-        <div className="absolute inset-0 bg-gradient-to-r from-stone-900/90 via-stone-900/35 to-transparent sm:from-stone-900/90 sm:via-stone-900/25 sm:to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-stone-900/95 via-stone-900/35 to-transparent sm:from-stone-900/95 sm:via-stone-900/25 sm:to-transparent" />
         {/* Subtle bottom fade for safe mobile contrast */}
         <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 via-transparent to-transparent sm:hidden" />
 
         <div className="relative mx-auto flex min-h-[576px] max-w-7xl items-center px-4 pb-16 pt-40 sm:min-h-[636px] sm:px-6 sm:pb-20 sm:pt-44 lg:min-h-[696px] lg:px-10 lg:pb-24 lg:pt-48">
           <div className="max-w-xl animate-in fade-in slide-in-from-bottom-4 text-left duration-700">
-            <span className="inline-block rounded-full bg-primary px-3 py-1 text-xs font-bold uppercase tracking-widest text-white shadow-glow-primary">
+            <span className="inline-block rounded-full bg-[oklch(0.58_0.21_22)] px-3 py-1 text-xs font-bold uppercase tracking-widest text-white shadow-bevel-primary">
               Thông tin dự án
             </span>
             <h1 className="mt-3 font-display text-3xl font-bold leading-tight text-white drop-shadow-md sm:text-4xl lg:text-5xl">
@@ -34,7 +34,7 @@ export function InfoHero() {
             </p>
             <Link
               to="/hoc-tap"
-              className="mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-primary px-6 py-3 text-sm font-bold text-white shadow-glow-primary transition-all hover:brightness-110 hover:shadow-[0_0_0_8px_oklch(0.65_0.18_22/0.35),0_16px_40px_-8px_oklch(0.52_0.22_22/0.45)] sm:text-base"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-[oklch(0.58_0.21_22)] px-6 py-3 text-sm font-bold text-white shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:brightness-105 active:translate-y-[3px] active:shadow-bevel-primary-active sm:text-base"
             >
               Học ngay
               <ArrowRight className="h-5 w-5" />
