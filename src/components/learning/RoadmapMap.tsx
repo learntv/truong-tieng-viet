@@ -257,48 +257,53 @@ export function RoadmapMap({
           </div>
 
           {/* Map: SVG path + stage cards + buffalo. Every scene is stacked and cross-faded via
-              opacity so switching chủ đề animates the backdrop instead of popping instantly. */}
-          <div
-            className="relative h-[78vh] min-h-[560px] w-full overflow-x-auto overflow-y-hidden sm:overflow-x-hidden"
-            style={{ paddingTop: '4rem' }}
-          >
-            {ALL_SCENES.map((scene) => (
-              <div
-                key={scene}
-                aria-hidden
-                className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-700 ease-in-out"
-                style={{
-                  backgroundImage: `url(${scene})`,
-                  opacity: sceneForChuDe(chuDeIndex) === scene ? 1 : 0,
-                }}
-              />
-            ))}
-            {/* Soft tint over the scene */}
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-sky-200/25 via-transparent to-white/10" />
-            {/* Bottom drop shadow — grounds the buffalo/path against the card's lower edge */}
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-black/25 to-transparent" />
-            {isLocked ? (
-              /* Coming-soon preview for a chủ đề that has no content yet */
-              <div className="relative flex h-full items-center justify-center p-5">
-                <div className="max-w-sm rounded-3xl border-2 border-black/10 bg-white p-6 text-center shadow-[0_4px_0_0_rgba(0,0,0,0.1)] sm:p-8">
-                  <div className={["mx-auto grid h-20 w-20 place-items-center rounded-full text-4xl ring-4 ring-white", accent.solid].join(" ")}>
-                    {chuDe.emoji}
+              opacity so switching chủ đề animates the backdrop instead of popping instantly.
+              The scene/tint/shadow layers live *inside* the same width-clamped wrapper as the
+              map content (rather than pinned to the scroll container) so the backdrop scrolls
+              together with the map on mobile instead of stopping short and exposing blank page
+              background past the visible edge. */}
+          <div className="relative h-[78vh] min-h-[560px] w-full overflow-x-auto overflow-y-hidden overscroll-x-contain touch-pan-x sm:overflow-x-hidden">
+            <div
+              className={["relative h-full", isLocked ? "w-full" : "min-w-[760px] sm:min-w-0"].join(" ")}
+              style={{ paddingTop: '4rem' }}
+            >
+              {ALL_SCENES.map((scene) => (
+                <div
+                  key={scene}
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-700 ease-in-out"
+                  style={{
+                    backgroundImage: `url(${scene})`,
+                    opacity: sceneForChuDe(chuDeIndex) === scene ? 1 : 0,
+                  }}
+                />
+              ))}
+              {/* Soft tint over the scene */}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-sky-200/25 via-transparent to-white/10" />
+              {/* Bottom drop shadow — grounds the buffalo/path against the card's lower edge */}
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-black/25 to-transparent" />
+              {isLocked ? (
+                /* Coming-soon preview for a chủ đề that has no content yet */
+                <div className="relative flex h-full items-center justify-center p-5">
+                  <div className="max-w-sm rounded-3xl border-2 border-black/10 bg-white p-6 text-center shadow-[0_4px_0_0_rgba(0,0,0,0.1)] sm:p-8">
+                    <div className={["mx-auto grid h-20 w-20 place-items-center rounded-full text-4xl ring-4 ring-white", accent.solid].join(" ")}>
+                      {chuDe.emoji}
+                    </div>
+                    <div className="mx-auto mt-3 inline-flex items-center gap-1 rounded-full bg-black/5 px-3 py-1 text-xs font-extrabold text-navy/60">
+                      <Lock className="h-3 w-3" strokeWidth={2.5} /> Sắp có
+                    </div>
+                    <h3 className="mt-2 font-display text-xl font-extrabold text-navy">{chuDe.title}</h3>
+                    <p className="mx-auto mt-2 max-w-xs text-sm text-muted-foreground">
+                      Các cô đang biên soạn chủ đề này. Em quay lại chủ đề trước để luyện tập trong lúc chờ nhé! ✨
+                    </p>
+                    <Button variant="bevel-primary" onClick={onPrevChuDe} className="mx-auto mt-5">
+                      <ArrowLeft className="h-4 w-4" strokeWidth={3} />
+                      Quay lại {prevItem?.shortTitle ?? "chủ đề trước"}
+                    </Button>
                   </div>
-                  <div className="mx-auto mt-3 inline-flex items-center gap-1 rounded-full bg-black/5 px-3 py-1 text-xs font-extrabold text-navy/60">
-                    <Lock className="h-3 w-3" strokeWidth={2.5} /> Sắp có
-                  </div>
-                  <h3 className="mt-2 font-display text-xl font-extrabold text-navy">{chuDe.title}</h3>
-                  <p className="mx-auto mt-2 max-w-xs text-sm text-muted-foreground">
-                    Các cô đang biên soạn chủ đề này. Em quay lại chủ đề trước để luyện tập trong lúc chờ nhé! ✨
-                  </p>
-                  <Button variant="bevel-primary" onClick={onPrevChuDe} className="mx-auto mt-5">
-                    <ArrowLeft className="h-4 w-4" strokeWidth={3} />
-                    Quay lại {prevItem?.shortTitle ?? "chủ đề trước"}
-                  </Button>
                 </div>
-              </div>
-            ) : (
-            <div className="relative h-full min-w-[760px] sm:min-w-0">
+              ) : (
+              <>
               <svg
             className="absolute inset-0 h-full w-full"
             viewBox="0 0 100 100"
@@ -379,8 +384,9 @@ export function RoadmapMap({
             xPercent={Math.max(6, (nodePositions[buffaloIndex]?.x ?? 10) - 6)}
             yPercent={nodePositions[buffaloIndex]?.y ?? 58}
           />
+              </>
+              )}
             </div>
-            )}
           </div>
         </div>
       </div>
