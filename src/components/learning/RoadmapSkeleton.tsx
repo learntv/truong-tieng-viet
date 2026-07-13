@@ -1,5 +1,5 @@
 import { Fragment } from "react";
-import halongScene from "@/assets/halong-scene.jpg";
+import { halongScene } from "@/data/scenes";
 
 const NODE_POSITIONS = [
   { x: 10, y: 58 },

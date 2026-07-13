@@ -10,7 +10,7 @@ import { ConfettiBurst } from "./ConfettiBurst";
 import { ImageHighlightOverlay } from "./ImageHighlightOverlay";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
 import { Button } from "@/components/ui/button";
-import halongScene from "@/assets/halong-scene.jpg";
+import { sceneForChuDe } from "@/data/scenes";
 import mapPinIcon from "@/assets/map-pin-icon.png";
 
 type StageColor = (typeof STAGE_COLORS)[number];
@@ -19,18 +19,21 @@ type StageColor = (typeof STAGE_COLORS)[number];
 // only sizing/positioning differs between the two, passed in via className.
 function BackToMapButton({
   color,
+  topicIndex,
   className,
   arrowClassName,
   iconClassName,
 }: {
   color: StageColor;
+  topicIndex: number;
   className: string;
   arrowClassName: string;
   iconClassName: string;
 }) {
   return (
     <Link
-      to="/hoc-tap/quyen-1"
+      to="/hoc-tap/quyen-1/chu-de-{$chuDeIndex}"
+      params={{ chuDeIndex: String(topicIndex + 1) }}
       aria-label="Quay lại bản đồ"
       className={[className, color.bgSoft, color.bevel, color.bevelActive].join(" ")}
     >
@@ -307,10 +310,11 @@ export function LessonPage({ changId }: { changId: string }) {
 
   const found = useMemo(() => {
     if (!data) return null;
-    for (const topic of data) {
+    for (let topicIndex = 0; topicIndex < data.length; topicIndex++) {
+      const topic = data[topicIndex];
       const changIndex = topic.changs.findIndex((c) => c.id === changId);
       if (changIndex !== -1) {
-        return { chuDe: topic.chuDe, changs: topic.changs, chang: topic.changs[changIndex], changIndex };
+        return { chuDe: topic.chuDe, changs: topic.changs, chang: topic.changs[changIndex], changIndex, topicIndex };
       }
     }
     return null;
@@ -413,7 +417,7 @@ export function LessonPage({ changId }: { changId: string }) {
     );
   }
 
-  const { chuDe, changs, chang, changIndex } = found;
+  const { chuDe, changs, chang, changIndex, topicIndex } = found;
   const total = slides.length;
   const currentSlide = slides[slideIndex];
   const currentNoiDung = currentSlide?.nd;
@@ -461,9 +465,9 @@ export function LessonPage({ changId }: { changId: string }) {
   return (
     <div className="relative flex h-dvh w-full flex-col overflow-hidden">
       <img
-        src={halongScene}
+        src={sceneForChuDe(topicIndex)}
         alt=""
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500"
       />
       <div className="absolute inset-0 bg-black/45" />
 
@@ -489,6 +493,7 @@ export function LessonPage({ changId }: { changId: string }) {
       <div className="relative z-10 flex shrink-0 px-2 pt-2 sm:hidden">
         <BackToMapButton
           color={color}
+          topicIndex={topicIndex}
           className="flex h-11 items-center gap-1 rounded-full px-3 transition-[transform,box-shadow] ease-bounce active:translate-y-[2px]"
           arrowClassName="h-5 w-5 shrink-0"
           iconClassName="h-7 w-7 shrink-0 object-contain"
@@ -695,6 +700,7 @@ export function LessonPage({ changId }: { changId: string }) {
           column); mobile uses the inline bar above the card instead. */}
       <BackToMapButton
         color={color}
+        topicIndex={topicIndex}
         className="fixed bottom-4 left-4 z-20 hidden h-16 items-center gap-1 rounded-full px-4 transition-[transform,box-shadow,filter] ease-bounce hover:brightness-95 active:translate-y-[2px] sm:flex"
         arrowClassName="h-7 w-7 shrink-0"
         iconClassName="h-12 w-12 shrink-0 object-contain"

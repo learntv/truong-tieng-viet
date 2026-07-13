@@ -6,7 +6,7 @@ import { BuffaloMascot } from "./BuffaloMascot";
 import { StageCard, STAGE_COLORS } from "./StageCard";
 import { Button } from "@/components/ui/button";
 import quyen1Cover from "@/assets/quyen_1_cover.jpg";
-import halongScene from "@/assets/halong-scene.jpg";
+import { ALL_SCENES, sceneForChuDe } from "@/data/scenes";
 
 // One entry per planned chủ đề, tagged with its progress state — drives the header stepper.
 export type ChuDeNavItem = {
@@ -19,21 +19,38 @@ export type ChuDeNavItem = {
 
 // Per-topic accent so the header gently recolors as the child moves between chủ đề — keyed
 // by ChuDe.accent. `grad` feeds the "next" button + progress fill, `ring`/`text` the stepper.
-const ACCENT: Record<ChuDe["accent"], { text: string; soft: string; solid: string; bevel: string; bevelActive: string; ring: string; borderColor: string }> = {
-  primary: { text: "text-primary", soft: "bg-primary/10", solid: "bg-primary", bevel: "shadow-bevel-primary", bevelActive: "active:shadow-bevel-primary-active", ring: "ring-primary", borderColor: "border-primary" },
-  yellow: { text: "text-[oklch(0.58_0.14_70)]", soft: "bg-yellow/20", solid: "bg-[oklch(0.72_0.17_55)]", bevel: "shadow-bevel-yellow", bevelActive: "active:shadow-bevel-yellow-active", ring: "ring-[oklch(0.72_0.17_55)]", borderColor: "border-[oklch(0.72_0.17_55)]" },
-  pink: { text: "text-pink", soft: "bg-pink/15", solid: "bg-pink", bevel: "shadow-[0_4px_0_0_#be185d]", bevelActive: "active:shadow-[0_1px_0_0_#be185d]", ring: "ring-pink", borderColor: "border-pink" },
-  purple: { text: "text-purple", soft: "bg-purple/15", solid: "bg-purple", bevel: "shadow-[0_4px_0_0_#7e22ce]", bevelActive: "active:shadow-[0_1px_0_0_#7e22ce]", ring: "ring-purple", borderColor: "border-purple" },
-  green: { text: "text-green", soft: "bg-green/15", solid: "bg-green", bevel: "shadow-bevel-green", bevelActive: "active:shadow-bevel-green-active", ring: "ring-green", borderColor: "border-green" },
+const ACCENT: Record<ChuDe["accent"], { text: string; soft: string; solid: string; bevel: string; bevelActive: string; ring: string; borderColor: string; glow: string }> = {
+  primary: { text: "text-primary", soft: "bg-primary/10", solid: "bg-primary", bevel: "shadow-bevel-primary", bevelActive: "active:shadow-bevel-primary-active", ring: "ring-primary", borderColor: "border-primary", glow: "var(--primary)" },
+  yellow: { text: "text-[oklch(0.58_0.14_70)]", soft: "bg-yellow/20", solid: "bg-[oklch(0.72_0.17_55)]", bevel: "shadow-bevel-yellow", bevelActive: "active:shadow-bevel-yellow-active", ring: "ring-[oklch(0.72_0.17_55)]", borderColor: "border-[oklch(0.72_0.17_55)]", glow: "var(--yellow)" },
+  pink: { text: "text-pink", soft: "bg-pink/15", solid: "bg-pink", bevel: "shadow-[0_4px_0_0_#be185d]", bevelActive: "active:shadow-[0_1px_0_0_#be185d]", ring: "ring-pink", borderColor: "border-pink", glow: "var(--pink)" },
+  purple: { text: "text-purple", soft: "bg-purple/15", solid: "bg-purple", bevel: "shadow-[0_4px_0_0_#7e22ce]", bevelActive: "active:shadow-[0_1px_0_0_#7e22ce]", ring: "ring-purple", borderColor: "border-purple", glow: "var(--purple)" },
+  green: { text: "text-green", soft: "bg-green/15", solid: "bg-green", bevel: "shadow-bevel-green", bevelActive: "active:shadow-bevel-green-active", ring: "ring-green", borderColor: "border-green", glow: "var(--green)" },
 };
 
-export const NODE_POSITIONS = [
-  { x: 10, y: 58 },
-  { x: 28, y: 30 },
-  { x: 50, y: 52 },
-  { x: 72, y: 26 },
-  { x: 90, y: 52 },
+// One node layout per chủ đề so the trail doesn't look identical every time the child
+// switches topics. Layouts cycle if there are more chủ đề than defined layouts.
+const NODE_LAYOUTS: { x: number; y: number }[][] = [
+  [
+    { x: 10, y: 58 },
+    { x: 28, y: 30 },
+    { x: 50, y: 52 },
+    { x: 72, y: 26 },
+    { x: 90, y: 52 },
+  ],
+  [
+    { x: 10, y: 28 },
+    { x: 30, y: 56 },
+    { x: 52, y: 30 },
+    { x: 74, y: 60 },
+    { x: 90, y: 34 },
+  ],
 ];
+
+export function getNodePositions(chuDeIndex: number): { x: number; y: number }[] {
+  return NODE_LAYOUTS[chuDeIndex % NODE_LAYOUTS.length];
+}
+
+export const NODE_POSITIONS = NODE_LAYOUTS[0];
 
 
 function getLessonButtonLabel(
@@ -89,6 +106,7 @@ export function RoadmapMap({
 }) {
   const buffaloIndex = buffaloChangIndex;
   const accent = ACCENT[chuDe.accent] ?? ACCENT.primary;
+  const nodePositions = getNodePositions(chuDeIndex);
 
   const prevItem = chuDeIndex > 0 ? chuDeNav[chuDeIndex - 1] : undefined;
   const nextItem = chuDeIndex + 1 < chuDeNav.length ? chuDeNav[chuDeIndex + 1] : undefined;
@@ -99,10 +117,15 @@ export function RoadmapMap({
   const firstLockedIndex = chuDeNav.findIndex((t) => t.status === "locked");
   const isReachable = (t: ChuDeNavItem) => t.status !== "locked" || t.index === firstLockedIndex;
 
-  const dotBase = "grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 text-xs font-extrabold transition sm:h-8 sm:w-8";
+  const dotBase = "relative grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 text-xs font-extrabold transition sm:h-8 sm:w-8";
   const dotClass = (t: ChuDeNavItem) => {
     if (t.status === "current")
-      return [dotBase, "scale-110 cursor-default bg-white", accent.borderColor, accent.text].join(" ");
+      return [
+        dotBase,
+        "z-10 h-9 w-9 scale-125 cursor-default border-white text-white ring-4 animate-pulse-glow sm:h-10 sm:w-10",
+        accent.solid,
+        accent.ring,
+      ].join(" ");
     if (t.status === "completed")
       return [dotBase, "cursor-pointer border-white text-white hover:scale-105", accent.solid].join(" ");
     if (t.status === "available")
@@ -117,8 +140,8 @@ export function RoadmapMap({
 
   // One path per segment (rather than a single combined path) so each stretch of the trail
   // can be tinted with the color of the lesson it leads away from.
-  const pathSegments = NODE_POSITIONS.slice(1).map((p, i) => {
-    const prev = NODE_POSITIONS[i];
+  const pathSegments = nodePositions.slice(1).map((p, i) => {
+    const prev = nodePositions[i];
     const cx = (prev.x + p.x) / 2;
     return `M ${prev.x} ${prev.y} Q ${cx} ${prev.y}, ${p.x} ${p.y}`;
   });
@@ -218,6 +241,7 @@ export function RoadmapMap({
                     aria-current={t.status === "current" ? "step" : undefined}
                     title={t.title}
                     className={dotClass(t)}
+                    style={t.status === "current" ? ({ "--glow-color": accent.glow } as React.CSSProperties) : undefined}
                   >
                     {t.status === "completed" ? (
                       <Check className="h-4 w-4" strokeWidth={3} />
@@ -232,12 +256,23 @@ export function RoadmapMap({
             </div>
           </div>
 
-          {/* Map: SVG path + stage cards + buffalo. The Halong scene is a background on the
-              scroll container so it stays fully covered during horizontal scroll. */}
+          {/* Map: SVG path + stage cards + buffalo. Every scene is stacked and cross-faded via
+              opacity so switching chủ đề animates the backdrop instead of popping instantly. */}
           <div
-            className="relative h-[78vh] min-h-[560px] w-full overflow-x-auto overflow-y-hidden bg-cover bg-center bg-no-repeat sm:overflow-x-hidden"
-            style={{ backgroundImage: `url(${halongScene})`, paddingTop: '4rem' }}
+            className="relative h-[78vh] min-h-[560px] w-full overflow-x-auto overflow-y-hidden sm:overflow-x-hidden"
+            style={{ paddingTop: '4rem' }}
           >
+            {ALL_SCENES.map((scene) => (
+              <div
+                key={scene}
+                aria-hidden
+                className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-700 ease-in-out"
+                style={{
+                  backgroundImage: `url(${scene})`,
+                  opacity: sceneForChuDe(chuDeIndex) === scene ? 1 : 0,
+                }}
+              />
+            ))}
             {/* Soft tint over the scene */}
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-sky-200/25 via-transparent to-white/10" />
             {/* Bottom drop shadow — grounds the buffalo/path against the card's lower edge */}
@@ -298,7 +333,7 @@ export function RoadmapMap({
             ))}
           </svg>
 
-          {NODE_POSITIONS.map((p, i) => {
+          {nodePositions.map((p, i) => {
             const isLocked = i > 0 && !completedChangs.has(i - 1);
             return (
               <div
@@ -341,8 +376,8 @@ export function RoadmapMap({
           })}
 
           <BuffaloMascot
-            xPercent={Math.max(6, (NODE_POSITIONS[buffaloIndex]?.x ?? 10) - 6)}
-            yPercent={NODE_POSITIONS[buffaloIndex]?.y ?? 58}
+            xPercent={Math.max(6, (nodePositions[buffaloIndex]?.x ?? 10) - 6)}
+            yPercent={nodePositions[buffaloIndex]?.y ?? 58}
           />
             </div>
             )}

@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import halongScene from "@/assets/halong-scene.jpg";
+import { halongScene } from "@/data/scenes";
 
 export const Route = createFileRoute("/hoc-tap")({
   component: HocTapLayout,
@@ -11,10 +11,10 @@ function HocTapLayout() {
   const { location } = useRouterState();
   const pathname = location.pathname;
 
-  // The lesson pages (…/quyen-1/<changId>) stay a distraction-free full-screen view.
-  // The roadmap itself (…/quyen-1) is a normal scrollable page with a footer.
-  const isLesson = pathname.startsWith("/hoc-tap/quyen-1/");
-  const isRoadmap = pathname === "/hoc-tap/quyen-1";
+  // The roadmap itself (…/quyen-1 and …/quyen-1/chu-de-N) is a normal scrollable page with a
+  // footer. Lesson pages (…/quyen-1/<changId>) stay a distraction-free full-screen view.
+  const isRoadmap = pathname === "/hoc-tap/quyen-1" || pathname.startsWith("/hoc-tap/quyen-1/chu-de-");
+  const isLesson = pathname.startsWith("/hoc-tap/quyen-1/") && !isRoadmap;
   const isAlphabetPage = pathname === "/hoc-tap/bang-chu-cai";
   const isHocTapHome = pathname === "/hoc-tap";
 
