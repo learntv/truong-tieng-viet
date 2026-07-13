@@ -53,8 +53,8 @@ function HocTapLayout() {
               <Navbar />
               <Outlet />
             </div>
+            <Footer />
           </div>
-          <Footer />
         </>
       ) : (
         <>
