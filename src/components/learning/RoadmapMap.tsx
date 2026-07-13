@@ -1,12 +1,14 @@
-import { ArrowLeft, Check, ChevronLeft, ChevronRight, Lock, Undo2 } from "lucide-react";
-import { Fragment } from "react";
+import { ArrowLeft, Check, ChevronLeft, ChevronRight, Lock, Maximize2, Undo2, X } from "lucide-react";
+import { Fragment, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import type { ChuDe } from "@/data/topics";
 import { BuffaloMascot } from "./BuffaloMascot";
 import { StageCard, STAGE_COLORS } from "./StageCard";
 import { Button } from "@/components/ui/button";
 import quyen1Cover from "@/assets/quyen_1_cover.jpg";
-import { ALL_SCENES, sceneForChuDe } from "@/data/scenes";
+import { ALL_SCENES, locationForChuDe, sceneForChuDe } from "@/data/scenes";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 // One entry per planned chủ đề, tagged with its progress state — drives the header stepper.
 export type ChuDeNavItem = {
@@ -107,6 +109,8 @@ export function RoadmapMap({
   const buffaloIndex = buffaloChangIndex;
   const accent = ACCENT[chuDe.accent] ?? ACCENT.primary;
   const nodePositions = getNodePositions(chuDeIndex);
+  const location = locationForChuDe(chuDeIndex);
+  const [showLocationInfo, setShowLocationInfo] = useState(false);
 
   const prevItem = chuDeIndex > 0 ? chuDeNav[chuDeIndex - 1] : undefined;
   const nextItem = chuDeIndex + 1 < chuDeNav.length ? chuDeNav[chuDeIndex + 1] : undefined;
@@ -282,6 +286,26 @@ export function RoadmapMap({
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-sky-200/25 via-transparent to-white/10" />
               {/* Bottom drop shadow — grounds the buffalo/path against the card's lower edge */}
               <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-black/25 to-transparent" />
+
+              {/* "Learn about this place" — bottom-right info button that opens a fullscreen
+                  overlay with the backdrop's real-world name and a short history blurb, so kids
+                  can learn a bit about the place their lesson map is set in. */}
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={() => setShowLocationInfo(true)}
+                      aria-label={`Tìm hiểu về ${location.name}`}
+                      className="absolute bottom-4 right-4 z-20 grid h-10 w-10 place-items-center rounded-full bg-white/90 text-navy shadow-[0_2px_0_0_rgba(0,0,0,0.15)] ring-1 ring-black/10 transition hover:scale-105 active:translate-y-[1px] sm:h-11 sm:w-11"
+                    >
+                      <Maximize2 className="h-5 w-5" strokeWidth={2.5} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">Tìm hiểu về {location.name}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
               {isLocked ? (
                 /* Coming-soon preview for a chủ đề that has no content yet */
                 <div className="relative flex h-full items-center justify-center p-5">
@@ -390,6 +414,38 @@ export function RoadmapMap({
           </div>
         </div>
       </div>
+
+      {/* Fullscreen "learn about this place" overlay, triggered by the info button on the map. */}
+      <Dialog open={showLocationInfo} onOpenChange={setShowLocationInfo}>
+        <DialogContent
+          hideCloseButton
+          className="left-0 top-0 h-full max-h-none w-full max-w-none translate-x-0 translate-y-0 gap-0 overflow-hidden border-0 bg-transparent p-0 sm:rounded-none"
+        >
+          <div
+            className="relative h-full w-full bg-cover bg-center"
+            style={{ backgroundImage: `url(${sceneForChuDe(chuDeIndex)})` }}
+          >
+            <DialogClose className="absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full bg-white/90 text-navy shadow-[0_2px_0_0_rgba(0,0,0,0.15)] ring-1 ring-black/10 transition hover:scale-105">
+              <X className="h-5 w-5" strokeWidth={2.5} />
+              <span className="sr-only">Đóng</span>
+            </DialogClose>
+            <div className="absolute inset-x-4 bottom-4 z-10 max-w-2xl sm:inset-x-8 sm:bottom-8">
+              <DialogTitle
+                className="font-display text-2xl font-extrabold text-white sm:text-4xl"
+                style={{ WebkitTextStroke: "1.5px black", paintOrder: "stroke fill" }}
+              >
+                {location.name}
+              </DialogTitle>
+              <DialogDescription
+                className="mt-2 text-sm leading-relaxed text-white sm:text-base"
+                style={{ textShadow: "0 1px 3px rgba(0,0,0,0.9), 0 1px 8px rgba(0,0,0,0.6)" }}
+              >
+                {location.blurb}
+              </DialogDescription>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );
