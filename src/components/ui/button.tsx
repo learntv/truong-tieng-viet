@@ -16,6 +16,14 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        "bevel-primary":
+          "rounded-full bg-primary text-primary-foreground font-display font-extrabold shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:brightness-105 active:translate-y-[3px] active:shadow-bevel-primary-active",
+        "bevel-yellow":
+          "rounded-full bg-secondary text-navy font-display font-extrabold shadow-bevel-yellow transition-[transform,box-shadow,filter] ease-bounce hover:brightness-105 active:translate-y-[3px] active:shadow-bevel-yellow-active",
+        "bevel-green":
+          "rounded-full bg-green text-white font-display font-extrabold shadow-bevel-green transition-[transform,box-shadow,filter] ease-bounce hover:brightness-105 active:translate-y-[3px] active:shadow-bevel-green-active",
+        "bevel-neutral":
+          "rounded-full border-2 border-input bg-background text-foreground font-display font-extrabold shadow-bevel-neutral transition-[transform,box-shadow,background-color] ease-bounce hover:bg-accent active:translate-y-[3px] active:shadow-bevel-neutral-active",
       },
       size: {
         default: "h-9 px-4 py-2",

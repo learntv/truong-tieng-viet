@@ -51,6 +51,15 @@ export function RoadmapSkeleton() {
             <path
               d={pathD}
               fill="none"
+              stroke="#a3a3a3"
+              strokeWidth="1.8"
+              strokeDasharray="2.5 2.5"
+              strokeLinecap="round"
+              opacity="0.85"
+            />
+            <path
+              d={pathD}
+              fill="none"
               stroke="white"
               strokeWidth="1.4"
               strokeDasharray="2.5 2.5"
@@ -70,7 +79,7 @@ export function RoadmapSkeleton() {
               }}
             >
               <div className="flex flex-col items-center gap-2">
-                <div className="h-16 w-16 animate-pulse rounded-2xl bg-white/70 shadow-card sm:h-20 sm:w-20" />
+                <div className="h-16 w-16 animate-pulse rounded-2xl border-2 border-black/10 bg-white shadow-[0_4px_0_0_rgba(0,0,0,0.15)] sm:h-20 sm:w-20" />
                 <div className="h-3 w-14 animate-pulse rounded-full bg-white/60" />
               </div>
             </div>

@@ -1,6 +1,7 @@
 import { ArrowLeft } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { LearningTab } from "@/components/tabs/LearningTab";
+import { Button } from "@/components/ui/button";
 import quyen2Cover from "@/assets/quyen_2_cover.jpg";
 
 export function Quyen1Roadmap() {
@@ -24,13 +25,13 @@ export function Quyen2ComingSoon() {
         </Link>
       </div>
 
-      <div className="relative overflow-hidden rounded-4xl border-2 border-dashed border-purple/40 bg-gradient-thanks p-6 text-center shadow-soft sm:p-12">
+      <div className="relative overflow-hidden rounded-4xl border-2 border-dashed border-purple/40 bg-cream p-6 text-center shadow-[0_4px_0_0_rgba(0,0,0,0.08)] sm:p-12">
         <div className="pointer-events-none absolute top-6 left-[10%] text-2xl animate-float-slow">✨</div>
         <div className="pointer-events-none absolute top-10 right-[12%] text-3xl animate-bob">☁️</div>
         <div className="pointer-events-none absolute bottom-8 left-[16%] text-2xl animate-float-slow">🌈</div>
         <div className="pointer-events-none absolute bottom-10 right-[16%] text-2xl animate-bob">⭐</div>
 
-        <div className="relative mx-auto mb-6 w-40 overflow-hidden rounded-2xl shadow-[0_18px_30px_-12px_oklch(0.22_0.05_30/0.35)] sm:w-48">
+        <div className="relative mx-auto mb-6 w-40 overflow-hidden rounded-2xl border-2 border-black/10 shadow-[0_4px_0_0_rgba(0,0,0,0.15)] sm:w-48">
           <img src={quyen2Cover} alt="Bìa sách Quyển 2" className="h-full w-full object-cover opacity-95" />
         </div>
 
@@ -42,12 +43,9 @@ export function Quyen2ComingSoon() {
           để luyện tập trong lúc chờ nhé!
         </p>
 
-        <Link
-          to="/hoc-tap/quyen-1"
-          className="mx-auto mt-6 flex w-fit cursor-pointer items-center gap-2 rounded-full bg-gradient-primary px-6 py-3 font-display text-base font-extrabold text-white shadow-bevel-primary transition-all ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100"
-        >
-          Học Quyển 1 ngay
-        </Link>
+        <Button variant="bevel-primary" asChild className="mx-auto mt-6 w-fit">
+          <Link to="/hoc-tap/quyen-1">Học Quyển 1 ngay</Link>
+        </Button>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Check, Lock } from "lucide-react";
+import { Check } from "lucide-react";
 
 export const STAGE_COLORS = [
   {
@@ -12,6 +12,9 @@ export const STAGE_COLORS = [
     text: "text-green-700",
     stripe: "from-green-400 to-green-600",
     glow: "shadow-[0_8px_24px_rgba(74,222,128,0.55)]",
+    bevel: "shadow-[0_4px_0_0_#16a34a]",
+    hex: "#16a34a",
+    bevelActive: "active:shadow-[0_1px_0_0_#16a34a]",
     scrollThumb: "#4ade80",
     scrollTrack: "#dcfce7",
   },
@@ -25,6 +28,9 @@ export const STAGE_COLORS = [
     text: "text-sky-700",
     stripe: "from-sky-400 to-sky-600",
     glow: "shadow-[0_8px_24px_rgba(56,189,248,0.55)]",
+    bevel: "shadow-[0_4px_0_0_#0284c7]",
+    hex: "#0284c7",
+    bevelActive: "active:shadow-[0_1px_0_0_#0284c7]",
     scrollThumb: "#38bdf8",
     scrollTrack: "#e0f2fe",
   },
@@ -38,6 +44,9 @@ export const STAGE_COLORS = [
     text: "text-purple-700",
     stripe: "from-purple-400 to-purple-600",
     glow: "shadow-[0_8px_24px_rgba(192,132,252,0.55)]",
+    bevel: "shadow-[0_4px_0_0_#9333ea]",
+    hex: "#9333ea",
+    bevelActive: "active:shadow-[0_1px_0_0_#9333ea]",
     scrollThumb: "#c084fc",
     scrollTrack: "#f3e8ff",
   },
@@ -51,6 +60,9 @@ export const STAGE_COLORS = [
     text: "text-amber-700",
     stripe: "from-amber-400 to-amber-600",
     glow: "shadow-[0_8px_24px_rgba(251,191,36,0.55)]",
+    bevel: "shadow-[0_4px_0_0_#d97706]",
+    hex: "#d97706",
+    bevelActive: "active:shadow-[0_1px_0_0_#d97706]",
     scrollThumb: "#fbbf24",
     scrollTrack: "#fef3c7",
   },
@@ -64,6 +76,9 @@ export const STAGE_COLORS = [
     text: "text-pink-700",
     stripe: "from-pink-400 to-pink-600",
     glow: "shadow-[0_8px_24px_rgba(244,114,182,0.55)]",
+    bevel: "shadow-[0_4px_0_0_#db2777]",
+    hex: "#db2777",
+    bevelActive: "active:shadow-[0_1px_0_0_#db2777]",
     scrollThumb: "#f472b6",
     scrollTrack: "#fce7f3",
   },
@@ -108,27 +123,83 @@ export function StageCard({
     return (
       <div
         className={[
-          "relative overflow-hidden rounded-2xl bg-white cursor-not-allowed select-none transition-transform duration-300 hover:scale-105",
-          "ring-[3px] ring-white/60",
-          "shadow-[0_6px_20px_rgba(0,0,0,0.3)]",
+          "overflow-hidden rounded-2xl border-2 border-black/10 bg-stone-400 transition-[box-shadow,border-color] duration-200",
+          "shadow-[0_4px_0_0_#78716c]",
           compact ? "w-36" : "w-44",
         ].join(" ")}
       >
-        {/* Greyed gradient header */}
-        <div className="w-full bg-gradient-to-br from-stone-300 to-stone-400 text-center">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-2xl bg-gradient-to-b from-white/10 to-transparent" />
-          <div className="flex flex-col items-center gap-1.5 px-3 pb-4 pt-5">
-            <Lock className="h-9 w-9 text-white/80 drop-shadow-sm" strokeWidth={2.5} />
-            <span className="text-[10px] font-extrabold uppercase tracking-widest text-white/70">
-              Chặng {index + 1}
-            </span>
+        <button
+          onClick={onClick}
+          aria-label={`Chặng ${index + 1}: ${title} — đang khóa`}
+          className="grid w-full cursor-pointer place-items-center gap-1 py-4 text-center"
+        >
+          <span className="text-4xl leading-none opacity-90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">🔒</span>
+          <span className="text-[10px] font-extrabold uppercase tracking-widest text-white/80 drop-shadow-sm">
+            Chặng {index + 1}
+          </span>
+        </button>
+
+        {/* Expanding hint — friendly nudge instead of a dead end */}
+        <div
+          className={[
+            "overflow-hidden transition-all duration-300 ease-out",
+            isSelected ? "max-h-24" : "max-h-0",
+          ].join(" ")}
+        >
+          <div className="px-1.5 pb-1.5">
+            <div className="rounded-xl bg-stone-500 px-2 py-1.5 shadow-[inset_0_2px_3px_rgba(0,0,0,0.4)]">
+              <p className="text-center text-xs font-bold leading-snug text-white">
+                Hoàn thành chặng trước để mở khóa nhé!
+              </p>
+            </div>
           </div>
         </div>
-        {/* White body */}
-        <div className="px-3 pb-3 pt-2.5 text-center">
-          <p className="line-clamp-2 font-display text-sm font-extrabold leading-tight text-stone-400">
-            {title}
-          </p>
+      </div>
+    );
+  }
+
+  if (isCompleted) {
+    return (
+      <div
+        className={[
+          "overflow-hidden rounded-2xl border-2 border-black/10 transition-[box-shadow,border-color] duration-200",
+          color.bevel,
+          color.bg,
+          compact ? "w-36" : "w-44",
+        ].join(" ")}
+      >
+        <button
+          onClick={onClick}
+          aria-label={`Chặng ${index + 1}: ${title} — đã hoàn thành`}
+          className="grid w-full cursor-pointer place-items-center gap-1 py-4 text-center"
+        >
+          <Check
+            className={["h-11 w-11 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]", justCompleted ? "animate-stamp-in" : ""].join(" ")}
+            strokeWidth={4}
+          />
+          <span className="text-[10px] font-extrabold uppercase tracking-widest text-white/90 drop-shadow-sm">
+            Chặng {index + 1}
+          </span>
+        </button>
+
+        {/* Expanding action section — same reveal-on-select pattern as the in-progress card */}
+        <div
+          className={[
+            "overflow-hidden transition-all duration-300 ease-out",
+            isSelected ? "max-h-28" : "max-h-0",
+          ].join(" ")}
+        >
+          <div className="px-3 pb-3">
+            <p className="line-clamp-2 pb-2 text-center font-display text-sm font-extrabold leading-tight text-white drop-shadow-sm">
+              {title}
+            </p>
+            <button
+              onClick={onOpen}
+              className="w-full cursor-pointer rounded-xl bg-white py-2 text-sm font-extrabold text-navy shadow-bevel-neutral transition-[transform,box-shadow] ease-bounce hover:brightness-95 active:translate-y-[2px] active:shadow-bevel-neutral-active"
+            >
+              {openLabel ?? "Ôn tập"}
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -137,23 +208,20 @@ export function StageCard({
   return (
     <div
       className={[
-        "relative overflow-hidden rounded-2xl bg-white transition-all duration-300 cursor-pointer",
-        "ring-[3px] ring-white/90",
-        "shadow-[0_6px_20px_rgba(0,0,0,0.45)]",
+        "relative overflow-hidden rounded-2xl border-2 border-black/10 bg-white transition-[box-shadow,border-color] duration-200 cursor-pointer",
+        "shadow-[0_4px_0_0_rgba(0,0,0,0.15)]",
         compact ? "w-36" : "w-44",
         isCurrent
-          ? `ring-4 ${color.ring} animate-pulse-glow ${color.glow} scale-105`
-          : `hover:scale-105 hover:${color.glow}`,
-        isCompleted ? "opacity-75" : "",
+          ? `ring-4 ${color.ring} animate-pulse-glow`
+          : "hover:border-black/20",
       ].join(" ")}
+      style={isCurrent ? ({ "--glow-color": color.hex } as React.CSSProperties) : undefined}
     >
-      {/* Gradient header with emoji */}
+      {/* Flat color header with emoji */}
       <button
         onClick={onClick}
-        className={["w-full cursor-pointer text-center", color.gradient].join(" ")}
+        className={["w-full cursor-pointer text-center", color.bg].join(" ")}
       >
-        {/* Sheen overlay */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-1/2 rounded-t-2xl bg-gradient-to-b from-white/20 to-transparent" />
         <div className="flex flex-col items-center gap-1.5 px-3 pb-4 pt-5">
           <span className="text-4xl leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">{emoji}</span>
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-white/90 drop-shadow-sm">
@@ -172,13 +240,13 @@ export function StageCard({
         </p>
         {noiDungProgress && (
           <div className="mt-1.5 px-1">
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-stone-200">
+            <div className="h-2.5 w-full overflow-hidden rounded-full bg-stone-200 shadow-[inset_0_1px_2px_rgba(0,0,0,0.15)]">
               <div
                 className={["h-full rounded-full transition-all", color.bg].join(" ")}
                 style={{ width: `${(noiDungProgress.current / noiDungProgress.total) * 100}%` }}
               />
             </div>
-            <p className={["mt-0.5 text-[9px] font-bold", color.text].join(" ")}>
+            <p className={["mt-1 text-[9px] font-bold", color.text].join(" ")}>
               {noiDungProgress.current}/{noiDungProgress.total} bài
             </p>
           </div>
@@ -196,30 +264,16 @@ export function StageCard({
           <button
             onClick={onOpen}
             className={[
-              "w-full cursor-pointer rounded-xl py-2 text-sm font-extrabold text-white transition hover:brightness-110 active:scale-95",
-              "shadow-[0_3px_10px_rgba(0,0,0,0.25)]",
-              color.gradient,
+              "w-full cursor-pointer rounded-xl py-2 text-sm font-extrabold text-white transition-[transform,box-shadow,filter] ease-bounce hover:brightness-110 active:translate-y-[2px]",
+              color.bevelActive,
+              color.bevel,
+              color.bg,
             ].join(" ")}
           >
             {openLabel ?? "Bắt đầu"}
           </button>
         </div>
       </div>
-
-      {/* Completion stamp overlay */}
-      {isCompleted && (
-        <div
-          className={[
-            "pointer-events-none absolute inset-0 flex items-center justify-center",
-            justCompleted ? "animate-stamp-in" : "",
-          ].join(" ")}
-          style={{ transform: justCompleted ? undefined : "scale(1) rotate(-15deg)", opacity: 0.8 }}
-        >
-          <div className="flex h-14 w-14 items-center justify-center rounded-full border-4 border-green-500 bg-white/90 shadow-lg">
-            <Check className="h-8 w-8 text-green-500" strokeWidth={3} />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

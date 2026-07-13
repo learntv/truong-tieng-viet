@@ -8,6 +8,7 @@ import { RoadmapSkeleton } from "@/components/learning/RoadmapSkeleton";
 import { buildSlides } from "@/components/learning/LessonPage";
 import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
+import { Button } from "@/components/ui/button";
 
 
 const BUFFALO_POS_KEY = "vui-hoc-buffalo-pos";
@@ -300,17 +301,14 @@ export function LearningTab() {
       </div>
       {showCelebration && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-          <div className="relative w-full max-w-md rounded-3xl bg-white p-8 text-center ring-[3px] ring-white shadow-soft">
+          <div className="relative w-full max-w-md rounded-3xl border-2 border-black/10 bg-white p-8 text-center shadow-[0_4px_0_0_rgba(0,0,0,0.12)]">
             <ConfettiBurst onDone={() => { /* keep card visible until user dismisses */ }} />
             <p className="font-display text-xl font-extrabold text-navy sm:text-2xl">
               🎉 Em đã hoàn thành cả lộ trình! Em giỏi lắm!
             </p>
-            <button
-              onClick={dismissCelebration}
-              className="mt-6 rounded-full bg-gradient-sunset px-6 py-3 font-display text-base font-extrabold text-navy shadow-bevel-yellow transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-yellow-active"
-            >
+            <Button variant="bevel-yellow" onClick={dismissCelebration} className="mt-6">
               Ôn tập lại
-            </button>
+            </Button>
           </div>
         </div>
       )}

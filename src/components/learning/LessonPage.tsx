@@ -9,6 +9,7 @@ import { STAGE_COLORS } from "./StageCard";
 import { ConfettiBurst } from "./ConfettiBurst";
 import { ImageHighlightOverlay } from "./ImageHighlightOverlay";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
+import { Button } from "@/components/ui/button";
 import halongScene from "@/assets/halong-scene.jpg";
 import mapPinIcon from "@/assets/map-pin-icon.png";
 
@@ -31,7 +32,7 @@ function BackToMapButton({
     <Link
       to="/hoc-tap/quyen-1"
       aria-label="Quay lại bản đồ"
-      className={[className, color.bgSoft].join(" ")}
+      className={[className, color.bgSoft, color.bevel, color.bevelActive].join(" ")}
     >
       <ArrowLeft className={[arrowClassName, color.text].join(" ")} strokeWidth={3} />
       <img src={mapPinIcon} alt="" className={iconClassName} />
@@ -71,8 +72,10 @@ function AudioButton({ src }: { src: string }) {
         onClick={toggle}
         aria-label={playing ? "Dừng" : "Nghe"}
         className={[
-          "cursor-pointer grid h-8 w-8 shrink-0 place-items-center rounded-full transition active:scale-95",
-          playing ? "animate-pulse bg-blue-500 text-white" : "bg-blue-100 text-blue-600 hover:bg-blue-200",
+          "cursor-pointer grid h-8 w-8 shrink-0 place-items-center rounded-full transition-[transform,box-shadow,background-color] ease-bounce active:translate-y-[1px]",
+          playing
+            ? "animate-pulse bg-blue-500 text-white shadow-[0_2px_0_0_#1d4ed8] active:shadow-[0_0px_0_0_#1d4ed8]"
+            : "bg-blue-100 text-blue-600 shadow-[0_2px_0_0_#93c5fd] hover:bg-blue-200 active:shadow-[0_0px_0_0_#93c5fd]",
         ].join(" ")}
       >
         <Headphones className="h-4 w-4" strokeWidth={2.5} />
@@ -146,13 +149,13 @@ function CloudWord({ text, color }: { text: string; color: StageColor }) {
       onClick={onClick}
       aria-label={`Nghe đọc: ${text}`}
       className={[
-        "cursor-pointer rounded-full border-2 px-3 py-1.5 font-display text-base leading-tight transition active:scale-95",
+        "cursor-pointer rounded-full border-2 px-3 py-1.5 font-display text-base leading-tight transition-[transform,box-shadow] ease-bounce",
         color.bgSoft,
         color.border,
         color.text,
         playing
           ? "animate-pulse scale-110"
-          : "hover:-translate-y-0.5 hover:scale-110 hover:shadow-card",
+          : [color.bevel, color.bevelActive, "active:translate-y-[3px]"].join(" "),
       ].join(" ")}
     >
       {text}
@@ -400,10 +403,12 @@ export function LessonPage({ changId }: { changId: string }) {
         <div className="mb-4 text-6xl">🔍</div>
         <h1 className="mb-2 font-display text-2xl font-extrabold text-navy">Không tìm thấy bài học</h1>
         <p className="mb-6 text-muted-foreground">Chặng học này không tồn tại hoặc đã bị xóa.</p>
-        <Link to="/hoc-tap/quyen-1" className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary/90">
-          <ArrowLeft className="h-4 w-4" />
-          Quay lại lộ trình
-        </Link>
+        <Button variant="bevel-primary" asChild>
+          <Link to="/hoc-tap/quyen-1">
+            <ArrowLeft className="h-4 w-4" />
+            Quay lại lộ trình
+          </Link>
+        </Button>
       </div>
     );
   }
@@ -463,7 +468,7 @@ export function LessonPage({ changId }: { changId: string }) {
       <div className="absolute inset-0 bg-black/45" />
 
       {/* Breadcrumb bar */}
-      <div className={["relative z-10 flex shrink-0 flex-wrap items-center justify-between gap-2 bg-gradient-to-r px-4 py-2 sm:px-6", color.stripe].join(" ")}>
+      <div className={["relative z-10 flex shrink-0 flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-6", color.bg].join(" ")}>
         <div className="flex min-w-0 items-center gap-1.5 text-xs font-bold text-white/90 sm:text-sm">
           <span className="shrink-0">Sách giáo khoa</span>
           <ChevronRight className="h-3 w-3 shrink-0 opacity-70" />
@@ -473,7 +478,7 @@ export function LessonPage({ changId }: { changId: string }) {
           <ChevronRight className="h-3 w-3 shrink-0 opacity-70" />
           <span className="truncate text-white">{chang.emoji} {chang.title}</span>
         </div>
-        <div className="shrink-0 rounded-full bg-white/20 px-3 py-1.5 text-xs font-extrabold text-white backdrop-blur">
+        <div className="shrink-0 rounded-full bg-white/90 px-3 py-1.5 text-xs font-extrabold text-navy">
           Chặng {changIndex + 1}/{changs.length}
         </div>
       </div>
@@ -484,7 +489,7 @@ export function LessonPage({ changId }: { changId: string }) {
       <div className="relative z-10 flex shrink-0 px-2 pt-2 sm:hidden">
         <BackToMapButton
           color={color}
-          className="flex h-11 items-center gap-1 rounded-full px-3 transition active:scale-95"
+          className="flex h-11 items-center gap-1 rounded-full px-3 transition-[transform,box-shadow] ease-bounce active:translate-y-[2px]"
           arrowClassName="h-5 w-5 shrink-0"
           iconClassName="h-7 w-7 shrink-0 object-contain"
         />
@@ -494,7 +499,7 @@ export function LessonPage({ changId }: { changId: string }) {
 
         {/* Left: numbered slide pills */}
         <aside className="hidden w-14 shrink-0 overflow-y-auto sm:flex sm:flex-col sm:items-center">
-          <div className="flex flex-col items-center gap-2 rounded-full bg-white/70 p-2 shadow-card ring-1 ring-black/5">
+          <div className="flex flex-col items-center gap-2 rounded-full border-2 border-black/10 bg-white p-2 shadow-[0_3px_0_0_rgba(0,0,0,0.1)]">
             {slides.map((s, i) => {
               const isActive = i === slideIndex;
               const isDone = isCompleted || i < slideIndex;
@@ -506,7 +511,7 @@ export function LessonPage({ changId }: { changId: string }) {
                   className={[
                     "grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-full font-display text-sm font-extrabold transition",
                     isActive
-                      ? [color.gradient, "scale-110 text-white shadow-md"].join(" ")
+                      ? [color.bg, "scale-110 text-white", color.bevel].join(" ")
                       : isDone
                         ? "bg-green-100 text-green-600 hover:bg-green-200"
                         : "bg-white text-muted-foreground hover:bg-muted",
@@ -520,11 +525,11 @@ export function LessonPage({ changId }: { changId: string }) {
         </aside>
 
         {/* Main content */}
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-none shadow-card ring-2 ring-pink-100 sm:rounded-3xl">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-none border-2 border-black/10 shadow-[0_4px_0_0_rgba(0,0,0,0.1)] sm:rounded-3xl">
 
           {/* Card header strip */}
           <div className="flex shrink-0 flex-wrap items-center gap-2 bg-amber-50 px-4 py-2">
-            <span className={["shrink-0 rounded-full px-3 py-1 font-display text-xs font-extrabold text-white shadow-sm sm:text-sm", color.gradient].join(" ")}>
+            <span className={["shrink-0 rounded-full px-3 py-1 font-display text-xs font-extrabold text-white sm:text-sm", color.bg].join(" ")}>
               Bài {slideIndex + 1}
             </span>
             {currentNoiDung?.title && (
@@ -648,10 +653,10 @@ export function LessonPage({ changId }: { changId: string }) {
                     onClick={handleComplete}
                     disabled={isCompleted}
                     className={[
-                      "relative flex h-full w-full items-center justify-center gap-1.5 overflow-hidden text-sm font-bold transition",
+                      "relative flex h-full w-full items-center justify-center gap-1.5 overflow-hidden text-sm font-bold transition-[transform,border-color] ease-bounce",
                       isCompleted
                         ? "cursor-not-allowed bg-green-100 text-green-600"
-                        : "cursor-pointer bg-gradient-to-r from-emerald-400 via-green-500 to-emerald-600 text-white hover:brightness-110",
+                        : "cursor-pointer border-b-4 border-emerald-700 bg-green text-white hover:brightness-110 active:translate-y-1 active:border-b-0",
                     ].join(" ")}
                   >
                     {!isCompleted && (
@@ -676,7 +681,7 @@ export function LessonPage({ changId }: { changId: string }) {
               <span
                 className={[
                   "grid h-6 w-6 shrink-0 place-items-center rounded-full",
-                  canNext ? color.gradient : "bg-muted-foreground/20",
+                  canNext ? color.bg : "bg-muted-foreground/20",
                 ].join(" ")}
               >
                 <ChevronRight className={["h-4 w-4", canNext ? "text-white" : "text-muted-foreground"].join(" ")} strokeWidth={3} />
@@ -690,7 +695,7 @@ export function LessonPage({ changId }: { changId: string }) {
           column); mobile uses the inline bar above the card instead. */}
       <BackToMapButton
         color={color}
-        className="fixed bottom-4 left-4 z-20 hidden h-16 items-center gap-1 rounded-full px-4 transition hover:brightness-95 active:scale-95 sm:flex"
+        className="fixed bottom-4 left-4 z-20 hidden h-16 items-center gap-1 rounded-full px-4 transition-[transform,box-shadow,filter] ease-bounce hover:brightness-95 active:translate-y-[2px] sm:flex"
         arrowClassName="h-7 w-7 shrink-0"
         iconClassName="h-12 w-12 shrink-0 object-contain"
       />
@@ -700,7 +705,7 @@ export function LessonPage({ changId }: { changId: string }) {
           since it's transient/dismissible rather than a persistent nav element). */}
       {showNextPrompt && nextChang && (
         <div className="fixed bottom-16 right-2 z-20 max-w-[calc(100vw-1rem)] animate-in slide-in-from-right fade-in duration-300 sm:bottom-4 sm:right-4">
-          <div className="relative flex items-stretch overflow-hidden rounded-3xl bg-white shadow-lg ring-2 ring-black/5">
+          <div className="relative flex items-stretch overflow-hidden rounded-3xl border-2 border-black/10 bg-white shadow-[0_4px_0_0_rgba(0,0,0,0.12)]">
             <button
               onClick={() => setShowNextPrompt(false)}
               aria-label="Đóng"
@@ -713,7 +718,7 @@ export function LessonPage({ changId }: { changId: string }) {
               className="flex cursor-pointer items-center gap-2 py-2.5 pl-3 pr-7 text-left transition hover:brightness-105 sm:gap-3 sm:py-3 sm:pl-4 sm:pr-8"
             >
               <span
-                className={["grid h-10 w-10 shrink-0 place-items-center rounded-2xl text-xl sm:h-12 sm:w-12 sm:text-2xl", nextColor.gradient].join(" ")}
+                className={["grid h-10 w-10 shrink-0 place-items-center rounded-2xl text-xl sm:h-12 sm:w-12 sm:text-2xl", nextColor.bg].join(" ")}
               >
                 {nextChang.emoji}
               </span>

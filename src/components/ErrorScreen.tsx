@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
 import { reportLovableError } from "@/lib/lovable-error-reporting";
+import { Button } from "@/components/ui/button";
 
 // Shared error/404 screens for both the router's defaultErrorComponent and the
 // root route's errorComponent/notFoundComponent, so every boundary reports to
@@ -23,21 +24,18 @@ export function ErrorScreen({ error, reset }: { error: Error; reset: () => void 
           Có lỗi xảy ra từ phía chúng tôi. Em hãy thử tải lại, hoặc quay về trang chủ nhé.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button
+          <Button
+            variant="bevel-primary"
             onClick={() => {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 font-display text-sm font-extrabold text-primary-foreground shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active"
           >
             Thử lại
-          </button>
-          <a
-            href="/"
-            className="inline-flex items-center justify-center rounded-full border-2 border-input bg-background px-4 py-2 font-display text-sm font-extrabold text-foreground shadow-bevel-neutral transition-[transform,box-shadow,background-color] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:bg-accent active:translate-y-[3px] active:scale-100 active:shadow-bevel-neutral-active"
-          >
-            Về trang chủ
-          </a>
+          </Button>
+          <Button variant="bevel-neutral" asChild>
+            <a href="/">Về trang chủ</a>
+          </Button>
         </div>
       </div>
     </div>
@@ -54,12 +52,9 @@ export function NotFoundScreen() {
           Trang em tìm không tồn tại hoặc đã được chuyển đi nơi khác.
         </p>
         <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 font-display text-sm font-extrabold text-primary-foreground shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active"
-          >
-            Về trang chủ
-          </Link>
+          <Button variant="bevel-primary" asChild>
+            <Link to="/">Về trang chủ</Link>
+          </Button>
         </div>
       </div>
     </div>
