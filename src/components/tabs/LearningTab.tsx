@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { learningDataQueryOptions } from "@/lib/learning";
-import { RoadmapMap, NODE_POSITIONS } from "@/components/learning/RoadmapMap";
+import { TOPICS } from "@/data/topics";
+import { RoadmapMap, NODE_POSITIONS, type ChuDeNavItem } from "@/components/learning/RoadmapMap";
 import { RoadmapSkeleton } from "@/components/learning/RoadmapSkeleton";
 import { buildSlides } from "@/components/learning/LessonPage";
 import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
@@ -118,7 +119,19 @@ export function LearningTab() {
   }, [data, authIsLoading, isProgressLoading, activeProgressMap]);
 
   const chuDes = useMemo(() => (data ?? []).map((d) => d.chuDe), [data]);
-  const chuDe = chuDes[currentChuDeIndex];
+
+  // The DB only has content for the first `availableCount` chủ đề; the rest of the planned
+  // journey (TOPICS) is surfaced as "coming soon" so the child can see the whole path —
+  // where they are, what's done, and what's next — even before that content ships.
+  const availableCount = chuDes.length;
+  const plannedCount = TOPICS.length;
+  const allTopics = useMemo(
+    () => TOPICS.map((planned, i) => (i < availableCount ? chuDes[i] : planned)),
+    [chuDes, availableCount],
+  );
+  const currentTopic = allTopics[currentChuDeIndex] ?? chuDes[0];
+  const isCurrentLocked = currentChuDeIndex >= availableCount;
+
   const changs = useMemo(() => data?.[currentChuDeIndex]?.changs ?? [], [data, currentChuDeIndex]);
   const changTitles = useMemo(() => changs.map((s) => s.title), [changs]);
   const changEmojis = useMemo(() => changs.map((s) => s.emoji), [changs]);
@@ -137,6 +150,27 @@ export function LearningTab() {
   const completedChangs = useMemo(
     () => new Set(completedByChuDe[currentChuDeIndex] ?? []),
     [completedByChuDe, currentChuDeIndex],
+  );
+
+  // The full 8-topic navigator: each planned chủ đề tagged with its progress state so the
+  // header can draw a clear stepper (done / current / available / coming-soon).
+  const chuDeNav = useMemo<ChuDeNavItem[]>(
+    () =>
+      TOPICS.map((planned, i) => {
+        const isAvailable = i < availableCount;
+        const src = isAvailable ? chuDes[i] : planned;
+        const shortTitle = src.title.replace(/^Chủ đề\s*\d+\s*[:：]\s*/i, "").trim() || src.title;
+        let status: ChuDeNavItem["status"];
+        if (i === currentChuDeIndex) status = "current";
+        else if (!isAvailable) status = "locked";
+        else {
+          const total = data?.[i]?.changs.length ?? 0;
+          const done = completedByChuDe[i]?.length ?? 0;
+          status = total > 0 && done >= total ? "completed" : "available";
+        }
+        return { index: i, title: src.title, shortTitle, emoji: src.emoji, status };
+      }),
+    [chuDes, availableCount, currentChuDeIndex, data, completedByChuDe],
   );
 
   // "X/Y bài" tracks flattened slides (one per bai) — not raw noiDung steps, which are
@@ -182,18 +216,17 @@ export function LearningTab() {
     navigate({ to: "/hoc-tap/quyen-1/$changId", params: { changId: chang.id } });
   };
 
-  // Lets a user switch to a different chủ đề to review it (any topic) or advance to the
-  // next one (only once the current one is fully done) — the only way to do either, since
-  // the map otherwise only auto-lands on a topic via the one-time restore effect above.
+  // Lets a user freely move between chủ đề: any available topic (to review), plus the first
+  // upcoming one (shown as a "coming soon" preview). This is the only way to switch topics,
+  // since the map otherwise only auto-lands on one via the one-time restore effect above.
   const goToChuDe = (index: number) => {
-    if (index < 0 || index >= chuDes.length || index === currentChuDeIndex) return;
+    if (index < 0 || index > availableCount || index >= plannedCount || index === currentChuDeIndex) return;
     setCurrentChuDeIndex(index);
     setCurrentChangIndex(0);
     setSelectedChangIndex(0);
     setBuffaloChangIndex(0);
     try { sessionStorage.removeItem(BUFFALO_POS_KEY); } catch { /* ignore */ }
   };
-  const currentChuDeAllDone = changs.length > 0 && completedChangs.size >= changs.length;
 
   // One-time celebration when the entire roadmap is complete.
   const CELEBRATION_SEEN_KEY = "vui-hoc-celebration-seen";
@@ -221,15 +254,15 @@ export function LearningTab() {
 
   if (isLoading || authIsLoading || isProgressLoading) {
     return (
-      <section className="h-full w-full flex-1">
+      <section className="min-h-[70vh] w-full">
         <RoadmapSkeleton />
       </section>
     );
   }
 
-  if (error || !chuDe || changs.length === 0) {
+  if (error || chuDes.length === 0 || !currentTopic) {
     return (
-      <section className="flex h-full w-full flex-1 items-center justify-center px-4 text-center text-navy">
+      <section className="flex min-h-[60vh] w-full items-center justify-center px-4 text-center text-navy">
         <div>
           <p className="font-display text-lg font-bold">Chưa có dữ liệu bài học.</p>
           {error ? (
@@ -241,14 +274,16 @@ export function LearningTab() {
   }
 
   return (
-    <section className="h-full w-full flex-1 shrink-0" id="roadmap-start">
-      <div className="relative h-full w-full">
+    <section className="w-full" id="roadmap-start">
+      <div className="relative w-full">
         <RoadmapMap
-          chuDe={chuDe}
+          chuDe={currentTopic}
           chuDeIndex={currentChuDeIndex}
-          chuDeCount={chuDes.length}
+          chuDeNav={chuDeNav}
+          isLocked={isCurrentLocked}
+          onSelectChuDe={goToChuDe}
           canGoPrevChuDe={currentChuDeIndex > 0}
-          canGoNextChuDe={currentChuDeIndex < chuDes.length - 1 && currentChuDeAllDone}
+          canGoNextChuDe={currentChuDeIndex < availableCount && currentChuDeIndex < plannedCount - 1}
           onPrevChuDe={() => goToChuDe(currentChuDeIndex - 1)}
           onNextChuDe={() => goToChuDe(currentChuDeIndex + 1)}
           changTitles={changTitles}

@@ -1,7 +1,6 @@
 import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { isQuyen1Path } from "@/lib/learning";
 import halongScene from "@/assets/halong-scene.jpg";
 
 export const Route = createFileRoute("/hoc-tap")({
@@ -12,7 +11,10 @@ function HocTapLayout() {
   const { location } = useRouterState();
   const pathname = location.pathname;
 
-  const isImmersive = isQuyen1Path(pathname);
+  // The lesson pages (…/quyen-1/<changId>) stay a distraction-free full-screen view.
+  // The roadmap itself (…/quyen-1) is a normal scrollable page with a footer.
+  const isLesson = pathname.startsWith("/hoc-tap/quyen-1/");
+  const isRoadmap = pathname === "/hoc-tap/quyen-1";
   const isAlphabetPage = pathname === "/hoc-tap/bang-chu-cai";
   const isHocTapHome = pathname === "/hoc-tap";
 
@@ -20,7 +22,7 @@ function HocTapLayout() {
     <div
       className={[
         "relative",
-        isImmersive ? "flex h-screen flex-col overflow-hidden" : "flex min-h-screen flex-col",
+        isLesson ? "flex h-screen flex-col overflow-hidden" : "flex min-h-screen flex-col",
         isAlphabetPage && "bg-gradient-to-b from-sky-300 to-sky-200",
         isHocTapHome && "bg-gradient-to-b from-amber-100 via-rose-50 to-sky-100",
       ]
@@ -28,7 +30,7 @@ function HocTapLayout() {
         .join(" ")}
     >
       {/* Background bleeds behind the Navbar too, so there's no white strip above the map. */}
-      {isImmersive ? (
+      {isLesson ? (
         <>
           <img
             src={halongScene}
@@ -41,6 +43,18 @@ function HocTapLayout() {
             <Navbar />
             <Outlet />
           </div>
+        </>
+      ) : isRoadmap ? (
+        <>
+          {/* Sky sits behind the Navbar + roadmap card; the Halong map (rendered inside the
+              Outlet) begins below the card and blends up into this sky. */}
+          <div className="relative bg-gradient-to-b from-sky-300 via-sky-200 to-sky-100">
+            <div className="relative z-10">
+              <Navbar />
+              <Outlet />
+            </div>
+          </div>
+          <Footer />
         </>
       ) : (
         <>

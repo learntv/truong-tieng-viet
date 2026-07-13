@@ -5,7 +5,7 @@ import quyen2Cover from "@/assets/quyen_2_cover.jpg";
 
 export function Quyen1Roadmap() {
   return (
-    <div className="relative flex h-full w-full flex-1 flex-col overflow-hidden">
+    <div className="relative flex w-full flex-col">
       <LearningTab />
     </div>
   );
