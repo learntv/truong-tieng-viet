@@ -1,8 +1,7 @@
 import { createFileRoute, Link, Outlet, useChildMatches } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useLearningContent } from "@/hooks/useLearningContent";
 import { Loader2, Mic, Star } from "lucide-react";
-import { learningDataQueryOptions } from "@/lib/learning";
 import { extractSpeakingSentences } from "@/lib/speech";
 import { loadSpeakingProgress, type SpeakingProgress } from "@/lib/speaking-progress";
 import { SPEAKING_TOPICS, staticTopicSentences } from "@/data/speaking-topics";
@@ -93,7 +92,7 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 }
 
 function TopicPicker() {
-  const { data, isLoading, error } = useQuery(learningDataQueryOptions);
+  const { data, isLoading, error } = useLearningContent();
   // Loaded once per visit — stats update when the child practice route is left.
   const [progress] = useState(loadSpeakingProgress);
 

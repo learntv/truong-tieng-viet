@@ -55,16 +55,25 @@ function warnIfTruncated(table: string, rowCount: number) {
   }
 }
 
-async function fetchLearningData(): Promise<ChuDeWithChangs[]> {
-  const [chudeRes, changRes, ndRes, baiRes, hinhRes] = await Promise.all([
+// Images (the `hinh` table) are split into their own query, keyed by bài id. The roadmap never
+// needs them, so it fetches structure alone; the lesson/speech pages compose structure + images
+// via `mergeHinhs`. Keeping them as two *non-overlapping* queries (structure = chude/chang/
+// noidung/bai, images = hinh only) means every table is fetched exactly once and shared across
+// pages — no table gets re-downloaded when moving from the roadmap into a lesson.
+export type HinhByBai = Map<string, Hinh[]>;
+
+// Structure only (chủ đề / chặng / nội dung / bài) with empty `hinhs`. This is all the roadmap
+// needs to draw the map and progress bars, and it's the much smaller half of the payload — so
+// skipping the image table here is what lets the roadmap skeleton clear quickly.
+async function fetchLearningStructure(): Promise<ChuDeWithChangs[]> {
+  const [chudeRes, changRes, ndRes, baiRes] = await Promise.all([
     supabase.from("chude").select("id, position, text").order("position", { ascending: true }),
     supabase.from("chang").select("id, position, text, chude_id").order("position", { ascending: true }),
     supabase.from("noidung").select("id, position, text, chang_id").order("position", { ascending: true }),
     supabase.from("bai").select("id, position, text, noidung_id, meta").order("position", { ascending: true }),
-    supabase.from("hinh").select("id, position, text, bai_id, storage_path").order("position", { ascending: true }),
   ]);
 
-  for (const r of [chudeRes, changRes, ndRes, baiRes, hinhRes]) {
+  for (const r of [chudeRes, changRes, ndRes, baiRes]) {
     if (r.error) throw r.error;
   }
 
@@ -72,21 +81,11 @@ async function fetchLearningData(): Promise<ChuDeWithChangs[]> {
   warnIfTruncated("chang", changRes.data?.length ?? 0);
   warnIfTruncated("noidung", ndRes.data?.length ?? 0);
   warnIfTruncated("bai", baiRes.data?.length ?? 0);
-  warnIfTruncated("hinh", hinhRes.data?.length ?? 0);
 
   const chude = chudeRes.data ?? [];
   const chang = changRes.data ?? [];
   const noidung = ndRes.data ?? [];
   const bai = baiRes.data ?? [];
-  const hinh = hinhRes.data ?? [];
-
-  // storage_path and meta.audio_url are already full public URLs (sgk bucket is public).
-  const hinhByBai = new Map<string, Hinh[]>();
-  for (const h of hinh) {
-    const arr = hinhByBai.get(h.bai_id) ?? [];
-    arr.push({ id: h.id, captions: allTexts(h.text), url: h.storage_path ?? "", highlightTargets: LESSON_HIGHLIGHTS[h.id] });
-    hinhByBai.set(h.bai_id, arr);
-  }
 
   const baiByNd = new Map<string, Bai[]>();
   for (const b of bai) {
@@ -95,7 +94,7 @@ async function fetchLearningData(): Promise<ChuDeWithChangs[]> {
     arr.push({
       id: b.id,
       texts: allTexts(b.text),
-      hinhs: hinhByBai.get(b.id) ?? [],
+      hinhs: [],
       meta,
       audioUrl: meta?.audio_url || undefined,
     });
@@ -140,9 +139,53 @@ async function fetchLearningData(): Promise<ChuDeWithChangs[]> {
   });
 }
 
-export const learningDataQueryOptions = queryOptions({
-  queryKey: ["learning-data"],
-  queryFn: fetchLearningData,
+// Just the `hinh` table, grouped by bài id. storage_path is already a full public URL.
+async function fetchLearningImages(): Promise<HinhByBai> {
+  const hinhRes = await supabase
+    .from("hinh")
+    .select("id, position, text, bai_id, storage_path")
+    .order("position", { ascending: true });
+  if (hinhRes.error) throw hinhRes.error;
+  warnIfTruncated("hinh", hinhRes.data?.length ?? 0);
+
+  const hinhByBai: HinhByBai = new Map();
+  for (const h of hinhRes.data ?? []) {
+    const arr = hinhByBai.get(h.bai_id) ?? [];
+    arr.push({ id: h.id, captions: allTexts(h.text), url: h.storage_path ?? "", highlightTargets: LESSON_HIGHLIGHTS[h.id] });
+    hinhByBai.set(h.bai_id, arr);
+  }
+  return hinhByBai;
+}
+
+// Fold the image query's result into the structure tree, producing the full `ChuDeWithChangs[]`
+// the lesson/speech pages consume. Pure and cheap (O(rows)); rebuilds only the bài level so the
+// chủ đề/chặng objects are reused.
+export function mergeHinhs(structure: ChuDeWithChangs[], hinhByBai: HinhByBai): ChuDeWithChangs[] {
+  return structure.map((cd) => ({
+    chuDe: cd.chuDe,
+    changs: cd.changs.map((ch) => ({
+      ...ch,
+      noiDungs: ch.noiDungs.map((nd) => ({
+        ...nd,
+        bais: nd.bais.map((b) => ({ ...b, hinhs: hinhByBai.get(b.id) ?? [] })),
+      })),
+    })),
+  }));
+}
+
+// Lightweight payload (structure only, no `hinh`) — for the roadmap map.
+export const learningStructureQueryOptions = queryOptions({
+  queryKey: ["learning-structure"],
+  queryFn: fetchLearningStructure,
+  staleTime: 5 * 60_000,
+});
+
+// Image records grouped by bài id — composed with the structure query (see `useLearningContent`)
+// for the lesson/speech pages. Kept separate so it never re-fetches the structural tables and
+// can be prefetched on its own while the roadmap is idle.
+export const learningImagesQueryOptions = queryOptions({
+  queryKey: ["learning-images"],
+  queryFn: fetchLearningImages,
   staleTime: 5 * 60_000,
 });
 

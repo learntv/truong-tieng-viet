@@ -1,4 +1,4 @@
-import { ArrowLeft, Check, ChevronLeft, ChevronRight, Lock, Maximize2, Undo2, X } from "lucide-react";
+import { ArrowLeft, Check, ChevronLeft, ChevronRight, Lock, Maximize, Undo2, X } from "lucide-react";
 import { Fragment, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import type { ChuDe } from "@/data/topics";
@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import quyen1Cover from "@/assets/quyen_1_cover.jpg";
 import { ALL_SCENES, locationForChuDe, sceneForChuDe } from "@/data/scenes";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 // One entry per planned chủ đề, tagged with its progress state — drives the header stepper.
 export type ChuDeNavItem = {
@@ -214,7 +213,7 @@ export function RoadmapMap({
                   className={[
                     "grid h-9 w-9 shrink-0 place-items-center rounded-full transition-[transform,box-shadow] ease-bounce sm:h-10 sm:w-10",
                     canGoNextChuDe
-                      ? ["cursor-pointer text-white ring-2 ring-white/80 active:translate-y-[2px]", accent.solid, accent.bevel, accent.bevelActive].join(" ")
+                      ? ["cursor-pointer text-white active:translate-y-[2px]", accent.solid, accent.bevel, accent.bevelActive].join(" ")
                       : "cursor-not-allowed bg-black/[0.03] text-navy/30",
                   ].join(" ")}
                 >
@@ -290,21 +289,14 @@ export function RoadmapMap({
               {/* "Learn about this place" — bottom-right info button that opens a fullscreen
                   overlay with the backdrop's real-world name and a short history blurb, so kids
                   can learn a bit about the place their lesson map is set in. */}
-              <TooltipProvider delayDuration={200}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      onClick={() => setShowLocationInfo(true)}
-                      aria-label={`Tìm hiểu về ${location.name}`}
-                      className="absolute bottom-4 right-4 z-20 grid h-10 w-10 place-items-center rounded-full bg-white/90 text-navy shadow-[0_2px_0_0_rgba(0,0,0,0.15)] ring-1 ring-black/10 transition hover:scale-105 active:translate-y-[1px] sm:h-11 sm:w-11"
-                    >
-                      <Maximize2 className="h-5 w-5" strokeWidth={2.5} />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top">Tìm hiểu về {location.name}</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <button
+                type="button"
+                onClick={() => setShowLocationInfo(true)}
+                aria-label={`Tìm hiểu về ${location.name}`}
+                className="absolute bottom-4 right-4 z-20 grid h-10 w-10 cursor-pointer place-items-center rounded-full bg-navy/50 text-white shadow-[0_2px_0_0_rgba(0,0,0,0.25)] transition hover:scale-105 active:translate-y-[1px] sm:h-11 sm:w-11"
+              >
+                <Maximize className="h-5 w-5" strokeWidth={2.5} />
+              </button>
 
               {isLocked ? (
                 /* Coming-soon preview for a chủ đề that has no content yet */

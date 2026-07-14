@@ -1,23 +1,19 @@
 import { Fragment } from "react";
-import { halongScene } from "@/data/scenes";
-
-const NODE_POSITIONS = [
-  { x: 10, y: 58 },
-  { x: 28, y: 30 },
-  { x: 50, y: 52 },
-  { x: 72, y: 26 },
-  { x: 90, y: 52 },
-];
-
-const pathSegments = NODE_POSITIONS.slice(1).map((p, i) => {
-  const prev = NODE_POSITIONS[i];
-  const cx = (prev.x + p.x) / 2;
-  return `M ${prev.x} ${prev.y} Q ${cx} ${prev.y}, ${p.x} ${p.y}`;
-});
+import { sceneForChuDe } from "@/data/scenes";
+import { getNodePositions } from "@/components/learning/RoadmapMap";
 
 // Mirrors RoadmapMap's card/header/map layout so the loading state doesn't jump when real
-// content swaps in.
-export function RoadmapSkeleton() {
+// content swaps in. Both the backdrop and the node layout are keyed to the chủ đề actually
+// being loaded (scene is a static asset and the layout is a pure function of the index, so
+// neither waits on a query) — the skeleton nodes therefore land exactly where the real stage
+// cards will, and no different chủ đề's background flashes first.
+export function RoadmapSkeleton({ chuDeIndex = 0 }: { chuDeIndex?: number }) {
+  const nodePositions = getNodePositions(chuDeIndex);
+  const pathSegments = nodePositions.slice(1).map((p, i) => {
+    const prev = nodePositions[i];
+    const cx = (prev.x + p.x) / 2;
+    return `M ${prev.x} ${prev.y} Q ${cx} ${prev.y}, ${p.x} ${p.y}`;
+  });
   return (
     <div className="relative w-full">
       <div className="w-full px-3 pt-8 pb-8 sm:px-4 sm:pt-12">
@@ -50,7 +46,7 @@ export function RoadmapSkeleton() {
           {/* Map */}
           <div
             className="relative h-[78vh] min-h-[560px] w-full overflow-x-auto overflow-y-hidden bg-cover bg-center bg-no-repeat sm:overflow-x-hidden"
-            style={{ backgroundImage: `url(${halongScene})`, paddingTop: "4rem" }}
+            style={{ backgroundImage: `url(${sceneForChuDe(chuDeIndex)})`, paddingTop: "4rem" }}
           >
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-sky-200/25 via-transparent to-white/10" />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-black/25 to-transparent" />
@@ -87,7 +83,7 @@ export function RoadmapSkeleton() {
                 ))}
               </svg>
 
-              {NODE_POSITIONS.map((p, i) => (
+              {nodePositions.map((p, i) => (
                 <div
                   key={i}
                   className="absolute"

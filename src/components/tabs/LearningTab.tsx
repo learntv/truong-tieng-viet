@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { learningDataQueryOptions } from "@/lib/learning";
+import { learningImagesQueryOptions, learningStructureQueryOptions } from "@/lib/learning";
 import { TOPICS } from "@/data/topics";
 import { RoadmapMap, NODE_POSITIONS, type ChuDeNavItem } from "@/components/learning/RoadmapMap";
 import { RoadmapSkeleton } from "@/components/learning/RoadmapSkeleton";
@@ -34,8 +34,25 @@ function saveBuffaloPos(pos: BuffaloPos) {
 }
 
 export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: number }) {
-  const { data, isLoading, error } = useQuery(learningDataQueryOptions);
+  const { data, isLoading, error } = useQuery(learningStructureQueryOptions);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  // The roadmap loads a lightweight, image-free payload so its skeleton clears fast. Once it's
+  // up, warm just the image table in the background during idle time so opening an actual lesson
+  // is instant. Only `hinh` is fetched here — the structural tables are already cached from the
+  // roadmap's own query, so nothing gets downloaded twice.
+  useEffect(() => {
+    if (isLoading) return;
+    const prefetch = () => queryClient.prefetchQuery(learningImagesQueryOptions);
+    const ric = window.requestIdleCallback;
+    if (ric) {
+      const handle = ric(prefetch);
+      return () => window.cancelIdleCallback?.(handle);
+    }
+    const t = setTimeout(prefetch, 1500);
+    return () => clearTimeout(t);
+  }, [isLoading, queryClient]);
 
   // The chủ đề itself now lives in the URL (source of truth). The stage *within* that chủ đề
   // isn't part of the URL, so it's still seeded from the last-saved position (if any) — but
@@ -66,25 +83,17 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
     }
   }, [data]);
 
-  // Restore the stage within the current chủ đề once data + progress are both ready. The chủ
-  // đề itself comes from the URL, so this only ever redirects to a *different* chủ đề for the
-  // one case where the URL doesn't pin a specific choice yet (fresh "/hoc-tap/quyen-1" entry
-  // with nothing in sessionStorage) — any deep link or back-navigation to a specific chủ đề is
-  // respected as-is.
-  // Priority: last-opened stage (sessionStorage) → in-progress "đang học" stage → first incomplete → last stage.
+  // Restore the stage *within* the current chủ đề once data + progress are ready. The chủ đề
+  // itself is pinned by the URL (source of truth), so this never navigates to a *different* chủ
+  // đề — refreshing or deep-linking to a chủ đề keeps you exactly there. Cross-chủ-đề "resume
+  // where you left off" is the job of the "/hoc-tap/quyen-1" index redirect, not this effect.
+  // Stage priority: last-opened stage (sessionStorage) → first in-progress / incomplete → last.
   const hasRestoredRef = useRef(false);
   useEffect(() => {
     if (hasRestoredRef.current || !data || authIsLoading || isProgressLoading) return;
     hasRestoredRef.current = true;
 
-    const restore = (chuDeIdx: number, changIdx: number) => {
-      if (chuDeIdx !== currentChuDeIndex) {
-        navigate({
-          to: "/hoc-tap/quyen-1/chu-de-{$chuDeIndex}",
-          params: { chuDeIndex: String(chuDeIdx + 1) },
-          replace: true,
-        });
-      }
+    const setStage = (changIdx: number) => {
       setCurrentChangIndex(changIdx);
       setBuffaloChangIndex(changIdx);
       setSelectedChangIndex(changIdx);
@@ -103,7 +112,7 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
     };
 
     // Prefer the stage the user last opened (saved in sessionStorage by openChang), but only
-    // when it belongs to the chủ đề we're actually on.
+    // when it belongs to the chủ đề we're actually on and isn't already completed/locked.
     const saved = loadBuffaloPos();
     if (
       saved &&
@@ -116,38 +125,15 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
       const prevChangId = saved.changIndex > 0 ? savedChangs[saved.changIndex - 1]?.id : null;
       const isLocked = prevChangId ? !activeProgressMap.get(prevChangId)?.isCompleted : false;
       if (!savedProg?.isCompleted && !isLocked) {
-        restore(currentChuDeIndex, saved.changIndex);
+        setStage(saved.changIndex);
         return;
       }
       // Saved stage is completed or locked — discard stale position
       try { sessionStorage.removeItem(BUFFALO_POS_KEY); } catch { /* ignore */ }
     }
 
-    // Nothing usable was saved for this chủ đề. If we're on the default entry (chủ đề 1) with
-    // no saved position at all, pick up wherever the user left off across the whole roadmap.
-    // Otherwise the URL asked for this specific chủ đề on purpose — just land on the right
-    // stage inside it.
-    if (!saved && currentChuDeIndex === 0) {
-      for (let ti = 0; ti < data.length; ti++) {
-        const topicChangs = data[ti].changs;
-        const inProgress = topicChangs.findIndex((ch) => {
-          const prog = activeProgressMap.get(ch.id);
-          return prog && !prog.isCompleted && prog.noiDungIndex > 0;
-        });
-        if (inProgress !== -1) { restore(ti, inProgress); return; }
-      }
-      for (let ti = 0; ti < data.length; ti++) {
-        const topicChangs = data[ti].changs;
-        const firstIncomplete = topicChangs.findIndex((ch) => !activeProgressMap.get(ch.id)?.isCompleted);
-        if (firstIncomplete !== -1) { restore(ti, firstIncomplete); return; }
-      }
-      const lastTi = data.length - 1;
-      restore(lastTi, Math.max(0, data[lastTi].changs.length - 1));
-      return;
-    }
-
-    restore(currentChuDeIndex, firstIncompleteWithin(currentChuDeIndex));
-  }, [data, authIsLoading, isProgressLoading, activeProgressMap, currentChuDeIndex, navigate]);
+    setStage(firstIncompleteWithin(currentChuDeIndex));
+  }, [data, authIsLoading, isProgressLoading, activeProgressMap, currentChuDeIndex]);
 
   const chuDes = useMemo(() => (data ?? []).map((d) => d.chuDe), [data]);
 
@@ -289,7 +275,7 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
   if (isLoading || authIsLoading || isProgressLoading) {
     return (
       <section className="min-h-[70vh] w-full">
-        <RoadmapSkeleton />
+        <RoadmapSkeleton chuDeIndex={currentChuDeIndex} />
       </section>
     );
   }

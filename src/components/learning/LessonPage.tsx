@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ArrowLeft, Check, ChevronLeft, ChevronRight, ExternalLink, Headphones, Loader2, X } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { learningDataQueryOptions } from "@/lib/learning";
+import { useLearningContent } from "@/hooks/useLearningContent";
 import type { Bai, Hinh, NoiDung } from "@/lib/learning";
 import { STAGE_COLORS } from "./StageCard";
 import { ConfettiBurst } from "./ConfettiBurst";
@@ -328,7 +327,7 @@ export function buildSlides(noiDungs: NoiDung[]): Slide[] {
 }
 
 export function LessonPage({ changId }: { changId: string }) {
-  const { data, isLoading, error } = useQuery(learningDataQueryOptions);
+  const { data, isLoading, error } = useLearningContent();
   const navigate = useNavigate();
   const {
     authIsLoading,

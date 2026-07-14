@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { learningDataQueryOptions } from "@/lib/learning";
+import { useLearningContent } from "@/hooks/useLearningContent";
 import { extractSpeakingSentences } from "@/lib/speech";
 import { SPEAKING_TOPICS, staticTopicSentences } from "@/data/speaking-topics";
 import { SpeakingPractice } from "@/components/speaking/SpeakingPractice";
@@ -12,7 +11,7 @@ export const Route = createFileRoute("/hoc-tap/luyen-noi/$chuDeId")({
 
 function SpeakingRoute() {
   const { chuDeId } = Route.useParams();
-  const { data, isLoading, error } = useQuery(learningDataQueryOptions);
+  const { data, isLoading, error } = useLearningContent();
 
   // Curated topics resolve without waiting for the curriculum query.
   const staticIndex = SPEAKING_TOPICS.findIndex((t) => t.id === chuDeId);
