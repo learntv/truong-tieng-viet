@@ -1,12 +1,13 @@
 import { ArrowLeft, Check, ChevronLeft, ChevronRight, Lock, Maximize, Undo2, X } from "lucide-react";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import type { ChuDe } from "@/data/topics";
 import { BuffaloMascot } from "./BuffaloMascot";
 import { StageCard, STAGE_COLORS } from "./StageCard";
 import { Button } from "@/components/ui/button";
 import quyen1Cover from "@/assets/quyen_1_cover.jpg";
-import { ALL_SCENES, locationForChuDe, sceneForChuDe } from "@/data/scenes";
+import { locationForChuDe, sceneForChuDe } from "@/data/scenes";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 
 // One entry per planned chủ đề, tagged with its progress state — drives the header stepper.
@@ -111,6 +112,31 @@ export function RoadmapMap({
   const location = locationForChuDe(chuDeIndex);
   const [showLocationInfo, setShowLocationInfo] = useState(false);
 
+  // Track which way the child navigated (prev/next) so the map content can push in from
+  // that side, while the outgoing map (snapshotted below) pushes out the other side —
+  // otherwise the old map would just vanish and flash the empty backdrop before the new one
+  // slides in. Direction is derived during render (not an effect) so the very first paint
+  // after a chủ đề change already carries the right direction — no stale-direction flash.
+  const [prevChuDeIndex, setPrevChuDeIndex] = useState(chuDeIndex);
+  const [slideDirection, setSlideDirection] = useState<"left" | "right">("right");
+  const lastMapContentRef = useRef<ReactNode>(null);
+  const [outgoingMap, setOutgoingMap] = useState<{ content: ReactNode; direction: "left" | "right" } | null>(null);
+  if (chuDeIndex !== prevChuDeIndex) {
+    const direction = chuDeIndex > prevChuDeIndex ? "right" : "left";
+    setSlideDirection(direction);
+    setPrevChuDeIndex(chuDeIndex);
+    setOutgoingMap({ content: lastMapContentRef.current, direction });
+  }
+  const pushInClass = slideDirection === "right" ? "animate-push-in-from-right" : "animate-push-in-from-left";
+  const pushOutClass = outgoingMap?.direction === "right" ? "animate-push-out-to-left" : "animate-push-out-to-right";
+
+  // Drop the outgoing snapshot once its exit animation has finished playing.
+  useEffect(() => {
+    if (!outgoingMap) return;
+    const timer = window.setTimeout(() => setOutgoingMap(null), 550);
+    return () => window.clearTimeout(timer);
+  }, [outgoingMap]);
+
   const prevItem = chuDeIndex > 0 ? chuDeNav[chuDeIndex - 1] : undefined;
   const nextItem = chuDeIndex + 1 < chuDeNav.length ? chuDeNav[chuDeIndex + 1] : undefined;
   const nextIsLocked = nextItem?.status === "locked";
@@ -147,6 +173,135 @@ export function RoadmapMap({
     const prev = nodePositions[i];
     const cx = (prev.x + p.x) / 2;
     return `M ${prev.x} ${prev.y} Q ${cx} ${prev.y}, ${p.x} ${p.y}`;
+  });
+
+  // Backdrop scene + tint/shadow + path/nodes/buffalo (or the locked preview) for the chủ đề
+  // currently being shown. Kept as its own node (rather than inlined below) so a snapshot of
+  // it can be kept around as the "outgoing" layer when the chủ đề changes — see
+  // lastMapContentRef above.
+  const mapContent = (
+    <>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${sceneForChuDe(chuDeIndex)})` }}
+      />
+      {/* Soft tint over the scene */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-sky-200/25 via-transparent to-white/10" />
+      {/* Bottom drop shadow — grounds the buffalo/path against the card's lower edge */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-black/25 to-transparent" />
+
+      {isLocked ? (
+        /* Coming-soon preview for a chủ đề that has no content yet */
+        <div className="relative flex h-full items-center justify-center p-5">
+          <div className="max-w-sm rounded-3xl border-2 border-black/10 bg-white p-6 text-center shadow-[0_4px_0_0_rgba(0,0,0,0.1)] sm:p-8">
+            <div className={["mx-auto grid h-20 w-20 place-items-center rounded-full text-4xl ring-4 ring-white", accent.solid].join(" ")}>
+              {chuDe.emoji}
+            </div>
+            <div className="mx-auto mt-3 inline-flex items-center gap-1 rounded-full bg-black/5 px-3 py-1 text-xs font-extrabold text-navy/60">
+              <Lock className="h-3 w-3" strokeWidth={2.5} /> Sắp có
+            </div>
+            <h3 className="mt-2 font-display text-xl font-extrabold text-navy">{chuDe.title}</h3>
+            <p className="mx-auto mt-2 max-w-xs text-sm text-muted-foreground">
+              Các cô đang biên soạn chủ đề này. Em quay lại chủ đề trước để luyện tập trong lúc chờ nhé! ✨
+            </p>
+            <Button variant="bevel-primary" onClick={onPrevChuDe} className="mx-auto mt-5">
+              <ArrowLeft className="h-4 w-4" strokeWidth={3} />
+              Quay lại {prevItem?.shortTitle ?? "chủ đề trước"}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <svg
+            className="absolute inset-0 h-full w-full"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+          >
+            {/* Each segment's halo takes the color of the lesson it leads away from, but only
+                once that lesson is actually done — segments past an unfinished chặng stay
+                neutral grey instead of implying progress that hasn't happened yet. */}
+            {pathSegments.map((d, i) => (
+              <path
+                key={`halo-${i}`}
+                d={d}
+                fill="none"
+                stroke={completedChangs.has(i) ? STAGE_COLORS[i % STAGE_COLORS.length].hex : "#a3a3a3"}
+                strokeWidth="1.8"
+                strokeDasharray="2.5 2.5"
+                strokeLinecap="round"
+                opacity="0.75"
+              />
+            ))}
+            {pathSegments.map((d, i) => (
+              <path
+                key={`line-${i}`}
+                d={d}
+                fill="none"
+                stroke="white"
+                strokeWidth="1.4"
+                strokeDasharray="2.5 2.5"
+                strokeLinecap="round"
+                opacity="0.95"
+              />
+            ))}
+          </svg>
+
+          {nodePositions.map((p, i) => {
+            const isLocked = i > 0 && !completedChangs.has(i - 1);
+            return (
+              <div
+                key={i}
+                className="absolute"
+                style={{ left: `${p.x}%`, top: `${p.y}%`, transform: "translateX(-50%) translateY(-72px)" }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {i === currentChangIndex && !isLocked && (
+                  <div className="animate-float-badge absolute -top-11 left-1/2 flex -translate-x-1/2 flex-col items-center whitespace-nowrap">
+                    <div className={["rounded-xl px-3 py-1.5 text-[11px] font-extrabold text-white shadow-[0_2px_0_0_rgba(0,0,0,0.2)]", STAGE_COLORS[i % STAGE_COLORS.length].bg].join(" ")}>
+                      Đang học
+                    </div>
+                    <div
+                      className="h-0 w-0"
+                      style={{
+                        borderLeft: "6px solid transparent",
+                        borderRight: "6px solid transparent",
+                        borderTop: `8px solid ${STAGE_COLORS[i % STAGE_COLORS.length].scrollThumb}`,
+                      }}
+                    />
+                  </div>
+                )}
+                <StageCard
+                  index={i}
+                  title={changTitles[i] ?? ""}
+                  emoji={changEmojis[i] ?? "📖"}
+                  isCurrent={i === currentChangIndex}
+                  isCompleted={completedChangs.has(i)}
+                  isLocked={isLocked}
+                  isSelected={selectedChangIndex === i}
+                  openLabel={getLessonButtonLabel(i, completedChangs, startedChangs)}
+                  compact
+                  noiDungProgress={changProgress.get(i)}
+                  onClick={() => onSelectStage(i)}
+                  onOpen={() => { if (!isLocked) onOpenLesson(i); }}
+                />
+              </div>
+            );
+          })}
+
+          <BuffaloMascot
+            xPercent={Math.max(6, (nodePositions[buffaloIndex]?.x ?? 10) - 6)}
+            yPercent={nodePositions[buffaloIndex]?.y ?? 58}
+          />
+        </>
+      )}
+    </>
+  );
+
+  // Snapshot the just-rendered content after each commit so the *next* time chủ đề changes,
+  // the outgoing layer above can show exactly what was on screen a moment ago.
+  useEffect(() => {
+    lastMapContentRef.current = mapContent;
   });
 
   return (
@@ -259,36 +414,20 @@ export function RoadmapMap({
             </div>
           </div>
 
-          {/* Map: SVG path + stage cards + buffalo. Every scene is stacked and cross-faded via
-              opacity so switching chủ đề animates the backdrop instead of popping instantly.
-              The scene/tint/shadow layers live *inside* the same width-clamped wrapper as the
-              map content (rather than pinned to the scroll container) so the backdrop scrolls
-              together with the map on mobile instead of stopping short and exposing blank page
-              background past the visible edge. */}
+          {/* Map: backdrop scene + SVG path + stage cards + buffalo. Switching chủ đề pushes
+              the whole map sideways — the outgoing snapshot slides out one side while the new
+              content slides in the other, clipped to this width-clamped wrapper so the push
+              stays contained within the card and scrolls together with the map on mobile
+              instead of stopping short and exposing blank page background past the edge. */}
           <div className="relative h-[78vh] min-h-[560px] w-full overflow-x-auto overflow-y-hidden overscroll-x-contain touch-pan-x touch-pan-y sm:overflow-x-hidden">
             <div
               className={["relative h-full", isLocked ? "w-full" : "min-w-[760px] sm:min-w-0"].join(" ")}
               style={{ paddingTop: '4rem' }}
             >
-              {ALL_SCENES.map((scene) => (
-                <div
-                  key={scene}
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-700 ease-in-out"
-                  style={{
-                    backgroundImage: `url(${scene})`,
-                    opacity: sceneForChuDe(chuDeIndex) === scene ? 1 : 0,
-                  }}
-                />
-              ))}
-              {/* Soft tint over the scene */}
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-sky-200/25 via-transparent to-white/10" />
-              {/* Bottom drop shadow — grounds the buffalo/path against the card's lower edge */}
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-black/25 to-transparent" />
-
               {/* "Learn about this place" — bottom-right info button that opens a fullscreen
                   overlay with the backdrop's real-world name and a short history blurb, so kids
-                  can learn a bit about the place their lesson map is set in. */}
+                  can learn a bit about the place their lesson map is set in. Stays fixed in the
+                  corner (doesn't push/slide) like the rest of the chrome. */}
               <button
                 type="button"
                 onClick={() => setShowLocationInfo(true)}
@@ -298,110 +437,16 @@ export function RoadmapMap({
                 <Maximize className="h-5 w-5" strokeWidth={2.5} />
               </button>
 
-              {isLocked ? (
-                /* Coming-soon preview for a chủ đề that has no content yet */
-                <div className="relative flex h-full items-center justify-center p-5">
-                  <div className="max-w-sm rounded-3xl border-2 border-black/10 bg-white p-6 text-center shadow-[0_4px_0_0_rgba(0,0,0,0.1)] sm:p-8">
-                    <div className={["mx-auto grid h-20 w-20 place-items-center rounded-full text-4xl ring-4 ring-white", accent.solid].join(" ")}>
-                      {chuDe.emoji}
-                    </div>
-                    <div className="mx-auto mt-3 inline-flex items-center gap-1 rounded-full bg-black/5 px-3 py-1 text-xs font-extrabold text-navy/60">
-                      <Lock className="h-3 w-3" strokeWidth={2.5} /> Sắp có
-                    </div>
-                    <h3 className="mt-2 font-display text-xl font-extrabold text-navy">{chuDe.title}</h3>
-                    <p className="mx-auto mt-2 max-w-xs text-sm text-muted-foreground">
-                      Các cô đang biên soạn chủ đề này. Em quay lại chủ đề trước để luyện tập trong lúc chờ nhé! ✨
-                    </p>
-                    <Button variant="bevel-primary" onClick={onPrevChuDe} className="mx-auto mt-5">
-                      <ArrowLeft className="h-4 w-4" strokeWidth={3} />
-                      Quay lại {prevItem?.shortTitle ?? "chủ đề trước"}
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-              <>
-              <svg
-            className="absolute inset-0 h-full w-full"
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-          >
-            {/* Each segment's halo takes the color of the lesson it leads away from, but only
-                once that lesson is actually done — segments past an unfinished chặng stay
-                neutral grey instead of implying progress that hasn't happened yet. */}
-            {pathSegments.map((d, i) => (
-              <path
-                key={`halo-${i}`}
-                d={d}
-                fill="none"
-                stroke={completedChangs.has(i) ? STAGE_COLORS[i % STAGE_COLORS.length].hex : "#a3a3a3"}
-                strokeWidth="1.8"
-                strokeDasharray="2.5 2.5"
-                strokeLinecap="round"
-                opacity="0.75"
-              />
-            ))}
-            {pathSegments.map((d, i) => (
-              <path
-                key={`line-${i}`}
-                d={d}
-                fill="none"
-                stroke="white"
-                strokeWidth="1.4"
-                strokeDasharray="2.5 2.5"
-                strokeLinecap="round"
-                opacity="0.95"
-              />
-            ))}
-          </svg>
-
-          {nodePositions.map((p, i) => {
-            const isLocked = i > 0 && !completedChangs.has(i - 1);
-            return (
-              <div
-                key={i}
-                className="absolute"
-                style={{ left: `${p.x}%`, top: `${p.y}%`, transform: "translateX(-50%) translateY(-72px)" }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                {i === currentChangIndex && !isLocked && (
-                  <div className="animate-float-badge absolute -top-11 left-1/2 flex -translate-x-1/2 flex-col items-center whitespace-nowrap">
-                    <div className={["rounded-xl px-3 py-1.5 text-[11px] font-extrabold text-white shadow-[0_2px_0_0_rgba(0,0,0,0.2)]", STAGE_COLORS[i % STAGE_COLORS.length].bg].join(" ")}>
-                      Đang học
-                    </div>
-                    <div
-                      className="h-0 w-0"
-                      style={{
-                        borderLeft: "6px solid transparent",
-                        borderRight: "6px solid transparent",
-                        borderTop: `8px solid ${STAGE_COLORS[i % STAGE_COLORS.length].scrollThumb}`,
-                      }}
-                    />
+              <div className="absolute inset-0 overflow-hidden">
+                {outgoingMap && (
+                  <div className={["absolute inset-0", pushOutClass].join(" ")}>
+                    {outgoingMap.content}
                   </div>
                 )}
-                <StageCard
-                  index={i}
-                  title={changTitles[i] ?? ""}
-                  emoji={changEmojis[i] ?? "📖"}
-                  isCurrent={i === currentChangIndex}
-                  isCompleted={completedChangs.has(i)}
-                  isLocked={isLocked}
-                  isSelected={selectedChangIndex === i}
-                  openLabel={getLessonButtonLabel(i, completedChangs, startedChangs)}
-                  compact
-                  noiDungProgress={changProgress.get(i)}
-                  onClick={() => onSelectStage(i)}
-                  onOpen={() => { if (!isLocked) onOpenLesson(i); }}
-                />
+                <div key={chuDeIndex} className={["absolute inset-0", pushInClass].join(" ")}>
+                  {mapContent}
+                </div>
               </div>
-            );
-          })}
-
-          <BuffaloMascot
-            xPercent={Math.max(6, (nodePositions[buffaloIndex]?.x ?? 10) - 6)}
-            yPercent={nodePositions[buffaloIndex]?.y ?? 58}
-          />
-              </>
-              )}
             </div>
           </div>
         </div>

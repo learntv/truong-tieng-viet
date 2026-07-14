@@ -329,6 +329,31 @@
 }
 @utility animate-glow-gold { animation: glow-gold 1.8s ease-in-out infinite; }
 
+/* Roadmap chủ đề switch — map content pushes in from the direction the child navigated. */
+@keyframes push-in-from-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+@utility animate-push-in-from-right { animation: push-in-from-right 0.55s cubic-bezier(0.22, 0.61, 0.36, 1); }
+
+@keyframes push-in-from-left {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+@utility animate-push-in-from-left { animation: push-in-from-left 0.55s cubic-bezier(0.22, 0.61, 0.36, 1); }
+
+@keyframes push-out-to-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-100%); }
+}
+@utility animate-push-out-to-left { animation: push-out-to-left 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) forwards; }
+
+@keyframes push-out-to-right {
+  from { transform: translateX(0); }
+  to   { transform: translateX(100%); }
+}
+@utility animate-push-out-to-right { animation: push-out-to-right 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) forwards; }
+
 /* Lesson slide scrollbar — color driven by --scroll-thumb / --scroll-track inline vars */
 .lesson-scroll {
   scrollbar-width: thin;
