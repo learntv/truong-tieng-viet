@@ -17,13 +17,14 @@ import { Route as BangXepHangRouteImport } from './routes/bang-xep-hang'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HocTapIndexRouteImport } from './routes/hoc-tap.index'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
+import { Route as HocTapQuyen2RouteImport } from './routes/hoc-tap.quyen-2'
+import { Route as HocTapQuyen1RouteImport } from './routes/hoc-tap.quyen-1'
 import { Route as HocTapLuyenNoiRouteImport } from './routes/hoc-tap.luyen-noi'
-import { Route as HocTapLoTrinhRouteImport } from './routes/hoc-tap.lo-trinh'
-import { Route as HocTapLoTrinhIndexRouteImport } from './routes/hoc-tap.lo-trinh.index'
+import { Route as HocTapBangChuCaiRouteImport } from './routes/hoc-tap.bang-chu-cai'
+import { Route as HocTapQuyen1IndexRouteImport } from './routes/hoc-tap.quyen-1.index'
+import { Route as HocTapQuyen1ChangIdRouteImport } from './routes/hoc-tap_.quyen-1_.$changId'
+import { Route as HocTapQuyen1ChuDeChar123chuDeIndexChar125RouteImport } from './routes/hoc-tap.quyen-1.chu-de-{$chuDeIndex}'
 import { Route as HocTapLuyenNoiChuDeIdRouteImport } from './routes/hoc-tap.luyen-noi.$chuDeId'
-import { Route as HocTapLoTrinhQuyen2RouteImport } from './routes/hoc-tap.lo-trinh.quyen-2'
-import { Route as HocTapLoTrinhQuyen1RouteImport } from './routes/hoc-tap.lo-trinh.quyen-1'
-import { Route as HocTapLoTrinhQuyen1ChangIdRouteImport } from './routes/hoc-tap.lo-trinh.quyen-1.$changId'
 
 const SanPhamCuaEmRoute = SanPhamCuaEmRouteImport.update({
   id: '/san-pham-cua-em',
@@ -65,42 +66,47 @@ const UUsernameRoute = UUsernameRouteImport.update({
   path: '/u/$username',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HocTapQuyen2Route = HocTapQuyen2RouteImport.update({
+  id: '/quyen-2',
+  path: '/quyen-2',
+  getParentRoute: () => HocTapRoute,
+} as any)
+const HocTapQuyen1Route = HocTapQuyen1RouteImport.update({
+  id: '/quyen-1',
+  path: '/quyen-1',
+  getParentRoute: () => HocTapRoute,
+} as any)
 const HocTapLuyenNoiRoute = HocTapLuyenNoiRouteImport.update({
   id: '/luyen-noi',
   path: '/luyen-noi',
   getParentRoute: () => HocTapRoute,
 } as any)
-const HocTapLoTrinhRoute = HocTapLoTrinhRouteImport.update({
-  id: '/lo-trinh',
-  path: '/lo-trinh',
+const HocTapBangChuCaiRoute = HocTapBangChuCaiRouteImport.update({
+  id: '/bang-chu-cai',
+  path: '/bang-chu-cai',
   getParentRoute: () => HocTapRoute,
 } as any)
-const HocTapLoTrinhIndexRoute = HocTapLoTrinhIndexRouteImport.update({
+const HocTapQuyen1IndexRoute = HocTapQuyen1IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => HocTapLoTrinhRoute,
+  getParentRoute: () => HocTapQuyen1Route,
 } as any)
+const HocTapQuyen1ChangIdRoute = HocTapQuyen1ChangIdRouteImport.update({
+  id: '/hoc-tap_/quyen-1_/$changId',
+  path: '/hoc-tap/quyen-1/$changId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HocTapQuyen1ChuDeChar123chuDeIndexChar125Route =
+  HocTapQuyen1ChuDeChar123chuDeIndexChar125RouteImport.update({
+    id: '/chu-de-{$chuDeIndex}',
+    path: '/chu-de-{$chuDeIndex}',
+    getParentRoute: () => HocTapQuyen1Route,
+  } as any)
 const HocTapLuyenNoiChuDeIdRoute = HocTapLuyenNoiChuDeIdRouteImport.update({
   id: '/$chuDeId',
   path: '/$chuDeId',
   getParentRoute: () => HocTapLuyenNoiRoute,
 } as any)
-const HocTapLoTrinhQuyen2Route = HocTapLoTrinhQuyen2RouteImport.update({
-  id: '/quyen-2',
-  path: '/quyen-2',
-  getParentRoute: () => HocTapLoTrinhRoute,
-} as any)
-const HocTapLoTrinhQuyen1Route = HocTapLoTrinhQuyen1RouteImport.update({
-  id: '/quyen-1',
-  path: '/quyen-1',
-  getParentRoute: () => HocTapLoTrinhRoute,
-} as any)
-const HocTapLoTrinhQuyen1ChangIdRoute =
-  HocTapLoTrinhQuyen1ChangIdRouteImport.update({
-    id: '/$changId',
-    path: '/$changId',
-    getParentRoute: () => HocTapLoTrinhQuyen1Route,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -109,15 +115,16 @@ export interface FileRoutesByFullPath {
   '/hoc-tap': typeof HocTapRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
-  '/hoc-tap/lo-trinh': typeof HocTapLoTrinhRouteWithChildren
+  '/hoc-tap/bang-chu-cai': typeof HocTapBangChuCaiRoute
   '/hoc-tap/luyen-noi': typeof HocTapLuyenNoiRouteWithChildren
+  '/hoc-tap/quyen-1': typeof HocTapQuyen1RouteWithChildren
+  '/hoc-tap/quyen-2': typeof HocTapQuyen2Route
   '/u/$username': typeof UUsernameRoute
   '/hoc-tap/': typeof HocTapIndexRoute
-  '/hoc-tap/lo-trinh/quyen-1': typeof HocTapLoTrinhQuyen1RouteWithChildren
-  '/hoc-tap/lo-trinh/quyen-2': typeof HocTapLoTrinhQuyen2Route
   '/hoc-tap/luyen-noi/$chuDeId': typeof HocTapLuyenNoiChuDeIdRoute
-  '/hoc-tap/lo-trinh/': typeof HocTapLoTrinhIndexRoute
-  '/hoc-tap/lo-trinh/quyen-1/$changId': typeof HocTapLoTrinhQuyen1ChangIdRoute
+  '/hoc-tap/quyen-1/chu-de-{$chuDeIndex}': typeof HocTapQuyen1ChuDeChar123chuDeIndexChar125Route
+  '/hoc-tap/quyen-1/$changId': typeof HocTapQuyen1ChangIdRoute
+  '/hoc-tap/quyen-1/': typeof HocTapQuyen1IndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -125,14 +132,15 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
+  '/hoc-tap/bang-chu-cai': typeof HocTapBangChuCaiRoute
   '/hoc-tap/luyen-noi': typeof HocTapLuyenNoiRouteWithChildren
+  '/hoc-tap/quyen-2': typeof HocTapQuyen2Route
   '/u/$username': typeof UUsernameRoute
   '/hoc-tap': typeof HocTapIndexRoute
-  '/hoc-tap/lo-trinh/quyen-1': typeof HocTapLoTrinhQuyen1RouteWithChildren
-  '/hoc-tap/lo-trinh/quyen-2': typeof HocTapLoTrinhQuyen2Route
   '/hoc-tap/luyen-noi/$chuDeId': typeof HocTapLuyenNoiChuDeIdRoute
-  '/hoc-tap/lo-trinh': typeof HocTapLoTrinhIndexRoute
-  '/hoc-tap/lo-trinh/quyen-1/$changId': typeof HocTapLoTrinhQuyen1ChangIdRoute
+  '/hoc-tap/quyen-1/chu-de-{$chuDeIndex}': typeof HocTapQuyen1ChuDeChar123chuDeIndexChar125Route
+  '/hoc-tap/quyen-1/$changId': typeof HocTapQuyen1ChangIdRoute
+  '/hoc-tap/quyen-1': typeof HocTapQuyen1IndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -142,15 +150,16 @@ export interface FileRoutesById {
   '/hoc-tap': typeof HocTapRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
-  '/hoc-tap/lo-trinh': typeof HocTapLoTrinhRouteWithChildren
+  '/hoc-tap/bang-chu-cai': typeof HocTapBangChuCaiRoute
   '/hoc-tap/luyen-noi': typeof HocTapLuyenNoiRouteWithChildren
+  '/hoc-tap/quyen-1': typeof HocTapQuyen1RouteWithChildren
+  '/hoc-tap/quyen-2': typeof HocTapQuyen2Route
   '/u/$username': typeof UUsernameRoute
   '/hoc-tap/': typeof HocTapIndexRoute
-  '/hoc-tap/lo-trinh/quyen-1': typeof HocTapLoTrinhQuyen1RouteWithChildren
-  '/hoc-tap/lo-trinh/quyen-2': typeof HocTapLoTrinhQuyen2Route
   '/hoc-tap/luyen-noi/$chuDeId': typeof HocTapLuyenNoiChuDeIdRoute
-  '/hoc-tap/lo-trinh/': typeof HocTapLoTrinhIndexRoute
-  '/hoc-tap/lo-trinh/quyen-1/$changId': typeof HocTapLoTrinhQuyen1ChangIdRoute
+  '/hoc-tap/quyen-1/chu-de-{$chuDeIndex}': typeof HocTapQuyen1ChuDeChar123chuDeIndexChar125Route
+  '/hoc-tap_/quyen-1_/$changId': typeof HocTapQuyen1ChangIdRoute
+  '/hoc-tap/quyen-1/': typeof HocTapQuyen1IndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,15 +170,16 @@ export interface FileRouteTypes {
     | '/hoc-tap'
     | '/reset-password'
     | '/san-pham-cua-em'
-    | '/hoc-tap/lo-trinh'
+    | '/hoc-tap/bang-chu-cai'
     | '/hoc-tap/luyen-noi'
+    | '/hoc-tap/quyen-1'
+    | '/hoc-tap/quyen-2'
     | '/u/$username'
     | '/hoc-tap/'
-    | '/hoc-tap/lo-trinh/quyen-1'
-    | '/hoc-tap/lo-trinh/quyen-2'
     | '/hoc-tap/luyen-noi/$chuDeId'
-    | '/hoc-tap/lo-trinh/'
-    | '/hoc-tap/lo-trinh/quyen-1/$changId'
+    | '/hoc-tap/quyen-1/chu-de-{$chuDeIndex}'
+    | '/hoc-tap/quyen-1/$changId'
+    | '/hoc-tap/quyen-1/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -177,14 +187,15 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/reset-password'
     | '/san-pham-cua-em'
+    | '/hoc-tap/bang-chu-cai'
     | '/hoc-tap/luyen-noi'
+    | '/hoc-tap/quyen-2'
     | '/u/$username'
     | '/hoc-tap'
-    | '/hoc-tap/lo-trinh/quyen-1'
-    | '/hoc-tap/lo-trinh/quyen-2'
     | '/hoc-tap/luyen-noi/$chuDeId'
-    | '/hoc-tap/lo-trinh'
-    | '/hoc-tap/lo-trinh/quyen-1/$changId'
+    | '/hoc-tap/quyen-1/chu-de-{$chuDeIndex}'
+    | '/hoc-tap/quyen-1/$changId'
+    | '/hoc-tap/quyen-1'
   id:
     | '__root__'
     | '/'
@@ -193,15 +204,16 @@ export interface FileRouteTypes {
     | '/hoc-tap'
     | '/reset-password'
     | '/san-pham-cua-em'
-    | '/hoc-tap/lo-trinh'
+    | '/hoc-tap/bang-chu-cai'
     | '/hoc-tap/luyen-noi'
+    | '/hoc-tap/quyen-1'
+    | '/hoc-tap/quyen-2'
     | '/u/$username'
     | '/hoc-tap/'
-    | '/hoc-tap/lo-trinh/quyen-1'
-    | '/hoc-tap/lo-trinh/quyen-2'
     | '/hoc-tap/luyen-noi/$chuDeId'
-    | '/hoc-tap/lo-trinh/'
-    | '/hoc-tap/lo-trinh/quyen-1/$changId'
+    | '/hoc-tap/quyen-1/chu-de-{$chuDeIndex}'
+    | '/hoc-tap_/quyen-1_/$changId'
+    | '/hoc-tap/quyen-1/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -212,6 +224,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SanPhamCuaEmRoute: typeof SanPhamCuaEmRoute
   UUsernameRoute: typeof UUsernameRoute
+  HocTapQuyen1ChangIdRoute: typeof HocTapQuyen1ChangIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -272,6 +285,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UUsernameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hoc-tap/quyen-2': {
+      id: '/hoc-tap/quyen-2'
+      path: '/quyen-2'
+      fullPath: '/hoc-tap/quyen-2'
+      preLoaderRoute: typeof HocTapQuyen2RouteImport
+      parentRoute: typeof HocTapRoute
+    }
+    '/hoc-tap/quyen-1': {
+      id: '/hoc-tap/quyen-1'
+      path: '/quyen-1'
+      fullPath: '/hoc-tap/quyen-1'
+      preLoaderRoute: typeof HocTapQuyen1RouteImport
+      parentRoute: typeof HocTapRoute
+    }
     '/hoc-tap/luyen-noi': {
       id: '/hoc-tap/luyen-noi'
       path: '/luyen-noi'
@@ -279,19 +306,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HocTapLuyenNoiRouteImport
       parentRoute: typeof HocTapRoute
     }
-    '/hoc-tap/lo-trinh': {
-      id: '/hoc-tap/lo-trinh'
-      path: '/lo-trinh'
-      fullPath: '/hoc-tap/lo-trinh'
-      preLoaderRoute: typeof HocTapLoTrinhRouteImport
+    '/hoc-tap/bang-chu-cai': {
+      id: '/hoc-tap/bang-chu-cai'
+      path: '/bang-chu-cai'
+      fullPath: '/hoc-tap/bang-chu-cai'
+      preLoaderRoute: typeof HocTapBangChuCaiRouteImport
       parentRoute: typeof HocTapRoute
     }
-    '/hoc-tap/lo-trinh/': {
-      id: '/hoc-tap/lo-trinh/'
+    '/hoc-tap/quyen-1/': {
+      id: '/hoc-tap/quyen-1/'
       path: '/'
-      fullPath: '/hoc-tap/lo-trinh/'
-      preLoaderRoute: typeof HocTapLoTrinhIndexRouteImport
-      parentRoute: typeof HocTapLoTrinhRoute
+      fullPath: '/hoc-tap/quyen-1/'
+      preLoaderRoute: typeof HocTapQuyen1IndexRouteImport
+      parentRoute: typeof HocTapQuyen1Route
+    }
+    '/hoc-tap_/quyen-1_/$changId': {
+      id: '/hoc-tap_/quyen-1_/$changId'
+      path: '/hoc-tap/quyen-1/$changId'
+      fullPath: '/hoc-tap/quyen-1/$changId'
+      preLoaderRoute: typeof HocTapQuyen1ChangIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hoc-tap/quyen-1/chu-de-{$chuDeIndex}': {
+      id: '/hoc-tap/quyen-1/chu-de-{$chuDeIndex}'
+      path: '/chu-de-{$chuDeIndex}'
+      fullPath: '/hoc-tap/quyen-1/chu-de-{$chuDeIndex}'
+      preLoaderRoute: typeof HocTapQuyen1ChuDeChar123chuDeIndexChar125RouteImport
+      parentRoute: typeof HocTapQuyen1Route
     }
     '/hoc-tap/luyen-noi/$chuDeId': {
       id: '/hoc-tap/luyen-noi/$chuDeId'
@@ -300,56 +341,8 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HocTapLuyenNoiChuDeIdRouteImport
       parentRoute: typeof HocTapLuyenNoiRoute
     }
-    '/hoc-tap/lo-trinh/quyen-2': {
-      id: '/hoc-tap/lo-trinh/quyen-2'
-      path: '/quyen-2'
-      fullPath: '/hoc-tap/lo-trinh/quyen-2'
-      preLoaderRoute: typeof HocTapLoTrinhQuyen2RouteImport
-      parentRoute: typeof HocTapLoTrinhRoute
-    }
-    '/hoc-tap/lo-trinh/quyen-1': {
-      id: '/hoc-tap/lo-trinh/quyen-1'
-      path: '/quyen-1'
-      fullPath: '/hoc-tap/lo-trinh/quyen-1'
-      preLoaderRoute: typeof HocTapLoTrinhQuyen1RouteImport
-      parentRoute: typeof HocTapLoTrinhRoute
-    }
-    '/hoc-tap/lo-trinh/quyen-1/$changId': {
-      id: '/hoc-tap/lo-trinh/quyen-1/$changId'
-      path: '/$changId'
-      fullPath: '/hoc-tap/lo-trinh/quyen-1/$changId'
-      preLoaderRoute: typeof HocTapLoTrinhQuyen1ChangIdRouteImport
-      parentRoute: typeof HocTapLoTrinhQuyen1Route
-    }
   }
 }
-
-interface HocTapLoTrinhQuyen1RouteChildren {
-  HocTapLoTrinhQuyen1ChangIdRoute: typeof HocTapLoTrinhQuyen1ChangIdRoute
-}
-
-const HocTapLoTrinhQuyen1RouteChildren: HocTapLoTrinhQuyen1RouteChildren = {
-  HocTapLoTrinhQuyen1ChangIdRoute: HocTapLoTrinhQuyen1ChangIdRoute,
-}
-
-const HocTapLoTrinhQuyen1RouteWithChildren =
-  HocTapLoTrinhQuyen1Route._addFileChildren(HocTapLoTrinhQuyen1RouteChildren)
-
-interface HocTapLoTrinhRouteChildren {
-  HocTapLoTrinhQuyen1Route: typeof HocTapLoTrinhQuyen1RouteWithChildren
-  HocTapLoTrinhQuyen2Route: typeof HocTapLoTrinhQuyen2Route
-  HocTapLoTrinhIndexRoute: typeof HocTapLoTrinhIndexRoute
-}
-
-const HocTapLoTrinhRouteChildren: HocTapLoTrinhRouteChildren = {
-  HocTapLoTrinhQuyen1Route: HocTapLoTrinhQuyen1RouteWithChildren,
-  HocTapLoTrinhQuyen2Route: HocTapLoTrinhQuyen2Route,
-  HocTapLoTrinhIndexRoute: HocTapLoTrinhIndexRoute,
-}
-
-const HocTapLoTrinhRouteWithChildren = HocTapLoTrinhRoute._addFileChildren(
-  HocTapLoTrinhRouteChildren,
-)
 
 interface HocTapLuyenNoiRouteChildren {
   HocTapLuyenNoiChuDeIdRoute: typeof HocTapLuyenNoiChuDeIdRoute
@@ -363,15 +356,34 @@ const HocTapLuyenNoiRouteWithChildren = HocTapLuyenNoiRoute._addFileChildren(
   HocTapLuyenNoiRouteChildren,
 )
 
+interface HocTapQuyen1RouteChildren {
+  HocTapQuyen1ChuDeChar123chuDeIndexChar125Route: typeof HocTapQuyen1ChuDeChar123chuDeIndexChar125Route
+  HocTapQuyen1IndexRoute: typeof HocTapQuyen1IndexRoute
+}
+
+const HocTapQuyen1RouteChildren: HocTapQuyen1RouteChildren = {
+  HocTapQuyen1ChuDeChar123chuDeIndexChar125Route:
+    HocTapQuyen1ChuDeChar123chuDeIndexChar125Route,
+  HocTapQuyen1IndexRoute: HocTapQuyen1IndexRoute,
+}
+
+const HocTapQuyen1RouteWithChildren = HocTapQuyen1Route._addFileChildren(
+  HocTapQuyen1RouteChildren,
+)
+
 interface HocTapRouteChildren {
-  HocTapLoTrinhRoute: typeof HocTapLoTrinhRouteWithChildren
+  HocTapBangChuCaiRoute: typeof HocTapBangChuCaiRoute
   HocTapLuyenNoiRoute: typeof HocTapLuyenNoiRouteWithChildren
+  HocTapQuyen1Route: typeof HocTapQuyen1RouteWithChildren
+  HocTapQuyen2Route: typeof HocTapQuyen2Route
   HocTapIndexRoute: typeof HocTapIndexRoute
 }
 
 const HocTapRouteChildren: HocTapRouteChildren = {
-  HocTapLoTrinhRoute: HocTapLoTrinhRouteWithChildren,
+  HocTapBangChuCaiRoute: HocTapBangChuCaiRoute,
   HocTapLuyenNoiRoute: HocTapLuyenNoiRouteWithChildren,
+  HocTapQuyen1Route: HocTapQuyen1RouteWithChildren,
+  HocTapQuyen2Route: HocTapQuyen2Route,
   HocTapIndexRoute: HocTapIndexRoute,
 }
 
@@ -386,7 +398,18 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SanPhamCuaEmRoute: SanPhamCuaEmRoute,
   UUsernameRoute: UUsernameRoute,
+  HocTapQuyen1ChangIdRoute: HocTapQuyen1ChangIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
