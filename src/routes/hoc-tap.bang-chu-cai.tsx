@@ -2,10 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Check, Volume2, X } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { ALPHABET, type AlphabetLetter } from "@/data/alphabet";
-import { speak } from "@/lib/speech";
+import { ALPHABET, type AlphabetLetter, type AlphabetWord } from "@/data/alphabet";
 import { loadAlphabetProgress, markLetterSeen } from "@/lib/alphabet-progress";
 import { STAGE_COLORS } from "@/components/learning/StageCard";
+import { useSingletonAudio } from "@/hooks/useSingletonAudio";
+import { ttsSrc } from "@/lib/tts/text";
 
 import aImg from "@/assets/alphabet/a.png";
 import aBreveImg from "@/assets/alphabet/a-breve.png";
@@ -75,7 +76,8 @@ export const Route = createFileRoute("/hoc-tap/bang-chu-cai")({
       { title: "Bảng chữ cái — Trường Tiếng Việt Của Em" },
       {
         name: "description",
-        content: "Khám phá bảng chữ cái tiếng Việt cùng các bạn thú vui nhộn — nghe phát âm và học từ mới.",
+        content:
+          "Khám phá bảng chữ cái tiếng Việt cùng các bạn thú vui nhộn — nghe phát âm và học từ mới.",
       },
     ],
   }),
@@ -139,7 +141,10 @@ function BangChuCaiTab() {
         </div>
       </div>
 
-      <LetterDetailDialog letter={activeLetter} onOpenChange={(open) => !open && setActiveLetter(null)} />
+      <LetterDetailDialog
+        letter={activeLetter}
+        onOpenChange={(open) => !open && setActiveLetter(null)}
+      />
     </main>
   );
 }
@@ -148,10 +153,22 @@ function SkyClouds() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       <Cloud className="left-[4%] top-6 h-10 w-24 opacity-90 sm:h-14 sm:w-32" />
-      <Cloud className="right-[6%] top-16 h-8 w-20 opacity-80 sm:h-11 sm:w-28" style={{ animationDelay: "0.6s" }} />
-      <Cloud className="left-[20%] top-40 h-7 w-16 opacity-70 sm:h-9 sm:w-20" style={{ animationDelay: "1.2s" }} />
-      <Cloud className="right-[18%] top-52 h-9 w-20 opacity-70 sm:h-12 sm:w-28" style={{ animationDelay: "0.3s" }} />
-      <Cloud className="left-[45%] top-4 h-6 w-14 opacity-60 sm:h-8 sm:w-20" style={{ animationDelay: "1.6s" }} />
+      <Cloud
+        className="right-[6%] top-16 h-8 w-20 opacity-80 sm:h-11 sm:w-28"
+        style={{ animationDelay: "0.6s" }}
+      />
+      <Cloud
+        className="left-[20%] top-40 h-7 w-16 opacity-70 sm:h-9 sm:w-20"
+        style={{ animationDelay: "1.2s" }}
+      />
+      <Cloud
+        className="right-[18%] top-52 h-9 w-20 opacity-70 sm:h-12 sm:w-28"
+        style={{ animationDelay: "0.3s" }}
+      />
+      <Cloud
+        className="left-[45%] top-4 h-6 w-14 opacity-60 sm:h-8 sm:w-20"
+        style={{ animationDelay: "1.6s" }}
+      />
     </div>
   );
 }
@@ -200,6 +217,77 @@ function LetterCard({
   );
 }
 
+type StageColor = (typeof STAGE_COLORS)[number];
+
+function LetterSoundButton({
+  text,
+  label,
+  color,
+}: {
+  text: string;
+  label: string;
+  color: StageColor;
+}) {
+  const { play, audioRef, src, onEnded, onPause, onError } = useSingletonAudio(ttsSrc(text));
+  return (
+    <>
+      <audio
+        ref={audioRef}
+        src={src}
+        preload="none"
+        onEnded={onEnded}
+        onPause={onPause}
+        onError={onError}
+      />
+      <button
+        onClick={play}
+        aria-label={`Nghe đọc chữ ${label}`}
+        className={[
+          "flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-white transition active:scale-95",
+          color.gradient,
+          "shadow-[0_4px_12px_rgba(0,0,0,0.2)] hover:brightness-110",
+        ].join(" ")}
+      >
+        <Volume2 className="h-5 w-5" />
+      </button>
+    </>
+  );
+}
+
+function WordRow({ word, color }: { word: AlphabetWord; color: StageColor }) {
+  const { play, audioRef, src, onEnded, onPause, onError } = useSingletonAudio(ttsSrc(word.vi));
+  return (
+    <>
+      <audio
+        ref={audioRef}
+        src={src}
+        preload="none"
+        onEnded={onEnded}
+        onPause={onPause}
+        onError={onError}
+      />
+      <button
+        onClick={play}
+        aria-label={`Nghe đọc: ${word.vi}`}
+        className={[
+          "group flex cursor-pointer items-center gap-4 rounded-2xl p-3.5 text-left transition active:scale-95",
+          color.bgSoft,
+          "hover:brightness-95",
+        ].join(" ")}
+      >
+        <span className="text-3xl transition-transform group-hover:scale-110">{word.emoji}</span>
+        <span className="flex-1">
+          <span className="flex items-baseline gap-1.5">
+            <span className="font-display text-base font-extrabold text-navy">{word.vi}</span>
+            <span className="text-xs italic text-navy/50">/{word.pronunciation}/</span>
+          </span>
+          <span className="block text-sm text-muted-foreground">{word.en}</span>
+        </span>
+      </button>
+    </>
+  );
+}
+
 function LetterDetailDialog({
   letter,
   onOpenChange,
@@ -227,10 +315,7 @@ function LetterDetailDialog({
           <div className="flex flex-col sm:flex-row">
             {/* Left: mascot on a soft colored background */}
             <div
-              className={[
-                "flex items-center justify-center p-10 sm:w-2/5",
-                color.bgSoft,
-              ].join(" ")}
+              className={["flex items-center justify-center p-10 sm:w-2/5", color.bgSoft].join(" ")}
             >
               <img
                 src={LETTER_IMAGES[letter.id]}
@@ -245,39 +330,12 @@ function LetterDetailDialog({
                 <DialogTitle className="font-display text-5xl font-extrabold text-navy">
                   {letter.letter.toUpperCase()}/{letter.letter}
                 </DialogTitle>
-                <button
-                  onClick={() => speak(letter.soundName)}
-                  aria-label={`Nghe đọc chữ ${letter.letter}`}
-                  className={[
-                    "flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-white transition active:scale-95",
-                    color.gradient,
-                    "shadow-[0_4px_12px_rgba(0,0,0,0.2)] hover:brightness-110",
-                  ].join(" ")}
-                >
-                  <Volume2 className="h-5 w-5" />
-                </button>
+                <LetterSoundButton text={letter.soundName} label={letter.letter} color={color} />
               </div>
 
               <div className="flex flex-col gap-3">
                 {letter.words.map((word) => (
-                  <button
-                    key={word.vi}
-                    onClick={() => speak(word.vi)}
-                    className={[
-                      "group flex cursor-pointer items-center gap-4 rounded-2xl p-3.5 text-left transition active:scale-95",
-                      color.bgSoft,
-                      "hover:brightness-95",
-                    ].join(" ")}
-                  >
-                    <span className="text-3xl transition-transform group-hover:scale-110">{word.emoji}</span>
-                    <span className="flex-1">
-                      <span className="flex items-baseline gap-1.5">
-                        <span className="font-display text-base font-extrabold text-navy">{word.vi}</span>
-                        <span className="text-xs italic text-navy/50">/{word.pronunciation}/</span>
-                      </span>
-                      <span className="block text-sm text-muted-foreground">{word.en}</span>
-                    </span>
-                  </button>
+                  <WordRow key={word.vi} word={word} color={color} />
                 ))}
               </div>
             </div>

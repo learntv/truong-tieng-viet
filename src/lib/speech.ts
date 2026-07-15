@@ -1,38 +1,11 @@
 import type { ChuDeWithChangs } from "@/lib/learning";
 
 // Speech helpers for the speaking-coach feature (/luyen-noi).
-// Everything here runs in the browser only — recorded audio never leaves the
-// device. Note: Chrome's SpeechRecognition itself transcribes on Google's
-// servers (browser behavior we can't change); recognition is therefore an
-// optional enhancement, never a requirement.
-
-// ─── Text-to-speech ───────────────────────────────────────────────────────────
-
-export function getVietnameseVoice(): SpeechSynthesisVoice | null {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
-  const voices = window.speechSynthesis.getVoices();
-  return voices.find((v) => v.lang.toLowerCase().startsWith("vi")) ?? null;
-}
-
-export function speak(text: string, onEnd?: () => void) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = "vi-VN";
-  // Slow and slightly high-pitched reads friendlier for young kids.
-  u.rate = 0.85;
-  u.pitch = 1.05;
-  const voice = getVietnameseVoice();
-  if (voice) u.voice = voice;
-  if (onEnd) u.onend = onEnd;
-  window.speechSynthesis.speak(u);
-}
-
-export function cancelSpeech() {
-  if (typeof window !== "undefined" && "speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
-  }
-}
+// Text-to-speech playback lives in src/hooks/useSingletonAudio.ts + src/lib/tts/text.ts
+// (Google Cloud TTS via /api/tts) — everything below is about the child's own voice, which
+// runs in the browser only and never leaves the device. Note: Chrome's SpeechRecognition
+// itself transcribes on Google's servers (browser behavior we can't change); recognition is
+// therefore an optional enhancement, never a requirement.
 
 // ─── Speech recognition (Chrome/Edge only — optional enhancement) ─────────────
 

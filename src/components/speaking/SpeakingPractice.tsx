@@ -1,13 +1,18 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, ChevronLeft, ChevronRight, RotateCcw, Star, ThumbsUp, Volume2 } from "lucide-react";
 import {
-  cancelSpeech,
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  RotateCcw,
+  Star,
+  ThumbsUp,
+  Volume2,
+} from "lucide-react";
+import {
   canRecordAudio,
   compareSentence,
   getSpeechRecognitionCtor,
-  getVietnameseVoice,
-  speak,
   startRecognition,
   starsFromRatio,
   type RecognitionSession,
@@ -22,6 +27,8 @@ import {
 } from "@/lib/speaking-progress";
 import { STAGE_COLORS } from "@/components/learning/StageCard";
 import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
+import { useSingletonAudio } from "@/hooks/useSingletonAudio";
+import { ttsSrc } from "@/lib/tts/text";
 import { RecordButton } from "./RecordButton";
 
 type Stage = "ready" | "recording" | "review";
@@ -78,7 +85,6 @@ export function SpeakingPractice({
   const [micDenied, setMicDenied] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [, setProgress] = useState<SpeakingProgress>(loadSpeakingProgress);
-  const [hasViVoice, setHasViVoice] = useState(false);
 
   const recognitionRef = useRef<RecognitionSession | null>(null);
   const audioUrlRef = useRef<string | null>(null);
@@ -86,24 +92,16 @@ export function SpeakingPractice({
   const sttAvailable = useMemo(() => getSpeechRecognitionCtor() != null, []);
 
   const sentence: SpeakingSentence | undefined = sentences[index];
-
-  // Voice lists load asynchronously — re-check when the browser announces them.
-  useEffect(() => {
-    const check = () => setHasViVoice(getVietnameseVoice() != null);
-    check();
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.addEventListener("voiceschanged", check);
-      return () => window.speechSynthesis.removeEventListener("voiceschanged", check);
-    }
-  }, []);
+  const modelAudio = useSingletonAudio(ttsSrc(sentence?.text ?? ""));
 
   // Cleanup on unmount: stop TTS/recognition, release the recorded-audio blob.
   useEffect(
     () => () => {
-      cancelSpeech();
+      modelAudio.pause();
       recognitionRef.current?.abort();
       if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 
@@ -114,7 +112,7 @@ export function SpeakingPractice({
   }
 
   function resetForSentence(nextIndex: number) {
-    cancelSpeech();
+    modelAudio.pause();
     recognitionRef.current?.abort();
     recognitionRef.current = null;
     setRecordedAudio(null);
@@ -136,7 +134,7 @@ export function SpeakingPractice({
   }
 
   const handleRecordStart = () => {
-    cancelSpeech();
+    modelAudio.pause();
     setResult(null);
     setStage("recording");
     recognitionRef.current = sttAvailable ? startRecognition() : null;
@@ -223,7 +221,10 @@ export function SpeakingPractice({
       {/* Progress */}
       <div className="mb-1 h-2 w-full overflow-hidden rounded-full bg-muted">
         <div
-          className={["h-full rounded-full transition-[width] duration-500 ease-out", color.gradient].join(" ")}
+          className={[
+            "h-full rounded-full transition-[width] duration-500 ease-out",
+            color.gradient,
+          ].join(" ")}
           style={{ width: `${((index + 1) / sentences.length) * 100}%` }}
         />
       </div>
@@ -245,30 +246,38 @@ export function SpeakingPractice({
 
         {/* The sentence — word chips turn green/amber after grading */}
         <div className="mb-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 text-center">
-          {showGraded && result.words.length > 0
-            ? result.words.map((w, i) => (
-                <span
-                  key={i}
-                  className={[
-                    "rounded-lg px-1.5 py-0.5 font-display text-2xl font-extrabold sm:text-3xl",
-                    w.matched ? "text-navy" : "bg-amber-100 text-amber-700",
-                  ].join(" ")}
-                >
-                  {w.word}
-                </span>
-              ))
-            : (
-                <p className="font-display text-2xl font-extrabold leading-snug text-navy sm:text-3xl">
-                  {sentence?.text}
-                </p>
-              )}
+          {showGraded && result.words.length > 0 ? (
+            result.words.map((w, i) => (
+              <span
+                key={i}
+                className={[
+                  "rounded-lg px-1.5 py-0.5 font-display text-2xl font-extrabold sm:text-3xl",
+                  w.matched ? "text-navy" : "bg-amber-100 text-amber-700",
+                ].join(" ")}
+              >
+                {w.word}
+              </span>
+            ))
+          ) : (
+            <p className="font-display text-2xl font-extrabold leading-snug text-navy sm:text-3xl">
+              {sentence?.text}
+            </p>
+          )}
         </div>
 
         {/* Listen to the model pronunciation */}
-        {hasViVoice && sentence && (
+        {sentence && (
           <div className="mb-6 flex justify-center">
+            <audio
+              ref={modelAudio.audioRef}
+              src={modelAudio.src}
+              preload="none"
+              onEnded={modelAudio.onEnded}
+              onPause={modelAudio.onPause}
+              onError={modelAudio.onError}
+            />
             <button
-              onClick={() => speak(sentence.text)}
+              onClick={modelAudio.play}
               className={[
                 "inline-flex cursor-pointer items-center gap-2 rounded-full border-2 px-4 py-2 font-display text-sm font-extrabold transition active:scale-95 hover:-translate-y-0.5 hover:shadow-card",
                 color.bgSoft,
@@ -326,7 +335,9 @@ export function SpeakingPractice({
                 {showGraded && !grading && (
                   <div className="flex flex-col items-center gap-2">
                     <StarRow stars={result.stars} />
-                    <p className="text-center text-sm font-bold text-navy">{PRAISE[result.stars]}</p>
+                    <p className="text-center text-sm font-bold text-navy">
+                      {PRAISE[result.stars]}
+                    </p>
                   </div>
                 )}
 
@@ -390,7 +401,9 @@ export function SpeakingPractice({
               aria-label={`Câu ${i + 1}`}
               className={[
                 "h-2 rounded-full transition-all",
-                i === index ? ["w-5", color.bg].join(" ") : "w-2 bg-muted hover:bg-muted-foreground/40",
+                i === index
+                  ? ["w-5", color.bg].join(" ")
+                  : "w-2 bg-muted hover:bg-muted-foreground/40",
               ].join(" ")}
             />
           ))}

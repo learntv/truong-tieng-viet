@@ -12,8 +12,9 @@ import {
 } from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useLearningContent } from "@/hooks/useLearningContent";
+import { useSingletonAudio } from "@/hooks/useSingletonAudio";
 import type { Bai, Hinh, NoiDung } from "@/lib/learning";
-import { joinForSpeech } from "@/lib/tts/text";
+import { joinForSpeech, ttsSrc } from "@/lib/tts/text";
 import { STAGE_COLORS } from "./StageCard";
 import { ConfettiBurst } from "./ConfettiBurst";
 import { ImageHighlightOverlay } from "./ImageHighlightOverlay";
@@ -63,30 +64,19 @@ function toYouTubeEmbed(url: string): string | null {
 }
 
 function AudioButton({ src }: { src: string }) {
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [playing, setPlaying] = useState(false);
-  const toggle = () => {
-    const el = audioRef.current;
-    if (!el) return;
-    if (playing) {
-      el.pause();
-      setPlaying(false);
-    } else {
-      el.play();
-      setPlaying(true);
-    }
-  };
+  const { playing, play, pause, audioRef, onEnded, onPause, onError } = useSingletonAudio(src);
   return (
     <>
       <audio
         ref={audioRef}
         src={src}
         preload="auto"
-        onEnded={() => setPlaying(false)}
-        onPause={() => setPlaying(false)}
+        onEnded={onEnded}
+        onPause={onPause}
+        onError={onError}
       />
       <button
-        onClick={toggle}
+        onClick={playing ? pause : play}
         aria-label={playing ? "Dừng" : "Nghe"}
         className={[
           "cursor-pointer grid h-8 w-8 shrink-0 place-items-center rounded-full transition-[transform,box-shadow,background-color] ease-bounce active:translate-y-[1px]",
@@ -135,25 +125,10 @@ function VideoEmbed({ url }: { url: string }) {
   );
 }
 
-// Clicking a second word while one is still playing should cut the first off, not overlap
-// them — track whichever <audio> element is currently playing so the next click can pause it.
-let currentlyPlayingCloudWord: HTMLAudioElement | null = null;
-
 function CloudWord({ text, color }: { text: string; color: StageColor }) {
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [playing, setPlaying] = useState(false);
-  const onClick = useCallback(() => {
-    const el = audioRef.current;
-    if (!el) return;
-    if (currentlyPlayingCloudWord && currentlyPlayingCloudWord !== el) {
-      currentlyPlayingCloudWord.pause();
-    }
-    currentlyPlayingCloudWord = el;
-    el.currentTime = 0;
-    setPlaying(true);
-    el.play().catch(() => setPlaying(false));
-  }, []);
-  const stop = useCallback(() => setPlaying(false), []);
+  const { playing, play, audioRef, src, onEnded, onPause, onError } = useSingletonAudio(
+    ttsSrc(text),
+  );
   return (
     <>
       {/* Same content-addressed /api/tts pipeline as AudioButton — if this exact word's audio
@@ -162,14 +137,14 @@ function CloudWord({ text, color }: { text: string; color: StageColor }) {
           triggers synthesis. preload="none" so idle word clouds don't fetch audio no one asked for. */}
       <audio
         ref={audioRef}
-        src={`/api/tts?text=${encodeURIComponent(text)}`}
+        src={src}
         preload="none"
-        onEnded={stop}
-        onPause={stop}
-        onError={stop}
+        onEnded={onEnded}
+        onPause={onPause}
+        onError={onError}
       />
       <button
-        onClick={onClick}
+        onClick={play}
         aria-label={`Nghe đọc: ${text}`}
         className={[
           "relative cursor-pointer overflow-hidden rounded-full border-2 px-3 py-1.5 font-display text-base leading-tight transition-[transform,box-shadow,background-color,color] ease-bounce",
@@ -624,10 +599,7 @@ export function LessonPage({ changId }: { changId: string }) {
                               {hasSpeakableText && i === bai.texts.length - 1 && (
                                 <span className="ml-2 inline-flex align-middle">
                                   <AudioButton
-                                    src={
-                                      manualAudioUrl ??
-                                      `/api/tts?text=${encodeURIComponent(joinForSpeech(bai.texts))}`
-                                    }
+                                    src={manualAudioUrl ?? ttsSrc(joinForSpeech(bai.texts))}
                                   />
                                 </span>
                               )}
