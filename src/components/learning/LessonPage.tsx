@@ -1,9 +1,19 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Check, ChevronLeft, ChevronRight, ExternalLink, Headphones, Loader2, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  Headphones,
+  Loader2,
+  X,
+} from "lucide-react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useLearningContent } from "@/hooks/useLearningContent";
 import type { Bai, Hinh, NoiDung } from "@/lib/learning";
+import { joinForSpeech } from "@/lib/tts/text";
 import { STAGE_COLORS } from "./StageCard";
 import { ConfettiBurst } from "./ConfettiBurst";
 import { ImageHighlightOverlay } from "./ImageHighlightOverlay";
@@ -42,29 +52,6 @@ function BackToMapButton({
   );
 }
 
-// speechSynthesis.cancel() does not reliably fire onend/onerror on the utterance it
-// interrupts, so the button that started it would otherwise stay stuck in "playing"
-// forever. Track whoever's currently playing and reset it ourselves before cancelling.
-let stopCurrentSpeech: (() => void) | null = null;
-
-function speak(text: string, onEnd?: () => void) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-  stopCurrentSpeech?.();
-  window.speechSynthesis.cancel();
-  const finish = () => {
-    if (stopCurrentSpeech === finish) stopCurrentSpeech = null;
-    onEnd?.();
-  };
-  stopCurrentSpeech = finish;
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = "vi-VN";
-  u.rate = 0.85;
-  u.pitch = 1.05;
-  u.onend = finish;
-  u.onerror = finish;
-  window.speechSynthesis.speak(u);
-}
-
 function toYouTubeEmbed(url: string): string | null {
   const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
   if (!m) return null;
@@ -81,12 +68,23 @@ function AudioButton({ src }: { src: string }) {
   const toggle = () => {
     const el = audioRef.current;
     if (!el) return;
-    if (playing) { el.pause(); setPlaying(false); }
-    else { el.play(); setPlaying(true); }
+    if (playing) {
+      el.pause();
+      setPlaying(false);
+    } else {
+      el.play();
+      setPlaying(true);
+    }
   };
   return (
     <>
-      <audio ref={audioRef} src={src} preload="auto" onEnded={() => setPlaying(false)} onPause={() => setPlaying(false)} />
+      <audio
+        ref={audioRef}
+        src={src}
+        preload="auto"
+        onEnded={() => setPlaying(false)}
+        onPause={() => setPlaying(false)}
+      />
       <button
         onClick={toggle}
         aria-label={playing ? "Dừng" : "Nghe"}
@@ -137,71 +135,64 @@ function VideoEmbed({ url }: { url: string }) {
   );
 }
 
-function useHasVietnameseVoice(): boolean {
-  const [hasVoice, setHasVoice] = useState<boolean>(() => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return false;
-    return window.speechSynthesis.getVoices().some((v) => v.lang?.toLowerCase().startsWith("vi"));
-  });
-  useEffect(() => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-    const check = () => {
-      const ok = window.speechSynthesis.getVoices().some((v) => v.lang?.toLowerCase().startsWith("vi"));
-      setHasVoice(ok);
-    };
-    check();
-    window.speechSynthesis.addEventListener("voiceschanged", check);
-    return () => window.speechSynthesis.removeEventListener("voiceschanged", check);
-  }, []);
-  return hasVoice;
-}
+// Clicking a second word while one is still playing should cut the first off, not overlap
+// them — track whichever <audio> element is currently playing so the next click can pause it.
+let currentlyPlayingCloudWord: HTMLAudioElement | null = null;
 
 function CloudWord({ text, color }: { text: string; color: StageColor }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
-  const hasVietnameseVoice = useHasVietnameseVoice();
   const onClick = useCallback(() => {
+    const el = audioRef.current;
+    if (!el) return;
+    if (currentlyPlayingCloudWord && currentlyPlayingCloudWord !== el) {
+      currentlyPlayingCloudWord.pause();
+    }
+    currentlyPlayingCloudWord = el;
+    el.currentTime = 0;
     setPlaying(true);
-    speak(text, () => setPlaying(false));
-  }, [text]);
-  if (!hasVietnameseVoice) {
-    return (
-      <span
+    el.play().catch(() => setPlaying(false));
+  }, []);
+  const stop = useCallback(() => setPlaying(false), []);
+  return (
+    <>
+      {/* Same content-addressed /api/tts pipeline as AudioButton — if this exact word's audio
+          was already generated (e.g. as another bài's text, or by a previous click anywhere
+          in the app), R2 already has it and this is a cache hit; only genuinely new text
+          triggers synthesis. preload="none" so idle word clouds don't fetch audio no one asked for. */}
+      <audio
+        ref={audioRef}
+        src={`/api/tts?text=${encodeURIComponent(text)}`}
+        preload="none"
+        onEnded={stop}
+        onPause={stop}
+        onError={stop}
+      />
+      <button
+        onClick={onClick}
+        aria-label={`Nghe đọc: ${text}`}
         className={[
-          "rounded-full border-2 px-3 py-1.5 font-display text-base leading-tight",
-          color.bgSoft,
-          color.border,
-          color.text,
+          "relative cursor-pointer overflow-hidden rounded-full border-2 px-3 py-1.5 font-display text-base leading-tight transition-[transform,box-shadow,background-color,color] ease-bounce",
+          playing
+            ? ["text-white", color.bg, color.border, color.bevel].join(" ")
+            : [
+                color.bgSoft,
+                color.border,
+                color.text,
+                color.bevel,
+                color.bevelActive,
+                "active:translate-y-[3px]",
+              ].join(" "),
         ].join(" ")}
       >
+        {playing && (
+          <span className="pointer-events-none absolute inset-0 animate-shine bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+        )}
         {text}
-      </span>
-    );
-  }
-  return (
-    <button
-      onClick={onClick}
-      aria-label={`Nghe đọc: ${text}`}
-      className={[
-        "relative cursor-pointer overflow-hidden rounded-full border-2 px-3 py-1.5 font-display text-base leading-tight transition-[transform,box-shadow,background-color,color] ease-bounce",
-        playing
-          ? ["text-white", color.bg, color.border, color.bevel].join(" ")
-          : [
-              color.bgSoft,
-              color.border,
-              color.text,
-              color.bevel,
-              color.bevelActive,
-              "active:translate-y-[3px]",
-            ].join(" "),
-      ].join(" ")}
-    >
-      {playing && (
-        <span className="pointer-events-none absolute inset-0 animate-shine bg-gradient-to-r from-transparent via-white/50 to-transparent" />
-      )}
-      {text}
-    </button>
+      </button>
+    </>
   );
 }
-
 
 function HinhBlock({
   hinh,
@@ -271,9 +262,7 @@ function HinhBlock({
                   isLoaded ? "opacity-100" : "opacity-0",
                 ].join(" ")}
               />
-              {hasHighlights && isLoaded && (
-                <ImageHighlightOverlay targets={highlightTargets} />
-              )}
+              {hasHighlights && isLoaded && <ImageHighlightOverlay targets={highlightTargets} />}
             </div>
           </div>
         ) : (
@@ -343,13 +332,19 @@ export function LessonPage({ changId }: { changId: string }) {
       const topic = data[topicIndex];
       const changIndex = topic.changs.findIndex((c) => c.id === changId);
       if (changIndex !== -1) {
-        return { chuDe: topic.chuDe, changs: topic.changs, chang: topic.changs[changIndex], changIndex, topicIndex };
+        return {
+          chuDe: topic.chuDe,
+          changs: topic.changs,
+          chang: topic.changs[changIndex],
+          changIndex,
+          topicIndex,
+        };
       }
     }
     return null;
   }, [data, changId]);
 
-  const savedNoiDungIndex = found ? activeProgressMap.get(found.chang.id)?.noiDungIndex ?? 0 : 0;
+  const savedNoiDungIndex = found ? (activeProgressMap.get(found.chang.id)?.noiDungIndex ?? 0) : 0;
   const isCompleted = found ? !!activeProgressMap.get(found.chang.id)?.isCompleted : false;
 
   const slides = useMemo(() => (found ? buildSlides(found.chang.noiDungs) : []), [found]);
@@ -388,7 +383,12 @@ export function LessonPage({ changId }: { changId: string }) {
     setSlideIndex(firstOfStep !== -1 ? firstOfStep : 0);
   }, [changId, found, slides, isCompleted, savedNoiDungIndex]);
 
-  useEffect(() => () => { if (fadeTimeoutRef.current) clearTimeout(fadeTimeoutRef.current); }, []);
+  useEffect(
+    () => () => {
+      if (fadeTimeoutRef.current) clearTimeout(fadeTimeoutRef.current);
+    },
+    [],
+  );
 
   // Preload the next couple of slides' images so they're already cached by the time
   // the user clicks next, avoiding a blank/loading flash on navigation.
@@ -402,12 +402,9 @@ export function LessonPage({ changId }: { changId: string }) {
     }
   }, [slideIndex, slides]);
 
-  // Cancel TTS and audio on step change / unmount
+  // Stop any playing audio on step change / unmount
   useEffect(() => {
     return () => {
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-      }
       document.querySelectorAll("audio").forEach((el) => el.pause());
     };
   }, [slideIndex, changId]);
@@ -415,7 +412,10 @@ export function LessonPage({ changId }: { changId: string }) {
   // Save reading position as the user moves through steps (skip if already completed)
   const isFirstPositionSave = useRef(true);
   useEffect(() => {
-    if (isFirstPositionSave.current) { isFirstPositionSave.current = false; return; }
+    if (isFirstPositionSave.current) {
+      isFirstPositionSave.current = false;
+      return;
+    }
     if (!found || isCompleted) return;
     const ndIndex = slides[slideIndex]?.ndIndex ?? 0;
     saveChangPosition(found.chang.id, ndIndex, isCompleted);
@@ -434,7 +434,9 @@ export function LessonPage({ changId }: { changId: string }) {
     return (
       <div className="flex h-dvh w-full flex-col items-center justify-center bg-background px-4 text-center">
         <div className="mb-4 text-6xl">🔍</div>
-        <h1 className="mb-2 font-display text-2xl font-extrabold text-navy">Không tìm thấy bài học</h1>
+        <h1 className="mb-2 font-display text-2xl font-extrabold text-navy">
+          Không tìm thấy bài học
+        </h1>
         <p className="mb-6 text-muted-foreground">Chặng học này không tồn tại hoặc đã bị xóa.</p>
         <Button variant="bevel-primary" asChild>
           <Link to="/hoc-tap/quyen-1">
@@ -462,9 +464,6 @@ export function LessonPage({ changId }: { changId: string }) {
     const clamped = Math.max(0, Math.min(total - 1, i));
     if (clamped === slideIndex || fading) return;
 
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
     document.querySelectorAll("audio").forEach((el) => el.pause());
 
     setFading(true);
@@ -501,7 +500,12 @@ export function LessonPage({ changId }: { changId: string }) {
       <div className="absolute inset-0 bg-black/45" />
 
       {/* Breadcrumb bar */}
-      <div className={["relative z-10 flex shrink-0 flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-6", color.bg].join(" ")}>
+      <div
+        className={[
+          "relative z-10 flex shrink-0 flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-6",
+          color.bg,
+        ].join(" ")}
+      >
         <div className="flex min-w-0 items-center gap-1.5 text-xs font-bold text-white/90 sm:text-sm">
           <span className="shrink-0">Sách giáo khoa</span>
           <ChevronRight className="h-3 w-3 shrink-0 opacity-70" />
@@ -509,7 +513,9 @@ export function LessonPage({ changId }: { changId: string }) {
           <ChevronRight className="hidden h-3 w-3 shrink-0 opacity-70 sm:block" />
           <span className="hidden truncate text-white/90 sm:inline">{chuDe.title}</span>
           <ChevronRight className="h-3 w-3 shrink-0 opacity-70" />
-          <span className="truncate text-white">{chang.emoji} {chang.title}</span>
+          <span className="truncate text-white">
+            {chang.emoji} {chang.title}
+          </span>
         </div>
         <div className="shrink-0 rounded-full bg-white/90 px-3 py-1.5 text-xs font-extrabold text-navy">
           Chặng {changIndex + 1}/{changs.length}
@@ -530,7 +536,6 @@ export function LessonPage({ changId }: { changId: string }) {
       </div>
 
       <div className="relative z-10 mx-auto flex w-full min-h-0 max-w-4xl flex-1 gap-3 p-0 sm:gap-4 sm:p-4">
-
         {/* Left: numbered slide pills */}
         <aside className="hidden w-14 shrink-0 overflow-y-auto sm:flex sm:flex-col sm:items-center">
           <div className="flex flex-col items-center gap-2 rounded-full border-2 border-black/10 bg-white p-2 shadow-[0_3px_0_0_rgba(0,0,0,0.1)]">
@@ -560,16 +565,22 @@ export function LessonPage({ changId }: { changId: string }) {
 
         {/* Main content */}
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-none border-2 border-black/10 shadow-[0_4px_0_0_rgba(0,0,0,0.1)] sm:rounded-3xl">
-
           {/* Card header strip */}
           <div className="flex shrink-0 flex-wrap items-center gap-2 bg-amber-50 px-4 py-2">
-            <span className={["shrink-0 rounded-full px-3 py-1 font-display text-xs font-extrabold text-white sm:text-sm", color.bg].join(" ")}>
+            <span
+              className={[
+                "shrink-0 rounded-full px-3 py-1 font-display text-xs font-extrabold text-white sm:text-sm",
+                color.bg,
+              ].join(" ")}
+            >
               Bài {slideIndex + 1}
             </span>
             {currentNoiDung?.title && (
               <>
                 <ChevronRight className="h-3.5 w-3.5 shrink-0 text-sky-400" />
-                <span className="truncate text-sm font-bold text-sky-600">{currentNoiDung.title}</span>
+                <span className="truncate text-sm font-bold text-sky-600">
+                  {currentNoiDung.title}
+                </span>
               </>
             )}
             {/* Mobile step indicator */}
@@ -579,7 +590,6 @@ export function LessonPage({ changId }: { changId: string }) {
           </div>
 
           <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white p-3 sm:overflow-hidden sm:p-4">
-
             <div
               key={`${currentNoiDung?.id}-${currentSlide?.baiIndex}`}
               className={[
@@ -587,82 +597,101 @@ export function LessonPage({ changId }: { changId: string }) {
                 fading ? "-translate-y-1.5 opacity-0" : "translate-y-0 opacity-100",
               ].join(" ")}
             >
-              {bai ? (() => {
-                const hasAudio = !!bai.audioUrl;
-                const hasVideo = !!bai.meta?.video_url;
-                const hasEmbed = !!bai.meta?.link;
-                const hinhs = bai.hinhs;
-                const isSingle = hinhs.length === 1;
-                return (
-                  <article className="flex flex-col gap-2 sm:min-h-0 sm:flex-1">
-                    <div className="flex shrink-0 items-start gap-3">
-                      <div className="flex-1 space-y-1.5">
-                        {bai.texts.map((t, i) => (
-                          <p
-                            key={i}
-                            className="whitespace-pre-line font-display text-base font-bold text-navy sm:text-lg"
+              {bai ? (
+                (() => {
+                  const hasSpeakableText = bai.texts.some((t) => t.trim().length > 0);
+                  // A manually-curated narration takes priority over TTS (skip synthesis
+                  // entirely when someone already recorded/uploaded real audio for this bài),
+                  // and — same as before TTS existed — its presence is also what hides the
+                  // per-word cloud below: a full narration already reads everything, so the
+                  // individual tap-to-hear captions would be redundant. TTS-fallback audio is
+                  // NOT curated narration, so it must NOT suppress the word cloud the same way.
+                  const manualAudioUrl = bai.meta?.audio_url || undefined;
+                  const hasVideo = !!bai.meta?.video_url;
+                  const hasEmbed = !!bai.meta?.link;
+                  const hinhs = bai.hinhs;
+                  const isSingle = hinhs.length === 1;
+                  return (
+                    <article className="flex flex-col gap-2 sm:min-h-0 sm:flex-1">
+                      <div className="flex shrink-0 items-start gap-3">
+                        <div className="flex-1 space-y-1.5">
+                          {bai.texts.map((t, i) => (
+                            <p
+                              key={i}
+                              className="whitespace-pre-line font-display text-base font-bold text-navy sm:text-lg"
+                            >
+                              {t}
+                              {hasSpeakableText && i === bai.texts.length - 1 && (
+                                <span className="ml-2 inline-flex align-middle">
+                                  <AudioButton
+                                    src={
+                                      manualAudioUrl ??
+                                      `/api/tts?text=${encodeURIComponent(joinForSpeech(bai.texts))}`
+                                    }
+                                  />
+                                </span>
+                              )}
+                            </p>
+                          ))}
+                        </div>
+                      </div>
+
+                      {hasEmbed ? (
+                        <div className="-mx-3 aspect-video w-auto overflow-hidden rounded-none ring-1 ring-border/60 sm:mx-0 sm:aspect-auto sm:min-h-0 sm:w-full sm:flex-1 sm:rounded-xl">
+                          <iframe
+                            src={bai.meta!.link!}
+                            className="h-full w-full"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </div>
+                      ) : (
+                        !hasVideo &&
+                        hinhs.length > 0 && (
+                          <div
+                            className={[
+                              "-mx-3 sm:mx-0 sm:min-h-0 sm:flex-1",
+                              isSingle
+                                ? "flex flex-col justify-center gap-4 sm:flex-row sm:items-stretch"
+                                : // Many images at once now stack in the (scrollable) card on mobile
+                                  // instead of their own nested scroll box, reverting to the
+                                  // fixed-height 2-column grid at sm+ where there's more room.
+                                  "grid grid-cols-1 gap-4 sm:grid-cols-2",
+                            ].join(" ")}
                           >
-                            {t}
-                            {hasAudio && i === bai.texts.length - 1 && (
-                              <span className="ml-2 inline-flex align-middle">
-                                <AudioButton src={bai.audioUrl!} />
-                              </span>
-                            )}
-                          </p>
-                        ))}
-                      </div>
-                    </div>
+                            {hinhs.map((hinh) => {
+                              const captions =
+                                manualAudioUrl || hasVideo
+                                  ? []
+                                  : hinh.captions.filter((c) => c.trim().length > 1);
+                              return (
+                                <HinhBlock
+                                  key={hinh.id}
+                                  hinh={hinh}
+                                  captions={captions}
+                                  isSingle={isSingle}
+                                  colorIndex={changIndex + (currentSlide?.baiIndex ?? 0)}
+                                />
+                              );
+                            })}
+                          </div>
+                        )
+                      )}
 
-                    {hasEmbed ? (
-                      <div className="-mx-3 aspect-video w-auto overflow-hidden rounded-none ring-1 ring-border/60 sm:mx-0 sm:aspect-auto sm:min-h-0 sm:w-full sm:flex-1 sm:rounded-xl">
-                        <iframe
-                          src={bai.meta!.link!}
-                          className="h-full w-full"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        />
-                      </div>
-                    ) : !hasVideo && hinhs.length > 0 && (
-                      <div
-                        className={[
-                          "-mx-3 sm:mx-0 sm:min-h-0 sm:flex-1",
-                          isSingle
-                            ? "flex flex-col justify-center gap-4 sm:flex-row sm:items-stretch"
-                            // Many images at once now stack in the (scrollable) card on mobile
-                            // instead of their own nested scroll box, reverting to the
-                            // fixed-height 2-column grid at sm+ where there's more room.
-                            : "grid grid-cols-1 gap-4 sm:grid-cols-2",
-                        ].join(" ")}
-                      >
-                        {hinhs.map((hinh) => {
-                          const captions = (hasAudio || hasVideo) ? [] : hinh.captions.filter((c) => c.trim().length > 1);
-                          return (
-                            <HinhBlock
-                              key={hinh.id}
-                              hinh={hinh}
-                              captions={captions}
-                              isSingle={isSingle}
-                              colorIndex={changIndex + (currentSlide?.baiIndex ?? 0)}
-                            />
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {hasVideo && (
-                      <div className="-mx-3 sm:mx-0 sm:min-h-0 sm:flex-1">
-                        <VideoEmbed url={bai.meta!.video_url!} />
-                      </div>
-                    )}
-                  </article>
-                );
-              })() : (
+                      {hasVideo && (
+                        <div className="-mx-3 sm:mx-0 sm:min-h-0 sm:flex-1">
+                          <VideoEmbed url={bai.meta!.video_url!} />
+                        </div>
+                      )}
+                    </article>
+                  );
+                })()
+              ) : (
                 <p className="text-center text-sm text-muted-foreground">
                   Nội dung đang được cập nhật.
                 </p>
               )}
             </div>
-
           </div>
 
           {/* Bottom nav — three equal thirds spanning the card's full width */}
@@ -708,7 +737,9 @@ export function LessonPage({ changId }: { changId: string }) {
               disabled={!canNext}
               className={[
                 "flex flex-1 items-center justify-center gap-2 py-3 text-sm font-bold transition",
-                canNext ? "cursor-pointer text-navy hover:bg-muted" : "cursor-not-allowed text-muted-foreground opacity-40",
+                canNext
+                  ? "cursor-pointer text-navy hover:bg-muted"
+                  : "cursor-not-allowed text-muted-foreground opacity-40",
               ].join(" ")}
             >
               Bài kế tiếp
@@ -718,7 +749,12 @@ export function LessonPage({ changId }: { changId: string }) {
                   canNext ? color.bg : "bg-muted-foreground/20",
                 ].join(" ")}
               >
-                <ChevronRight className={["h-4 w-4", canNext ? "text-white" : "text-muted-foreground"].join(" ")} strokeWidth={3} />
+                <ChevronRight
+                  className={["h-4 w-4", canNext ? "text-white" : "text-muted-foreground"].join(
+                    " ",
+                  )}
+                  strokeWidth={3}
+                />
               </span>
             </button>
           </div>
@@ -753,7 +789,10 @@ export function LessonPage({ changId }: { changId: string }) {
               className="flex cursor-pointer items-center gap-2 py-2.5 pl-3 pr-7 text-left transition hover:brightness-105 sm:gap-3 sm:py-3 sm:pl-4 sm:pr-8"
             >
               <span
-                className={["grid h-10 w-10 shrink-0 place-items-center rounded-2xl text-xl sm:h-12 sm:w-12 sm:text-2xl", nextColor.bg].join(" ")}
+                className={[
+                  "grid h-10 w-10 shrink-0 place-items-center rounded-2xl text-xl sm:h-12 sm:w-12 sm:text-2xl",
+                  nextColor.bg,
+                ].join(" ")}
               >
                 {nextChang.emoji}
               </span>
@@ -765,7 +804,10 @@ export function LessonPage({ changId }: { changId: string }) {
                   {nextChang.title}
                 </span>
               </span>
-              <ChevronRight className={["h-5 w-5 shrink-0", nextColor.text].join(" ")} strokeWidth={3} />
+              <ChevronRight
+                className={["h-5 w-5 shrink-0", nextColor.text].join(" ")}
+                strokeWidth={3}
+              />
             </button>
           </div>
         </div>

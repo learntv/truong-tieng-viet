@@ -14,20 +14,24 @@ function firstText(text: unknown): string {
 }
 
 function allTexts(text: unknown): string[] {
-  if (Array.isArray(text)) return text.filter((s): s is string => typeof s === "string" && s.trim().length > 0);
+  if (Array.isArray(text))
+    return text.filter((s): s is string => typeof s === "string" && s.trim().length > 0);
   if (typeof text === "string" && text.trim().length > 0) return [text];
   return [];
 }
 
 function titleCase(s: string): string {
-  return s
-    .toLocaleLowerCase("vi")
-    .replace(/(^|\s)\p{L}/gu, (m) => m.toLocaleUpperCase("vi"));
+  return s.toLocaleLowerCase("vi").replace(/(^|\s)\p{L}/gu, (m) => m.toLocaleUpperCase("vi"));
 }
 
-export type Hinh = { id: string; captions: string[]; url: string; highlightTargets?: HighlightTarget[] };
+export type Hinh = {
+  id: string;
+  captions: string[];
+  url: string;
+  highlightTargets?: HighlightTarget[];
+};
 export type BaiMeta = { audio_url?: string; video_url?: string; link?: string };
-export type Bai = { id: string; texts: string[]; hinhs: Hinh[]; meta?: BaiMeta | null; audioUrl?: string };
+export type Bai = { id: string; texts: string[]; hinhs: Hinh[]; meta?: BaiMeta | null };
 export type NoiDung = { id: string; title: string; bais: Bai[] };
 export type Chang = {
   id: string;
@@ -68,9 +72,18 @@ export type HinhByBai = Map<string, Hinh[]>;
 async function fetchLearningStructure(): Promise<ChuDeWithChangs[]> {
   const [chudeRes, changRes, ndRes, baiRes] = await Promise.all([
     supabase.from("chude").select("id, position, text").order("position", { ascending: true }),
-    supabase.from("chang").select("id, position, text, chude_id").order("position", { ascending: true }),
-    supabase.from("noidung").select("id, position, text, chang_id").order("position", { ascending: true }),
-    supabase.from("bai").select("id, position, text, noidung_id, meta").order("position", { ascending: true }),
+    supabase
+      .from("chang")
+      .select("id, position, text, chude_id")
+      .order("position", { ascending: true }),
+    supabase
+      .from("noidung")
+      .select("id, position, text, chang_id")
+      .order("position", { ascending: true }),
+    supabase
+      .from("bai")
+      .select("id, position, text, noidung_id, meta")
+      .order("position", { ascending: true }),
   ]);
 
   for (const r of [chudeRes, changRes, ndRes, baiRes]) {
@@ -89,14 +102,14 @@ async function fetchLearningStructure(): Promise<ChuDeWithChangs[]> {
 
   const baiByNd = new Map<string, Bai[]>();
   for (const b of bai) {
-    const meta = (b.meta && typeof b.meta === "object" && !Array.isArray(b.meta)) ? (b.meta as BaiMeta) : null;
+    const meta =
+      b.meta && typeof b.meta === "object" && !Array.isArray(b.meta) ? (b.meta as BaiMeta) : null;
     const arr = baiByNd.get(b.noidung_id) ?? [];
     arr.push({
       id: b.id,
       texts: allTexts(b.text),
       hinhs: [],
       meta,
-      audioUrl: meta?.audio_url || undefined,
     });
     baiByNd.set(b.noidung_id, arr);
   }
@@ -151,7 +164,12 @@ async function fetchLearningImages(): Promise<HinhByBai> {
   const hinhByBai: HinhByBai = new Map();
   for (const h of hinhRes.data ?? []) {
     const arr = hinhByBai.get(h.bai_id) ?? [];
-    arr.push({ id: h.id, captions: allTexts(h.text), url: h.storage_path ?? "", highlightTargets: LESSON_HIGHLIGHTS[h.id] });
+    arr.push({
+      id: h.id,
+      captions: allTexts(h.text),
+      url: h.storage_path ?? "",
+      highlightTargets: LESSON_HIGHLIGHTS[h.id],
+    });
     hinhByBai.set(h.bai_id, arr);
   }
   return hinhByBai;
