@@ -61,7 +61,7 @@ function BangXepHang() {
               <Trophy className="h-8 w-8 text-primary" strokeWidth={2.5} />
             </div>
             <h1 className="relative font-display text-3xl font-extrabold text-white leading-tight">Bảng xếp hạng</h1>
-            <p className="relative text-sm font-semibold text-white/80 mt-1">Những học sinh chăm chỉ nhất trường</p>
+            <p className="relative text-sm font-semibold text-white/80 mt-1">Những học sinh chăm chỉ nhất trường.</p>
           </div>
 
           {/* List */}
