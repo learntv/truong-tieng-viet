@@ -222,6 +222,80 @@ export type Database = {
         }
         Relationships: []
       }
+      speaking_progress: {
+        Row: {
+          attempts: number
+          best_stars: number
+          sentence_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          best_stars?: number
+          sentence_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          best_stars?: number
+          sentence_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      speaking_sentence: {
+        Row: {
+          id: string
+          position: number
+          text: string
+          topic_id: string
+        }
+        Insert: {
+          id: string
+          position: number
+          text: string
+          topic_id: string
+        }
+        Update: {
+          id?: string
+          position?: number
+          text?: string
+          topic_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "speaking_sentence_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "speaking_topic"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      speaking_topic: {
+        Row: {
+          emoji: string
+          id: string
+          position: number
+          title: string
+        }
+        Insert: {
+          emoji: string
+          id: string
+          position: number
+          title: string
+        }
+        Update: {
+          emoji?: string
+          id?: string
+          position?: number
+          title?: string
+        }
+        Relationships: []
+      }
       user_progress: {
         Row: {
           chang_id: string

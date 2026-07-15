@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useLearningContent } from "@/hooks/useLearningContent";
 import { extractSpeakingSentences } from "@/lib/speech";
-import { SPEAKING_TOPICS, staticTopicSentences } from "@/data/speaking-topics";
+import { useSpeakingContent } from "@/hooks/useSpeakingContent";
 import { SpeakingPractice } from "@/components/speaking/SpeakingPractice";
 
 export const Route = createFileRoute("/hoc-tap/luyen-noi/$chuDeId")({
@@ -12,16 +12,28 @@ export const Route = createFileRoute("/hoc-tap/luyen-noi/$chuDeId")({
 function SpeakingRoute() {
   const { chuDeId } = Route.useParams();
   const { data, isLoading, error } = useLearningContent();
+  const {
+    data: speakingTopics,
+    isLoading: speakingContentLoading,
+    error: speakingContentError,
+  } = useSpeakingContent();
 
-  // Curated topics resolve without waiting for the curriculum query.
-  const staticIndex = SPEAKING_TOPICS.findIndex((t) => t.id === chuDeId);
-  if (staticIndex !== -1) {
-    const staticTopic = SPEAKING_TOPICS[staticIndex];
+  if (speakingContentLoading) {
+    return (
+      <div className="flex justify-center py-32">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  const staticIndex = speakingTopics?.findIndex((t) => t.id === chuDeId) ?? -1;
+  if (staticIndex !== -1 && speakingTopics) {
+    const staticTopic = speakingTopics[staticIndex];
     return (
       <SpeakingPractice
         title={staticTopic.title}
         emoji={staticTopic.emoji}
-        sentences={staticTopicSentences(staticTopic)}
+        sentences={staticTopic.sentences}
         colorIndex={staticIndex}
       />
     );
@@ -36,7 +48,7 @@ function SpeakingRoute() {
   }
 
   const topicIndex = data?.findIndex((t) => t.chuDe.id === chuDeId) ?? -1;
-  if (error || !data || topicIndex === -1) {
+  if (error || speakingContentError || !data || topicIndex === -1) {
     return (
       <div className="mx-auto max-w-lg px-4 py-20 text-center">
         <div className="mb-4 text-6xl">🔍</div>

@@ -1,10 +1,11 @@
 import { createFileRoute, Link, Outlet, useChildMatches } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useLearningContent } from "@/hooks/useLearningContent";
 import { Loader2, Mic, Star } from "lucide-react";
 import { extractSpeakingSentences } from "@/lib/speech";
-import { loadSpeakingProgress, type SpeakingProgress } from "@/lib/speaking-progress";
-import { SPEAKING_TOPICS, staticTopicSentences } from "@/data/speaking-topics";
+import { type SpeakingProgress } from "@/lib/speaking-progress";
+import { useSpeakingContent } from "@/hooks/useSpeakingContent";
+import { useSpeakingProgress } from "@/hooks/useSpeakingProgress";
 import { STAGE_COLORS } from "@/components/learning/StageCard";
 import trauCon from "@/assets/trau-con.png";
 
@@ -109,23 +110,24 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 
 function TopicPicker() {
   const { data, isLoading, error } = useLearningContent();
-  // Loaded once per visit — stats update when the child practice route is left.
-  const [progress] = useState(loadSpeakingProgress);
+  const {
+    data: speakingTopics,
+    isLoading: speakingContentLoading,
+    error: speakingContentError,
+  } = useSpeakingContent();
+  const { progress } = useSpeakingProgress();
 
   const staticCards = useMemo<TopicCardData[]>(
     () =>
-      SPEAKING_TOPICS.map((topic, i) => {
-        const sentences = staticTopicSentences(topic);
-        return {
-          id: topic.id,
-          emoji: topic.emoji,
-          label: topic.title,
-          total: sentences.length,
-          colorIndex: i,
-          ...countStats(sentences, progress),
-        };
-      }),
-    [progress],
+      (speakingTopics ?? []).map((topic, i) => ({
+        id: topic.id,
+        emoji: topic.emoji,
+        label: topic.title,
+        total: topic.sentences.length,
+        colorIndex: i,
+        ...countStats(topic.sentences, progress),
+      })),
+    [speakingTopics, progress],
   );
 
   const lessonCards = useMemo<TopicCardData[]>(
@@ -162,11 +164,23 @@ function TopicPicker() {
       {/* Curated topics */}
       <section className="mb-10">
         <SectionHeading>🎈 Chủ đề luyện nói</SectionHeading>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {staticCards.map((card) => (
-            <TopicCard key={card.id} card={card} />
-          ))}
-        </div>
+        {speakingContentLoading && (
+          <div className="flex justify-center py-10">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        )}
+        {speakingContentError != null && !speakingContentLoading && (
+          <p className="py-8 text-center text-sm font-semibold text-slate-200">
+            Chưa tải được chủ đề luyện nói — em thử lại sau nhé!
+          </p>
+        )}
+        {!speakingContentLoading && !speakingContentError && (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {staticCards.map((card) => (
+              <TopicCard key={card.id} card={card} />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Topics derived from lesson content */}

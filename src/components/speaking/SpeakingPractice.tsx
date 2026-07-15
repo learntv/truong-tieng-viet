@@ -13,11 +13,7 @@ import {
   type Stars,
   type WordMatch,
 } from "@/lib/speech";
-import {
-  loadSpeakingProgress,
-  recordSpeakingAttempt,
-  type SpeakingProgress,
-} from "@/lib/speaking-progress";
+import { useSpeakingProgress } from "@/hooks/useSpeakingProgress";
 import { STAGE_COLORS } from "@/components/learning/StageCard";
 import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
 import { useSingletonAudio } from "@/hooks/useSingletonAudio";
@@ -40,17 +36,38 @@ type GradeResult = {
 // Higher = stricter (more attempts get the "try again" message instead of a diff).
 const TOO_WRONG_RATIO = 0.15;
 
-function StarRow({ stars }: { stars: Stars }) {
+function StarRow({
+  stars,
+  size = "h-9 w-9",
+  animated = true,
+  loading = false,
+}: {
+  stars: Stars;
+  size?: string;
+  animated?: boolean;
+  loading?: boolean;
+}) {
   return (
     <div className="flex justify-center gap-1.5">
       {([1, 2, 3] as const).map((i) => (
         <Star
           key={i}
           className={[
-            "h-9 w-9 transition-transform",
-            i <= stars ? "fill-yellow-400 text-yellow-500 animate-hop" : "text-stone-300",
+            size,
+            "transition-transform",
+            loading
+              ? "animate-pulse text-stone-300"
+              : i <= stars
+                ? ["fill-yellow-400 text-yellow-500", animated && "animate-hop"]
+                    .filter(Boolean)
+                    .join(" ")
+                : "text-stone-300",
           ].join(" ")}
-          style={i <= stars ? { animationDelay: `${(i - 1) * 120}ms` } : undefined}
+          style={
+            !loading && animated && i <= stars
+              ? { animationDelay: `${(i - 1) * 120}ms` }
+              : undefined
+          }
           strokeWidth={1.5}
         />
       ))}
@@ -77,7 +94,7 @@ export function SpeakingPractice({
   const [grading, setGrading] = useState(false);
   const [micDenied, setMicDenied] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [, setProgress] = useState<SpeakingProgress>(loadSpeakingProgress);
+  const { progress, recordAttempt } = useSpeakingProgress();
 
   const recognitionRef = useRef<RecognitionSession | null>(null);
   const audioUrlRef = useRef<string | null>(null);
@@ -91,6 +108,7 @@ export function SpeakingPractice({
   const sttAvailable = useMemo(() => getSpeechRecognitionCtor() != null, []);
 
   const sentence: SpeakingSentence | undefined = sentences[index];
+  const bestStars: Stars = (sentence && progress[sentence.id]?.bestStars) || 0;
   const modelAudio = useSingletonAudio(ttsSrc(sentence?.text ?? ""));
 
   // Cleanup on unmount: stop TTS/recognition, release the recorded-audio blob.
@@ -129,7 +147,7 @@ export function SpeakingPractice({
 
   function saveAttempt(stars: Stars) {
     if (!sentence) return;
-    setProgress(recordSpeakingAttempt(sentence.id, stars));
+    recordAttempt(sentence.id, stars);
     if (stars === 3) setShowConfetti(true);
   }
 
@@ -246,118 +264,118 @@ export function SpeakingPractice({
         </div>
 
         <div className="relative p-5 sm:p-8">
-        {/* Progress */}
-        <div className="mb-1 h-2.5 w-full overflow-hidden rounded-full bg-stone-200 shadow-[inset_0_1px_2px_rgba(0,0,0,0.15)]">
-          <div
-            className={[
-              "h-full rounded-full transition-[width] duration-500 ease-out",
-              color.gradient,
-            ].join(" ")}
-            style={{ width: `${((index + 1) / sentences.length) * 100}%` }}
-          />
-        </div>
-        <p className="mb-5 text-xs font-bold text-muted-foreground">
-          Câu {index + 1}/{sentences.length}
-        </p>
+          {/* Progress */}
+          <div className="mb-1 h-2.5 w-full overflow-hidden rounded-full bg-stone-200 shadow-[inset_0_1px_2px_rgba(0,0,0,0.15)]">
+            <div
+              className={[
+                "h-full rounded-full transition-[width] duration-500 ease-out",
+                color.gradient,
+              ].join(" ")}
+              style={{ width: `${((index + 1) / sentences.length) * 100}%` }}
+            />
+          </div>
+          <p className="mb-5 text-xs font-bold text-muted-foreground">
+            Câu {index + 1}/{sentences.length}
+          </p>
 
-        {showConfetti && <ConfettiBurst onDone={() => setShowConfetti(false)} />}
+          {showConfetti && <ConfettiBurst onDone={() => setShowConfetti(false)} />}
 
-        {sentence?.imageUrl && (
-          <img
-            src={sentence.imageUrl}
-            alt="Hình minh họa"
-            className="mx-auto mb-5 max-h-52 rounded-xl object-contain ring-1 ring-border/60"
-          />
-        )}
+          {sentence?.imageUrl && (
+            <img
+              src={sentence.imageUrl}
+              alt="Hình minh họa"
+              className="mx-auto mb-5 max-h-52 rounded-xl object-contain ring-1 ring-border/60"
+            />
+          )}
 
-        {/* When the attempt is too far off, a word-by-word diff just reads as a
+          {/* When the attempt is too far off, a word-by-word diff just reads as a
             wall of red — encourage another try instead. */}
-        {(() => {
-          const tooWrong = showGraded && (result.ratio ?? 1) < TOO_WRONG_RATIO;
-          const showDiff = showGraded && !tooWrong;
-          return (
-            <>
-              {/* The sentence — after grading, wrong letters/tones get a red
+          {(() => {
+            const tooWrong = showGraded && (result.ratio ?? 1) < TOO_WRONG_RATIO;
+            const showDiff = showGraded && !tooWrong;
+            return (
+              <>
+                {/* The sentence — after grading, wrong letters/tones get a red
                   squiggle right where they are, so the child sees exactly what
                   to fix. Skipped when the attempt was too far off to diff. */}
-              <div className="mb-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 text-center">
-                {showDiff && result.words.length > 0 ? (
-                  result.words.map((w, i) => (
-                    <span
-                      key={i}
-                      className="rounded-lg px-1 py-0.5 font-display text-2xl font-extrabold sm:text-3xl"
-                    >
-                      {w.matched ? (
-                        <span className="text-navy">{w.word}</span>
-                      ) : w.chars ? (
-                        w.chars.map((c, ci) => (
-                          <span
-                            key={ci}
-                            className={
-                              c.ok
-                                ? "text-navy"
-                                : "text-red-500 underline decoration-wavy decoration-2 underline-offset-4"
-                            }
-                          >
-                            {c.char}
+                <div className="mb-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 text-center">
+                  {showDiff && result.words.length > 0 ? (
+                    result.words.map((w, i) => (
+                      <span
+                        key={i}
+                        className="rounded-lg px-1 py-0.5 font-display text-2xl font-extrabold sm:text-3xl"
+                      >
+                        {w.matched ? (
+                          <span className="text-navy">{w.word}</span>
+                        ) : w.chars ? (
+                          w.chars.map((c, ci) => (
+                            <span
+                              key={ci}
+                              className={
+                                c.ok
+                                  ? "text-navy"
+                                  : "text-red-500 underline decoration-wavy decoration-2 underline-offset-4"
+                              }
+                            >
+                              {c.char}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-red-400 underline decoration-wavy decoration-2 underline-offset-4">
+                            {w.word}
                           </span>
-                        ))
-                      ) : (
-                        <span className="text-red-400 underline decoration-wavy decoration-2 underline-offset-4">
-                          {w.word}
-                        </span>
-                      )}
-                    </span>
-                  ))
-                ) : (
-                  <p className="font-display text-2xl font-extrabold leading-snug text-navy sm:text-3xl">
-                    {sentence?.text}
-                  </p>
-                )}
+                        )}
+                      </span>
+                    ))
+                  ) : (
+                    <p className="font-display text-2xl font-extrabold leading-snug text-navy sm:text-3xl">
+                      {sentence?.text}
+                    </p>
+                  )}
 
-                {/* Listen to the model pronunciation */}
-                {sentence && (
-                  <>
-                    <audio
-                      ref={modelAudio.audioRef}
-                      src={modelAudio.src}
-                      preload="none"
-                      onEnded={modelAudio.onEnded}
-                      onPause={modelAudio.onPause}
-                      onError={modelAudio.onError}
-                    />
-                    <button
-                      onClick={modelAudio.play}
-                      aria-label="Nghe cô đọc"
-                      className={[
-                        "inline-grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-full border-2 transition active:scale-90 hover:-translate-y-0.5",
-                        color.bgSoft,
-                        color.border,
-                        color.text,
-                      ].join(" ")}
-                    >
-                      <Volume2 className="h-5 w-5" strokeWidth={2.5} />
-                    </button>
-                  </>
-                )}
-              </div>
+                  {/* Listen to the model pronunciation */}
+                  {sentence && (
+                    <>
+                      <audio
+                        ref={modelAudio.audioRef}
+                        src={modelAudio.src}
+                        preload="none"
+                        onEnded={modelAudio.onEnded}
+                        onPause={modelAudio.onPause}
+                        onError={modelAudio.onError}
+                      />
+                      <button
+                        onClick={modelAudio.play}
+                        aria-label="Nghe cô đọc"
+                        className={[
+                          "inline-grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-full border-2 transition active:scale-90 hover:-translate-y-0.5",
+                          color.bgSoft,
+                          color.border,
+                          color.text,
+                        ].join(" ")}
+                      >
+                        <Volume2 className="h-5 w-5" strokeWidth={2.5} />
+                      </button>
+                    </>
+                  )}
+                </div>
 
-              {/* Reserves the feedback row's height up front (even with nothing
+                {/* Reserves the feedback row's height up front (even with nothing
                   in it yet) so the card doesn't grow/shrink once grading lands. */}
-              <div className="mb-6 flex min-h-[2.25rem] items-center justify-center text-center sm:min-h-[2.5rem]">
-                {tooWrong ? (
-                  <p className="font-display text-base font-extrabold text-amber-500 sm:text-lg">
-                    Cô nghe không rõ, em thử lại nhé! 🌼
-                  </p>
-                ) : (
-                  showGraded &&
-                  result.transcript && (
-                    <div className="inline-flex max-w-full items-center gap-2 rounded-full bg-muted px-4 py-2 text-base font-semibold text-muted-foreground sm:text-lg">
-                      <span aria-hidden>🎧</span>
-                      <span>
-                        Con đã nói: “
-                        {result.spokenWords && result.spokenWords.length > 0
-                          ? result.spokenWords.map((w, i) => (
+                <div className="mb-6 flex min-h-[2.25rem] items-center justify-center text-center sm:min-h-[2.5rem]">
+                  {tooWrong ? (
+                    <p className="font-display text-base font-extrabold text-amber-500 sm:text-lg">
+                      Cô nghe không rõ, em thử lại nhé! 🌼
+                    </p>
+                  ) : (
+                    showGraded &&
+                    result.transcript && (
+                      <div className="inline-flex max-w-full items-center gap-2 rounded-full bg-muted px-4 py-2 text-base font-semibold text-muted-foreground sm:text-lg">
+                        <span aria-hidden>🎧</span>
+                        <span>
+                          Con đã nói: “
+                          {result.spokenWords && result.spokenWords.length > 0 ? (
+                            result.spokenWords.map((w, i) => (
                               <span key={i}>
                                 {i > 0 && " "}
                                 <span
@@ -372,97 +390,105 @@ export function SpeakingPractice({
                                 </span>
                               </span>
                             ))
-                          : (
-                              <span className="font-display font-extrabold italic text-navy">
-                                {result.transcript}
-                              </span>
-                            )}
-                        ”
-                      </span>
-                    </div>
-                  )
-                )}
-              </div>
-            </>
-          );
-        })()}
+                          ) : (
+                            <span className="font-display font-extrabold italic text-navy">
+                              {result.transcript}
+                            </span>
+                          )}
+                          ”
+                        </span>
+                      </div>
+                    )
+                  )}
+                </div>
+              </>
+            );
+          })()}
 
-        {showGraded && !grading && (
-          <div className="mb-6 flex justify-center">
-            <StarRow stars={result.stars} />
-          </div>
-        )}
+          {showGraded && !grading && (
+            <div className="mb-6 flex justify-center">
+              <StarRow stars={result.stars} />
+            </div>
+          )}
 
-        {/* Record / review area */}
-        {!canRecord || micDenied ? (
-          <div className="mx-auto max-w-sm rounded-2xl bg-sky/30 p-4 text-center">
-            <p className="text-sm font-semibold text-navy">
-              {micDenied
-                ? "Micro chưa được bật. Không sao — em nghe cô đọc rồi đọc to theo nhé!"
-                : "Thiết bị này chưa ghi âm được. Em nghe cô đọc rồi đọc to theo nhé!"}
-            </p>
-            <button
-              onClick={handleRepeatedAloud}
-              className="mt-3 inline-flex items-center gap-2 rounded-full bg-gradient-primary px-5 py-2.5 font-display text-sm font-extrabold text-white shadow-sm transition hover:scale-105 active:scale-95"
-            >
-              <ThumbsUp className="h-4 w-4" strokeWidth={2.5} />
-              Em đã đọc to theo cô!
-            </button>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center gap-5">
-            {isReviewing && showSelfAssess && !grading && (
-              <div className="flex w-full max-w-md flex-col items-center gap-4">
-                <button
-                  onClick={handleSelfAssessDone}
-                  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-400 to-green-600 px-5 py-2.5 font-display text-sm font-extrabold text-white shadow-sm transition hover:scale-105 active:scale-95"
-                >
-                  😊 Giống rồi!
-                </button>
-              </div>
-            )}
+          {stage !== "review" && (
+            <div className="mb-6 flex justify-center">
+              <StarRow stars={bestStars} animated={false} loading={stage === "recording"} />
+            </div>
+          )}
 
-            {/* Record button stays mounted (just disabled) while grading —
+          {/* Record / review area */}
+          {!canRecord || micDenied ? (
+            <div className="mx-auto max-w-sm rounded-2xl bg-sky/30 p-4 text-center">
+              <p className="text-sm font-semibold text-navy">
+                {micDenied
+                  ? "Micro chưa được bật. Không sao — em nghe cô đọc rồi đọc to theo nhé!"
+                  : "Thiết bị này chưa ghi âm được. Em nghe cô đọc rồi đọc to theo nhé!"}
+              </p>
+              <button
+                onClick={handleRepeatedAloud}
+                className="mt-3 inline-flex items-center gap-2 rounded-full bg-gradient-primary px-5 py-2.5 font-display text-sm font-extrabold text-white shadow-sm transition hover:scale-105 active:scale-95"
+              >
+                <ThumbsUp className="h-4 w-4" strokeWidth={2.5} />
+                Em đã đọc to theo cô!
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-5">
+              {isReviewing && showSelfAssess && !grading && (
+                <div className="flex w-full max-w-md flex-col items-center gap-4">
+                  <button
+                    onClick={handleSelfAssessDone}
+                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-400 to-green-600 px-5 py-2.5 font-display text-sm font-extrabold text-white shadow-sm transition hover:scale-105 active:scale-95"
+                  >
+                    😊 Giống rồi!
+                  </button>
+                </div>
+              )}
+
+              {/* Record button stays mounted (just disabled) while grading —
                 unmounting it here left a blank gap that popped back in once
                 grading finished. It also stays put after review, so the child
                 can tap it again right away with no separate "try again" tap. */}
-            <RecordButton
-              onStart={handleRecordStart}
-              onFinish={handleRecordFinish}
-              onMicDenied={() => setMicDenied(true)}
-              disabled={grading}
-            />
+              <RecordButton
+                onStart={handleRecordStart}
+                onFinish={handleRecordFinish}
+                onMicDenied={() => setMicDenied(true)}
+                disabled={grading}
+              />
+            </div>
+          )}
+
+          {/* Bottom nav — lives inside the same card, separated by a divider */}
+          <div className="mt-6 flex items-center justify-between gap-3 border-t border-border pt-5">
+            <button
+              onClick={() => goTo(index - 1)}
+              disabled={index === 0}
+              className={[
+                "inline-flex items-center gap-1.5 rounded-full border-2 border-black/10 bg-white px-4 py-2.5 text-sm font-bold text-navy shadow-bevel-neutral transition-[transform,box-shadow] ease-bounce active:translate-y-[2px] active:shadow-bevel-neutral-active",
+                index > 0 ? "hover:brightness-95" : "cursor-not-allowed opacity-40",
+              ].join(" ")}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Câu trước
+            </button>
+
+            <button
+              onClick={() => goTo(index + 1)}
+              disabled={index >= sentences.length - 1}
+              className={[
+                "inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-bold text-white transition-[transform,box-shadow,filter] ease-bounce active:translate-y-[2px]",
+                index < sentences.length - 1
+                  ? [color.gradient, color.bevel, color.bevelActive, "hover:brightness-110"].join(
+                      " ",
+                    )
+                  : "cursor-not-allowed bg-muted text-muted-foreground opacity-60",
+              ].join(" ")}
+            >
+              Câu tiếp theo
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
-        )}
-
-        {/* Bottom nav — lives inside the same card, separated by a divider */}
-        <div className="mt-6 flex items-center justify-between gap-3 border-t border-border pt-5">
-          <button
-            onClick={() => goTo(index - 1)}
-            disabled={index === 0}
-            className={[
-              "inline-flex items-center gap-1.5 rounded-full border-2 border-black/10 bg-white px-4 py-2.5 text-sm font-bold text-navy shadow-bevel-neutral transition-[transform,box-shadow] ease-bounce active:translate-y-[2px] active:shadow-bevel-neutral-active",
-              index > 0 ? "hover:brightness-95" : "cursor-not-allowed opacity-40",
-            ].join(" ")}
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Câu trước
-          </button>
-
-          <button
-            onClick={() => goTo(index + 1)}
-            disabled={index >= sentences.length - 1}
-            className={[
-              "inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-bold text-white transition-[transform,box-shadow,filter] ease-bounce active:translate-y-[2px]",
-              index < sentences.length - 1
-                ? [color.gradient, color.bevel, color.bevelActive, "hover:brightness-110"].join(" ")
-                : "cursor-not-allowed bg-muted text-muted-foreground opacity-60",
-            ].join(" ")}
-          >
-            Câu tiếp theo
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
         </div>
       </div>
     </div>

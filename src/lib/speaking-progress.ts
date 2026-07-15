@@ -1,8 +1,9 @@
 import type { Stars } from "@/lib/speech";
 
-// Speaking-coach practice stats live in localStorage only — deliberately
-// outside user_progress/leaderboard (per product decision). Keyed by the
-// stable sentence ids from extractSpeakingSentences.
+// Speaking-coach practice stats for anonymous (logged-out) visitors. Logged-in
+// progress lives in the speaking_progress table instead (see useSpeakingProgress),
+// which merges this local store in on login. Keyed by the stable sentence ids
+// from extractSpeakingSentences / speaking_sentence.id.
 
 export type SpeakingStat = { attempts: number; bestStars: Stars };
 export type SpeakingProgress = Record<string, SpeakingStat>;
@@ -33,4 +34,13 @@ export function recordSpeakingAttempt(id: string, stars: Stars): SpeakingProgres
     // localStorage unavailable (private browsing, quota) — stats just don't persist.
   }
   return all;
+}
+
+// Called once local progress has been merged into the DB after login.
+export function clearSpeakingProgress() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // localStorage unavailable — nothing to clear.
+  }
 }
