@@ -127,37 +127,197 @@ export function normalizeSpoken(s: string): string {
     .trim();
 }
 
-export type WordMatch = { word: string; matched: boolean };
+export type CharMatch = { char: string; ok: boolean };
+
+export type WordMatch = {
+  word: string;
+  matched: boolean;
+  // What the child said in this word's place, when it didn't match exactly.
+  spokenWord?: string;
+  // Per-character correctness of `word`, aligned against `spokenWord` — lets the
+  // UI point at exactly which letter/tone mark was off, not just "wrong word".
+  chars?: CharMatch[];
+};
+
+// Longest-common-subsequence mask: for each character of `a`, whether it's part
+// of a subsequence shared with `b` (in order). Used to pinpoint which letters
+// (incl. tone marks, which are their own codepoints) differ between two words.
+function lcsMask(a: string[], b: string[]): boolean[] {
+  const n = a.length;
+  const m = b.length;
+  const dp: number[][] = Array.from({ length: n + 1 }, () => new Array<number>(m + 1).fill(0));
+  for (let i = 1; i <= n; i++) {
+    for (let j = 1; j <= m; j++) {
+      dp[i][j] =
+        a[i - 1] === b[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
+    }
+  }
+  const mask = new Array<boolean>(n).fill(false);
+  let i = n;
+  let j = m;
+  while (i > 0 && j > 0) {
+    if (a[i - 1] === b[j - 1]) {
+      mask[i - 1] = true;
+      i--;
+      j--;
+    } else if (dp[i - 1][j] >= dp[i][j - 1]) {
+      i--;
+    } else {
+      j--;
+    }
+  }
+  return mask;
+}
+
+// `display` keeps the sentence's original casing/punctuation for rendering;
+// `compareBase` (same length as `display`) is what actually gets diffed
+// against the spoken word so a case difference alone never reads as wrong.
+function charDiff(display: string, compareBase: string, spokenWord: string): CharMatch[] {
+  const base = Array.from(compareBase);
+  const mask = lcsMask(base, Array.from(spokenWord));
+  return Array.from(display).map((char, idx) => ({ char, ok: mask[idx] ?? false }));
+}
+
+function lcsLength(a: string[], b: string[]): number {
+  const n = a.length;
+  const m = b.length;
+  const dp: number[][] = Array.from({ length: n + 1 }, () => new Array<number>(m + 1).fill(0));
+  for (let i = 1; i <= n; i++) {
+    for (let j = 1; j <= m; j++) {
+      dp[i][j] =
+        a[i - 1] === b[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1]);
+    }
+  }
+  return dp[n][m];
+}
+
+// Cost of pairing two different words in the alignment below. Plain edit
+// distance charges a flat 1 for every substitution, which ties with
+// delete+insert (cost 2 total) as soon as a sentence is a word short —
+// and DP then breaks that tie arbitrarily, sometimes pairing up completely
+// unrelated words. Scaling the cost by character overlap means lookalike
+// words (e.g. "trời"/"troi") stay cheaper to pair than to split apart, while
+// truly unrelated words still cost the same as delete+insert.
+function wordSubCost(a: string, b: string): number {
+  if (a === b) return 0;
+  const ac = Array.from(a);
+  const bc = Array.from(b);
+  const maxLen = Math.max(ac.length, bc.length) || 1;
+  return 2 * (1 - lcsLength(ac, bc) / maxLen);
+}
+
+// Weighted alignment between the target's words and the spoken words —
+// unlike a bag-of-words count, this pairs each target word with whichever
+// spoken word actually lines up with it (or nothing, if it was skipped),
+// which is what lets us show *what was heard instead* per word.
+function alignWords(
+  target: string[],
+  spoken: string[],
+): Array<{ targetIdx: number | null; spokenIdx: number | null }> {
+  const n = target.length;
+  const m = spoken.length;
+  const EPS = 1e-9;
+  const dp: number[][] = Array.from({ length: n + 1 }, () => new Array<number>(m + 1).fill(0));
+  for (let i = 0; i <= n; i++) dp[i][0] = i;
+  for (let j = 0; j <= m; j++) dp[0][j] = j;
+  for (let i = 1; i <= n; i++) {
+    for (let j = 1; j <= m; j++) {
+      const subCost = wordSubCost(target[i - 1], spoken[j - 1]);
+      dp[i][j] = Math.min(dp[i - 1][j - 1] + subCost, dp[i - 1][j] + 1, dp[i][j - 1] + 1);
+    }
+  }
+
+  const ops: Array<{ targetIdx: number | null; spokenIdx: number | null }> = [];
+  let i = n;
+  let j = m;
+  while (i > 0 || j > 0) {
+    const subCost = i > 0 && j > 0 ? wordSubCost(target[i - 1], spoken[j - 1]) : Infinity;
+    if (i > 0 && j > 0 && Math.abs(dp[i][j] - (dp[i - 1][j - 1] + subCost)) < EPS) {
+      ops.push({ targetIdx: i - 1, spokenIdx: j - 1 }); // match or substitution
+      i--;
+      j--;
+    } else if (i > 0 && Math.abs(dp[i][j] - (dp[i - 1][j] + 1)) < EPS) {
+      ops.push({ targetIdx: i - 1, spokenIdx: null }); // target word not said at all
+      i--;
+    } else {
+      ops.push({ targetIdx: null, spokenIdx: j - 1 }); // extra spoken word, no target counterpart
+      j--;
+    }
+  }
+  return ops.reverse();
+}
+
+export type SpokenWord = { word: string; extra: boolean };
 
 export function compareSentence(
   target: string,
   spoken: string,
-): { ratio: number; words: WordMatch[] } {
-  const pool = new Map<string, number>();
-  for (const w of normalizeSpoken(spoken).split(" ").filter(Boolean)) {
-    pool.set(w, (pool.get(w) ?? 0) + 1);
+): { ratio: number; words: WordMatch[]; spokenWords: SpokenWord[] } {
+  const rawTokens = target.split(/\s+/).filter(Boolean);
+  const spokenTokens = normalizeSpoken(spoken).split(" ").filter(Boolean);
+  // Original casing, for display — assumed to line up 1:1 with spokenTokens
+  // (holds unless the transcript has a token that's pure punctuation, which
+  // STT output essentially never produces).
+  const rawSpokenTokens = spoken.split(/\s+/).filter(Boolean);
+
+  // Punctuation-only tokens don't participate in alignment or scoring.
+  const consideredIdx: number[] = [];
+  const consideredNorms: string[] = [];
+  rawTokens.forEach((raw, idx) => {
+    const norm = normalizeSpoken(raw);
+    if (norm) {
+      consideredIdx.push(idx);
+      consideredNorms.push(norm);
+    }
+  });
+
+  const ops = alignWords(consideredNorms, spokenTokens);
+  const byConsideredIdx = new Map<number, { matched: boolean; spokenWord?: string }>();
+  const usedSpokenIdx = new Set<number>();
+  let extraCount = 0;
+  for (const op of ops) {
+    if (op.targetIdx == null) {
+      extraCount++; // extra spoken word — no target word to attach it to
+      continue;
+    }
+    const spokenWord = op.spokenIdx != null ? spokenTokens[op.spokenIdx] : undefined;
+    if (op.spokenIdx != null) usedSpokenIdx.add(op.spokenIdx);
+    byConsideredIdx.set(op.targetIdx, {
+      matched: spokenWord === consideredNorms[op.targetIdx],
+      spokenWord,
+    });
   }
 
-  let considered = 0;
   let matchedCount = 0;
-  const words: WordMatch[] = target
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((raw) => {
-      const norm = normalizeSpoken(raw);
-      // Pure-punctuation tokens don't count toward the score.
-      if (!norm) return { word: raw, matched: true };
-      considered++;
-      const left = pool.get(norm) ?? 0;
-      if (left > 0) {
-        pool.set(norm, left - 1);
-        matchedCount++;
-        return { word: raw, matched: true };
-      }
-      return { word: raw, matched: false };
-    });
+  const words: WordMatch[] = rawTokens.map((raw, idx) => {
+    const norm = normalizeSpoken(raw);
+    if (!norm) return { word: raw, matched: true };
 
-  return { ratio: considered > 0 ? matchedCount / considered : 0, words };
+    const ci = consideredIdx.indexOf(idx);
+    const info = byConsideredIdx.get(ci);
+    if (!info || info.matched) {
+      if (info?.matched) matchedCount++;
+      return { word: raw, matched: !!info?.matched };
+    }
+
+    const chars = info.spokenWord
+      ? charDiff(raw, raw.toLocaleLowerCase("vi"), info.spokenWord)
+      : undefined;
+    return { word: raw, matched: false, spokenWord: info.spokenWord, chars };
+  });
+
+  // Extra words the child added (that don't correspond to any target word)
+  // count against the score too — saying the whole sentence plus a bunch of
+  // unrelated chatter shouldn't score the same as saying it cleanly.
+  const considered = consideredIdx.length;
+  const ratio = considered > 0 ? matchedCount / (considered + extraCount) : 0;
+
+  const spokenWords: SpokenWord[] = spokenTokens.map((tok, j) => ({
+    word: rawSpokenTokens[j] ?? tok,
+    extra: !usedSpokenIdx.has(j),
+  }));
+
+  return { ratio, words, spokenWords };
 }
 
 export type Stars = 0 | 1 | 2 | 3;

@@ -2,6 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { Loader2, Mic, Square } from "lucide-react";
 
 const MAX_RECORDING_MS = 10_000;
+// RMS (0–1) below this counts as silence. Mic noise floor is usually well under this.
+const SILENCE_RMS_THRESHOLD = 0.02;
+// How long silence must persist after the child has spoken before we auto-stop.
+const SILENCE_STOP_MS = 1_200;
 
 type Phase = "idle" | "starting" | "recording";
 
@@ -23,10 +27,26 @@ export function RecordButton({
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const silenceRafRef = useRef<number | null>(null);
+  const hasSpokenRef = useRef(false);
+  const silenceStartRef = useRef<number | null>(null);
 
   function releaseMic() {
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
+  }
+
+  function stopSilenceWatch() {
+    if (silenceRafRef.current != null) {
+      cancelAnimationFrame(silenceRafRef.current);
+      silenceRafRef.current = null;
+    }
+    // Keep the AudioContext itself alive and reuse it next recording —
+    // constructing a fresh one is the slow part (can take a noticeable
+    // beat), so only tear down the per-recording analyser node.
+    analyserRef.current = null;
   }
 
   function stopRecording() {
@@ -34,6 +54,7 @@ export function RecordButton({
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
+    stopSilenceWatch();
     const recorder = recorderRef.current;
     if (recorder && recorder.state !== "inactive") {
       try {
@@ -47,9 +68,43 @@ export function RecordButton({
     setPhase("idle");
   }
 
+  // Watches mic volume while recording; once the child has spoken and then
+  // gone quiet for SILENCE_STOP_MS, stop automatically instead of waiting
+  // for the max-duration timeout or a manual tap.
+  function watchForSilence() {
+    const analyser = analyserRef.current;
+    if (!analyser) return;
+    const data = new Uint8Array(analyser.fftSize);
+    analyser.getByteTimeDomainData(data);
+
+    let sumSquares = 0;
+    for (let i = 0; i < data.length; i++) {
+      const v = (data[i] - 128) / 128;
+      sumSquares += v * v;
+    }
+    const rms = Math.sqrt(sumSquares / data.length);
+
+    if (rms > SILENCE_RMS_THRESHOLD) {
+      hasSpokenRef.current = true;
+      silenceStartRef.current = null;
+    } else if (hasSpokenRef.current) {
+      if (silenceStartRef.current == null) {
+        silenceStartRef.current = performance.now();
+      } else if (performance.now() - silenceStartRef.current > SILENCE_STOP_MS) {
+        stopRecording();
+        return;
+      }
+    }
+
+    silenceRafRef.current = requestAnimationFrame(watchForSilence);
+  }
+
   useEffect(
     () => () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      stopSilenceWatch();
+      audioCtxRef.current?.close().catch(() => {});
+      audioCtxRef.current = null;
       const recorder = recorderRef.current;
       if (recorder && recorder.state !== "inactive") {
         // Drop the callback so a stop-on-unmount doesn't call setState.
@@ -98,6 +153,32 @@ export function RecordButton({
     setPhase("recording");
     onStart();
     timeoutRef.current = setTimeout(stopRecording, MAX_RECORDING_MS);
+
+    // Deferred to the next tick so the "recording" UI paints immediately —
+    // constructing/reusing the AudioContext can take a noticeable beat and
+    // would otherwise delay the button's visual feedback.
+    setTimeout(() => {
+      // Recording may have already been stopped (e.g. instant re-tap) by the
+      // time this runs — skip setup in that case.
+      if (recorderRef.current !== recorder || recorder.state === "inactive") return;
+      try {
+        const AudioCtx =
+          window.AudioContext ??
+          (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        const audioCtx = audioCtxRef.current ?? new AudioCtx();
+        audioCtxRef.current = audioCtx;
+        const source = audioCtx.createMediaStreamSource(stream);
+        const analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 2048;
+        source.connect(analyser);
+        analyserRef.current = analyser;
+        hasSpokenRef.current = false;
+        silenceStartRef.current = null;
+        silenceRafRef.current = requestAnimationFrame(watchForSilence);
+      } catch {
+        /* silence auto-stop unavailable — manual stop / max duration still work */
+      }
+    }, 0);
   }
 
   const isRecording = phase === "recording";
@@ -109,11 +190,12 @@ export function RecordButton({
         disabled={disabled || phase === "starting"}
         aria-label={isRecording ? "Dừng ghi âm" : "Bắt đầu ghi âm"}
         className={[
-          "grid h-20 w-20 place-items-center rounded-full text-white shadow-glow-primary ring-4 ring-white/70 transition",
-          "disabled:cursor-not-allowed disabled:opacity-50",
+          "grid h-20 w-20 place-items-center rounded-full border-2 border-black/10 text-white ring-4 ring-white/70",
+          "transition-[transform,box-shadow,filter] duration-150 ease-bounce hover:brightness-110",
+          "disabled:cursor-not-allowed disabled:opacity-50 disabled:active:translate-y-0",
           isRecording
-            ? "animate-pulse-glow bg-gradient-to-br from-rose-400 to-red-600 scale-105"
-            : "bg-gradient-primary hover:scale-105 active:scale-95",
+            ? "animate-pulse-glow bg-red-500 translate-y-[3px] shadow-[0_1px_0_0_#be123c]"
+            : "bg-gradient-primary shadow-bevel-primary active:translate-y-[3px] active:shadow-bevel-primary-active",
         ].join(" ")}
       >
         {phase === "starting" ? (

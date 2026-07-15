@@ -40,10 +40,10 @@ function SpeakingRoute() {
     return (
       <div className="mx-auto max-w-lg px-4 py-20 text-center">
         <div className="mb-4 text-6xl">🔍</div>
-        <h1 className="mb-2 font-display text-2xl font-extrabold text-navy">
+        <h1 className="mb-2 font-display text-2xl font-extrabold text-white">
           Không tìm thấy chủ đề
         </h1>
-        <p className="mb-6 text-muted-foreground">Chủ đề này không tồn tại hoặc đã bị đổi.</p>
+        <p className="mb-6 text-slate-200">Chủ đề này không tồn tại hoặc đã bị đổi.</p>
         <Link
           to="/hoc-tap/luyen-noi"
           className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-display font-extrabold text-white shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active"

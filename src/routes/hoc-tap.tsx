@@ -17,6 +17,7 @@ function HocTapLayout() {
   const isLesson = pathname.startsWith("/hoc-tap/quyen-1/") && !isRoadmap;
   const isAlphabetPage = pathname === "/hoc-tap/bang-chu-cai";
   const isHocTapHome = pathname === "/hoc-tap";
+  const isSpeakingPage = pathname.startsWith("/hoc-tap/luyen-noi");
 
   return (
     <div
@@ -25,6 +26,7 @@ function HocTapLayout() {
         isLesson ? "flex h-screen flex-col overflow-hidden" : "flex min-h-screen flex-col",
         isAlphabetPage && "bg-gradient-to-b from-sky-300 to-sky-200",
         isHocTapHome && "bg-gradient-to-b from-amber-100 via-rose-50 to-sky-100",
+        isSpeakingPage && "bg-gradient-to-b from-indigo-950 via-indigo-900 to-slate-800",
       ]
         .filter(Boolean)
         .join(" ")}
@@ -53,6 +55,34 @@ function HocTapLayout() {
               <Navbar />
               <Outlet />
             </div>
+            <Footer />
+          </div>
+        </>
+      ) : isSpeakingPage ? (
+        <>
+          {/* Twinkling stars behind the topic picker, to match the night-sky theme. */}
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              backgroundImage: [
+                "radial-gradient(1.5px 1.5px at 10% 20%, white, transparent)",
+                "radial-gradient(1px 1px at 25% 60%, white, transparent)",
+                "radial-gradient(2px 2px at 40% 15%, white, transparent)",
+                "radial-gradient(1px 1px at 55% 45%, white, transparent)",
+                "radial-gradient(1.5px 1.5px at 70% 75%, white, transparent)",
+                "radial-gradient(1px 1px at 85% 25%, white, transparent)",
+                "radial-gradient(2px 2px at 95% 55%, white, transparent)",
+                "radial-gradient(1px 1px at 15% 85%, white, transparent)",
+                "radial-gradient(1.5px 1.5px at 60% 90%, white, transparent)",
+              ].join(", "),
+              backgroundRepeat: "repeat",
+              backgroundSize: "200px 200px",
+              opacity: 0.6,
+            }}
+          />
+          <div className="relative z-10 flex flex-1 flex-col">
+            <Navbar />
+            <Outlet />
             <Footer />
           </div>
         </>
