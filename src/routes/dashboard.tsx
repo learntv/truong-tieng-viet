@@ -164,7 +164,7 @@ function BarsView() {
               </span>
               <span className="flex items-center gap-2 tabular-nums text-gray-500">
                 <span className="text-xs font-semibold text-gray-400">{pct}%</span>
-                {row.students.toLocaleString()} trẻ
+                {row.students.toLocaleString("en-US")} trẻ
               </span>
             </div>
             <Progress value={(row.students / MAX_STUDENTS) * 100} className="h-2" />
@@ -173,7 +173,7 @@ function BarsView() {
       })}
       <Separator className="my-2" />
       <p className="text-xs text-gray-400 text-right">
-        Tổng: {TOTAL_STUDENTS.toLocaleString()} học sinh tại {COUNTRY_DATA.length} quốc gia
+        Tổng: {TOTAL_STUDENTS.toLocaleString("en-US")} học sinh tại {COUNTRY_DATA.length} quốc gia
       </p>
     </div>
   );
@@ -189,7 +189,7 @@ function MapView() {
           <div className="flex items-center gap-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md px-3 py-1">
             <span className="text-base">{hovered.flag}</span>
             <span>{hovered.country}</span>
-            <span className="text-red-600 font-bold">{hovered.students.toLocaleString()} trẻ</span>
+            <span className="text-red-600 font-bold">{hovered.students.toLocaleString("en-US")} trẻ</span>
           </div>
         ) : (
           <p className="text-xs text-gray-400">Di chuột vào quốc gia để xem chi tiết</p>
@@ -230,7 +230,7 @@ function MapView() {
           ))}
         </div>
         <span>Nhiều hơn</span>
-        <span className="ml-auto text-gray-400">Tổng: {TOTAL_STUDENTS.toLocaleString()} học sinh</span>
+        <span className="ml-auto text-gray-400">Tổng: {TOTAL_STUDENTS.toLocaleString("en-US")} học sinh</span>
       </div>
     </div>
   );
@@ -266,11 +266,11 @@ function DashboardPage() {
         <section className="space-y-4">
           <SectionHeading>Tổng Quan</SectionHeading>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <StatCard title="Tài khoản" value={SCALE_STATS.totalRegistered.toLocaleString()} sub="đã đăng ký" badge="↑ 24%" />
-            <StatCard title="Người dùng / ngày" value={SCALE_STATS.dau.toLocaleString()} sub="hoạt động hôm nay" badge={SCALE_STATS.dauGrowth} />
-            <StatCard title="Người dùng / tháng" value={SCALE_STATS.mau.toLocaleString()} sub="hoạt động tháng này" badge={SCALE_STATS.mauGrowth} />
-            <StatCard title="Giờ học" value={`${STATS.totalHours.toLocaleString()}`} sub={`${STATS.totalSessions.toLocaleString()} phiên`} />
-            <StatCard title="Chứng chỉ" value={STATS.certificatesIssued.toLocaleString()} sub="đã cấp" badge={`${STATS.completionRate}% tỷ lệ`} />
+            <StatCard title="Tài khoản" value={SCALE_STATS.totalRegistered.toLocaleString("en-US")} sub="đã đăng ký" badge="↑ 24%" />
+            <StatCard title="Người dùng / ngày" value={SCALE_STATS.dau.toLocaleString("en-US")} sub="hoạt động hôm nay" badge={SCALE_STATS.dauGrowth} />
+            <StatCard title="Người dùng / tháng" value={SCALE_STATS.mau.toLocaleString("en-US")} sub="hoạt động tháng này" badge={SCALE_STATS.mauGrowth} />
+            <StatCard title="Giờ học" value={`${STATS.totalHours.toLocaleString("en-US")}`} sub={`${STATS.totalSessions.toLocaleString("en-US")} phiên`} />
+            <StatCard title="Chứng chỉ" value={STATS.certificatesIssued.toLocaleString("en-US")} sub="đã cấp" badge={`${STATS.completionRate}% tỷ lệ`} />
             <StatCard title="TB / học sinh" value={`${STATS.avgHoursPerStudent}h`} sub="giờ học trung bình" />
           </div>
         </section>
@@ -303,7 +303,7 @@ function DashboardPage() {
                     <XAxis dataKey="period" tick={{ fontSize: 12, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 12, fill: "#9ca3af" }} axisLine={false} tickLine={false} width={45} />
                     <Tooltip
-                      formatter={(v: number) => [`${v.toLocaleString()} học sinh`, "Tổng"]}
+                      formatter={(v: number) => [`${v.toLocaleString("en-US")} học sinh`, "Tổng"]}
                       contentStyle={{ borderRadius: "8px", fontSize: "13px", border: "1px solid #e5e7eb" }}
                     />
                     <Area type="monotone" dataKey="students" stroke="#ef4444" strokeWidth={2.5} fill="url(#gradStudents)" dot={false} activeDot={{ r: 5, fill: "#ef4444" }} />
@@ -351,7 +351,7 @@ function DashboardPage() {
                 <div>
                   <CardTitle>Học Sinh Theo Quốc Gia</CardTitle>
                   <CardDescription>
-                    {TOTAL_STUDENTS.toLocaleString()} học sinh tại {COUNTRY_DATA.length} quốc gia
+                    {TOTAL_STUDENTS.toLocaleString("en-US")} học sinh tại {COUNTRY_DATA.length} quốc gia
                   </CardDescription>
                 </div>
                 <Tabs value={countryView} onValueChange={(v) => setCountryView(v as "bars" | "map")}>
@@ -378,7 +378,7 @@ function DashboardPage() {
                           <Cell key={entry.name} fill={entry.color} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(v: number) => [`${v.toLocaleString()} học sinh`]} />
+                      <Tooltip formatter={(v: number) => [`${v.toLocaleString("en-US")} học sinh`]} />
                     </PieChart>
                   </ResponsiveContainer>
                   {COMPLETION_DATA.map((entry) => (
@@ -388,7 +388,7 @@ function DashboardPage() {
                           <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: entry.color }} />
                           {entry.name}
                         </span>
-                        <span className="font-semibold tabular-nums">{entry.value.toLocaleString()}</span>
+                        <span className="font-semibold tabular-nums">{entry.value.toLocaleString("en-US")}</span>
                       </div>
                       <Progress value={(entry.value / TOTAL_STUDENTS) * 100} className="h-1" />
                     </div>
