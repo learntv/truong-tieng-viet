@@ -111,7 +111,7 @@ function ForgotPasswordView({ onBack }: { onBack: () => void }) {
           Nhập email của bạn và chúng tôi sẽ gửi liên kết đặt lại mật khẩu.
         </p>
       </div>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+      <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-3">
         <div className="space-y-1.5">
           <Label htmlFor="forgot-email">Email</Label>
           <Input id="forgot-email" type="email" placeholder="em@example.com" {...register("email")} />
@@ -165,7 +165,7 @@ function EmailForm({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+    <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-3">
       <div className="space-y-1.5">
         <Label htmlFor="auth-email">Email</Label>
         <Input id="auth-email" type="email" placeholder="em@example.com" {...register("email")} />

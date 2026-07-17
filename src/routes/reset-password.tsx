@@ -72,7 +72,7 @@ function ResetPassword() {
           </div>
 
           {ready && (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="new-password">Mật khẩu mới</Label>
                 <Input id="new-password" type="password" placeholder="••••••" {...register("password")} />
