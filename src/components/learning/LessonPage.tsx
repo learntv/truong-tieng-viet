@@ -428,6 +428,14 @@ export function LessonPage({ changId }: { changId: string }) {
   const currentSlide = slides[slideIndex];
   const currentNoiDung = currentSlide?.nd;
   const bai = currentSlide?.bai ?? null;
+  const hasSpeakableText = !!bai && bai.texts.some((t) => t.trim().length > 0);
+  // A manually-curated narration takes priority over TTS (skip synthesis entirely when
+  // someone already recorded/uploaded real audio for this bài), and — same as before TTS
+  // existed — its presence is also what hides the per-word cloud below: a full narration
+  // already reads everything, so the individual tap-to-hear captions would be redundant.
+  // TTS-fallback audio is NOT curated narration, so it must NOT suppress the word cloud
+  // the same way.
+  const manualAudioUrl = bai?.meta?.audio_url || undefined;
   const color = STAGE_COLORS[changIndex % STAGE_COLORS.length];
   const canPrev = slideIndex > 0;
   const canNext = slideIndex < total - 1;
@@ -474,43 +482,34 @@ export function LessonPage({ changId }: { changId: string }) {
       />
       <div className="absolute inset-0 bg-black/45" />
 
-      {/* Breadcrumb bar */}
+      {/* Single unified header bar: replaces the old stack of breadcrumb bar + mobile
+          back-to-map bar + card header strip (three rows) with one compact row, freeing
+          up vertical space for the actual content below. */}
       <div
         className={[
-          "relative z-10 flex shrink-0 flex-wrap items-center justify-between gap-2 px-4 py-2 sm:px-6",
+          "relative z-10 flex shrink-0 items-center gap-2 px-3 py-2 sm:px-4",
           color.bg,
         ].join(" ")}
       >
-        <div className="flex min-w-0 items-center gap-1.5 text-xs font-bold text-white/90 sm:text-sm">
-          <span className="shrink-0">Sách giáo khoa</span>
-          <ChevronRight className="h-3 w-3 shrink-0 opacity-70" />
-          <span className="shrink-0">Quyển 1</span>
-          <ChevronRight className="hidden h-3 w-3 shrink-0 opacity-70 sm:block" />
-          <span className="hidden truncate text-white/90 sm:inline">{chuDe.title}</span>
-          <ChevronRight className="h-3 w-3 shrink-0 opacity-70" />
-          <span className="truncate text-white">
-            {chang.emoji} {chang.title}
-          </span>
+        <BackToMapButton
+          color={color}
+          topicIndex={topicIndex}
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-[transform,box-shadow] ease-bounce active:translate-y-[2px]"
+          arrowClassName="h-5 w-5 shrink-0"
+          iconClassName="hidden"
+        />
+
+        {/* Breadcrumb: chuDe.title already reads "Chủ đề N: Name", so it stands alone. */}
+        <div className="min-w-0 flex-1 truncate text-xs font-bold text-white sm:text-sm">
+          {chuDe.title}
         </div>
-        <div className="shrink-0 rounded-full bg-white/90 px-3 py-1.5 text-xs font-extrabold text-navy">
+
+        <div className="shrink-0 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-extrabold text-navy sm:px-3 sm:py-1.5 sm:text-xs">
           Chặng {changIndex + 1}/{changs.length}
         </div>
       </div>
 
-      {/* Mobile-only back-to-map bar: sits between the breadcrumb and the card, in normal
-          flow. On sm+ the fixed floating button below (near the back-to-map Link further
-          down) is used instead, since there's enough margin around the card there. */}
-      <div className="relative z-10 flex shrink-0 px-2 pt-2 sm:hidden">
-        <BackToMapButton
-          color={color}
-          topicIndex={topicIndex}
-          className="flex h-11 items-center gap-1 rounded-full px-3 transition-[transform,box-shadow] ease-bounce active:translate-y-[2px]"
-          arrowClassName="h-5 w-5 shrink-0"
-          iconClassName="h-7 w-7 shrink-0 object-contain"
-        />
-      </div>
-
-      <div className="relative z-10 mx-auto flex w-full min-h-0 max-w-4xl flex-1 gap-3 p-0 sm:gap-4 sm:p-4">
+      <div className="relative z-10 mx-auto flex w-full min-h-0 max-w-5xl flex-1 gap-3 p-0 sm:gap-4 sm:p-4">
         {/* Left: numbered slide pills */}
         <aside className="hidden w-14 shrink-0 overflow-y-auto sm:flex sm:flex-col sm:items-center">
           <div className="flex flex-col items-center gap-2 rounded-full border-2 border-black/10 bg-white p-2 shadow-[0_3px_0_0_rgba(0,0,0,0.1)]">
@@ -540,26 +539,40 @@ export function LessonPage({ changId }: { changId: string }) {
 
         {/* Main content */}
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-none border-2 border-black/10 shadow-[0_4px_0_0_rgba(0,0,0,0.1)] sm:rounded-3xl">
-          {/* Card header strip */}
-          <div className="flex shrink-0 flex-wrap items-center gap-2 bg-amber-50 px-4 py-2">
+          {/* Card header strip: hosts the bài instruction text (with its audio button) like
+              before, plus the mobile step indicator. */}
+          <div className="flex shrink-0 items-start gap-3 bg-amber-50 px-3 py-2 sm:px-4">
             <span
               className={[
-                "shrink-0 rounded-full px-3 py-1 font-display text-xs font-extrabold text-white sm:text-sm",
+                "grid h-7 w-7 shrink-0 place-items-center rounded-full font-display text-xs font-extrabold text-white sm:h-8 sm:w-8 sm:text-sm",
                 color.bg,
+                color.bevel,
               ].join(" ")}
             >
-              Bài {slideIndex + 1}
+              {slideIndex + 1}
             </span>
-            {currentNoiDung?.title && (
-              <>
-                <ChevronRight className="h-3.5 w-3.5 shrink-0 text-sky-400" />
-                <span className="truncate text-sm font-bold text-sky-600">
-                  {currentNoiDung.title}
-                </span>
-              </>
-            )}
-            {/* Mobile step indicator */}
-            <span className="ml-auto shrink-0 text-xs font-extrabold text-muted-foreground sm:hidden">
+            <div className="min-w-0 flex-1">
+              {bai?.texts.map((t, i) => (
+                <p
+                  key={i}
+                  className="whitespace-pre-line font-display text-sm font-bold text-navy sm:text-base"
+                >
+                  {currentNoiDung?.title && i === 0 && (
+                    <span className="mr-1 inline-flex items-center gap-1 align-middle text-sm font-bold text-sky-600 sm:text-base">
+                      {currentNoiDung.title}
+                      <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-70" />
+                    </span>
+                  )}
+                  {t}
+                  {hasSpeakableText && i === bai.texts.length - 1 && (
+                    <span className="ml-2 inline-flex align-middle">
+                      <AudioButton src={manualAudioUrl ?? ttsSrc(joinForSpeech(bai.texts))} />
+                    </span>
+                  )}
+                </p>
+              ))}
+            </div>
+            <span className="shrink-0 text-xs font-extrabold text-muted-foreground sm:hidden">
               {slideIndex + 1}/{total}
             </span>
           </div>
@@ -574,40 +587,12 @@ export function LessonPage({ changId }: { changId: string }) {
             >
               {bai ? (
                 (() => {
-                  const hasSpeakableText = bai.texts.some((t) => t.trim().length > 0);
-                  // A manually-curated narration takes priority over TTS (skip synthesis
-                  // entirely when someone already recorded/uploaded real audio for this bài),
-                  // and — same as before TTS existed — its presence is also what hides the
-                  // per-word cloud below: a full narration already reads everything, so the
-                  // individual tap-to-hear captions would be redundant. TTS-fallback audio is
-                  // NOT curated narration, so it must NOT suppress the word cloud the same way.
-                  const manualAudioUrl = bai.meta?.audio_url || undefined;
                   const hasVideo = !!bai.meta?.video_url;
                   const hasEmbed = !!bai.meta?.link;
                   const hinhs = bai.hinhs;
                   const isSingle = hinhs.length === 1;
                   return (
                     <article className="flex flex-col gap-2 sm:min-h-0 sm:flex-1">
-                      <div className="flex shrink-0 items-start gap-3">
-                        <div className="flex-1 space-y-1.5">
-                          {bai.texts.map((t, i) => (
-                            <p
-                              key={i}
-                              className="whitespace-pre-line font-display text-base font-bold text-navy sm:text-lg"
-                            >
-                              {t}
-                              {hasSpeakableText && i === bai.texts.length - 1 && (
-                                <span className="ml-2 inline-flex align-middle">
-                                  <AudioButton
-                                    src={manualAudioUrl ?? ttsSrc(joinForSpeech(bai.texts))}
-                                  />
-                                </span>
-                              )}
-                            </p>
-                          ))}
-                        </div>
-                      </div>
-
                       {hasEmbed ? (
                         <div className="-mx-3 aspect-video w-auto overflow-hidden rounded-none ring-1 ring-border/60 sm:mx-0 sm:aspect-auto sm:min-h-0 sm:w-full sm:flex-1 sm:rounded-xl">
                           <iframe
@@ -732,16 +717,6 @@ export function LessonPage({ changId }: { changId: string }) {
           </div>
         </div>
       </div>
-
-      {/* Back-to-map button — desktop only (pinned to the viewport edge, not the centered
-          column); mobile uses the inline bar above the card instead. */}
-      <BackToMapButton
-        color={color}
-        topicIndex={topicIndex}
-        className="fixed bottom-4 left-4 z-20 hidden h-16 items-center gap-1 rounded-full px-4 transition-[transform,box-shadow,filter] ease-bounce hover:brightness-95 active:translate-y-[2px] sm:flex"
-        arrowClassName="h-7 w-7 shrink-0"
-        iconClassName="h-12 w-12 shrink-0 object-contain"
-      />
 
       {/* "Next lesson" prompt — slides in from the right after completing a chặng. Raised
           clear of the card's own footer buttons on mobile (no dedicated slot for this one,
