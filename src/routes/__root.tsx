@@ -9,6 +9,7 @@ import { Toaster } from "sonner";
 import { useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import iconUrl from "../assets/icon.png";
 import { ErrorScreen, NotFoundScreen } from "@/components/ErrorScreen";
 import { useAuth } from "@/hooks/useAuth";
 import { ProfileSetupModal } from "@/components/ProfileSetupModal";
@@ -30,6 +31,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/23fe28ec-8f13-4117-91d0-e728c468b1e1/id-preview-55843cf1--6f159385-7fe4-4d96-95b9-462c8529b5ee.lovable.app-1782308677073.png" },
     ],
     links: [
+      { rel: "icon", href: iconUrl },
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
