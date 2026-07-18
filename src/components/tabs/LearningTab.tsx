@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { learningImagesQueryOptions, learningStructureQueryOptions } from "@/lib/learning";
-import { TOPICS } from "@/data/topics";
-import { RoadmapMap, NODE_POSITIONS, type ChuDeNavItem } from "@/components/learning/RoadmapMap";
+import {
+  learningImagesQueryOptions,
+  learningStructureQueryOptions,
+  quyen1ChuDes,
+} from "@/lib/learning";
+import { RoadmapMap, NODE_POSITIONS } from "@/components/learning/RoadmapMap";
 import { RoadmapSkeleton } from "@/components/learning/RoadmapSkeleton";
 import { buildSlides } from "@/components/learning/LessonPage";
 import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
@@ -34,8 +37,13 @@ function saveBuffaloPos(pos: BuffaloPos) {
 }
 
 export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: number }) {
-  const { data, isLoading, error } = useQuery(learningStructureQueryOptions);
+  const { data: allChuDes, isLoading, error } = useQuery(learningStructureQueryOptions);
   const navigate = useNavigate();
+
+  // The roadmap only ever shows Quyển 1's chủ đề; the rest of the `chude` table belongs to
+  // Quyển 2. Narrowing once here keeps every count below (progress, celebration) on-book.
+  const data = useMemo(() => (allChuDes ? quyen1ChuDes(allChuDes) : undefined), [allChuDes]);
+
   const queryClient = useQueryClient();
 
   // The roadmap loads a lightweight, image-free payload so its skeleton clears fast. Once it's
@@ -137,16 +145,9 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
 
   const chuDes = useMemo(() => (data ?? []).map((d) => d.chuDe), [data]);
 
-  // The DB only has content for the first `availableCount` chủ đề; the rest of the planned
-  // journey (TOPICS) is surfaced as "coming soon" so the child can see the whole path —
-  // where they are, what's done, and what's next — even before that content ships.
+  // A chủ đề the book plans for but the DB has no content for yet renders as "coming soon".
   const availableCount = chuDes.length;
-  const plannedCount = TOPICS.length;
-  const allTopics = useMemo(
-    () => TOPICS.map((planned, i) => (i < availableCount ? chuDes[i] : planned)),
-    [chuDes, availableCount],
-  );
-  const currentTopic = allTopics[currentChuDeIndex] ?? chuDes[0];
+  const currentTopic = chuDes[currentChuDeIndex] ?? chuDes[0];
   const isCurrentLocked = currentChuDeIndex >= availableCount;
 
   const changs = useMemo(() => data?.[currentChuDeIndex]?.changs ?? [], [data, currentChuDeIndex]);
@@ -167,27 +168,6 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
   const completedChangs = useMemo(
     () => new Set(completedByChuDe[currentChuDeIndex] ?? []),
     [completedByChuDe, currentChuDeIndex],
-  );
-
-  // The full 8-topic navigator: each planned chủ đề tagged with its progress state so the
-  // header can draw a clear stepper (done / current / available / coming-soon).
-  const chuDeNav = useMemo<ChuDeNavItem[]>(
-    () =>
-      TOPICS.map((planned, i) => {
-        const isAvailable = i < availableCount;
-        const src = isAvailable ? chuDes[i] : planned;
-        const shortTitle = src.title.replace(/^Chủ đề\s*\d+\s*[:：]\s*/i, "").trim() || src.title;
-        let status: ChuDeNavItem["status"];
-        if (i === currentChuDeIndex) status = "current";
-        else if (!isAvailable) status = "locked";
-        else {
-          const total = data?.[i]?.changs.length ?? 0;
-          const done = completedByChuDe[i]?.length ?? 0;
-          status = total > 0 && done >= total ? "completed" : "available";
-        }
-        return { index: i, title: src.title, shortTitle, emoji: src.emoji, status };
-      }),
-    [chuDes, availableCount, currentChuDeIndex, data, completedByChuDe],
   );
 
   // "X/Y bài" tracks flattened slides (one per bai) — not raw noiDung steps, which are
@@ -231,21 +211,6 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
     setCurrentChangIndex(i);
     saveBuffaloPos({ chuDeIndex: currentChuDeIndex, changIndex: i });
     navigate({ to: "/hoc-tap/quyen-1/$changId", params: { changId: chang.id } });
-  };
-
-  // Lets a user freely move between chủ đề: any available topic (to review), plus the first
-  // upcoming one (shown as a "coming soon" preview). This is the only way to switch topics,
-  // since the map otherwise only auto-lands on one via the one-time restore effect above.
-  const goToChuDe = (index: number) => {
-    if (index < 0 || index > availableCount || index >= plannedCount || index === currentChuDeIndex) return;
-    setCurrentChangIndex(0);
-    setSelectedChangIndex(0);
-    setBuffaloChangIndex(0);
-    try { sessionStorage.removeItem(BUFFALO_POS_KEY); } catch { /* ignore */ }
-    navigate({
-      to: "/hoc-tap/quyen-1/chu-de-{$chuDeIndex}",
-      params: { chuDeIndex: String(index + 1) },
-    });
   };
 
   // One-time celebration when the entire roadmap is complete.
@@ -299,13 +264,7 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
         <RoadmapMap
           chuDe={currentTopic}
           chuDeIndex={currentChuDeIndex}
-          chuDeNav={chuDeNav}
           isLocked={isCurrentLocked}
-          onSelectChuDe={goToChuDe}
-          canGoPrevChuDe={currentChuDeIndex > 0}
-          canGoNextChuDe={currentChuDeIndex < availableCount && currentChuDeIndex < plannedCount - 1}
-          onPrevChuDe={() => goToChuDe(currentChuDeIndex - 1)}
-          onNextChuDe={() => goToChuDe(currentChuDeIndex + 1)}
           changTitles={changTitles}
           changEmojis={changEmojis}
           currentChangIndex={currentChangIndex}

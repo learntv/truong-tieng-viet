@@ -1,11 +1,11 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { TOPICS } from "@/data/topics";
+import { QUYEN_1_CHU_DE_COUNT } from "@/lib/learning";
 import { Quyen1Roadmap } from "@/components/tabs/LoTrinhTab";
 
 export const Route = createFileRoute("/hoc-tap/quyen-1/chu-de-{$chuDeIndex}")({
   beforeLoad: ({ params }) => {
     const n = Number(params.chuDeIndex);
-    if (!Number.isInteger(n) || n < 1 || n > TOPICS.length) {
+    if (!Number.isInteger(n) || n < 1 || n > QUYEN_1_CHU_DE_COUNT) {
       throw redirect({
         to: "/hoc-tap/quyen-1/chu-de-{$chuDeIndex}",
         params: { chuDeIndex: "1" },
