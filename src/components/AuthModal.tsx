@@ -16,7 +16,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Mascot } from "@/components/Mascot";
 
 interface AuthModalProps {
   open: boolean;
@@ -222,14 +221,6 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
-        {/* Trâu con peeks over the top edge of the panel. His art is cropped
-          flat at the bottom, so anchoring it to the panel's top edge reads as
-          him leaning on it. */}
-        <Mascot
-          pose="peeking-over"
-          decorative
-          className="pointer-events-none absolute bottom-full left-1/2 h-20 -translate-x-1/2"
-        />
         <DialogHeader>
           <DialogTitle className="font-display text-center text-xl font-extrabold text-navy">
             Trường Tiếng Việt Của Em
