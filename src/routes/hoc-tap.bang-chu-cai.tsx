@@ -177,10 +177,10 @@ function Cloud({ className, style }: { className?: string; style?: CSSProperties
   return (
     <div className={["absolute animate-float-slow", className].join(" ")} style={style}>
       <div className="relative h-full w-full">
-        <div className="absolute inset-x-0 bottom-0 h-3/5 rounded-full bg-[#d7e6f2]" />
-        <div className="absolute bottom-1/4 left-0 h-4/5 w-2/5 rounded-full bg-[#d7e6f2]" />
-        <div className="absolute bottom-1/3 right-0 h-3/5 w-2/5 rounded-full bg-[#d7e6f2]" />
-        <div className="absolute bottom-1/3 left-1/3 h-full w-2/5 rounded-full bg-[#d7e6f2]" />
+        <div className="absolute inset-x-0 bottom-0 h-3/5 rounded-full bg-stage-2-soft" />
+        <div className="absolute bottom-1/4 left-0 h-4/5 w-2/5 rounded-full bg-stage-2-soft" />
+        <div className="absolute bottom-1/3 right-0 h-3/5 w-2/5 rounded-full bg-stage-2-soft" />
+        <div className="absolute bottom-1/3 left-1/3 h-full w-2/5 rounded-full bg-stage-2-soft" />
       </div>
     </div>
   );
@@ -307,7 +307,7 @@ function LetterDetailDialog({
         hideCloseButton
         className="max-w-3xl overflow-hidden rounded-3xl border-none bg-white p-0 shadow-soft sm:rounded-[2.5rem]"
       >
-        <DialogClose className="absolute right-4 top-4 z-10 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-red-500 text-white shadow-card transition hover:bg-red-600 active:scale-95">
+        <DialogClose className="absolute right-4 top-4 z-10 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-destructive text-white shadow-card transition hover:bg-destructive/90 active:scale-95">
           <X className="h-5 w-5" strokeWidth={2.5} />
           <span className="sr-only">Đóng</span>
         </DialogClose>

@@ -1,5 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Outlet, createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router";
+import {
+  Outlet,
+  createRootRouteWithContext,
+  HeadContent,
+  Scripts,
+  useRouterState,
+} from "@tanstack/react-router";
 import { Toaster } from "sonner";
 import { useState, type ReactNode } from "react";
 
@@ -8,6 +14,8 @@ import iconUrl from "../assets/icon.png";
 import { ErrorScreen, NotFoundScreen } from "@/components/ErrorScreen";
 import { useAuth } from "@/hooks/useAuth";
 import { ProfileSetupModal } from "@/components/ProfileSetupModal";
+import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
@@ -49,7 +57,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&family=Dancing+Script:wght@500;600;700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap",
       },
     ],
   }),
@@ -85,10 +93,20 @@ function NewUserSetup() {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const matches = useRouterState({ select: (s) => s.matches });
+  const isFullScreen = matches.some((m) => m.routeId.includes("hoc-tap_"));
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      {isFullScreen ? (
+        <Outlet />
+      ) : (
+        <>
+          <Navbar />
+          <Outlet />
+          <Footer />
+        </>
+      )}
       <NewUserSetup />
       <Toaster richColors position="top-center" />
     </QueryClientProvider>

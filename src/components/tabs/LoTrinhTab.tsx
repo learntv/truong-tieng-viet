@@ -2,6 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { LearningTab } from "@/components/tabs/LearningTab";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import quyen2Cover from "@/assets/quyen_2_cover.jpg";
 
 export function Quyen1Roadmap({ chuDeIndex }: { chuDeIndex: number }) {
@@ -25,13 +26,8 @@ export function Quyen2ComingSoon() {
         </Link>
       </div>
 
-      <div className="relative overflow-hidden rounded-4xl border-2 border-dashed border-purple/40 bg-cream p-6 text-center shadow-[0_4px_0_0_rgba(0,0,0,0.08)] sm:p-12">
-        <div className="pointer-events-none absolute top-6 left-[10%] text-2xl animate-float-slow">✨</div>
-        <div className="pointer-events-none absolute top-10 right-[12%] text-3xl animate-bob">☁️</div>
-        <div className="pointer-events-none absolute bottom-8 left-[16%] text-2xl animate-float-slow">🌈</div>
-        <div className="pointer-events-none absolute bottom-10 right-[16%] text-2xl animate-bob">⭐</div>
-
-        <div className="relative mx-auto mb-6 w-40 overflow-hidden rounded-2xl border-2 border-black/10 shadow-[0_4px_0_0_rgba(0,0,0,0.15)] sm:w-48">
+      <Card className="p-6 text-center sm:p-12">
+        <div className="relative mx-auto mb-6 w-40 overflow-hidden rounded-2xl shadow-sm ring-1 ring-border/60 sm:w-48">
           <img src={quyen2Cover} alt="Bìa sách Quyển 2" className="h-full w-full object-cover opacity-95" />
         </div>
 
@@ -43,10 +39,10 @@ export function Quyen2ComingSoon() {
           để luyện tập trong lúc chờ nhé!
         </p>
 
-        <Button variant="bevel-primary" asChild className="mx-auto mt-6 w-fit">
+        <Button variant="bevel" tone="primary" asChild className="mx-auto mt-6 w-fit">
           <Link to="/hoc-tap/quyen-1">Học Quyển 1 ngay</Link>
         </Button>
-      </div>
+      </Card>
     </div>
   );
 }

@@ -313,14 +313,14 @@ export function SpeakingPractice({
                               className={
                                 c.ok
                                   ? "text-navy"
-                                  : "text-red-500 underline decoration-wavy decoration-2 underline-offset-4"
+                                  : "text-destructive underline decoration-wavy decoration-2 underline-offset-4"
                               }
                             >
                               {c.char}
                             </span>
                           ))
                         ) : (
-                          <span className="text-red-400 underline decoration-wavy decoration-2 underline-offset-4">
+                          <span className="text-destructive/70 underline decoration-wavy decoration-2 underline-offset-4">
                             {w.word}
                           </span>
                         )}

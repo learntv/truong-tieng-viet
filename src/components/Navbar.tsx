@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { BookOpen, Home, LogOut, Menu, Star, Trophy, User, UserCircle, X } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import iconLogo from "@/assets/icon.png";
 import { useAuth } from "@/hooks/useAuth";
 import { generateUsername } from "@/lib/profile";
 import { AuthModal } from "@/components/AuthModal";
+import { Logo } from "@/components/Logo";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,10 +45,9 @@ export function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full">
-        <div className="airmail-stripe h-2 w-full" aria-hidden />
-        <nav className="flex w-full items-center gap-4 border-b border-border bg-card/85 px-4 py-2.5 backdrop-blur-md sm:px-6">
-          <div className="mx-auto flex w-full max-w-7xl items-center gap-4">
+      <header className="sticky top-4 z-40 w-full px-4">
+        <nav className="mx-auto flex w-full max-w-6xl items-center gap-4 rounded-full border border-border/60 bg-white/90 px-4 py-2.5 shadow-card backdrop-blur-md sm:px-6">
+          <div className="flex w-full items-center gap-4">
             {/* Hamburger — mobile only */}
             <button
               onClick={() => setSidebarOpen(true)}
@@ -58,25 +57,12 @@ export function Navbar() {
               <Menu className="h-5 w-5" strokeWidth={2.5} />
             </button>
 
-            <Link
-              to="/"
-              className="flex shrink-0 items-center gap-2.5 transition-transform hover:scale-[1.02]"
-            >
-              <span className="grid h-11 w-11 place-items-center rounded-full bg-primary text-lg text-white shadow-card ring-2 ring-white">
-                ★
-              </span>
-              <div className="text-left leading-tight">
-                <div className="font-display text-base font-extrabold text-primary leading-none">
-                  Trường Tiếng Việt
-                </div>
-                <div className="font-display text-base font-extrabold text-navy leading-none">
-                  Của Em
-                </div>
-              </div>
+            <Link to="/" className="transition-transform hover:scale-[1.02]">
+              <Logo size="sm" />
             </Link>
 
             {/* Desktop nav */}
-            <ul className="hidden flex-1 items-center justify-center gap-6 md:flex">
+            <ul className="hidden flex-1 items-center justify-center gap-2 md:flex">
               {tabs.map(({ to, label }) => {
                 const isActive = pathname === to || pathname.startsWith(`${to}/`);
 
@@ -85,10 +71,10 @@ export function Navbar() {
                     <Link
                       to={to}
                       className={[
-                        "border-b-2 pb-0.5 text-sm font-bold transition-colors",
+                        "rounded-full px-4 py-1.5 text-sm font-bold transition-colors",
                         isActive
-                          ? "border-primary text-primary"
-                          : "border-transparent text-foreground/70 hover:text-foreground",
+                          ? "bg-primary text-white"
+                          : "text-foreground/70 hover:bg-muted hover:text-foreground",
                       ].join(" ")}
                     >
                       {label}
@@ -104,7 +90,7 @@ export function Navbar() {
               {!isLoading && !user && (
                 <button
                   onClick={() => setAuthOpen(true)}
-                  className="flex items-center gap-2 rounded-full bg-secondary px-5 py-2 text-sm font-bold text-secondary-foreground shadow-bevel-yellow transition-all hover:brightness-105 active:translate-y-0.5 active:shadow-bevel-yellow-active"
+                  className="flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-bold text-primary-foreground transition-all hover:bg-primary/90"
                 >
                   <User className="h-4 w-4" strokeWidth={2.5} />
                   <span className="hidden sm:inline">Đăng nhập</span>
@@ -182,20 +168,8 @@ export function Navbar() {
       >
         {/* Sidebar header */}
         <div className="flex items-center justify-between border-b px-5 py-4">
-          <Link to="/" onClick={closeSidebar} className="flex items-center gap-2.5">
-            <img
-              src={iconLogo}
-              alt="Logo"
-              className="h-10 w-10 rounded-xl object-cover shadow-card"
-            />
-            <div className="text-left leading-tight">
-              <div className="font-display text-sm font-extrabold text-primary leading-none">
-                Trường Tiếng Việt
-              </div>
-              <div className="font-display text-sm font-extrabold text-navy leading-none">
-                Của Em
-              </div>
-            </div>
+          <Link to="/" onClick={closeSidebar}>
+            <Logo size="sm" />
           </Link>
           <button
             onClick={closeSidebar}

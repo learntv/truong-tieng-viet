@@ -80,8 +80,8 @@ function AudioButton({ src }: { src: string }) {
         className={[
           "cursor-pointer grid h-8 w-8 shrink-0 place-items-center rounded-full transition-[transform,box-shadow,background-color] ease-bounce active:translate-y-[1px]",
           playing
-            ? "animate-pulse bg-blue-500 text-white shadow-[0_2px_0_0_#1d4ed8] active:shadow-[0_0px_0_0_#1d4ed8]"
-            : "bg-blue-100 text-blue-600 shadow-[0_2px_0_0_#93c5fd] hover:bg-blue-200 active:shadow-[0_0px_0_0_#93c5fd]",
+            ? "animate-pulse bg-stage-2 text-white shadow-bevel-stage-2-active"
+            : "bg-stage-2-soft text-stage-2-deep hover:brightness-95",
         ].join(" ")}
       >
         <Headphones className="h-4 w-4" strokeWidth={2.5} />
@@ -109,7 +109,7 @@ function VideoEmbed({ url }: { url: string }) {
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex shrink-0 items-center gap-1 self-start text-xs font-bold text-sky-600 hover:underline"
+          className="inline-flex shrink-0 items-center gap-1 self-start text-xs font-bold text-primary hover:underline"
         >
           <ExternalLink className="h-3.5 w-3.5" />
           Video không phát được? Mở trên YouTube
@@ -412,7 +412,7 @@ export function LessonPage({ changId }: { changId: string }) {
           Không tìm thấy bài học
         </h1>
         <p className="mb-6 text-muted-foreground">Chặng học này không tồn tại hoặc đã bị xóa.</p>
-        <Button variant="bevel-primary" asChild>
+        <Button variant="bevel" tone="primary" asChild>
           <Link to="/hoc-tap/quyen-1">
             <ArrowLeft className="h-4 w-4" />
             Quay lại lộ trình
@@ -473,7 +473,7 @@ export function LessonPage({ changId }: { changId: string }) {
   };
 
   return (
-    <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-paper">
+    <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-surface-subtle">
       {/* Compact cream header bar — back button, breadcrumb, and stage pill on paper. */}
       <div className="relative z-10 flex shrink-0 items-center gap-2 border-b border-border bg-card/80 px-3 py-2 backdrop-blur-sm sm:px-4">
         <BackToMapButton
@@ -518,7 +518,7 @@ export function LessonPage({ changId }: { changId: string }) {
                     isActive
                       ? [color.bg, "scale-110 text-white", color.bevel].join(" ")
                       : isDone
-                        ? "bg-[#2f8a63]/15 text-[#236b4c] hover:bg-[#2f8a63]/25"
+                        ? "bg-stage-1-soft text-stage-1-deep hover:brightness-95"
                         : "bg-card text-muted-foreground hover:bg-muted",
                   ].join(" ")}
                 >
@@ -550,7 +550,7 @@ export function LessonPage({ changId }: { changId: string }) {
                   className="whitespace-pre-line font-display text-sm font-bold text-navy sm:text-base"
                 >
                   {currentNoiDung?.title && i === 0 && (
-                    <span className="mr-1 inline-flex items-center gap-1 align-middle text-sm font-bold text-sky-600 sm:text-base">
+                    <span className="mr-1 inline-flex items-center gap-1 align-middle text-sm font-bold text-stage-2-deep sm:text-base">
                       {currentNoiDung.title}
                       <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-70" />
                     </span>
@@ -659,7 +659,7 @@ export function LessonPage({ changId }: { changId: string }) {
 
             <div className="relative flex-1">
               {!isLastSlide && (
-                <div className="font-hand pointer-events-none flex h-full items-center justify-center px-2 text-center text-xl text-navy/60">
+                <div className="pointer-events-none flex h-full items-center justify-center px-2 text-center text-sm font-semibold italic text-navy/60">
                   Cố lên! Con làm tốt lắm ♥
                 </div>
               )}
@@ -672,8 +672,8 @@ export function LessonPage({ changId }: { changId: string }) {
                     className={[
                       "relative flex h-full w-full items-center justify-center gap-1.5 overflow-hidden text-sm font-bold transition-[transform,border-color] ease-bounce",
                       isCompleted
-                        ? "cursor-not-allowed bg-[#2f8a63]/15 text-[#236b4c]"
-                        : "cursor-pointer border-b-4 border-[#1f5d42] bg-[#2f8a63] text-white hover:brightness-110 active:translate-y-1 active:border-b-0",
+                        ? "cursor-not-allowed bg-stage-1-soft text-stage-1-deep"
+                        : "cursor-pointer border-b-4 border-stage-1-deep bg-stage-1 text-white hover:brightness-110 active:translate-y-1 active:border-b-0",
                     ].join(" ")}
                   >
                     {!isCompleted && (

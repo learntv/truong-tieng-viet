@@ -18,9 +18,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { upsertProfile, generateUsername } from "@/lib/profile";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProgress } from "@/hooks/useUserProgress";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
-import { AirmailStripe, HandNote } from "@/components/decor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -43,11 +40,11 @@ export const Route = createFileRoute("/u/$username")({
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const AVATAR_COLORS = [
-  "bg-green text-white",
-  "bg-sky text-navy",
-  "bg-purple text-white",
-  "bg-yellow text-navy",
-  "bg-pink text-white",
+  "bg-stage-1 text-white",
+  "bg-stage-2 text-white",
+  "bg-stage-3 text-white",
+  "bg-stage-4 text-white",
+  "bg-stage-5 text-white",
 ];
 
 const BADGES = [
@@ -471,11 +468,9 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Navbar />
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8 sm:px-6">
         {/* Hero card */}
         <div className="relative mb-6 overflow-hidden rounded-3xl border border-border bg-card p-8 shadow-card ring-1 ring-black/[0.02]">
-          <AirmailStripe className="absolute inset-x-0 top-0 h-1.5" />
           <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-secondary/20 blur-2xl" />
           <div className="absolute -bottom-6 -left-6 h-32 w-32 rounded-full bg-primary/10 blur-2xl" />
 
@@ -520,7 +515,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-              <HandNote className="text-xl text-primary/80">Trang cá nhân của em ♥</HandNote>
+              <p className="text-sm font-semibold text-primary/80">Trang cá nhân của em ♥</p>
               <div className="flex items-center gap-2 flex-wrap">
                 {editingName ? (
                   <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -595,13 +590,13 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
               emoji: "🎯",
               value: completedCount,
               label: "Bài hoàn thành",
-              color: "bg-green/10 text-green",
+              color: "bg-stage-1-soft text-stage-1-deep",
             },
             {
               emoji: "📖",
               value: inProgressCount,
               label: "Đang học",
-              color: "bg-yellow/20 text-navy",
+              color: "bg-stage-4-soft text-navy",
             },
           ].map(({ emoji, value, label, color }) => (
             <div
@@ -630,7 +625,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
             <div
               className={[
                 "mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold",
-                streak.studiedToday ? "bg-green/15 text-green" : "bg-muted text-muted-foreground",
+                streak.studiedToday ? "bg-stage-1-soft text-stage-1-deep" : "bg-muted text-muted-foreground",
               ].join(" ")}
             >
               {streak.studiedToday ? "✓ Hôm nay xong" : "Chưa học hôm nay"}
@@ -650,7 +645,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                   className={[
                     "relative rounded-2xl border p-4 text-center transition-all",
                     earned
-                      ? "border-2 border-dashed border-[#cf9526]/55 bg-secondary/12 shadow-sm"
+                      ? "border-2 border-dashed border-stage-4/55 bg-stage-4-soft shadow-sm"
                       : "border border-dashed border-border bg-muted/40 opacity-55 grayscale",
                   ].join(" ")}
                 >
@@ -696,7 +691,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
             <AlertDialogTrigger asChild>
               <Button
                 variant="outline"
-                className="h-12 w-full justify-start gap-3 rounded-xl border-[#cf9526]/40 font-bold text-[#9c6f18] hover:border-[#cf9526]/60 hover:bg-[#cf9526]/10"
+                className="h-12 w-full justify-start gap-3 rounded-xl border-stage-4/40 font-bold text-stage-4-deep hover:border-stage-4/60 hover:bg-stage-4-soft"
                 disabled={isRestarting}
               >
                 {isRestarting ? (
@@ -723,7 +718,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleRestartProgress}
-                  className="rounded-xl bg-[#cf9526] font-bold hover:bg-[#b07f1e]"
+                  className="rounded-xl bg-stage-4 font-bold hover:brightness-95"
                 >
                   Bắt đầu lại
                 </AlertDialogAction>
@@ -745,7 +740,6 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
           Phiên bản 1.0 · Trường Tiếng Việt Của Em 🇻🇳
         </p>
       </main>
-      <Footer />
     </div>
   );
 }
@@ -770,7 +764,6 @@ function PublicView({ username }: { username: string }) {
   if (isLoading) {
     return (
       <div className="min-h-screen">
-        <Navbar />
         <div className="flex items-center justify-center py-32">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -781,7 +774,6 @@ function PublicView({ username }: { username: string }) {
   if (!profile) {
     return (
       <div className="min-h-screen">
-        <Navbar />
         <main className="mx-auto max-w-lg px-4 py-20 text-center">
           <div className="text-6xl mb-4">🔍</div>
           <h1 className="font-display text-2xl font-extrabold text-navy mb-2">
@@ -810,11 +802,9 @@ function PublicView({ username }: { username: string }) {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Navbar />
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8 sm:px-6">
         {/* Hero card */}
         <div className="relative mb-6 overflow-hidden rounded-3xl border border-border bg-card p-8 shadow-card ring-1 ring-black/[0.02]">
-          <AirmailStripe className="absolute inset-x-0 top-0 h-1.5" />
           <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-secondary/20 blur-2xl" />
           <div className="absolute -bottom-6 -left-6 h-32 w-32 rounded-full bg-primary/10 blur-2xl" />
           <div className="relative flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
@@ -860,14 +850,14 @@ function PublicView({ username }: { username: string }) {
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="rounded-2xl p-4 text-center ring-1 ring-border shadow-card bg-green/10">
+          <div className="rounded-2xl p-4 text-center ring-1 ring-border shadow-card bg-stage-1-soft">
             <div className="text-2xl mb-1">🎯</div>
             <div className="font-display text-2xl font-extrabold text-navy leading-none">
               {profile.completed_count}
             </div>
             <div className="text-xs font-semibold mt-1 text-muted-foreground">Bài hoàn thành</div>
           </div>
-          <div className="rounded-2xl p-4 text-center ring-1 ring-border shadow-card bg-yellow/20">
+          <div className="rounded-2xl p-4 text-center ring-1 ring-border shadow-card bg-stage-4-soft">
             <div className="text-2xl mb-1">🏅</div>
             <div className="font-display text-xl font-extrabold text-navy leading-none">
               {(() => {
@@ -893,7 +883,7 @@ function PublicView({ username }: { username: string }) {
                   className={[
                     "relative rounded-2xl border p-4 text-center transition-all",
                     earned
-                      ? "border-2 border-dashed border-[#cf9526]/55 bg-secondary/12 shadow-sm"
+                      ? "border-2 border-dashed border-stage-4/55 bg-stage-4-soft shadow-sm"
                       : "border border-dashed border-border bg-muted/40 opacity-55 grayscale",
                   ].join(" ")}
                 >
@@ -917,7 +907,6 @@ function PublicView({ username }: { username: string }) {
           Trường Tiếng Việt Của Em 🇻🇳
         </p>
       </main>
-      <Footer />
     </div>
   );
 }
@@ -931,7 +920,6 @@ function ProfilePage() {
   if (isLoading) {
     return (
       <div className="min-h-screen">
-        <Navbar />
         <div className="flex items-center justify-center py-32">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>

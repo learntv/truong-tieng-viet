@@ -2,9 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Trophy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
-import { AirmailStripe, HandNote } from "@/components/decor";
 
 export const Route = createFileRoute("/bang-xep-hang")({
   head: () => ({
@@ -17,11 +14,11 @@ export const Route = createFileRoute("/bang-xep-hang")({
 });
 
 const AVATAR_COLORS = [
-  "bg-green text-white",
-  "bg-sky text-navy",
-  "bg-purple text-white",
-  "bg-yellow text-navy",
-  "bg-pink text-white",
+  "bg-stage-1 text-white",
+  "bg-stage-2 text-white",
+  "bg-stage-3 text-white",
+  "bg-stage-4 text-white",
+  "bg-stage-5 text-white",
 ];
 
 function avatarColor(letter: string) {
@@ -50,27 +47,21 @@ function BangXepHang() {
   });
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <Navbar />
-      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8 sm:px-6">
-        {/* Card */}
-        <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-card">
-          {/* Header */}
-          <div className="relative overflow-hidden bg-primary px-6 pb-7 pt-0 text-center">
-            <AirmailStripe className="h-1.5" />
-            <div className="relative mt-7 inline-flex h-16 w-16 items-center justify-center rounded-full border-2 border-dashed border-white/70 bg-white shadow-card">
-              <Trophy className="h-8 w-8 text-primary" strokeWidth={2.5} />
-            </div>
-            <h1 className="relative mt-3 font-display text-3xl font-extrabold leading-tight text-white">
-              Bảng xếp hạng
-            </h1>
-            <p className="relative mt-1 text-sm font-semibold text-white/80">
-              Những học sinh chăm chỉ nhất trường.
-            </p>
-            <HandNote className="relative mt-1 block text-xl text-white/90">
-              Cố lên các em nhé! ★
-            </HandNote>
+    <main className="mx-auto w-full max-w-2xl px-4 py-12 sm:px-6">
+      {/* Card */}
+      <div className="overflow-hidden rounded-3xl border border-border/60 bg-card shadow-card">
+        {/* Header */}
+        <div className="bg-primary px-6 py-8 text-center">
+          <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-card">
+            <Trophy className="h-8 w-8 text-primary" strokeWidth={2.5} />
           </div>
+          <h1 className="mt-3 font-display text-3xl font-extrabold leading-tight text-white">
+            Bảng xếp hạng
+          </h1>
+          <p className="mt-1 text-sm font-semibold text-white/80">
+            Những học sinh chăm chỉ nhất trường.
+          </p>
+        </div>
 
           {/* List */}
           {isLoading ? (
@@ -166,9 +157,7 @@ function BangXepHang() {
               })}
             </div>
           )}
-        </div>
-      </main>
-      <Footer />
-    </div>
+      </div>
+    </main>
   );
 }

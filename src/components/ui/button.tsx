@@ -9,31 +9,75 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+        default: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
+        pill: "rounded-full bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
         destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
           "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
         secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        "bevel-primary":
-          "rounded-full bg-primary text-primary-foreground font-display font-extrabold shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:brightness-105 active:translate-y-[3px] active:shadow-bevel-primary-active",
-        "bevel-yellow":
-          "rounded-full bg-secondary text-navy font-display font-extrabold shadow-bevel-yellow transition-[transform,box-shadow,filter] ease-bounce hover:brightness-105 active:translate-y-[3px] active:shadow-bevel-yellow-active",
-        "bevel-green":
-          "rounded-full bg-green text-white font-display font-extrabold shadow-bevel-green transition-[transform,box-shadow,filter] ease-bounce hover:brightness-105 active:translate-y-[3px] active:shadow-bevel-green-active",
-        "bevel-neutral":
-          "rounded-full border-2 border-input bg-background text-foreground font-display font-extrabold shadow-bevel-neutral transition-[transform,box-shadow,background-color] ease-bounce hover:bg-accent active:translate-y-[3px] active:shadow-bevel-neutral-active",
+        bevel:
+          "rounded-full font-display font-extrabold transition-[transform,box-shadow,filter] ease-bounce hover:brightness-105 active:translate-y-[3px]",
+      },
+      tone: {
+        primary: "",
+        neutral: "",
+        "stage-1": "",
+        "stage-2": "",
+        "stage-3": "",
+        "stage-4": "",
+        "stage-5": "",
       },
       size: {
         default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
+        sm: "h-8 px-3 text-xs",
+        lg: "h-10 px-8",
+        xl: "h-14 px-10 text-base",
         icon: "h-9 w-9",
       },
     },
+    compoundVariants: [
+      {
+        variant: "bevel",
+        tone: "primary",
+        class: "bg-primary text-primary-foreground shadow-bevel-primary active:shadow-bevel-primary-active",
+      },
+      {
+        variant: "bevel",
+        tone: "neutral",
+        class:
+          "border-2 border-input bg-background text-foreground shadow-bevel-neutral hover:bg-accent active:shadow-bevel-neutral-active",
+      },
+      {
+        variant: "bevel",
+        tone: "stage-1",
+        class: "bg-stage-1 text-white shadow-bevel-stage-1 active:shadow-bevel-stage-1-active",
+      },
+      {
+        variant: "bevel",
+        tone: "stage-2",
+        class: "bg-stage-2 text-white shadow-bevel-stage-2 active:shadow-bevel-stage-2-active",
+      },
+      {
+        variant: "bevel",
+        tone: "stage-3",
+        class: "bg-stage-3 text-white shadow-bevel-stage-3 active:shadow-bevel-stage-3-active",
+      },
+      {
+        variant: "bevel",
+        tone: "stage-4",
+        class: "bg-stage-4 text-white shadow-bevel-stage-4 active:shadow-bevel-stage-4-active",
+      },
+      {
+        variant: "bevel",
+        tone: "stage-5",
+        class: "bg-stage-5 text-white shadow-bevel-stage-5 active:shadow-bevel-stage-5-active",
+      },
+    ],
     defaultVariants: {
       variant: "default",
+      tone: "primary",
       size: "default",
     },
   },
@@ -45,10 +89,14 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, tone, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+      <Comp
+        className={cn(buttonVariants({ variant, tone, size, className }))}
+        ref={ref}
+        {...props}
+      />
     );
   },
 );

@@ -194,7 +194,7 @@ export function RecordButton({
           "transition-[transform,box-shadow,filter] duration-150 ease-bounce hover:brightness-110",
           "disabled:cursor-not-allowed disabled:opacity-50 disabled:active:translate-y-0",
           isRecording
-            ? "animate-pulse-glow bg-red-500 translate-y-[3px] shadow-[0_1px_0_0_#be123c]"
+            ? "animate-pulse-glow bg-destructive translate-y-[3px] shadow-bevel-primary-active"
             : "bg-gradient-primary shadow-bevel-primary active:translate-y-[3px] active:shadow-bevel-primary-active",
         ].join(" ")}
       >

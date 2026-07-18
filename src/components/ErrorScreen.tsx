@@ -25,7 +25,7 @@ export function ErrorScreen({ error, reset }: { error: Error; reset: () => void 
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <Button
-            variant="bevel-primary"
+            variant="bevel" tone="primary"
             onClick={() => {
               router.invalidate();
               reset();
@@ -33,7 +33,7 @@ export function ErrorScreen({ error, reset }: { error: Error; reset: () => void 
           >
             Thử lại
           </Button>
-          <Button variant="bevel-neutral" asChild>
+          <Button variant="bevel" tone="neutral" asChild>
             <a href="/">Về trang chủ</a>
           </Button>
         </div>
@@ -52,7 +52,7 @@ export function NotFoundScreen() {
           Trang em tìm không tồn tại hoặc đã được chuyển đi nơi khác.
         </p>
         <div className="mt-6">
-          <Button variant="bevel-primary" asChild>
+          <Button variant="bevel" tone="primary" asChild>
             <Link to="/">Về trang chủ</Link>
           </Button>
         </div>

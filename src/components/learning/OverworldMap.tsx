@@ -290,7 +290,7 @@ export function OverworldMap({
                             <MapPin
                               className={[
                                 "h-11 w-11 drop-shadow-[0_4px_6px_rgba(0,0,0,0.45)] sm:h-13 sm:w-13",
-                                isOpen ? "text-[#e02424]" : "text-stone-400",
+                                isOpen ? "text-destructive" : "text-stone-400",
                               ].join(" ")}
                               fill="currentColor"
                               stroke="white"
@@ -381,7 +381,7 @@ export function OverworldMap({
                                 ))}
                               </div>
                               <Button
-                                variant="bevel-primary"
+                                variant="bevel" tone="primary"
                                 className="mt-4 w-full"
                                 onClick={() => openChuDe(lm.chuDeIndex)}
                               >
@@ -422,7 +422,7 @@ export function OverworldMap({
               className="w-full rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.45)]"
             />
             <Button
-              variant="bevel-primary"
+              variant="bevel" tone="primary"
               autoFocus
               onClick={dismissTutorial}
               className="mt-6 px-8 text-base"

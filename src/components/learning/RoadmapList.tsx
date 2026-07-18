@@ -129,7 +129,7 @@ export function RoadmapList({
                 >
                   <ArrowLeft className="h-4.5 w-4.5" strokeWidth={2.75} />
                 </Link>
-                <span className="rounded-md border-2 border-dashed border-primary/60 bg-white/70 px-2.5 py-1 font-type text-[11px] font-bold uppercase tracking-[0.12em] text-primary">
+                <span className="rounded-md border-2 border-dashed border-primary/60 bg-white/70 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-primary">
                   Địa điểm {chuDeIndex + 1}
                 </span>
                 {isLocked && (
@@ -193,7 +193,7 @@ export function RoadmapList({
                   aria-hidden
                   className="absolute -right-1 top-2 grid h-20 w-20 rotate-[-12deg] place-items-center rounded-full border-[3px] border-dashed border-primary/50 bg-white/45 text-center text-primary/80 sm:h-24 sm:w-24"
                 >
-                  <span className="font-type text-[8px] font-bold uppercase leading-[1.35] tracking-wide sm:text-[9px]">
+                  <span className="text-[8px] font-bold uppercase leading-[1.35] tracking-wide sm:text-[9px]">
                     ★ ★ ★
                     <br />
                     {location.name.split(" ").slice(-1)[0]}
@@ -230,7 +230,7 @@ export function RoadmapList({
                       aria-hidden
                       className="absolute right-3 top-1/2 grid -translate-y-1/2 rotate-[-8deg] place-items-center rounded-lg border-[3px] border-double border-green px-2.5 py-1.5 text-green"
                     >
-                      <span className="font-type text-[10px] font-bold uppercase leading-tight tracking-wide">
+                      <span className="text-[10px] font-bold uppercase leading-tight tracking-wide">
                         ★★★
                         <br />
                         Hoàn thành
@@ -258,7 +258,7 @@ export function RoadmapList({
               Các cô đang biên soạn chủ đề này. Em quay lại chủ đề trước để luyện tập trong lúc chờ
               nhé! ✨
             </p>
-            <Button variant="bevel-primary" asChild className="mx-auto mt-5">
+            <Button variant="bevel" tone="primary" asChild className="mx-auto mt-5">
               <Link to="/hoc-tap/quyen-1">
                 <ArrowLeft className="h-4 w-4" strokeWidth={3} />
                 Về bản đồ
@@ -413,7 +413,7 @@ export function RoadmapList({
                 </div>
               </div>
               <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-card">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#2b6ea3]/12 text-xl">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-stage-2-soft text-xl">
                   🗺️
                 </span>
                 <div>

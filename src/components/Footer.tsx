@@ -1,29 +1,17 @@
 import { Facebook, Youtube, Twitter, Music2, Send } from "lucide-react";
 import boLogo from "@/assets/uy-ban.png";
 import cvcecLogo from "@/assets/cvcec.jpg";
+import { Logo } from "@/components/Logo";
 
 const COPYRIGHT_YEAR = 2026;
 
 export function Footer() {
   return (
     <footer className="mt-8 bg-navy text-white/70">
-      <div className="airmail-stripe h-1.5 w-full" aria-hidden />
       <div className="py-12">
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 sm:px-6 md:grid-cols-4">
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2.5">
-              <div className="grid h-10 w-10 place-items-center rounded-full bg-primary text-white shadow-card">
-                <span className="text-lg">★</span>
-              </div>
-              <div className="leading-tight">
-                <div className="font-display text-sm font-extrabold text-white leading-none">
-                  Trường Tiếng Việt
-                </div>
-                <div className="font-display text-sm font-extrabold text-white/85 leading-none">
-                  Của Em
-                </div>
-              </div>
-            </div>
+            <Logo size="sm" light />
             <p className="text-sm leading-relaxed text-white/60">
               Nền tảng học tiếng Việt dành cho trẻ em Việt Nam tiểu học ở trong và ngoài nước.
             </p>
