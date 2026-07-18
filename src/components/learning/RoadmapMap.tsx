@@ -1,4 +1,13 @@
-import { ArrowLeft, Check, ChevronLeft, ChevronRight, Lock, Maximize, Undo2, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Lock,
+  Maximize,
+  Undo2,
+  X,
+} from "lucide-react";
 import { Fragment, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
@@ -8,7 +17,13 @@ import { StageCard, STAGE_COLORS } from "./StageCard";
 import { Button } from "@/components/ui/button";
 import quyen1Cover from "@/assets/quyen_1_cover.jpg";
 import { locationForChuDe, sceneForChuDe } from "@/data/scenes";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 // One entry per planned chủ đề, tagged with its progress state — drives the header stepper.
 export type ChuDeNavItem = {
@@ -21,12 +36,69 @@ export type ChuDeNavItem = {
 
 // Per-topic accent so the header gently recolors as the child moves between chủ đề — keyed
 // by ChuDe.accent. `grad` feeds the "next" button + progress fill, `ring`/`text` the stepper.
-const ACCENT: Record<ChuDe["accent"], { text: string; soft: string; solid: string; bevel: string; bevelActive: string; ring: string; borderColor: string; glow: string }> = {
-  primary: { text: "text-primary", soft: "bg-primary/10", solid: "bg-primary", bevel: "shadow-bevel-primary", bevelActive: "active:shadow-bevel-primary-active", ring: "ring-primary", borderColor: "border-primary", glow: "var(--primary)" },
-  yellow: { text: "text-[oklch(0.58_0.14_70)]", soft: "bg-yellow/20", solid: "bg-[oklch(0.72_0.17_55)]", bevel: "shadow-bevel-yellow", bevelActive: "active:shadow-bevel-yellow-active", ring: "ring-[oklch(0.72_0.17_55)]", borderColor: "border-[oklch(0.72_0.17_55)]", glow: "var(--yellow)" },
-  pink: { text: "text-pink", soft: "bg-pink/15", solid: "bg-pink", bevel: "shadow-[0_4px_0_0_#be185d]", bevelActive: "active:shadow-[0_1px_0_0_#be185d]", ring: "ring-pink", borderColor: "border-pink", glow: "var(--pink)" },
-  purple: { text: "text-purple", soft: "bg-purple/15", solid: "bg-purple", bevel: "shadow-[0_4px_0_0_#7e22ce]", bevelActive: "active:shadow-[0_1px_0_0_#7e22ce]", ring: "ring-purple", borderColor: "border-purple", glow: "var(--purple)" },
-  green: { text: "text-green", soft: "bg-green/15", solid: "bg-green", bevel: "shadow-bevel-green", bevelActive: "active:shadow-bevel-green-active", ring: "ring-green", borderColor: "border-green", glow: "var(--green)" },
+const ACCENT: Record<
+  ChuDe["accent"],
+  {
+    text: string;
+    soft: string;
+    solid: string;
+    bevel: string;
+    bevelActive: string;
+    ring: string;
+    borderColor: string;
+    glow: string;
+  }
+> = {
+  primary: {
+    text: "text-primary",
+    soft: "bg-primary/10",
+    solid: "bg-primary",
+    bevel: "shadow-bevel-primary",
+    bevelActive: "active:shadow-bevel-primary-active",
+    ring: "ring-primary",
+    borderColor: "border-primary",
+    glow: "var(--primary)",
+  },
+  yellow: {
+    text: "text-[oklch(0.58_0.14_70)]",
+    soft: "bg-yellow/20",
+    solid: "bg-[oklch(0.72_0.17_55)]",
+    bevel: "shadow-bevel-yellow",
+    bevelActive: "active:shadow-bevel-yellow-active",
+    ring: "ring-[oklch(0.72_0.17_55)]",
+    borderColor: "border-[oklch(0.72_0.17_55)]",
+    glow: "var(--yellow)",
+  },
+  pink: {
+    text: "text-pink",
+    soft: "bg-pink/15",
+    solid: "bg-pink",
+    bevel: "shadow-[0_4px_0_0_#be185d]",
+    bevelActive: "active:shadow-[0_1px_0_0_#be185d]",
+    ring: "ring-pink",
+    borderColor: "border-pink",
+    glow: "var(--pink)",
+  },
+  purple: {
+    text: "text-purple",
+    soft: "bg-purple/15",
+    solid: "bg-purple",
+    bevel: "shadow-[0_4px_0_0_#7e22ce]",
+    bevelActive: "active:shadow-[0_1px_0_0_#7e22ce]",
+    ring: "ring-purple",
+    borderColor: "border-purple",
+    glow: "var(--purple)",
+  },
+  green: {
+    text: "text-green",
+    soft: "bg-green/15",
+    solid: "bg-green",
+    bevel: "shadow-bevel-green",
+    bevelActive: "active:shadow-bevel-green-active",
+    ring: "ring-green",
+    borderColor: "border-green",
+    glow: "var(--green)",
+  },
 };
 
 // One node layout per chủ đề so the trail doesn't look identical every time the child
@@ -53,7 +125,6 @@ export function getNodePositions(chuDeIndex: number): { x: number; y: number }[]
 }
 
 export const NODE_POSITIONS = NODE_LAYOUTS[0];
-
 
 function getLessonButtonLabel(
   index: number,
@@ -120,15 +191,20 @@ export function RoadmapMap({
   const [prevChuDeIndex, setPrevChuDeIndex] = useState(chuDeIndex);
   const [slideDirection, setSlideDirection] = useState<"left" | "right">("right");
   const lastMapContentRef = useRef<ReactNode>(null);
-  const [outgoingMap, setOutgoingMap] = useState<{ content: ReactNode; direction: "left" | "right" } | null>(null);
+  const [outgoingMap, setOutgoingMap] = useState<{
+    content: ReactNode;
+    direction: "left" | "right";
+  } | null>(null);
   if (chuDeIndex !== prevChuDeIndex) {
     const direction = chuDeIndex > prevChuDeIndex ? "right" : "left";
     setSlideDirection(direction);
     setPrevChuDeIndex(chuDeIndex);
     setOutgoingMap({ content: lastMapContentRef.current, direction });
   }
-  const pushInClass = slideDirection === "right" ? "animate-push-in-from-right" : "animate-push-in-from-left";
-  const pushOutClass = outgoingMap?.direction === "right" ? "animate-push-out-to-left" : "animate-push-out-to-right";
+  const pushInClass =
+    slideDirection === "right" ? "animate-push-in-from-right" : "animate-push-in-from-left";
+  const pushOutClass =
+    outgoingMap?.direction === "right" ? "animate-push-out-to-left" : "animate-push-out-to-right";
 
   // Drop the outgoing snapshot once its exit animation has finished playing.
   useEffect(() => {
@@ -146,7 +222,8 @@ export function RoadmapMap({
   const firstLockedIndex = chuDeNav.findIndex((t) => t.status === "locked");
   const isReachable = (t: ChuDeNavItem) => t.status !== "locked" || t.index === firstLockedIndex;
 
-  const dotBase = "relative grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 text-xs font-extrabold transition sm:h-8 sm:w-8";
+  const dotBase =
+    "relative grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 text-xs font-extrabold transition sm:h-8 sm:w-8";
   const dotClass = (t: ChuDeNavItem) => {
     if (t.status === "current")
       return [
@@ -156,14 +233,21 @@ export function RoadmapMap({
         accent.ring,
       ].join(" ");
     if (t.status === "completed")
-      return [dotBase, "cursor-pointer border-white text-white hover:scale-105", accent.solid].join(" ");
+      return [dotBase, "cursor-pointer border-white text-white hover:scale-105", accent.solid].join(
+        " ",
+      );
     if (t.status === "available")
-      return [dotBase, "cursor-pointer border-black/15 bg-white text-navy hover:scale-105 hover:border-black/30"].join(" ");
+      return [
+        dotBase,
+        "cursor-pointer border-black/15 bg-white text-navy hover:scale-105 hover:border-black/30",
+      ].join(" ");
     // locked
     return [
       dotBase,
       "border-dashed border-black/20 bg-black/[0.03] text-navy/35",
-      isReachable(t) ? "cursor-pointer hover:scale-105 hover:border-black/35" : "cursor-not-allowed",
+      isReachable(t)
+        ? "cursor-pointer hover:scale-105 hover:border-black/35"
+        : "cursor-not-allowed",
     ].join(" ");
   };
 
@@ -191,11 +275,54 @@ export function RoadmapMap({
       {/* Bottom drop shadow — grounds the buffalo/path against the card's lower edge */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-black/25 to-transparent" />
 
+      {!isLocked && (
+        <>
+          {/* Typewriter scene caption */}
+          <div className="pointer-events-none absolute inset-x-0 top-3 z-20 flex justify-center px-4">
+            <span className="font-type rounded-sm bg-white/80 px-2.5 py-0.5 text-[11px] text-navy/70 shadow-sm">
+              illustration: {location.name}
+            </span>
+          </div>
+          {/* Postage stamp */}
+          <div className="pointer-events-none absolute right-4 top-10 z-20 grid h-16 w-16 rotate-6 place-items-center rounded-lg border-2 border-dashed border-white/70 bg-white/80 text-center text-navy/70 shadow-card sm:right-6">
+            <span className="font-type text-[8px] font-bold uppercase leading-tight">
+              {location.name.split(" ")[0]}
+              <br />★<br />
+              Việt Nam
+            </span>
+          </div>
+          {/* Legend */}
+          <div className="pointer-events-none absolute bottom-4 left-4 z-20 flex items-center gap-3 rounded-full bg-white/85 px-3 py-1.5 text-[11px] font-bold text-navy/70 shadow-card">
+            <span className="flex items-center gap-1">
+              <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
+              Xong
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="h-2.5 w-2.5 rounded-full bg-primary" />
+              Đang học
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="h-2.5 w-2.5 rounded-full bg-stone-400" />
+              Khóa
+            </span>
+          </div>
+          {/* Handwritten place note */}
+          <div className="font-hand pointer-events-none absolute bottom-3 right-4 z-20 text-2xl text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]">
+            {location.name} ♥
+          </div>
+        </>
+      )}
+
       {isLocked ? (
         /* Coming-soon preview for a chủ đề that has no content yet */
         <div className="relative flex h-full items-center justify-center p-5">
           <div className="max-w-sm rounded-3xl border-2 border-black/10 bg-white p-6 text-center shadow-[0_4px_0_0_rgba(0,0,0,0.1)] sm:p-8">
-            <div className={["mx-auto grid h-20 w-20 place-items-center rounded-full text-4xl ring-4 ring-white", accent.solid].join(" ")}>
+            <div
+              className={[
+                "mx-auto grid h-20 w-20 place-items-center rounded-full text-4xl ring-4 ring-white",
+                accent.solid,
+              ].join(" ")}
+            >
               {chuDe.emoji}
             </div>
             <div className="mx-auto mt-3 inline-flex items-center gap-1 rounded-full bg-black/5 px-3 py-1 text-xs font-extrabold text-navy/60">
@@ -203,7 +330,8 @@ export function RoadmapMap({
             </div>
             <h3 className="mt-2 font-display text-xl font-extrabold text-navy">{chuDe.title}</h3>
             <p className="mx-auto mt-2 max-w-xs text-sm text-muted-foreground">
-              Các cô đang biên soạn chủ đề này. Em quay lại chủ đề trước để luyện tập trong lúc chờ nhé! ✨
+              Các cô đang biên soạn chủ đề này. Em quay lại chủ đề trước để luyện tập trong lúc chờ
+              nhé! ✨
             </p>
             <Button variant="bevel-primary" onClick={onPrevChuDe} className="mx-auto mt-5">
               <ArrowLeft className="h-4 w-4" strokeWidth={3} />
@@ -226,7 +354,9 @@ export function RoadmapMap({
                 key={`halo-${i}`}
                 d={d}
                 fill="none"
-                stroke={completedChangs.has(i) ? STAGE_COLORS[i % STAGE_COLORS.length].hex : "#a3a3a3"}
+                stroke={
+                  completedChangs.has(i) ? STAGE_COLORS[i % STAGE_COLORS.length].hex : "#a3a3a3"
+                }
                 strokeWidth="1.8"
                 strokeDasharray="2.5 2.5"
                 strokeLinecap="round"
@@ -253,12 +383,21 @@ export function RoadmapMap({
               <div
                 key={i}
                 className="absolute"
-                style={{ left: `${p.x}%`, top: `${p.y}%`, transform: "translateX(-50%) translateY(-72px)" }}
+                style={{
+                  left: `${p.x}%`,
+                  top: `${p.y}%`,
+                  transform: "translateX(-50%) translateY(-72px)",
+                }}
                 onClick={(e) => e.stopPropagation()}
               >
                 {i === currentChangIndex && !isLocked && (
                   <div className="animate-float-badge absolute -top-11 left-1/2 flex -translate-x-1/2 flex-col items-center whitespace-nowrap">
-                    <div className={["rounded-xl px-3 py-1.5 text-[11px] font-extrabold text-white shadow-[0_2px_0_0_rgba(0,0,0,0.2)]", STAGE_COLORS[i % STAGE_COLORS.length].bg].join(" ")}>
+                    <div
+                      className={[
+                        "rounded-xl px-3 py-1.5 text-[11px] font-extrabold text-white shadow-[0_2px_0_0_rgba(0,0,0,0.2)]",
+                        STAGE_COLORS[i % STAGE_COLORS.length].bg,
+                      ].join(" ")}
+                    >
                       Đang học
                     </div>
                     <div
@@ -283,7 +422,9 @@ export function RoadmapMap({
                   compact
                   noiDungProgress={changProgress.get(i)}
                   onClick={() => onSelectStage(i)}
-                  onOpen={() => { if (!isLocked) onOpenLesson(i); }}
+                  onOpen={() => {
+                    if (!isLocked) onOpenLesson(i);
+                  }}
                 />
               </div>
             );
@@ -306,45 +447,93 @@ export function RoadmapMap({
 
   return (
     <div className="relative w-full">
-
       {/* Combined card: the header bar (back button, current book, active chủ đề, chủ đề
           navigation) sits on top of the map, all inside one clearly-bounded card that
           matches the navbar's width (max-w-7xl inside px-3/px-4). */}
       <div className="w-full px-3 pt-8 pb-8 sm:px-4 sm:pt-12">
-        <div className="relative z-20 mx-auto flex max-w-7xl flex-col overflow-hidden rounded-[1.75rem] border-2 border-black/10 shadow-[0_4px_0_0_rgba(0,0,0,0.1)]">
-
+        <div className="relative z-20 mx-auto flex max-w-7xl flex-col overflow-hidden rounded-[1.75rem] border border-border shadow-card ring-1 ring-black/[0.03]">
           {/* Header: top row (back, book, current chủ đề, prev/next) + a progress stepper. */}
-          <div className="flex flex-col gap-2.5 bg-white p-3 sm:gap-3 sm:p-4">
-
+          <div className="flex flex-col gap-2.5 bg-card p-3 sm:gap-3 sm:p-4">
             {/* Top row */}
             <div className="flex items-center gap-3 sm:gap-4">
               {/* Back to học tập */}
               <Link
                 to="/hoc-tap"
                 aria-label="Quay lại"
-                className={["grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-[1.15rem] shadow-bevel-neutral transition-[transform,box-shadow] ease-bounce active:translate-y-[2px] active:shadow-bevel-neutral-active sm:h-12 sm:w-12", accent.soft, accent.text].join(" ")}
+                className={[
+                  "grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-[1.15rem] shadow-bevel-neutral transition-[transform,box-shadow] ease-bounce active:translate-y-[2px] active:shadow-bevel-neutral-active sm:h-12 sm:w-12",
+                  accent.soft,
+                  accent.text,
+                ].join(" ")}
               >
                 <Undo2 className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2.5} />
               </Link>
 
               {/* Current book cover */}
               <div className="shrink-0 overflow-hidden rounded-lg shadow-sm ring-1 ring-black/5">
-                <img src={quyen1Cover} alt="Quyển 1" className="h-12 w-9 object-cover sm:h-14 sm:w-11" />
+                <img
+                  src={quyen1Cover}
+                  alt="Quyển 1"
+                  className="h-12 w-9 object-cover sm:h-14 sm:w-11"
+                />
               </div>
 
               {/* Current chủ đề */}
               <div className="min-w-0 flex-1">
-                {isLocked && (
-                  <div className={["inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide sm:text-xs", accent.soft, accent.text].join(" ")}>
-                    <Lock className="h-3 w-3" strokeWidth={2.5} />
-                    Sắp có
-                  </div>
-                )}
+                <div className="flex items-center gap-2">
+                  <span
+                    className={[
+                      "text-[10px] font-extrabold uppercase tracking-[0.15em] sm:text-xs",
+                      accent.text,
+                    ].join(" ")}
+                  >
+                    Vùng {chuDeIndex + 1}
+                  </span>
+                  {isLocked && (
+                    <span
+                      className={[
+                        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide",
+                        accent.soft,
+                        accent.text,
+                      ].join(" ")}
+                    >
+                      <Lock className="h-3 w-3" strokeWidth={2.5} />
+                      Sắp có
+                    </span>
+                  )}
+                </div>
                 <h1 className="flex items-center gap-1.5 truncate font-display text-base font-extrabold text-navy sm:text-2xl">
                   <span className="shrink-0">{chuDe.emoji}</span>
                   <span className="truncate">{chuDe.title}</span>
                 </h1>
               </div>
+
+              {/* Chặng progress readout (hidden on the smallest screens) */}
+              {!isLocked &&
+                (() => {
+                  const totalStages = nodePositions.length;
+                  const doneStages = Math.min(completedChangs.size, totalStages);
+                  const pct = totalStages ? Math.round((doneStages / totalStages) * 100) : 0;
+                  return (
+                    <div className="hidden shrink-0 sm:block sm:w-40">
+                      <div className="mb-1 flex items-center justify-between text-[11px] font-bold text-navy/70">
+                        <span>
+                          {doneStages}/{totalStages} chặng
+                        </span>
+                        <span className={accent.text}>{pct}%</span>
+                      </div>
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-muted ring-1 ring-black/[0.04]">
+                        <div
+                          className={[
+                            "h-full rounded-full transition-all duration-500",
+                            accent.solid,
+                          ].join(" ")}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })()}
 
               {/* Prev / next chủ đề */}
               <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
@@ -364,34 +553,41 @@ export function RoadmapMap({
                 <button
                   onClick={onNextChuDe}
                   disabled={!canGoNextChuDe}
-                  aria-label={nextItem ? `Chủ đề tiếp theo: ${nextItem.shortTitle}` : "Chủ đề tiếp theo"}
+                  aria-label={
+                    nextItem ? `Chủ đề tiếp theo: ${nextItem.shortTitle}` : "Chủ đề tiếp theo"
+                  }
                   className={[
                     "grid h-9 w-9 shrink-0 place-items-center rounded-full transition-[transform,box-shadow] ease-bounce sm:h-10 sm:w-10",
                     canGoNextChuDe
-                      ? ["cursor-pointer text-white active:translate-y-[2px]", accent.solid, accent.bevel, accent.bevelActive].join(" ")
+                      ? [
+                          "cursor-pointer text-white active:translate-y-[2px]",
+                          accent.solid,
+                          accent.bevel,
+                          accent.bevelActive,
+                        ].join(" ")
                       : "cursor-not-allowed bg-black/[0.03] text-navy/30",
                   ].join(" ")}
                 >
-                  {nextIsLocked && canGoNextChuDe
-                    ? <Lock className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />
-                    : <ChevronRight className="h-4 w-4 shrink-0" strokeWidth={3} />}
+                  {nextIsLocked && canGoNextChuDe ? (
+                    <Lock className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 shrink-0" strokeWidth={3} />
+                  )}
                 </button>
               </div>
             </div>
 
-            {/* Progress stepper — the whole 8-chủ-đề journey at a glance, set into a recessed
-                grey track so it reads as a distinct element inset into the banner. */}
-            <div className="flex items-center rounded-full border-2 border-black/10 bg-black/[0.04] px-3 py-2 shadow-[inset_0_1px_2px_rgba(0,0,0,0.08)] sm:px-3.5">
+            {/* Progress stepper — the whole 8-chủ-đề journey at a glance, on a soft cream track
+                with a dashed "postal route" feel between the numbered stops. */}
+            <div className="flex items-center rounded-full border border-border bg-muted/40 px-3 py-2 sm:px-3.5">
               {chuDeNav.map((t, i) => (
                 <Fragment key={t.index}>
-                  {i > 0 && (
-                    <div
-                      className={[
-                        "h-1.5 flex-1 rounded-full",
-                        t.index <= chuDeIndex ? accent.solid : "bg-black/10",
-                      ].join(" ")}
-                    />
-                  )}
+                  {i > 0 &&
+                    (t.index <= chuDeIndex ? (
+                      <div className={["h-1.5 flex-1 rounded-full", accent.solid].join(" ")} />
+                    ) : (
+                      <div className="mx-0.5 h-0 flex-1 border-t-2 border-dashed border-navy/15" />
+                    ))}
                   <button
                     onClick={() => onSelectChuDe(t.index)}
                     disabled={t.status === "current" || !isReachable(t)}
@@ -399,7 +595,11 @@ export function RoadmapMap({
                     aria-current={t.status === "current" ? "step" : undefined}
                     title={t.title}
                     className={dotClass(t)}
-                    style={t.status === "current" ? ({ "--glow-color": accent.glow } as React.CSSProperties) : undefined}
+                    style={
+                      t.status === "current"
+                        ? ({ "--glow-color": accent.glow } as React.CSSProperties)
+                        : undefined
+                    }
                   >
                     {t.status === "completed" ? (
                       <Check className="h-4 w-4" strokeWidth={3} />
@@ -421,8 +621,10 @@ export function RoadmapMap({
               instead of stopping short and exposing blank page background past the edge. */}
           <div className="relative h-[78vh] min-h-[560px] w-full overflow-x-auto overflow-y-hidden overscroll-x-contain touch-pan-x touch-pan-y sm:overflow-x-hidden">
             <div
-              className={["relative h-full", isLocked ? "w-full" : "min-w-[760px] sm:min-w-0"].join(" ")}
-              style={{ paddingTop: '4rem' }}
+              className={["relative h-full", isLocked ? "w-full" : "min-w-[760px] sm:min-w-0"].join(
+                " ",
+              )}
+              style={{ paddingTop: "4rem" }}
             >
               {/* "Learn about this place" — bottom-right info button that opens a fullscreen
                   overlay with the backdrop's real-world name and a short history blurb, so kids
@@ -450,6 +652,52 @@ export function RoadmapMap({
             </div>
           </div>
         </div>
+
+        {/* Reward / streak / cultural info cards below the map — scrapbook note cards. */}
+        {!isLocked && (
+          <div className="mx-auto mt-4 grid max-w-7xl gap-3 sm:grid-cols-3">
+            <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-card">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-secondary/25 text-xl">
+                🏅
+              </span>
+              <div>
+                <div className="font-display text-sm font-extrabold text-navy">
+                  Phần thưởng chủ đề
+                </div>
+                <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
+                  Hoàn thành cả 5 chặng để nhận con dấu{" "}
+                  <strong className="text-primary">{chuDe.title}</strong>.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-card">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-xl">
+                🔥
+              </span>
+              <div>
+                <div className="font-display text-sm font-extrabold text-navy">
+                  Giữ chuỗi ngày học!
+                </div>
+                <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
+                  Học một chặng hôm nay để giữ ngọn lửa chuỗi ngày của em.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-card">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#2b6ea3]/12 text-xl">
+                🗺️
+              </span>
+              <div>
+                <div className="font-display text-sm font-extrabold text-navy">
+                  Khám phá văn hóa
+                </div>
+                <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-muted-foreground">
+                  {location.blurb}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Fullscreen "learn about this place" overlay, triggered by the info button on the map. */}
@@ -483,7 +731,6 @@ export function RoadmapMap({
           </div>
         </DialogContent>
       </Dialog>
-
     </div>
   );
 }

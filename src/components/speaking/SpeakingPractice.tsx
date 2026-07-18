@@ -197,10 +197,10 @@ export function SpeakingPractice({
     return (
       <div className="mx-auto max-w-lg px-4 py-20 text-center">
         <div className="mb-4 text-6xl">🎤</div>
-        <h1 className="mb-2 font-display text-2xl font-extrabold text-white">
+        <h1 className="mb-2 font-display text-2xl font-extrabold text-navy">
           Chủ đề này chưa có câu luyện
         </h1>
-        <p className="mb-6 text-slate-200">Em chọn chủ đề khác để luyện nói nhé!</p>
+        <p className="mb-6 text-muted-foreground">Em chọn chủ đề khác để luyện nói nhé!</p>
         <Link
           to="/hoc-tap/luyen-noi"
           className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary/90"
@@ -248,10 +248,9 @@ export function SpeakingPractice({
 
       {/* Everything below lives in a single Duolingo-style bevel card. */}
       <div
-        className={[
-          "overflow-hidden rounded-2xl border-2 border-black/10 bg-white",
-          color.bevel,
-        ].join(" ")}
+        className={["overflow-hidden rounded-2xl border border-border bg-card", color.bevel].join(
+          " ",
+        )}
       >
         {/* Colored header strip */}
         <div className={["flex items-center gap-3 px-5 py-4 sm:px-8", color.bg].join(" ")}>

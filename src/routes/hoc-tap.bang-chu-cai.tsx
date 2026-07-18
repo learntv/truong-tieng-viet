@@ -177,10 +177,10 @@ function Cloud({ className, style }: { className?: string; style?: CSSProperties
   return (
     <div className={["absolute animate-float-slow", className].join(" ")} style={style}>
       <div className="relative h-full w-full">
-        <div className="absolute inset-x-0 bottom-0 h-3/5 rounded-full bg-white" />
-        <div className="absolute bottom-1/4 left-0 h-4/5 w-2/5 rounded-full bg-white" />
-        <div className="absolute bottom-1/3 right-0 h-3/5 w-2/5 rounded-full bg-white" />
-        <div className="absolute bottom-1/3 left-1/3 h-full w-2/5 rounded-full bg-white" />
+        <div className="absolute inset-x-0 bottom-0 h-3/5 rounded-full bg-[#d7e6f2]" />
+        <div className="absolute bottom-1/4 left-0 h-4/5 w-2/5 rounded-full bg-[#d7e6f2]" />
+        <div className="absolute bottom-1/3 right-0 h-3/5 w-2/5 rounded-full bg-[#d7e6f2]" />
+        <div className="absolute bottom-1/3 left-1/3 h-full w-2/5 rounded-full bg-[#d7e6f2]" />
       </div>
     </div>
   );

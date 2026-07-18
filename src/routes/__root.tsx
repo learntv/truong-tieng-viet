@@ -1,10 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  Outlet,
-  createRootRouteWithContext,
-  HeadContent,
-  Scripts,
-} from "@tanstack/react-router";
+import { Outlet, createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 import { useState, type ReactNode } from "react";
 
@@ -20,15 +15,32 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "Trường Tiếng Việt Của Em" },
-      { name: "description", content: "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào." },
+      {
+        name: "description",
+        content: "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào.",
+      },
       { property: "og:title", content: "Trường Tiếng Việt Của Em" },
-      { property: "og:description", content: "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào." },
+      {
+        property: "og:description",
+        content: "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "Trường Tiếng Việt Của Em" },
-      { name: "twitter:description", content: "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/23fe28ec-8f13-4117-91d0-e728c468b1e1/id-preview-55843cf1--6f159385-7fe4-4d96-95b9-462c8529b5ee.lovable.app-1782308677073.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/23fe28ec-8f13-4117-91d0-e728c468b1e1/id-preview-55843cf1--6f159385-7fe4-4d96-95b9-462c8529b5ee.lovable.app-1782308677073.png" },
+      {
+        name: "twitter:description",
+        content: "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/23fe28ec-8f13-4117-91d0-e728c468b1e1/id-preview-55843cf1--6f159385-7fe4-4d96-95b9-462c8529b5ee.lovable.app-1782308677073.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/23fe28ec-8f13-4117-91d0-e728c468b1e1/id-preview-55843cf1--6f159385-7fe4-4d96-95b9-462c8529b5ee.lovable.app-1782308677073.png",
+      },
     ],
     links: [
       { rel: "icon", href: iconUrl },
@@ -37,7 +49,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&family=Dancing+Script:wght@500;600;700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap",
       },
     ],
   }),
@@ -68,12 +80,7 @@ function NewUserSetup() {
   if (isLoading || !user || dismissed) return null;
   if (user.user_metadata?.profile_setup_completed) return null;
 
-  return (
-    <ProfileSetupModal
-      user={user}
-      onComplete={() => setDismissed(true)}
-    />
-  );
+  return <ProfileSetupModal user={user} onComplete={() => setDismissed(true)} />;
 }
 
 function RootComponent() {

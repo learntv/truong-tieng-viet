@@ -20,7 +20,6 @@ import { ConfettiBurst } from "./ConfettiBurst";
 import { ImageHighlightOverlay } from "./ImageHighlightOverlay";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
 import { Button } from "@/components/ui/button";
-import { sceneForChuDe } from "@/data/scenes";
 import mapPinIcon from "@/assets/map-pin-icon.png";
 
 type StageColor = (typeof STAGE_COLORS)[number];
@@ -474,23 +473,9 @@ export function LessonPage({ changId }: { changId: string }) {
   };
 
   return (
-    <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-navy">
-      <img
-        src={sceneForChuDe(topicIndex)}
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500"
-      />
-      <div className="absolute inset-0 bg-black/45" />
-
-      {/* Single unified header bar: replaces the old stack of breadcrumb bar + mobile
-          back-to-map bar + card header strip (three rows) with one compact row, freeing
-          up vertical space for the actual content below. */}
-      <div
-        className={[
-          "relative z-10 flex shrink-0 items-center gap-2 px-3 py-2 sm:px-4",
-          color.bg,
-        ].join(" ")}
-      >
+    <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-paper">
+      {/* Compact cream header bar — back button, breadcrumb, and stage pill on paper. */}
+      <div className="relative z-10 flex shrink-0 items-center gap-2 border-b border-border bg-card/80 px-3 py-2 backdrop-blur-sm sm:px-4">
         <BackToMapButton
           color={color}
           topicIndex={topicIndex}
@@ -500,11 +485,18 @@ export function LessonPage({ changId }: { changId: string }) {
         />
 
         {/* Breadcrumb: chuDe.title already reads "Chủ đề N: Name", so it stands alone. */}
-        <div className="min-w-0 flex-1 truncate text-xs font-bold text-white sm:text-sm">
+        <div
+          className={["min-w-0 flex-1 truncate text-xs font-bold sm:text-sm", color.text].join(" ")}
+        >
           {chuDe.title}
         </div>
 
-        <div className="shrink-0 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-extrabold text-navy sm:px-3 sm:py-1.5 sm:text-xs">
+        <div
+          className={[
+            "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-extrabold text-white sm:px-3 sm:py-1.5 sm:text-xs",
+            color.bg,
+          ].join(" ")}
+        >
           Chặng {changIndex + 1}/{changs.length}
         </div>
       </div>
@@ -512,7 +504,7 @@ export function LessonPage({ changId }: { changId: string }) {
       <div className="relative z-10 mx-auto flex w-full min-h-0 max-w-5xl flex-1 gap-3 p-0 sm:gap-4 sm:p-4">
         {/* Left: numbered slide pills */}
         <aside className="hidden w-14 shrink-0 overflow-y-auto sm:flex sm:flex-col sm:items-center">
-          <div className="flex flex-col items-center gap-2 rounded-full border-2 border-black/10 bg-white p-2 shadow-[0_3px_0_0_rgba(0,0,0,0.1)]">
+          <div className="flex flex-col items-center gap-2 rounded-full border border-border bg-card p-2 shadow-card">
             {slides.map((s, i) => {
               const isActive = i === slideIndex;
               const isDone = isCompleted || i < slideIndex;
@@ -526,8 +518,8 @@ export function LessonPage({ changId }: { changId: string }) {
                     isActive
                       ? [color.bg, "scale-110 text-white", color.bevel].join(" ")
                       : isDone
-                        ? "bg-green-100 text-green-600 hover:bg-green-200"
-                        : "bg-white text-muted-foreground hover:bg-muted",
+                        ? "bg-[#2f8a63]/15 text-[#236b4c] hover:bg-[#2f8a63]/25"
+                        : "bg-card text-muted-foreground hover:bg-muted",
                   ].join(" ")}
                 >
                   {isDone && !isActive ? <Check className="h-4 w-4" strokeWidth={3} /> : i + 1}
@@ -538,10 +530,10 @@ export function LessonPage({ changId }: { changId: string }) {
         </aside>
 
         {/* Main content */}
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-none border-2 border-black/10 shadow-[0_4px_0_0_rgba(0,0,0,0.1)] sm:rounded-3xl">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-none border border-border bg-card shadow-card sm:rounded-3xl">
           {/* Card header strip: hosts the bài instruction text (with its audio button) like
               before, plus the mobile step indicator. */}
-          <div className="flex shrink-0 items-start gap-3 bg-amber-50 px-3 py-2 sm:px-4">
+          <div className="flex shrink-0 items-start gap-3 border-b border-border bg-secondary/15 px-3 py-2 sm:px-4">
             <span
               className={[
                 "grid h-7 w-7 shrink-0 place-items-center rounded-full font-display text-xs font-extrabold text-white sm:h-8 sm:w-8 sm:text-sm",
@@ -577,7 +569,7 @@ export function LessonPage({ changId }: { changId: string }) {
             </span>
           </div>
 
-          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white p-3 sm:overflow-hidden sm:p-4">
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-card p-3 sm:overflow-hidden sm:p-4">
             <div
               key={`${currentNoiDung?.id}-${currentSlide?.baiIndex}`}
               className={[
@@ -652,7 +644,7 @@ export function LessonPage({ changId }: { changId: string }) {
           </div>
 
           {/* Bottom nav — three equal thirds spanning the card's full width */}
-          <div className="flex shrink-0 divide-x divide-border/60 border-t border-border/60 bg-white">
+          <div className="flex shrink-0 divide-x divide-border/60 border-t border-border/60 bg-card">
             <button
               onClick={() => goTo(slideIndex - 1)}
               disabled={!canPrev}
@@ -666,6 +658,11 @@ export function LessonPage({ changId }: { changId: string }) {
             </button>
 
             <div className="relative flex-1">
+              {!isLastSlide && (
+                <div className="font-hand pointer-events-none flex h-full items-center justify-center px-2 text-center text-xl text-navy/60">
+                  Cố lên! Con làm tốt lắm ♥
+                </div>
+              )}
               {isLastSlide && (
                 <>
                   {showConfetti && <ConfettiBurst onDone={() => setShowConfetti(false)} />}
@@ -675,8 +672,8 @@ export function LessonPage({ changId }: { changId: string }) {
                     className={[
                       "relative flex h-full w-full items-center justify-center gap-1.5 overflow-hidden text-sm font-bold transition-[transform,border-color] ease-bounce",
                       isCompleted
-                        ? "cursor-not-allowed bg-green-100 text-green-600"
-                        : "cursor-pointer border-b-4 border-emerald-700 bg-green text-white hover:brightness-110 active:translate-y-1 active:border-b-0",
+                        ? "cursor-not-allowed bg-[#2f8a63]/15 text-[#236b4c]"
+                        : "cursor-pointer border-b-4 border-[#1f5d42] bg-[#2f8a63] text-white hover:brightness-110 active:translate-y-1 active:border-b-0",
                     ].join(" ")}
                   >
                     {!isCompleted && (
@@ -723,7 +720,7 @@ export function LessonPage({ changId }: { changId: string }) {
           since it's transient/dismissible rather than a persistent nav element). */}
       {showNextPrompt && nextChang && (
         <div className="fixed bottom-16 right-2 z-20 max-w-[calc(100vw-1rem)] animate-in slide-in-from-right fade-in duration-300 sm:bottom-4 sm:right-4">
-          <div className="relative flex items-stretch overflow-hidden rounded-3xl border-2 border-black/10 bg-white shadow-[0_4px_0_0_rgba(0,0,0,0.12)]">
+          <div className="relative flex items-stretch overflow-hidden rounded-3xl border border-border bg-card shadow-card">
             <button
               onClick={() => setShowNextPrompt(false)}
               aria-label="Đóng"

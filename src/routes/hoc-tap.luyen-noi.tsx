@@ -104,7 +104,7 @@ function TopicCard({ card }: { card: TopicCardData }) {
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="mb-4 font-display text-lg font-extrabold text-white sm:text-xl">{children}</h2>
+    <h2 className="mb-4 font-display text-lg font-extrabold text-navy sm:text-xl">{children}</h2>
   );
 }
 
@@ -153,10 +153,10 @@ function TopicPicker() {
       {/* Hero */}
       <div className="mb-8 flex flex-col items-center gap-3 text-center">
         <img src={trauCon} alt="Trâu con đội nón lá" className="h-24 w-auto animate-bob" />
-        <h1 className="font-display text-3xl font-extrabold text-white">
+        <h1 className="font-display text-3xl font-extrabold text-navy">
           Luyện nói cùng Trâu con 🎤
         </h1>
-        <p className="max-w-md text-sm text-slate-200">
+        <p className="max-w-md text-sm text-muted-foreground">
           Em chọn một chủ đề, nghe cô đọc mẫu rồi nói theo nhé. Nói hay sẽ được sao đấy!
         </p>
       </div>

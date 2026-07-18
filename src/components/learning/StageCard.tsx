@@ -1,86 +1,87 @@
 import { useEffect, useRef } from "react";
 import { Check } from "lucide-react";
 
+// Muted vintage "Vietnam Quest" stage palette — jade / postal-blue / plum / gold / dusty-rose.
 export const STAGE_COLORS = [
   {
-    ring: "ring-green-400",
-    bg: "bg-green-500",
-    bgSoft: "bg-green-50",
-    gradient: "bg-gradient-to-br from-green-400 to-green-600",
-    gradientHover: "from-green-300 to-green-500",
-    border: "border-green-400",
-    text: "text-green-700",
-    stripe: "from-green-400 to-green-600",
-    glow: "shadow-[0_8px_24px_rgba(74,222,128,0.55)]",
-    bevel: "shadow-[0_4px_0_0_#16a34a]",
-    hex: "#16a34a",
-    bevelActive: "active:shadow-[0_1px_0_0_#16a34a]",
-    scrollThumb: "#4ade80",
-    scrollTrack: "#dcfce7",
+    ring: "ring-[#2f8a63]",
+    bg: "bg-[#2f8a63]",
+    bgSoft: "bg-[#2f8a63]/10",
+    gradient: "bg-gradient-to-br from-[#3ba073] to-[#236b4c]",
+    gradientHover: "from-[#45b080] to-[#2f8a63]",
+    border: "border-[#2f8a63]",
+    text: "text-[#236b4c]",
+    stripe: "from-[#3ba073] to-[#236b4c]",
+    glow: "shadow-[0_8px_24px_rgba(47,138,99,0.5)]",
+    bevel: "shadow-[0_4px_0_0_#1f5d42]",
+    hex: "#2f8a63",
+    bevelActive: "active:shadow-[0_1px_0_0_#1f5d42]",
+    scrollThumb: "#2f8a63",
+    scrollTrack: "#dbeee5",
   },
   {
-    ring: "ring-sky-400",
-    bg: "bg-sky-500",
-    bgSoft: "bg-sky-50",
-    gradient: "bg-gradient-to-br from-sky-400 to-sky-600",
-    gradientHover: "from-sky-300 to-sky-500",
-    border: "border-sky-400",
-    text: "text-sky-700",
-    stripe: "from-sky-400 to-sky-600",
-    glow: "shadow-[0_8px_24px_rgba(56,189,248,0.55)]",
-    bevel: "shadow-[0_4px_0_0_#0284c7]",
-    hex: "#0284c7",
-    bevelActive: "active:shadow-[0_1px_0_0_#0284c7]",
-    scrollThumb: "#38bdf8",
-    scrollTrack: "#e0f2fe",
+    ring: "ring-[#2b6ea3]",
+    bg: "bg-[#2b6ea3]",
+    bgSoft: "bg-[#2b6ea3]/10",
+    gradient: "bg-gradient-to-br from-[#3480ba] to-[#1f4f75]",
+    gradientHover: "from-[#4090ca] to-[#2b6ea3]",
+    border: "border-[#2b6ea3]",
+    text: "text-[#1f4f75]",
+    stripe: "from-[#3480ba] to-[#1f4f75]",
+    glow: "shadow-[0_8px_24px_rgba(43,110,163,0.5)]",
+    bevel: "shadow-[0_4px_0_0_#1a4363]",
+    hex: "#2b6ea3",
+    bevelActive: "active:shadow-[0_1px_0_0_#1a4363]",
+    scrollThumb: "#2b6ea3",
+    scrollTrack: "#dbe8f2",
   },
   {
-    ring: "ring-purple-400",
-    bg: "bg-purple-500",
-    bgSoft: "bg-purple-50",
-    gradient: "bg-gradient-to-br from-purple-400 to-purple-600",
-    gradientHover: "from-purple-300 to-purple-500",
-    border: "border-purple-400",
-    text: "text-purple-700",
-    stripe: "from-purple-400 to-purple-600",
-    glow: "shadow-[0_8px_24px_rgba(192,132,252,0.55)]",
-    bevel: "shadow-[0_4px_0_0_#9333ea]",
-    hex: "#9333ea",
-    bevelActive: "active:shadow-[0_1px_0_0_#9333ea]",
-    scrollThumb: "#c084fc",
-    scrollTrack: "#f3e8ff",
+    ring: "ring-[#7857a6]",
+    bg: "bg-[#7857a6]",
+    bgSoft: "bg-[#7857a6]/10",
+    gradient: "bg-gradient-to-br from-[#8968b7] to-[#5c4082]",
+    gradientHover: "from-[#9878c5] to-[#7857a6]",
+    border: "border-[#7857a6]",
+    text: "text-[#5c4082]",
+    stripe: "from-[#8968b7] to-[#5c4082]",
+    glow: "shadow-[0_8px_24px_rgba(120,87,166,0.5)]",
+    bevel: "shadow-[0_4px_0_0_#4d356e]",
+    hex: "#7857a6",
+    bevelActive: "active:shadow-[0_1px_0_0_#4d356e]",
+    scrollThumb: "#7857a6",
+    scrollTrack: "#e9e2f2",
   },
   {
-    ring: "ring-amber-400",
-    bg: "bg-amber-500",
-    bgSoft: "bg-amber-50",
-    gradient: "bg-gradient-to-br from-amber-400 to-amber-600",
-    gradientHover: "from-amber-300 to-amber-500",
-    border: "border-amber-400",
-    text: "text-amber-700",
-    stripe: "from-amber-400 to-amber-600",
-    glow: "shadow-[0_8px_24px_rgba(251,191,36,0.55)]",
-    bevel: "shadow-[0_4px_0_0_#d97706]",
-    hex: "#d97706",
-    bevelActive: "active:shadow-[0_1px_0_0_#d97706]",
-    scrollThumb: "#fbbf24",
-    scrollTrack: "#fef3c7",
+    ring: "ring-[#cf9526]",
+    bg: "bg-[#cf9526]",
+    bgSoft: "bg-[#cf9526]/10",
+    gradient: "bg-gradient-to-br from-[#dda12e] to-[#a5751a]",
+    gradientHover: "from-[#e6ac38] to-[#cf9526]",
+    border: "border-[#cf9526]",
+    text: "text-[#9c6f18]",
+    stripe: "from-[#dda12e] to-[#a5751a]",
+    glow: "shadow-[0_8px_24px_rgba(207,149,38,0.5)]",
+    bevel: "shadow-[0_4px_0_0_#9c6f18]",
+    hex: "#cf9526",
+    bevelActive: "active:shadow-[0_1px_0_0_#9c6f18]",
+    scrollThumb: "#cf9526",
+    scrollTrack: "#f5ead1",
   },
   {
-    ring: "ring-pink-400",
-    bg: "bg-pink-500",
-    bgSoft: "bg-pink-50",
-    gradient: "bg-gradient-to-br from-pink-400 to-pink-600",
-    gradientHover: "from-pink-300 to-pink-500",
-    border: "border-pink-400",
-    text: "text-pink-700",
-    stripe: "from-pink-400 to-pink-600",
-    glow: "shadow-[0_8px_24px_rgba(244,114,182,0.55)]",
-    bevel: "shadow-[0_4px_0_0_#db2777]",
-    hex: "#db2777",
-    bevelActive: "active:shadow-[0_1px_0_0_#db2777]",
-    scrollThumb: "#f472b6",
-    scrollTrack: "#fce7f3",
+    ring: "ring-[#bf5f66]",
+    bg: "bg-[#bf5f66]",
+    bgSoft: "bg-[#bf5f66]/10",
+    gradient: "bg-gradient-to-br from-[#cc6d74] to-[#994b51]",
+    gradientHover: "from-[#d67a81] to-[#bf5f66]",
+    border: "border-[#bf5f66]",
+    text: "text-[#994b51]",
+    stripe: "from-[#cc6d74] to-[#994b51]",
+    glow: "shadow-[0_8px_24px_rgba(191,95,102,0.5)]",
+    bevel: "shadow-[0_4px_0_0_#8a4247]",
+    hex: "#bf5f66",
+    bevelActive: "active:shadow-[0_1px_0_0_#8a4247]",
+    scrollThumb: "#bf5f66",
+    scrollTrack: "#f2dde0",
   },
 ];
 
@@ -133,7 +134,9 @@ export function StageCard({
           aria-label={`Chặng ${index + 1}: ${title} — đang khóa`}
           className="grid w-full cursor-pointer place-items-center gap-1 py-4 text-center"
         >
-          <span className="text-4xl leading-none opacity-90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">🔒</span>
+          <span className="text-4xl leading-none opacity-90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+            🔒
+          </span>
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-white/80 drop-shadow-sm">
             Chặng {index + 1}
           </span>
@@ -174,7 +177,10 @@ export function StageCard({
           className="grid w-full cursor-pointer place-items-center gap-1 py-4 text-center"
         >
           <Check
-            className={["h-11 w-11 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]", justCompleted ? "animate-stamp-in" : ""].join(" ")}
+            className={[
+              "h-11 w-11 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]",
+              justCompleted ? "animate-stamp-in" : "",
+            ].join(" ")}
             strokeWidth={4}
           />
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-white/90 drop-shadow-sm">
@@ -211,9 +217,7 @@ export function StageCard({
         "relative overflow-hidden rounded-2xl border-2 border-black/10 bg-white transition-[box-shadow,border-color] duration-200 cursor-pointer",
         "shadow-[0_4px_0_0_rgba(0,0,0,0.15)]",
         compact ? "w-36" : "w-44",
-        isCurrent
-          ? `ring-4 ${color.ring} animate-pulse-glow`
-          : "hover:border-black/20",
+        isCurrent ? `ring-4 ${color.ring} animate-pulse-glow` : "hover:border-black/20",
       ].join(" ")}
       style={isCurrent ? ({ "--glow-color": color.hex } as React.CSSProperties) : undefined}
     >
@@ -223,7 +227,9 @@ export function StageCard({
         className={["w-full cursor-pointer text-center", color.bg].join(" ")}
       >
         <div className="flex flex-col items-center gap-1.5 px-3 pb-4 pt-5">
-          <span className="text-4xl leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">{emoji}</span>
+          <span className="text-4xl leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+            {emoji}
+          </span>
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-white/90 drop-shadow-sm">
             Chặng {index + 1}
           </span>
@@ -231,10 +237,7 @@ export function StageCard({
       </button>
 
       {/* White body: title + status */}
-      <button
-        onClick={onClick}
-        className="w-full cursor-pointer px-3 pb-3 pt-2.5 text-center"
-      >
+      <button onClick={onClick} className="w-full cursor-pointer px-3 pb-3 pt-2.5 text-center">
         <p className="line-clamp-2 font-display text-sm font-extrabold leading-tight text-navy">
           {title}
         </p>

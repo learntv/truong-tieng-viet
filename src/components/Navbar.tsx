@@ -45,108 +45,122 @@ export function Navbar() {
 
   return (
     <>
-      <header className="sticky top-3 z-40 w-full px-3 sm:top-4 sm:px-4">
-        <nav className="mx-auto flex max-w-7xl items-center gap-4 rounded-full border border-black/5 bg-white/80 px-4 py-2.5 shadow-[0_8px_24px_-8px_oklch(0.22_0.05_30/0.18)] backdrop-blur-md sm:px-5">
+      <header className="sticky top-0 z-40 w-full">
+        <div className="airmail-stripe h-2 w-full" aria-hidden />
+        <nav className="flex w-full items-center gap-4 border-b border-border bg-card/85 px-4 py-2.5 backdrop-blur-md sm:px-6">
+          <div className="mx-auto flex w-full max-w-7xl items-center gap-4">
+            {/* Hamburger — mobile only */}
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-foreground/70 transition-all hover:bg-muted md:hidden"
+              aria-label="Mở menu"
+            >
+              <Menu className="h-5 w-5" strokeWidth={2.5} />
+            </button>
 
-          {/* Hamburger — mobile only */}
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-foreground/70 transition-all hover:bg-muted md:hidden"
-            aria-label="Mở menu"
-          >
-            <Menu className="h-5 w-5" strokeWidth={2.5} />
-          </button>
+            <Link
+              to="/"
+              className="flex shrink-0 items-center gap-2.5 transition-transform hover:scale-[1.02]"
+            >
+              <span className="grid h-11 w-11 place-items-center rounded-full bg-primary text-lg text-white shadow-card ring-2 ring-white">
+                ★
+              </span>
+              <div className="text-left leading-tight">
+                <div className="font-display text-base font-extrabold text-primary leading-none">
+                  Trường Tiếng Việt
+                </div>
+                <div className="font-display text-base font-extrabold text-navy leading-none">
+                  Của Em
+                </div>
+              </div>
+            </Link>
 
-          <Link
-            to="/"
-            className="flex shrink-0 items-center gap-2.5 transition-transform hover:scale-[1.02]"
-          >
-            <img src={iconLogo} alt="Logo" className="h-12 w-12 rounded-xl object-cover shadow-card" />
-            <div className="text-left leading-tight">
-              <div className="font-display text-base font-extrabold text-primary leading-none">Trường Tiếng Việt</div>
-              <div className="font-display text-base font-extrabold text-navy leading-none">Của Em</div>
-            </div>
-          </Link>
+            {/* Desktop nav */}
+            <ul className="hidden flex-1 items-center justify-center gap-6 md:flex">
+              {tabs.map(({ to, label }) => {
+                const isActive = pathname === to || pathname.startsWith(`${to}/`);
 
-          {/* Desktop nav */}
-          <ul className="hidden flex-1 items-center justify-center gap-1 md:flex">
-            {tabs.map(({ to, label, Icon }) => {
-              const isActive = pathname === to || pathname.startsWith(`${to}/`);
+                return (
+                  <li key={to}>
+                    <Link
+                      to={to}
+                      className={[
+                        "border-b-2 pb-0.5 text-sm font-bold transition-colors",
+                        isActive
+                          ? "border-primary text-primary"
+                          : "border-transparent text-foreground/70 hover:text-foreground",
+                      ].join(" ")}
+                    >
+                      {label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
 
-              return (
-                <li key={to}>
-                  <Link
-                    to={to}
-                    className={[
-                      "flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition-all",
-                      isActive
-                        ? "bg-primary text-white shadow-sm"
-                        : "text-foreground/70 hover:bg-muted hover:text-foreground",
-                    ].join(" ")}
-                  >
-                    <Icon className="h-4 w-4" strokeWidth={2.5} />
-                    <span>{label}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+            <div className="ml-auto flex shrink-0 items-center gap-2">
+              {isLoading && <div className="h-9 w-9 animate-pulse rounded-full bg-muted sm:w-28" />}
 
-          <div className="ml-auto flex shrink-0 items-center gap-2">
-            {isLoading && (
-              <div className="h-9 w-9 animate-pulse rounded-full bg-muted sm:w-28" />
-            )}
+              {!isLoading && !user && (
+                <button
+                  onClick={() => setAuthOpen(true)}
+                  className="flex items-center gap-2 rounded-full bg-secondary px-5 py-2 text-sm font-bold text-secondary-foreground shadow-bevel-yellow transition-all hover:brightness-105 active:translate-y-0.5 active:shadow-bevel-yellow-active"
+                >
+                  <User className="h-4 w-4" strokeWidth={2.5} />
+                  <span className="hidden sm:inline">Đăng nhập</span>
+                </button>
+              )}
 
-            {!isLoading && !user && (
-              <button
-                onClick={() => setAuthOpen(true)}
-                className="flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-primary/90 hover:shadow-md"
-              >
-                <User className="h-4 w-4" strokeWidth={2.5} />
-                <span className="hidden sm:inline">Đăng nhập</span>
-              </button>
-            )}
-
-            {!isLoading && user && (
-              <DropdownMenu modal={false}>
-                <DropdownMenuTrigger asChild>
-                  <button className="relative h-9 w-9 overflow-hidden rounded-full bg-primary text-sm font-bold text-white shadow-sm ring-2 ring-transparent transition-all hover:ring-primary/40">
-                    {avatarUrl ? (
-                      <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
-                    ) : avatarEmoji ? (
-                      <span className="grid h-full w-full place-items-center text-lg">{avatarEmoji}</span>
-                    ) : (
-                      <span className="grid h-full w-full place-items-center">{avatarLetter}</span>
+              {!isLoading && user && (
+                <DropdownMenu modal={false}>
+                  <DropdownMenuTrigger asChild>
+                    <button className="relative h-9 w-9 overflow-hidden rounded-full bg-primary text-sm font-bold text-white shadow-sm ring-2 ring-transparent transition-all hover:ring-primary/40">
+                      {avatarUrl ? (
+                        <img
+                          src={avatarUrl}
+                          alt="Avatar"
+                          className="h-full w-full object-cover"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : avatarEmoji ? (
+                        <span className="grid h-full w-full place-items-center text-lg">
+                          {avatarEmoji}
+                        </span>
+                      ) : (
+                        <span className="grid h-full w-full place-items-center">
+                          {avatarLetter}
+                        </span>
+                      )}
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-52">
+                    <DropdownMenuLabel className="font-bold text-navy truncate">
+                      {displayName}
+                    </DropdownMenuLabel>
+                    {myUsername && (
+                      <DropdownMenuItem asChild>
+                        <Link
+                          to="/u/$username"
+                          params={{ username: myUsername }}
+                          className="flex cursor-pointer items-center"
+                        >
+                          <UserCircle className="mr-2 h-4 w-4" />
+                          Trang cá nhân
+                        </Link>
+                      </DropdownMenuItem>
                     )}
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-52">
-                  <DropdownMenuLabel className="font-bold text-navy truncate">
-                    {displayName}
-                  </DropdownMenuLabel>
-                  {myUsername && (
-                    <DropdownMenuItem asChild>
-                      <Link
-                        to="/u/$username"
-                        params={{ username: myUsername }}
-                        className="flex cursor-pointer items-center"
-                      >
-                        <UserCircle className="mr-2 h-4 w-4" />
-                        Trang cá nhân
-                      </Link>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={signOut}
+                      className="cursor-pointer text-destructive focus:text-destructive"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Đăng xuất
                     </DropdownMenuItem>
-                  )}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={signOut}
-                    className="cursor-pointer text-destructive focus:text-destructive"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Đăng xuất
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
           </div>
         </nav>
       </header>
@@ -169,10 +183,18 @@ export function Navbar() {
         {/* Sidebar header */}
         <div className="flex items-center justify-between border-b px-5 py-4">
           <Link to="/" onClick={closeSidebar} className="flex items-center gap-2.5">
-            <img src={iconLogo} alt="Logo" className="h-10 w-10 rounded-xl object-cover shadow-card" />
+            <img
+              src={iconLogo}
+              alt="Logo"
+              className="h-10 w-10 rounded-xl object-cover shadow-card"
+            />
             <div className="text-left leading-tight">
-              <div className="font-display text-sm font-extrabold text-primary leading-none">Trường Tiếng Việt</div>
-              <div className="font-display text-sm font-extrabold text-navy leading-none">Của Em</div>
+              <div className="font-display text-sm font-extrabold text-primary leading-none">
+                Trường Tiếng Việt
+              </div>
+              <div className="font-display text-sm font-extrabold text-navy leading-none">
+                Của Em
+              </div>
             </div>
           </Link>
           <button
@@ -213,39 +235,44 @@ export function Navbar() {
 
         {/* Sidebar footer — user actions */}
         <div className="border-t px-3 py-4">
-          {isLoading && (
-            <div className="h-12 animate-pulse rounded-2xl bg-muted" />
-          )}
-          {!isLoading && (user ? (
-            <div className="flex flex-col gap-1">
-              {myUsername && (
-                <Link
-                  to="/u/$username"
-                  params={{ username: myUsername }}
-                  onClick={closeSidebar}
-                  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-foreground/70 hover:bg-muted hover:text-foreground transition-all"
+          {isLoading && <div className="h-12 animate-pulse rounded-2xl bg-muted" />}
+          {!isLoading &&
+            (user ? (
+              <div className="flex flex-col gap-1">
+                {myUsername && (
+                  <Link
+                    to="/u/$username"
+                    params={{ username: myUsername }}
+                    onClick={closeSidebar}
+                    className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-foreground/70 hover:bg-muted hover:text-foreground transition-all"
+                  >
+                    <UserCircle className="h-5 w-5 shrink-0" strokeWidth={2.5} />
+                    <span>Trang cá nhân</span>
+                  </Link>
+                )}
+                <button
+                  onClick={() => {
+                    signOut();
+                    closeSidebar();
+                  }}
+                  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-destructive hover:bg-destructive/10 transition-all"
                 >
-                  <UserCircle className="h-5 w-5 shrink-0" strokeWidth={2.5} />
-                  <span>Trang cá nhân</span>
-                </Link>
-              )}
+                  <LogOut className="h-5 w-5 shrink-0" strokeWidth={2.5} />
+                  <span>Đăng xuất</span>
+                </button>
+              </div>
+            ) : (
               <button
-                onClick={() => { signOut(); closeSidebar(); }}
-                className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-destructive hover:bg-destructive/10 transition-all"
+                onClick={() => {
+                  setAuthOpen(true);
+                  closeSidebar();
+                }}
+                className="flex w-full items-center gap-3 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-primary/90"
               >
-                <LogOut className="h-5 w-5 shrink-0" strokeWidth={2.5} />
-                <span>Đăng xuất</span>
+                <User className="h-5 w-5 shrink-0" strokeWidth={2.5} />
+                <span>Đăng nhập</span>
               </button>
-            </div>
-          ) : (
-            <button
-              onClick={() => { setAuthOpen(true); closeSidebar(); }}
-              className="flex w-full items-center gap-3 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-primary/90"
-            >
-              <User className="h-5 w-5 shrink-0" strokeWidth={2.5} />
-              <span>Đăng nhập</span>
-            </button>
-          ))}
+            ))}
         </div>
       </aside>
 

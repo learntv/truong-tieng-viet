@@ -4,6 +4,7 @@ import { Loader2, Trophy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { AirmailStripe, HandNote } from "@/components/decor";
 
 export const Route = createFileRoute("/bang-xep-hang")({
   head: () => ({
@@ -52,16 +53,23 @@ function BangXepHang() {
     <div className="flex min-h-screen flex-col">
       <Navbar />
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8 sm:px-6">
-
         {/* Card */}
-        <div className="overflow-hidden rounded-3xl border-2 border-slate-200 bg-white shadow-bevel-neutral">
+        <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-card">
           {/* Header */}
-          <div className="relative overflow-hidden border-b-2 border-primary/70 bg-primary px-6 pb-7 pt-8 text-center">
-            <div className="relative inline-flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-white bg-white mb-3 shadow-bevel-neutral">
+          <div className="relative overflow-hidden bg-primary px-6 pb-7 pt-0 text-center">
+            <AirmailStripe className="h-1.5" />
+            <div className="relative mt-7 inline-flex h-16 w-16 items-center justify-center rounded-full border-2 border-dashed border-white/70 bg-white shadow-card">
               <Trophy className="h-8 w-8 text-primary" strokeWidth={2.5} />
             </div>
-            <h1 className="relative font-display text-3xl font-extrabold text-white leading-tight">Bảng xếp hạng</h1>
-            <p className="relative text-sm font-semibold text-white/80 mt-1">Những học sinh chăm chỉ nhất trường.</p>
+            <h1 className="relative mt-3 font-display text-3xl font-extrabold leading-tight text-white">
+              Bảng xếp hạng
+            </h1>
+            <p className="relative mt-1 text-sm font-semibold text-white/80">
+              Những học sinh chăm chỉ nhất trường.
+            </p>
+            <HandNote className="relative mt-1 block text-xl text-white/90">
+              Cố lên các em nhé! ★
+            </HandNote>
           </div>
 
           {/* List */}
@@ -73,7 +81,9 @@ function BangXepHang() {
             <div className="p-12 text-center">
               <div className="text-5xl mb-3">🌱</div>
               <p className="font-display text-lg font-bold text-navy">Chưa có học sinh nào!</p>
-              <p className="text-sm text-muted-foreground mt-1">Hãy là người đầu tiên bắt đầu học nhé.</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Hãy là người đầu tiên bắt đầu học nhé.
+              </p>
             </div>
           ) : (
             <div className="divide-y divide-border/60 px-2 py-2 sm:px-3">
@@ -94,17 +104,28 @@ function BangXepHang() {
                       {rankStyle ? (
                         <span className="text-2xl leading-none">{rankStyle.emoji}</span>
                       ) : (
-                        <span className="font-display text-sm font-bold text-muted-foreground">{rank}</span>
+                        <span className="font-display text-sm font-bold text-muted-foreground">
+                          {rank}
+                        </span>
                       )}
                     </div>
 
                     {/* Avatar */}
-                    <div className={[
-                      "h-10 w-10 shrink-0 rounded-full overflow-hidden flex items-center justify-center font-extrabold font-display shadow-sm ring-2 ring-white",
-                      profile.avatar_url || profile.avatar_emoji ? "bg-sky/30" : avatarColor(avatarLetter),
-                    ].join(" ")}>
+                    <div
+                      className={[
+                        "h-10 w-10 shrink-0 rounded-full overflow-hidden flex items-center justify-center font-extrabold font-display shadow-sm ring-2 ring-white",
+                        profile.avatar_url || profile.avatar_emoji
+                          ? "bg-sky/30"
+                          : avatarColor(avatarLetter),
+                      ].join(" ")}
+                    >
                       {profile.avatar_url ? (
-                        <img src={profile.avatar_url} alt="Avatar" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+                        <img
+                          src={profile.avatar_url}
+                          alt="Avatar"
+                          className="h-full w-full object-cover"
+                          referrerPolicy="no-referrer"
+                        />
                       ) : profile.avatar_emoji ? (
                         <span className="text-xl">{profile.avatar_emoji}</span>
                       ) : (
@@ -115,7 +136,9 @@ function BangXepHang() {
                     {/* Name + username */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 min-w-0">
-                        <span className="font-display font-bold text-navy truncate">{profile.display_name}</span>
+                        <span className="font-display font-bold text-navy truncate">
+                          {profile.display_name}
+                        </span>
                         {profile.country && (
                           <img
                             src={`https://flagcdn.com/w40/${profile.country.toLowerCase()}.png`}
@@ -131,8 +154,12 @@ function BangXepHang() {
 
                     {/* Score */}
                     <div className="shrink-0 text-right">
-                      <div className="font-display text-lg font-extrabold text-navy leading-none">{profile.completed_count}</div>
-                      <div className="text-[10px] font-semibold text-muted-foreground leading-tight">bài xong</div>
+                      <div className="font-display text-lg font-extrabold text-navy leading-none">
+                        {profile.completed_count}
+                      </div>
+                      <div className="text-[10px] font-semibold text-muted-foreground leading-tight">
+                        bài xong
+                      </div>
                     </div>
                   </Link>
                 );
@@ -140,7 +167,6 @@ function BangXepHang() {
             </div>
           )}
         </div>
-
       </main>
       <Footer />
     </div>
