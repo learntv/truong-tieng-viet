@@ -1,4 +1,3 @@
-import { Facebook, Youtube, Twitter, Music2, Send } from "lucide-react";
 import boLogo from "@/assets/uy-ban.png";
 import cvcecLogo from "@/assets/cvcec.jpg";
 import { Logo } from "@/components/Logo";
@@ -9,42 +8,12 @@ export function Footer() {
   return (
     <footer className="mt-8 bg-navy text-white/70">
       <div className="py-12">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 sm:px-6 md:grid-cols-4">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 sm:px-6 md:grid-cols-3">
           <div className="flex flex-col gap-4">
             <Logo size="sm" light />
             <p className="text-sm leading-relaxed text-white/60">
               Nền tảng học tiếng Việt dành cho trẻ em Việt Nam tiểu học ở trong và ngoài nước.
             </p>
-            <div className="flex items-center gap-3">
-              <a
-                href="#"
-                aria-label="Facebook"
-                className="grid h-8 w-8 place-items-center rounded-full bg-white/10 text-white/80 transition-transform hover:scale-110 hover:bg-white/20"
-              >
-                <Facebook className="h-4 w-4" strokeWidth={2} />
-              </a>
-              <a
-                href="#"
-                aria-label="YouTube"
-                className="grid h-8 w-8 place-items-center rounded-full bg-white/10 text-white/80 transition-transform hover:scale-110 hover:bg-white/20"
-              >
-                <Youtube className="h-4 w-4" strokeWidth={2} />
-              </a>
-              <a
-                href="#"
-                aria-label="Twitter/X"
-                className="grid h-8 w-8 place-items-center rounded-full bg-white/10 text-white/80 transition-transform hover:scale-110 hover:bg-white/20"
-              >
-                <Twitter className="h-4 w-4" strokeWidth={2} />
-              </a>
-              <a
-                href="#"
-                aria-label="TikTok"
-                className="grid h-8 w-8 place-items-center rounded-full bg-white/10 text-white/80 transition-transform hover:scale-110 hover:bg-white/20"
-              >
-                <Music2 className="h-4 w-4" strokeWidth={2} />
-              </a>
-            </div>
             <div className="flex items-center gap-3">
               <img
                 src={boLogo}
@@ -85,25 +54,6 @@ export function Footer() {
             </ul>
           </div>
 
-          <div>
-            <h4 className="mb-2 font-display text-sm font-extrabold text-white">
-              Kết nối với chúng tôi
-            </h4>
-            <p className="mb-4 text-sm text-white/60">
-              Nhận tin tức và tài liệu mới nhất cho bé yêu của bạn.
-            </p>
-            <div className="flex flex-col gap-2 lg:flex-row">
-              <input
-                type="email"
-                placeholder="Nhập email của bạn"
-                className="w-full rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm text-white placeholder:text-white/40 focus:border-primary focus:outline-none lg:flex-1"
-              />
-              <button className="flex shrink-0 items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-bold text-white transition-all hover:bg-primary/90">
-                <Send className="h-3.5 w-3.5" strokeWidth={2.5} />
-                <span>Đăng ký</span>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 

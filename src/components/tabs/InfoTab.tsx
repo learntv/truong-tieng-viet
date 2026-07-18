@@ -115,12 +115,9 @@ export function InfoTab() {
             alt=""
             className="mx-auto mb-4 h-14 w-14 object-contain"
           />
-          <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary">
-            <Info className="h-4 w-4" strokeWidth={2.5} />
+          <h3 className="inline-flex items-center gap-2 font-display text-2xl font-extrabold text-navy sm:text-3xl">
+            <Info className="h-6 w-6 text-primary sm:h-7 sm:w-7" strokeWidth={2.5} />
             Lời cảm ơn
-          </span>
-          <h3 className="mt-2 font-display text-2xl font-extrabold text-navy sm:text-3xl">
-            Thân gửi các em
           </h3>
           <p className="mx-auto mt-4 max-w-2xl text-[15px] leading-relaxed text-muted-foreground sm:text-base">
             Ban quản lý dự án xin được gửi lời cảm ơn chân thành tới{" "}
