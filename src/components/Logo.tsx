@@ -1,8 +1,9 @@
 import { cn } from "@/lib/utils";
+import buffaloIcon from "@/assets/buffalo-icon.png";
 
 const SIZES = {
-  sm: { badge: "h-10 w-10 text-base", text: "text-sm" },
-  md: { badge: "h-11 w-11 text-lg", text: "text-base" },
+  sm: { badge: "h-10 w-10", text: "text-sm" },
+  md: { badge: "h-11 w-11", text: "text-base" },
 };
 
 export function Logo({
@@ -17,14 +18,12 @@ export function Logo({
   const { badge, text } = SIZES[size];
   return (
     <div className={cn("flex shrink-0 items-center gap-2.5", className)}>
-      <span
-        className={cn(
-          "grid place-items-center rounded-full bg-primary text-white shadow-card",
-          badge,
-        )}
-      >
-        ★
-      </span>
+      <img
+        src={buffaloIcon}
+        alt=""
+        aria-hidden="true"
+        className={cn("shrink-0 object-contain", badge)}
+      />
       <div className="text-left leading-tight">
         <div
           className={cn(

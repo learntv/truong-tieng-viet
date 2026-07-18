@@ -10,7 +10,7 @@ import { Toaster } from "sonner";
 import { useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import iconUrl from "../assets/icon.png";
+import iconUrl from "../assets/buffalo-icon.png";
 import { ErrorScreen, NotFoundScreen } from "@/components/ErrorScreen";
 import { useAuth } from "@/hooks/useAuth";
 import { ProfileSetupModal } from "@/components/ProfileSetupModal";
