@@ -16,6 +16,7 @@ import {
 import { useSpeakingProgress } from "@/hooks/useSpeakingProgress";
 import { STAGE_COLORS } from "@/components/learning/stageColors";
 import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
+import { Mascot } from "@/components/Mascot";
 import { useSingletonAudio } from "@/hooks/useSingletonAudio";
 import { ttsSrc } from "@/lib/tts/text";
 import { RecordButton } from "./RecordButton";
@@ -405,7 +406,14 @@ export function SpeakingPractice({
           })()}
 
           {showGraded && !grading && (
-            <div className="mb-6 flex justify-center">
+            <div className="mb-6 flex items-center justify-center gap-3">
+              {/* Trâu con reacts to the attempt — never disappointed, just
+                thoughtful when it did not land, so a miss stays encouraging. */}
+              <Mascot
+                pose={result.stars === 3 ? "cheer" : result.stars > 0 ? "thumbs-up" : "thinking"}
+                size="sm"
+                decorative
+              />
               <StarRow stars={result.stars} />
             </div>
           )}

@@ -8,6 +8,7 @@ import pho from "@/assets/symbols/pho.png";
 import hoaSen from "@/assets/symbols/hoa-sen.png";
 import { Card } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
+import { Mascot } from "@/components/Mascot";
 
 const ROWS = [
   {
@@ -104,38 +105,54 @@ export function InfoTab() {
       </div>
 
       <div className="w-full bg-navy px-4 py-16 sm:px-6 sm:py-24">
-        <SectionHeader align="center" title="Lộ trình học thú vị" light className="mb-10 sm:mb-12" />
+        <SectionHeader
+          align="center"
+          title="Lộ trình học thú vị"
+          light
+          className="mb-10 sm:mb-12"
+        />
         <InfoStats />
       </div>
 
       <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24">
-        <Card className="relative overflow-hidden px-6 py-10 text-center sm:px-16 sm:py-14">
-          <img
-            src={hoaSen}
-            alt=""
-            className="mx-auto mb-4 h-14 w-14 object-contain"
+        {/* Trâu con peeks over the top edge of the letter. He sits on this
+          wrapper because the Card itself clips its children, and his height is
+          kept under the section's top padding so he never reaches the band
+          above. */}
+        <div className="relative">
+          {/* translate-y drops him a few px onto the card's top edge, and z-10
+            keeps him in front of it so his paws rest on the letter instead of
+            disappearing behind the border. */}
+          <Mascot
+            pose="peeking-over"
+            decorative
+            className="pointer-events-none absolute bottom-full right-8 z-10 h-16 translate-y-[6px] sm:h-20"
           />
-          <h3 className="inline-flex items-center gap-2 font-display text-2xl font-extrabold text-navy sm:text-3xl">
-            <Info className="h-6 w-6 text-primary sm:h-7 sm:w-7" strokeWidth={2.5} />
-            Lời cảm ơn
-          </h3>
-          <p className="mx-auto mt-4 max-w-2xl text-[15px] leading-relaxed text-muted-foreground sm:text-base">
-            Ban quản lý dự án xin được gửi lời cảm ơn chân thành tới{" "}
-            <strong className="font-bold text-foreground">
-              Ủy ban Nhà nước về người Việt Nam ở nước ngoài - Bộ Ngoại giao
-            </strong>{" "}
-            nước Cộng hòa xã hội chủ nghĩa Việt Nam đã luôn đồng hành và định hướng. Chúng tôi xin
-            gửi lời tri ân sâu sắc tới các Đại sứ quán, các cơ quan ban ngành tại Việt Nam và
-            Canada, cùng Mạng lưới giảng dạy tiếng Việt đã tạo điều kiện và hỗ trợ quý báu để dự án{" "}
-            <strong className="font-bold text-foreground">
-              &quot;Trường Tiếng Việt Của Em&quot;
-            </strong>{" "}
-            được hoàn thiện và đi vào vận hành. Sự đồng hành của quý vị là nguồn động lực to lớn
-            giúp chúng tôi gìn giữ và lan tỏa ngôn ngữ, văn hóa Việt đến với thế hệ trẻ tại Canada
-            nói riêng và trên toàn thế giới nói chung.
-          </p>
-          <p className="mt-5 text-sm font-semibold text-muted-foreground">— Ban quản lý dự án</p>
-        </Card>
+          <Card className="relative overflow-hidden px-6 py-10 text-center sm:px-16 sm:py-14">
+            <img src={hoaSen} alt="" className="mx-auto mb-4 h-14 w-14 object-contain" />
+            <h3 className="inline-flex items-center gap-2 font-display text-2xl font-extrabold text-navy sm:text-3xl">
+              <Info className="h-6 w-6 text-primary sm:h-7 sm:w-7" strokeWidth={2.5} />
+              Lời cảm ơn
+            </h3>
+            <p className="mx-auto mt-4 max-w-2xl text-[15px] leading-relaxed text-muted-foreground sm:text-base">
+              Ban quản lý dự án xin được gửi lời cảm ơn chân thành tới{" "}
+              <strong className="font-bold text-foreground">
+                Ủy ban Nhà nước về người Việt Nam ở nước ngoài - Bộ Ngoại giao
+              </strong>{" "}
+              nước Cộng hòa xã hội chủ nghĩa Việt Nam đã luôn đồng hành và định hướng. Chúng tôi xin
+              gửi lời tri ân sâu sắc tới các Đại sứ quán, các cơ quan ban ngành tại Việt Nam và
+              Canada, cùng Mạng lưới giảng dạy tiếng Việt đã tạo điều kiện và hỗ trợ quý báu để dự
+              án{" "}
+              <strong className="font-bold text-foreground">
+                &quot;Trường Tiếng Việt Của Em&quot;
+              </strong>{" "}
+              được hoàn thiện và đi vào vận hành. Sự đồng hành của quý vị là nguồn động lực to lớn
+              giúp chúng tôi gìn giữ và lan tỏa ngôn ngữ, văn hóa Việt đến với thế hệ trẻ tại Canada
+              nói riêng và trên toàn thế giới nói chung.
+            </p>
+            <p className="mt-5 text-sm font-semibold text-muted-foreground">— Ban quản lý dự án</p>
+          </Card>
+        </div>
       </div>
     </div>
   );

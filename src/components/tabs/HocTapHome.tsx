@@ -5,7 +5,7 @@ import quyen2Cover from "@/assets/quyen_2_cover.jpg";
 import aImg from "@/assets/alphabet/a.png";
 import bImg from "@/assets/alphabet/b.png";
 import cImg from "@/assets/alphabet/c.png";
-import trau from "@/assets/symbols/trau.png";
+import { Mascot } from "@/components/Mascot";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -20,11 +20,7 @@ export function HocTapHome() {
           </span>
 
           <div className="mt-4 flex items-center gap-4">
-            <img
-              src={trau}
-              alt="Trâu con đội nón lá"
-              className="h-20 w-auto shrink-0 animate-bob object-contain sm:h-28"
-            />
+            <Mascot pose="reading" decorative className="h-20 sm:h-28" />
             <div className="min-w-0">
               <h1 className="font-display text-2xl font-extrabold leading-tight text-navy sm:text-4xl">
                 Em muốn học gì hôm nay? 🌟

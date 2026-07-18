@@ -7,7 +7,7 @@ import { type SpeakingProgress } from "@/lib/speaking-progress";
 import { useSpeakingContent } from "@/hooks/useSpeakingContent";
 import { useSpeakingProgress } from "@/hooks/useSpeakingProgress";
 import { STAGE_COLORS } from "@/components/learning/stageColors";
-import trauCon from "@/assets/trau-con.png";
+import { Mascot } from "@/components/Mascot";
 
 export const Route = createFileRoute("/hoc-tap/luyen-noi")({
   head: () => ({
@@ -152,7 +152,7 @@ function TopicPicker() {
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       {/* Hero */}
       <div className="mb-8 flex flex-col items-center gap-3 text-center">
-        <img src={trauCon} alt="Trâu con đội nón lá" className="h-24 w-auto animate-bob" />
+        <Mascot pose="listening" size="md" bob decorative />
         <h1 className="font-display text-3xl font-extrabold text-navy">
           Luyện nói cùng Trâu con 🎤
         </h1>

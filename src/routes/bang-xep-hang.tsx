@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Trophy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Mascot } from "@/components/Mascot";
 
 export const Route = createFileRoute("/bang-xep-hang")({
   head: () => ({
@@ -49,7 +50,16 @@ function BangXepHang() {
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-12 sm:px-6">
       {/* Card */}
-      <div className="overflow-hidden rounded-3xl border border-border/60 bg-card shadow-card">
+      <div className="relative">
+        {/* Trâu con cheers the board on from the side. Hidden on narrow screens,
+          where there is no room beside the card for him to sit. */}
+        <Mascot
+          pose="cheer"
+          decorative
+          bob
+          className="pointer-events-none absolute left-full top-16 ml-6 hidden h-32 lg:block"
+        />
+        <div className="overflow-hidden rounded-3xl border border-border/60 bg-card shadow-card">
         {/* Header */}
         <div className="bg-primary px-6 py-8 text-center">
           <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-card">
@@ -70,7 +80,7 @@ function BangXepHang() {
             </div>
           ) : !profiles || profiles.length === 0 ? (
             <div className="p-12 text-center">
-              <div className="text-5xl mb-3">🌱</div>
+              <Mascot pose="wave" decorative className="mx-auto mb-3 h-24" />
               <p className="font-display text-lg font-bold text-navy">Chưa có học sinh nào!</p>
               <p className="text-sm text-muted-foreground mt-1">
                 Hãy là người đầu tiên bắt đầu học nhé.
@@ -157,6 +167,7 @@ function BangXepHang() {
               })}
             </div>
           )}
+        </div>
       </div>
     </main>
   );

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
 import { reportLovableError } from "@/lib/lovable-error-reporting";
 import { Button } from "@/components/ui/button";
+import { Mascot } from "@/components/Mascot";
 
 // Shared error/404 screens for both the router's defaultErrorComponent and the
 // root route's errorComponent/notFoundComponent, so every boundary reports to
@@ -17,6 +18,7 @@ export function ErrorScreen({ error, reset }: { error: Error; reset: () => void 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
+        <Mascot pose="crying" size="md" decorative className="mx-auto mb-4" />
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
           Trang này chưa tải được
         </h1>
@@ -46,6 +48,7 @@ export function NotFoundScreen() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
+        <Mascot pose="thinking" size="lg" decorative className="mx-auto mb-2" />
         <h1 className="text-7xl font-bold text-foreground">404</h1>
         <h2 className="mt-4 text-xl font-semibold text-foreground">Không tìm thấy trang</h2>
         <p className="mt-2 text-sm text-muted-foreground">
