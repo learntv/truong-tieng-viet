@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Check, Lock, MapPin, Undo2 } from "lucide-react";
+import { Check, HelpCircle, Lock, MapPin, Undo2 } from "lucide-react";
 import type { ChuDeWithChangs } from "@/lib/learning";
 import { isChuDeComplete } from "@/lib/learning";
 import type { ChangProgress } from "@/hooks/useUserProgress";
@@ -12,11 +12,26 @@ import { ConfettiBurst } from "./ConfettiBurst";
 import { BuffaloMascot } from "./BuffaloMascot";
 import { loadBuffaloPos } from "@/components/tabs/LearningTab";
 import overworldArt from "@/assets/quyen1-overworld.jpg";
+import cachHocBanner from "@/assets/cach-hoc-3-buoc.png";
 
 // Number of landmark completions the child has already been congratulated for on this map. Kept
 // in sessionStorage (not local) so the confetti fires once per visit-after-a-win rather than
 // every time they bounce back from a lesson.
 const MAP_CELEBRATED_KEY = "vui-hoc-map-celebrated";
+
+// The three-step "how this works" tutorial is a first-visit-only overlay. Once the child taps
+// "Khám phá ngay" it never comes back, so this flag lives in localStorage (survives reloads and
+// new sessions), unlike the per-visit celebration flag above.
+const TUTORIAL_SEEN_KEY = "vui-hoc-map-tutorial-seen";
+
+function hasSeenTutorial(): boolean {
+  try {
+    return localStorage.getItem(TUTORIAL_SEEN_KEY) === "1";
+  } catch {
+    // localStorage unavailable (private mode) — show the tutorial rather than hiding it
+    return false;
+  }
+}
 
 // "locked" = the content exists but an earlier chủ đề gates it; "coming-soon" = the chủ đề
 // hasn't been written yet. Both read as closed, but they need different copy — telling a child
@@ -46,6 +61,27 @@ export function OverworldMap({
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
+
+  // Read the flag lazily so the overlay never flashes on a repeat visit.
+  const [showTutorial, setShowTutorial] = useState(() => !hasSeenTutorial());
+  const dismissTutorial = () => {
+    setShowTutorial(false);
+    try {
+      localStorage.setItem(TUTORIAL_SEEN_KEY, "1");
+    } catch {
+      // localStorage unavailable — the tutorial will show again next visit
+    }
+  };
+
+  // Escape closes it too, the same as tapping the backdrop or the button.
+  useEffect(() => {
+    if (!showTutorial) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") dismissTutorial();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [showTutorial]);
 
   // Every landmark is drawn, including ones whose chủ đề hasn't been written yet — those show
   // as "sắp có" so the child can see the whole journey ahead of them, not a map that grows.
@@ -126,6 +162,20 @@ export function OverworldMap({
   return (
     <section className="w-full">
       <div className="w-full px-3 pt-8 pb-8 sm:px-4 sm:pt-12">
+        <p className="mx-auto mb-4 flex max-w-7xl items-center justify-center gap-2 text-center text-xs text-muted-foreground sm:text-sm">
+          <span>Mỗi địa danh là một chủ đề — chạm vào địa danh để vừa khám phá vừa học nhé!</span>
+          {/* Reopens the three-step tutorial for a child who dismissed it and wants it back. */}
+          <button
+            type="button"
+            onClick={() => setShowTutorial(true)}
+            aria-label="Xem lại hướng dẫn"
+            title="Xem lại hướng dẫn"
+            className="grid h-6 w-6 shrink-0 cursor-pointer place-items-center rounded-full bg-primary/10 text-primary transition hover:bg-primary/20 active:translate-y-[1px]"
+          >
+            <HelpCircle className="h-4 w-4" strokeWidth={2.75} />
+          </button>
+        </p>
+
         <div className="relative z-20 mx-auto flex max-w-7xl flex-col overflow-hidden rounded-[1.75rem] border border-border shadow-card ring-1 ring-black/[0.03]">
           {/* Map stage. On phones the artwork keeps a readable size and the card scrolls
               sideways, the same affordance the chủ đề roadmap already uses. */}
@@ -350,11 +400,38 @@ export function OverworldMap({
             </div>
           </div>
         </div>
-
-        <p className="mx-auto mt-4 max-w-7xl text-center text-xs text-muted-foreground sm:text-sm">
-          Chạm vào một địa danh trên bản đồ để bắt đầu chủ đề của em.
-        </p>
       </div>
+
+      {/* First-visit tutorial: dims the whole page, shows the three steps, and goes away for
+          good once the child taps through. */}
+      {showTutorial && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Cách học ba bước"
+          className="animate-modal-overlay-in fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4"
+          onClick={dismissTutorial}
+        >
+          <div
+            className="animate-modal-pop-in flex w-full max-w-2xl flex-col items-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={cachHocBanner}
+              alt="Ba bước học: 1. Khám phá địa danh — 2. Hoàn thành bài học — 3. Nhận con dấu"
+              className="w-full rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.45)]"
+            />
+            <Button
+              variant="bevel-primary"
+              autoFocus
+              onClick={dismissTutorial}
+              className="mt-6 px-8 text-base"
+            >
+              Em đã hiểu
+            </Button>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

@@ -6,13 +6,12 @@ import {
   learningStructureQueryOptions,
   quyen1ChuDes,
 } from "@/lib/learning";
-import { RoadmapMap, NODE_POSITIONS } from "@/components/learning/RoadmapMap";
+import { RoadmapList } from "@/components/learning/RoadmapList";
 import { RoadmapSkeleton } from "@/components/learning/RoadmapSkeleton";
 import { buildSlides } from "@/components/learning/LessonPage";
 import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
 import { Button } from "@/components/ui/button";
-
 
 export const BUFFALO_POS_KEY = "vui-hoc-buffalo-pos";
 
@@ -73,24 +72,6 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
   const [currentChangIndex, setCurrentChangIndex] = useState(seedChangIndex);
   const { authIsLoading, activeProgressMap, isProgressLoading } = useLearningProgress();
 
-  const [selectedChangIndex, setSelectedChangIndex] = useState<number | null>(seedChangIndex);
-  const [buffaloChangIndex, setBuffaloChangIndex] = useState(seedChangIndex);
-
-  // The roadmap renders exactly NODE_POSITIONS.length nodes per topic. A topic with more
-  // stages in the DB silently hides the extras; fewer renders empty cards. Warn so a
-  // content-shape change is caught in the console instead of by a confused user.
-  useEffect(() => {
-    if (!data) return;
-    for (const { chuDe, changs: topicChangs } of data) {
-      if (topicChangs.length !== NODE_POSITIONS.length) {
-        console.warn(
-          `[roadmap] Topic "${chuDe.title}" has ${topicChangs.length} stages but the map ` +
-            `renders exactly ${NODE_POSITIONS.length} — extra stages are hidden, missing ones show empty cards.`,
-        );
-      }
-    }
-  }, [data]);
-
   // Restore the stage *within* the current chủ đề once data + progress are ready. The chủ đề
   // itself is pinned by the URL (source of truth), so this never navigates to a *different* chủ
   // đề — refreshing or deep-linking to a chủ đề keeps you exactly there. Cross-chủ-đề "resume
@@ -103,8 +84,6 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
 
     const setStage = (changIdx: number) => {
       setCurrentChangIndex(changIdx);
-      setBuffaloChangIndex(changIdx);
-      setSelectedChangIndex(changIdx);
     };
 
     const firstIncompleteWithin = (ti: number) => {
@@ -114,7 +93,9 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
         return prog && !prog.isCompleted && prog.noiDungIndex > 0;
       });
       if (inProgress !== -1) return inProgress;
-      const firstIncomplete = topicChangs.findIndex((ch) => !activeProgressMap.get(ch.id)?.isCompleted);
+      const firstIncomplete = topicChangs.findIndex(
+        (ch) => !activeProgressMap.get(ch.id)?.isCompleted,
+      );
       if (firstIncomplete !== -1) return firstIncomplete;
       return Math.max(0, topicChangs.length - 1);
     };
@@ -137,7 +118,11 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
         return;
       }
       // Saved stage is completed or locked — discard stale position
-      try { sessionStorage.removeItem(BUFFALO_POS_KEY); } catch { /* ignore */ }
+      try {
+        sessionStorage.removeItem(BUFFALO_POS_KEY);
+      } catch {
+        /* ignore */
+      }
     }
 
     setStage(firstIncompleteWithin(currentChuDeIndex));
@@ -229,18 +214,24 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
     if (!allEverythingDone) return;
     try {
       if (localStorage.getItem(CELEBRATION_SEEN_KEY)) return;
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     setShowCelebration(true);
   }, [allEverythingDone]);
   const dismissCelebration = () => {
     setShowCelebration(false);
-    try { localStorage.setItem(CELEBRATION_SEEN_KEY, "1"); } catch { /* ignore */ }
+    try {
+      localStorage.setItem(CELEBRATION_SEEN_KEY, "1");
+    } catch {
+      /* ignore */
+    }
   };
 
   if (isLoading || authIsLoading || isProgressLoading) {
     return (
       <section className="min-h-[70vh] w-full">
-        <RoadmapSkeleton chuDeIndex={currentChuDeIndex} />
+        <RoadmapSkeleton />
       </section>
     );
   }
@@ -261,18 +252,15 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
   return (
     <section className="w-full" id="roadmap-start">
       <div className="relative w-full">
-        <RoadmapMap
+        <RoadmapList
           chuDe={currentTopic}
           chuDeIndex={currentChuDeIndex}
           isLocked={isCurrentLocked}
           changTitles={changTitles}
           changEmojis={changEmojis}
           currentChangIndex={currentChangIndex}
-          buffaloChangIndex={buffaloChangIndex}
           completedChangs={completedChangs}
           startedChangs={startedChangs}
-          selectedChangIndex={selectedChangIndex}
-          onSelectStage={(i) => { setSelectedChangIndex(i); setBuffaloChangIndex(i); }}
           onOpenLesson={openChang}
           changProgress={changProgress}
         />
@@ -280,7 +268,11 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
       {showCelebration && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
           <div className="relative w-full max-w-md rounded-3xl border-2 border-black/10 bg-white p-8 text-center shadow-[0_4px_0_0_rgba(0,0,0,0.12)]">
-            <ConfettiBurst onDone={() => { /* keep card visible until user dismisses */ }} />
+            <ConfettiBurst
+              onDone={() => {
+                /* keep card visible until user dismisses */
+              }}
+            />
             <p className="font-display text-xl font-extrabold text-navy sm:text-2xl">
               🎉 Em đã hoàn thành cả lộ trình! Em giỏi lắm!
             </p>
@@ -293,4 +285,3 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
     </section>
   );
 }
-

@@ -4,7 +4,7 @@ import { Check, Volume2, X } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { ALPHABET, type AlphabetLetter, type AlphabetWord } from "@/data/alphabet";
 import { loadAlphabetProgress, markLetterSeen } from "@/lib/alphabet-progress";
-import { STAGE_COLORS } from "@/components/learning/StageCard";
+import { STAGE_COLORS } from "@/components/learning/stageColors";
 import { useSingletonAudio } from "@/hooks/useSingletonAudio";
 import { ttsSrc } from "@/lib/tts/text";
 

@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { learningStructureQueryOptions, quyen1ChuDes } from "@/lib/learning";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
 import { OverworldMap } from "@/components/learning/OverworldMap";
-import { RoadmapSkeleton } from "@/components/learning/RoadmapSkeleton";
+import { OverworldSkeleton } from "@/components/learning/RoadmapSkeleton";
 
 // "/hoc-tap/quyen-1" is the hub of the book: an overworld map of Việt Nam with one landmark per
 // chủ đề. Moving between chủ đề goes through this map rather than a stepper, so the child always
@@ -16,7 +16,7 @@ function RouteComponent() {
   const { data, isLoading, error } = useQuery(learningStructureQueryOptions);
   const { authIsLoading, activeProgressMap, isProgressLoading } = useLearningProgress();
 
-  if (isLoading || authIsLoading || isProgressLoading) return <RoadmapSkeleton />;
+  if (isLoading || authIsLoading || isProgressLoading) return <OverworldSkeleton />;
 
   const chuDes = quyen1ChuDes(data);
 

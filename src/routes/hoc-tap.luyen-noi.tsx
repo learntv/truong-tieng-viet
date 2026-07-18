@@ -6,7 +6,7 @@ import { extractSpeakingSentences } from "@/lib/speech";
 import { type SpeakingProgress } from "@/lib/speaking-progress";
 import { useSpeakingContent } from "@/hooks/useSpeakingContent";
 import { useSpeakingProgress } from "@/hooks/useSpeakingProgress";
-import { STAGE_COLORS } from "@/components/learning/StageCard";
+import { STAGE_COLORS } from "@/components/learning/stageColors";
 import trauCon from "@/assets/trau-con.png";
 
 export const Route = createFileRoute("/hoc-tap/luyen-noi")({

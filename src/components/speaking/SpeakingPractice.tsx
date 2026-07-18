@@ -14,7 +14,7 @@ import {
   type WordMatch,
 } from "@/lib/speech";
 import { useSpeakingProgress } from "@/hooks/useSpeakingProgress";
-import { STAGE_COLORS } from "@/components/learning/StageCard";
+import { STAGE_COLORS } from "@/components/learning/stageColors";
 import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
 import { useSingletonAudio } from "@/hooks/useSingletonAudio";
 import { ttsSrc } from "@/lib/tts/text";

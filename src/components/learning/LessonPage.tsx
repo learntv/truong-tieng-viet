@@ -15,7 +15,7 @@ import { useLearningContent } from "@/hooks/useLearningContent";
 import { useSingletonAudio } from "@/hooks/useSingletonAudio";
 import type { Bai, Hinh, NoiDung } from "@/lib/learning";
 import { joinForSpeech, ttsSrc } from "@/lib/tts/text";
-import { STAGE_COLORS } from "./StageCard";
+import { STAGE_COLORS } from "./stageColors";
 import { ConfettiBurst } from "./ConfettiBurst";
 import { ImageHighlightOverlay } from "./ImageHighlightOverlay";
 import { useLearningProgress } from "@/hooks/useLearningProgress";

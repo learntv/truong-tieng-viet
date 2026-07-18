@@ -25,6 +25,11 @@ export type Landmark = {
   photo: string;
   /** One kid-sized sentence about the place — keep it short enough to read at a glance. */
   blurb: string;
+  /**
+   * A fuller two-to-three sentence version of `blurb`, for the chủ đề page header where there's
+   * room to say more. Same voice as `blurb` — still written for a child.
+   */
+  description: string;
 };
 
 export const QUYEN1_LANDMARKS: Landmark[] = [
@@ -35,6 +40,8 @@ export const QUYEN1_LANDMARKS: Landmark[] = [
     y: 25,
     photo: halongPhoto,
     blurb: "Hàng nghìn hòn đảo đá nhô lên giữa làn nước xanh biếc ở Quảng Ninh.",
+    description:
+      "Vịnh Hạ Long nằm ở tỉnh Quảng Ninh, nơi hàng nghìn hòn đảo đá vôi nhô lên giữa làn nước xanh biếc. Trong lòng các hòn đảo là những hang động tuyệt đẹp đã hình thành qua hàng triệu năm. Vịnh được UNESCO công nhận là Di sản Thiên nhiên Thế giới.",
   },
   {
     chuDeIndex: 1,
@@ -43,6 +50,8 @@ export const QUYEN1_LANDMARKS: Landmark[] = [
     y: 80,
     photo: hoiAnPhoto,
     blurb: "Phố cổ bên sông Hoài, rực rỡ đèn lồng đủ màu mỗi khi đêm xuống.",
+    description:
+      "Phố cổ Hội An nằm bên sông Hoài, tỉnh Quảng Nam, với những ngôi nhà gỗ mái ngói đã hơn bốn trăm năm tuổi. Mỗi khi đêm xuống, cả khu phố rực rỡ ánh đèn lồng đủ màu và người ta thả hoa đăng trôi trên sông. Đây cũng là một Di sản Văn hóa Thế giới.",
   },
   {
     chuDeIndex: 2,
@@ -51,6 +60,8 @@ export const QUYEN1_LANDMARKS: Landmark[] = [
     y: 52,
     photo: landmark81Photo,
     blurb: "Thành phố lớn nhất nước ta, nơi có toà nhà Landmark 81 cao nhất Việt Nam.",
+    description:
+      "Thành phố Hồ Chí Minh là thành phố lớn nhất và nhộn nhịp nhất nước ta, nằm bên sông Sài Gòn. Giữa những con đường tấp nập là toà nhà Landmark 81 cao tới 81 tầng — toà nhà cao nhất Việt Nam. Nơi đây có chợ Bến Thành và rất nhiều món ăn ngon.",
   },
   {
     chuDeIndex: 3,
@@ -59,5 +70,7 @@ export const QUYEN1_LANDMARKS: Landmark[] = [
     y: 33,
     photo: cauVangPhoto,
     blurb: "Cây cầu vàng trên núi Bà Nà, Đà Nẵng, được hai bàn tay đá khổng lồ nâng đỡ.",
+    description:
+      "Cầu Vàng nằm trên đỉnh núi Bà Nà, thành phố Đà Nẵng, cao hơn một nghìn mét so với mặt biển. Cây cầu được hai bàn tay đá khổng lồ nâng đỡ, trông như bàn tay của các vị thần đưa cầu lên giữa mây trời. Cầu khánh thành năm 2018 và nhanh chóng nổi tiếng khắp thế giới.",
   },
 ];
