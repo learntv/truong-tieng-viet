@@ -18,8 +18,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { upsertProfile, generateUsername } from "@/lib/profile";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProgress } from "@/hooks/useUserProgress";
-import { useBadges } from "@/hooks/useBadges";
-import { BADGES } from "@/data/badges";
 import { BadgeCollection } from "@/components/learning/BadgeCollection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -744,6 +742,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
           userId={user.id}
           title="🏅 Huy hiệu của em"
           emptyHint="Em chưa có huy hiệu nào. Học hết một chủ đề để nhận huy hiệu đầu tiên nhé!"
+          zoomable
         />
 
         {/* Account actions */}
@@ -840,9 +839,6 @@ function PublicView({ username }: { username: string }) {
     staleTime: 60_000,
   });
 
-  const { earnedSlugs } = useBadges(profile?.id ?? null);
-  const badgeCount = BADGES.filter((b) => earnedSlugs.has(b.slug)).length;
-
   if (isLoading) {
     return (
       <div className="min-h-screen">
@@ -931,22 +927,13 @@ function PublicView({ username }: { username: string }) {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="mb-6">
           <div className="rounded-2xl p-4 text-center ring-1 ring-border shadow-card bg-stage-1-soft">
             <div className="text-2xl mb-1">🎯</div>
             <div className="font-display text-2xl font-extrabold text-navy leading-none">
               {profile.completed_count}
             </div>
             <div className="text-xs font-semibold mt-1 text-muted-foreground">Bài hoàn thành</div>
-          </div>
-          <div className="rounded-2xl p-4 text-center ring-1 ring-border shadow-card bg-stage-4-soft">
-            <div className="text-2xl mb-1">🏅</div>
-            <div className="font-display text-xl font-extrabold text-navy leading-none">
-              {badgeCount}/{BADGES.length}
-            </div>
-            <div className="text-xs font-semibold mt-1 text-muted-foreground">
-              Huy hiệu đã sưu tầm
-            </div>
           </div>
         </div>
 
@@ -955,6 +942,7 @@ function PublicView({ username }: { username: string }) {
           userId={profile.id}
           title="🏅 Huy hiệu"
           emptyHint="Bạn này chưa sưu tầm được huy hiệu nào."
+          showLocked={false}
         />
 
         <p className="text-center text-xs text-muted-foreground pb-4">

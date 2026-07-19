@@ -5,6 +5,9 @@ const SIZES = {
   sm: "h-16 w-16",
   md: "h-24 w-24",
   lg: "h-32 w-32",
+  // The artwork is 256px square, so this is the largest size that still renders it crisply on a
+  // high-density screen.
+  xl: "h-44 w-44",
 } as const;
 
 /**

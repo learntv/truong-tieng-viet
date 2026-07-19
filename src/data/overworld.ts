@@ -117,33 +117,33 @@ export const QUYEN1_LANDMARKS: Landmark[] = [
   },
   {
     chuDeIndex: 2,
-    name: "Thành phố Hồ Chí Minh",
+    name: "Toà nhà Landmark 81",
     x: 55,
     y: 52,
     photo: landmark81Photo,
-    blurb: "Thành phố lớn nhất nước ta, nơi có toà nhà Landmark 81 cao nhất Việt Nam.",
+    blurb: "Toà nhà cao nhất Việt Nam, đứng bên sông Sài Gòn ở Thành phố Hồ Chí Minh.",
     description:
-      "Thành phố Hồ Chí Minh là thành phố lớn nhất và nhộn nhịp nhất nước ta, nằm bên sông Sài Gòn. Giữa những con đường tấp nập là toà nhà Landmark 81 cao tới 81 tầng — toà nhà cao nhất Việt Nam. Nơi đây có chợ Bến Thành và rất nhiều món ăn ngon.",
+      "Toà nhà Landmark 81 đứng bên sông Sài Gòn ở Thành phố Hồ Chí Minh, cao 81 tầng và hơn bốn trăm sáu mươi mét — cao nhất Việt Nam. Nhìn từ xa, toà nhà trông như một bó tre vươn thẳng lên trời. Trên tầng cao nhất có đài quan sát để ngắm cả thành phố.",
     discovery: {
       facts: [
-        { icon: "🏙️", label: "Landmark 81", value: "81 tầng" },
-        { icon: "👨‍👩‍👧", label: "Dân số", value: "hơn 9 triệu" },
-        { icon: "🌊", label: "Bên dòng", value: "sông Sài Gòn" },
+        { icon: "🏢", label: "Số tầng", value: "81 tầng" },
+        { icon: "📏", label: "Chiều cao", value: "461 mét" },
+        { icon: "🎉", label: "Khánh thành", value: "năm 2018" },
       ],
       intro: {
-        heading: "Thành phố không bao giờ ngủ",
+        heading: "Toà nhà cao nhất Việt Nam",
         paragraphs: [
-          "Thành phố Hồ Chí Minh là thành phố đông dân nhất nước ta, với hơn chín triệu người sinh sống. Đường phố lúc nào cũng tấp nập xe cộ, hàng quán mở tới khuya và đèn sáng suốt đêm.",
-          "Giữa thành phố, bên sông Sài Gòn, toà nhà Landmark 81 vươn lên cao hơn bốn trăm sáu mươi mét — cao nhất Việt Nam. Đứng trên tầng quan sát, cả thành phố thu lại bé như một mô hình đồ chơi.",
+          "Bên sông Sài Gòn, toà nhà Landmark 81 vươn lên cao hơn bốn trăm sáu mươi mét với đúng 81 tầng. Không toà nhà nào ở nước ta cao hơn nó. Khi vừa xây xong năm 2018, đây còn là toà nhà cao nhất cả vùng Đông Nam Á.",
+          "Đứng trên đài quan sát ở những tầng trên cùng, em sẽ thấy cả thành phố thu lại bé xíu như một mô hình đồ chơi, còn dòng sông Sài Gòn thì uốn lượn như một dải lụa.",
         ],
       },
       deep: {
-        heading: "Thành phố có một thành phố khác ở dưới lòng đất",
-        teaser: "Cách trung tâm vài chục ki-lô-mét có một nơi người ta từng sống hoàn toàn dưới đất…",
+        heading: "Một bó tre khổng lồ",
+        teaser: "Hình dáng toà nhà được lấy cảm hứng từ một thứ rất quen thuộc với người Việt…",
         paragraphs: [
-          "Ở huyện Củ Chi có hệ thống địa đạo dài tới hai trăm năm mươi ki-lô-mét, đào bằng tay trong lòng đất suốt nhiều năm. Dưới đó có phòng họp, bếp, giếng nước và cả bệnh xá. Khói bếp được dẫn đi thật xa rồi mới thoát lên, để trên mặt đất không ai đoán được bên dưới có người.",
-          "Trên mặt đất, chợ Bến Thành với tháp đồng hồ quen thuộc đã đứng đó từ năm 1914 và tới nay vẫn là nơi mua bán nhộn nhịp nhất thành phố.",
-          "Thành phố còn có tên gọi thân thương là Sài Gòn, và người ta hay bảo rằng đây là nơi 'đất lành chim đậu' — ai từ đâu tới cũng có thể sống được, làm được và tìm được món ăn quê mình.",
+          "Các kiến trúc sư đã lấy cảm hứng từ bó tre để tạo hình toà nhà. Từng khối nhà bó chặt vào nhau rồi cùng vươn lên, giống hệt những cây tre mọc thành bụi. Người Việt mình vẫn bảo một cây tre thì dễ gãy, nhưng cả bó tre thì không ai bẻ nổi.",
+          "Để đỡ được toà nhà cao như vậy, người ta phải đổ móng thật sâu xuống lòng đất và làm việc suốt nhiều ngày đêm không nghỉ, vì bê tông phần móng phải được đổ liên tục một mạch cho thật chắc.",
+          "Buổi tối, toà nhà bật đèn sáng rực và trở thành thứ dễ nhận ra nhất trên bầu trời thành phố — ai đi xa về, chỉ cần nhìn thấy Landmark 81 là biết mình đã tới Sài Gòn.",
         ],
       },
     },

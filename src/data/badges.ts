@@ -54,7 +54,7 @@ export const BADGES: Badge[] = [
   },
   {
     slug: "landmark-81",
-    name: "Tòa nhà Landmark 81",
+    name: "Toà nhà Landmark 81",
     art: landmark81Badge,
     howToEarn: COMPLETE_CHU_DE,
     chuDeIndex: 2,
