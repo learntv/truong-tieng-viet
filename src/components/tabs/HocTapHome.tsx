@@ -1,11 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, BookOpen, Layers, Lock, Mic, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, Layers, Lock, Sparkles } from "lucide-react";
 import quyen1Cover from "@/assets/quyen_1_cover.jpg";
 import quyen2Cover from "@/assets/quyen_2_cover.jpg";
 import aImg from "@/assets/alphabet/a.png";
 import bImg from "@/assets/alphabet/b.png";
 import cImg from "@/assets/alphabet/c.png";
-import { Mascot } from "@/components/Mascot";
+import { Mascot, type MascotPose } from "@/components/Mascot";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -75,7 +75,7 @@ export function HocTapHome() {
               title="Luyện nói"
               description="Nghe cô đọc mẫu, nói theo và nhận sao khích lệ cho từng câu."
               tone="stage-3"
-              icon={<Mic className="h-8 w-8 text-white" strokeWidth={2.5} />}
+              mascotPose="listening"
             />
           </div>
         </div>
@@ -188,14 +188,18 @@ function ActivityCard({
   tone,
   icon,
   letterImages,
+  mascotPose,
 }: {
   to: "/hoc-tap/bang-chu-cai" | "/hoc-tap/luyen-noi";
   eyebrow: string;
   title: string;
   description: string;
   tone: "stage-2" | "stage-3";
-  icon: React.ReactNode;
+  // Exactly one of these fills the tile: a lucide icon, a row of letter art,
+  // or Trâu con in a pose that hints at the activity.
+  icon?: React.ReactNode;
   letterImages?: string[];
+  mascotPose?: MascotPose;
 }) {
   return (
     <Link to={to}>
@@ -212,6 +216,14 @@ function ActivityCard({
                 <img key={i} src={src} alt="" className="h-10 w-auto object-contain sm:h-12" />
               ))}
             </div>
+          ) : mascotPose ? (
+            // Sits flush on the tile's bottom edge so he stands on it rather
+            // than floating in the middle of the square.
+            <Mascot
+              pose={mascotPose}
+              decorative
+              className="h-[4.5rem] translate-y-1 sm:h-[5.5rem]"
+            />
           ) : (
             icon
           )}

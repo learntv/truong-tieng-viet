@@ -127,6 +127,76 @@ export function normalizeSpoken(s: string): string {
     .trim();
 }
 
+// Vietnamese STT writes numbers as digits: say "ba" and Chrome transcribes "3",
+// which then never matches the lesson's written "ba". Spelling digits back out
+// (both sides, so a target written "3" works too) makes the two comparable.
+const DIGIT_WORDS = [
+  "không",
+  "một",
+  "hai",
+  "ba",
+  "bốn",
+  "năm",
+  "sáu",
+  "bảy",
+  "tám",
+  "chín",
+] as const;
+
+function spellNumber(n: number): string {
+  if (n < 10) return DIGIT_WORDS[n];
+  if (n < 100) {
+    const [tens, ones] = [Math.floor(n / 10), n % 10];
+    const head = tens === 1 ? "mười" : `${DIGIT_WORDS[tens]} mươi`;
+    if (ones === 0) return head;
+    // Spoken quirks: 21 is "mốt" not "một", 25 is "lăm" not "năm".
+    if (ones === 1 && tens > 1) return `${head} mốt`;
+    if (ones === 5) return `${head} lăm`;
+    return `${head} ${DIGIT_WORDS[ones]}`;
+  }
+  const hundreds = `${DIGIT_WORDS[Math.floor(n / 100)]} trăm`;
+  const rest = n % 100;
+  if (rest === 0) return hundreds;
+  // 105 is "một trăm linh năm" — the zero tens slot gets a filler word.
+  if (rest < 10) return `${hundreds} linh ${DIGIT_WORDS[rest]}`;
+  return `${hundreds} ${spellNumber(rest)}`;
+}
+
+/** Replaces digit-only tokens (0–999) with their spoken Vietnamese words. */
+export function expandNumeralsToWords(s: string): string {
+  return s
+    .split(/\s+/)
+    .map((tok) => (/^\d{1,3}$/.test(tok) ? spellNumber(Number(tok)) : tok))
+    .join(" ");
+}
+
+// "hai mươi tư" and "hai mươi bốn" are the same number; likewise "nhăm"/"lăm".
+// Only folded right after a tens word, so the ordinary words "tư" and "năm"
+// (as in "tư duy", "năm nay") are left alone.
+function foldNumberVariants(tokens: string[]): string[] {
+  const VARIANTS: Record<string, string> = { tư: "bốn", nhăm: "lăm", năm: "lăm" };
+  return tokens.map((tok, i) => {
+    const prev = tokens[i - 1];
+    if (prev !== "mươi" && prev !== "mười") return tok;
+    return VARIANTS[tok] ?? tok;
+  });
+}
+
+// Comparison tokens must stay 1:1 with the sentence's words (the UI highlights
+// per word), so only expansions that are a single word are folded in — "3" and
+// "10" become "ba"/"mười", while "25" stays "25" and matches the other side's
+// "25". Applied to target and transcript alike.
+function comparableTokens(s: string): string[] {
+  const tokens = normalizeSpoken(s)
+    .split(" ")
+    .filter(Boolean)
+    .map((tok) => {
+      const spelled = expandNumeralsToWords(tok);
+      return spelled.includes(" ") ? tok : spelled;
+    });
+  return foldNumberVariants(tokens);
+}
+
 export type CharMatch = { char: string; ok: boolean };
 
 export type WordMatch = {
@@ -254,7 +324,7 @@ export function compareSentence(
   spoken: string,
 ): { ratio: number; words: WordMatch[]; spokenWords: SpokenWord[] } {
   const rawTokens = target.split(/\s+/).filter(Boolean);
-  const spokenTokens = normalizeSpoken(spoken).split(" ").filter(Boolean);
+  const spokenTokens = comparableTokens(spoken);
   // Original casing, for display — assumed to line up 1:1 with spokenTokens
   // (holds unless the transcript has a token that's pure punctuation, which
   // STT output essentially never produces).
@@ -264,7 +334,7 @@ export function compareSentence(
   const consideredIdx: number[] = [];
   const consideredNorms: string[] = [];
   rawTokens.forEach((raw, idx) => {
-    const norm = normalizeSpoken(raw);
+    const norm = comparableTokens(raw).join(" ");
     if (norm) {
       consideredIdx.push(idx);
       consideredNorms.push(norm);
@@ -290,7 +360,7 @@ export function compareSentence(
 
   let matchedCount = 0;
   const words: WordMatch[] = rawTokens.map((raw, idx) => {
-    const norm = normalizeSpoken(raw);
+    const norm = comparableTokens(raw).join(" ");
     if (!norm) return { word: raw, matched: true };
 
     const ci = consideredIdx.indexOf(idx);
@@ -312,10 +382,16 @@ export function compareSentence(
   const considered = consideredIdx.length;
   const ratio = considered > 0 ? matchedCount / (considered + extraCount) : 0;
 
-  const spokenWords: SpokenWord[] = spokenTokens.map((tok, j) => ({
-    word: rawSpokenTokens[j] ?? tok,
-    extra: !usedSpokenIdx.has(j),
-  }));
+  // Show the spelled-out form for anything the transcript wrote as digits —
+  // the child said "ba", so echoing "3" back at them under "Con đã nói" reads
+  // as a mistake they didn't make.
+  const spokenWords: SpokenWord[] = spokenTokens.map((tok, j) => {
+    const raw = rawSpokenTokens[j];
+    return {
+      word: raw == null || /\d/.test(raw) ? tok : raw,
+      extra: !usedSpokenIdx.has(j),
+    };
+  });
 
   return { ratio, words, spokenWords };
 }

@@ -1,23 +1,30 @@
 import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
 
 import { cn } from "@/lib/utils";
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   interactive?: boolean;
+  /** Render the card's styling onto its child instead of a wrapper <div> —
+   *  lets a <button> or <a> BE the card, without nesting interactive elements. */
+  asChild?: boolean;
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, interactive, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn(
-        "rounded-2xl border border-border/60 bg-card text-card-foreground shadow-card",
-        interactive && "transition-shadow hover:shadow-card-hover",
-        className,
-      )}
-      {...props}
-    />
-  ),
+  ({ className, interactive, asChild, ...props }, ref) => {
+    const Comp = asChild ? Slot : "div";
+    return (
+      <Comp
+        ref={ref}
+        className={cn(
+          "rounded-2xl border border-border/60 bg-card text-card-foreground shadow-card",
+          interactive && "transition-shadow hover:shadow-card-hover",
+          className,
+        )}
+        {...props}
+      />
+    );
+  },
 );
 Card.displayName = "Card";
 

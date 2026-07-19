@@ -1,7 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, Volume2, X } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Mascot } from "@/components/Mascot";
+import { BackLink } from "@/components/BackLink";
 import { ALPHABET, type AlphabetLetter, type AlphabetWord } from "@/data/alphabet";
 import { loadAlphabetProgress, markLetterSeen } from "@/lib/alphabet-progress";
 import { STAGE_COLORS } from "@/components/learning/stageColors";
@@ -101,32 +106,41 @@ function BangChuCaiTab() {
   };
 
   return (
-    <main className="relative flex-1 overflow-hidden pb-24 animate-in fade-in slide-in-from-bottom-2 duration-300">
-      <SkyClouds />
-
+    <main className="pb-24 animate-in fade-in slide-in-from-bottom-2 duration-300">
       <div className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        {/* Hero + progress card */}
-        <div className="mx-auto mb-8 max-w-sm rounded-3xl bg-white p-5 text-center shadow-soft sm:p-6">
-          <h1 className="font-display text-3xl font-extrabold text-navy">Bảng chữ cái 🎈</h1>
-          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-            Bấm vào từng chữ để gặp bạn thú, nghe cách đọc và học từ mới nhé!
-          </p>
-
-          <div className="mt-5">
-            <div className="mb-1.5 flex items-center justify-between text-xs font-bold text-navy/70">
-              <span>Đã khám phá</span>
-              <span>
-                {seenCount}/{total} chữ
-              </span>
-            </div>
-            <div className="h-3 w-full overflow-hidden rounded-full bg-muted shadow-inner ring-1 ring-black/5">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-green-400 to-sky-400 transition-all duration-500 ease-out"
-                style={{ width: `${total > 0 ? (seenCount / total) * 100 : 0}%` }}
-              />
+        {/* Pinned to the page's top-left gutter — out of the flow, so it costs
+            the content no vertical space. */}
+        <BackLink
+          to="/hoc-tap"
+          label="Quay lại học tập"
+          className="absolute left-4 top-8 z-10 sm:left-6"
+        />
+        {/* Hero + progress — same Card/Mascot header the other học tập pages use */}
+        <Card className="mx-auto mb-8 max-w-2xl p-6 sm:p-8">
+          <div className="flex items-center gap-4">
+            <Mascot pose="reading" decorative className="h-20 sm:h-28" />
+            <div className="min-w-0 flex-1">
+              <h1 className="font-display text-2xl font-extrabold leading-tight text-navy sm:text-4xl">
+                Bảng chữ cái 🎈
+              </h1>
+              <p className="mt-1 max-w-md text-sm text-muted-foreground sm:text-base">
+                Bấm vào từng chữ để gặp bạn thú, nghe cách đọc và học từ mới nhé!
+              </p>
             </div>
           </div>
-        </div>
+
+          <div className="mt-5">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                Đã khám phá
+              </span>
+              <Badge variant="stage-1">
+                {seenCount}/{total} chữ
+              </Badge>
+            </div>
+            <Progress tone="stage-1" value={total > 0 ? (seenCount / total) * 100 : 0} />
+          </div>
+        </Card>
 
         {/* Letter grid */}
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-5">
@@ -149,43 +163,6 @@ function BangChuCaiTab() {
   );
 }
 
-function SkyClouds() {
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      <Cloud className="left-[4%] top-6 h-10 w-24 opacity-90 sm:h-14 sm:w-32" />
-      <Cloud
-        className="right-[6%] top-16 h-8 w-20 opacity-80 sm:h-11 sm:w-28"
-        style={{ animationDelay: "0.6s" }}
-      />
-      <Cloud
-        className="left-[20%] top-40 h-7 w-16 opacity-70 sm:h-9 sm:w-20"
-        style={{ animationDelay: "1.2s" }}
-      />
-      <Cloud
-        className="right-[18%] top-52 h-9 w-20 opacity-70 sm:h-12 sm:w-28"
-        style={{ animationDelay: "0.3s" }}
-      />
-      <Cloud
-        className="left-[45%] top-4 h-6 w-14 opacity-60 sm:h-8 sm:w-20"
-        style={{ animationDelay: "1.6s" }}
-      />
-    </div>
-  );
-}
-
-function Cloud({ className, style }: { className?: string; style?: CSSProperties }) {
-  return (
-    <div className={["absolute animate-float-slow", className].join(" ")} style={style}>
-      <div className="relative h-full w-full">
-        <div className="absolute inset-x-0 bottom-0 h-3/5 rounded-full bg-stage-2-soft" />
-        <div className="absolute bottom-1/4 left-0 h-4/5 w-2/5 rounded-full bg-stage-2-soft" />
-        <div className="absolute bottom-1/3 right-0 h-3/5 w-2/5 rounded-full bg-stage-2-soft" />
-        <div className="absolute bottom-1/3 left-1/3 h-full w-2/5 rounded-full bg-stage-2-soft" />
-      </div>
-    </div>
-  );
-}
-
 function LetterCard({
   letter,
   isSeen,
@@ -196,24 +173,30 @@ function LetterCard({
   onClick: () => void;
 }) {
   return (
-    <button
-      onClick={onClick}
-      className="group relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl border-2 border-black/5 bg-white p-1.5 transition-all duration-200 ease-bounce hover:-translate-y-1 hover:border-primary/20 hover:animate-wiggle active:scale-95 sm:p-2"
+    <Card
+      asChild
+      interactive
+      className="group relative aspect-square transition-[transform,box-shadow] ease-bounce hover:-translate-y-1 active:translate-y-0"
     >
-      {isSeen && (
-        <span className="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-green-500 shadow-sm">
-          <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />
+      <button
+        onClick={onClick}
+        className="flex cursor-pointer flex-col items-center justify-center gap-1 p-1.5 sm:p-2"
+      >
+        {isSeen && (
+          <span className="absolute -right-1.5 -top-1.5 grid h-6 w-6 place-items-center rounded-full border-2 border-card bg-stage-1 shadow-card">
+            <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />
+          </span>
+        )}
+        <img
+          src={LETTER_IMAGES[letter.id]}
+          alt={`Bạn thú chữ ${letter.letter}`}
+          className="h-1/2 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+        />
+        <span className="font-display text-xl font-extrabold text-navy sm:text-2xl">
+          {letter.letter.toUpperCase()}/{letter.letter}
         </span>
-      )}
-      <img
-        src={LETTER_IMAGES[letter.id]}
-        alt={`Bạn thú chữ ${letter.letter}`}
-        className="h-1/2 w-auto object-contain drop-shadow-sm"
-      />
-      <span className="font-display text-xl font-extrabold text-navy sm:text-2xl">
-        {letter.letter.toUpperCase()}/{letter.letter}
-      </span>
-    </button>
+      </button>
+    </Card>
   );
 }
 
@@ -243,9 +226,10 @@ function LetterSoundButton({
         onClick={play}
         aria-label={`Nghe đọc chữ ${label}`}
         className={[
-          "flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-white transition active:scale-95",
+          "grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full text-white",
+          "transition-[transform,box-shadow,filter] duration-150 ease-bounce hover:brightness-110 active:translate-y-[2px]",
           color.gradient,
-          "shadow-[0_4px_12px_rgba(0,0,0,0.2)] hover:brightness-110",
+          "shadow-card",
         ].join(" ")}
       >
         <Volume2 className="h-5 w-5" />
@@ -270,17 +254,14 @@ function WordRow({ word, color }: { word: AlphabetWord; color: StageColor }) {
         onClick={play}
         aria-label={`Nghe đọc: ${word.vi}`}
         className={[
-          "group flex cursor-pointer items-center gap-4 rounded-2xl p-3.5 text-left transition active:scale-95",
+          "group flex cursor-pointer items-center gap-4 rounded-2xl p-3.5 text-left",
+          "transition-[transform,filter] duration-150 ease-bounce hover:brightness-95 active:translate-y-[2px]",
           color.bgSoft,
-          "hover:brightness-95",
         ].join(" ")}
       >
         <span className="text-3xl transition-transform group-hover:scale-110">{word.emoji}</span>
         <span className="flex-1">
-          <span className="flex items-baseline gap-1.5">
-            <span className="font-display text-base font-extrabold text-navy">{word.vi}</span>
-            <span className="text-xs italic text-navy/50">/{word.pronunciation}/</span>
-          </span>
+          <span className="block font-display text-base font-extrabold text-navy">{word.vi}</span>
           <span className="block text-sm text-muted-foreground">{word.en}</span>
         </span>
       </button>
@@ -305,29 +286,32 @@ function LetterDetailDialog({
     <Dialog open={!!letter} onOpenChange={onOpenChange}>
       <DialogContent
         hideCloseButton
-        className="max-w-3xl overflow-hidden rounded-3xl border-none bg-white p-0 shadow-soft sm:rounded-[2.5rem]"
+        className="max-h-[92vh] w-[calc(100%-1.5rem)] max-w-3xl gap-0 overflow-hidden border-0 bg-card p-0"
       >
-        <DialogClose className="absolute right-4 top-4 z-10 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-destructive text-white shadow-card transition hover:bg-destructive/90 active:scale-95">
+        <DialogClose className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white/90 text-navy shadow-[0_2px_0_0_rgba(0,0,0,0.15)] ring-1 ring-black/10 transition hover:scale-105">
           <X className="h-5 w-5" strokeWidth={2.5} />
           <span className="sr-only">Đóng</span>
         </DialogClose>
         {letter && (
-          <div className="flex flex-col sm:flex-row">
-            {/* Left: mascot on a soft colored background */}
+          <div className="flex max-h-[92vh] flex-col overflow-y-auto sm:flex-row sm:overflow-hidden">
+            {/* Left: the letter's animal friend on a soft stage-colored panel */}
             <div
-              className={["flex items-center justify-center p-10 sm:w-2/5", color.bgSoft].join(" ")}
+              className={[
+                "flex shrink-0 items-center justify-center p-8 sm:w-2/5 sm:p-10",
+                color.bgSoft,
+              ].join(" ")}
             >
               <img
                 src={LETTER_IMAGES[letter.id]}
                 alt={`Bạn thú chữ ${letter.letter}`}
-                className="h-56 w-auto object-contain drop-shadow-md animate-breathe sm:h-64"
+                className="h-40 w-auto animate-breathe object-contain sm:h-64"
               />
             </div>
 
-            {/* Right: header + sound icon, word list, on white background */}
-            <div className="flex flex-1 flex-col gap-6 bg-white p-8 text-center sm:text-left">
+            {/* Right: letter + sound button, then the word list */}
+            <div className="flex flex-1 flex-col gap-6 p-6 text-center sm:overflow-y-auto sm:p-8 sm:text-left">
               <div className="flex items-center justify-center gap-4 sm:justify-start">
-                <DialogTitle className="font-display text-5xl font-extrabold text-navy">
+                <DialogTitle className="font-display text-4xl font-extrabold text-navy sm:text-5xl">
                   {letter.letter.toUpperCase()}/{letter.letter}
                 </DialogTitle>
                 <LetterSoundButton text={letter.soundName} label={letter.letter} color={color} />

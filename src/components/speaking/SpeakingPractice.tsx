@@ -406,15 +406,21 @@ export function SpeakingPractice({
           })()}
 
           {showGraded && !grading && (
-            <div className="mb-6 flex items-center justify-center gap-3">
-              {/* Trâu con reacts to the attempt — never disappointed, just
-                thoughtful when it did not land, so a miss stays encouraging. */}
-              <Mascot
-                pose={result.stars === 3 ? "cheer" : result.stars > 0 ? "thumbs-up" : "thinking"}
-                size="sm"
-                decorative
-              />
-              <StarRow stars={result.stars} />
+            <div className="mb-6 flex justify-center">
+              {/* Stars stay centered on the card — the same spot they occupy
+                before grading — with Trâu con hung off their left edge so he
+                does not push them off-centre. He reacts to the attempt: never
+                disappointed, just thoughtful when it did not land, so a miss
+                stays encouraging. */}
+              <div className="relative">
+                <Mascot
+                  className="absolute right-full top-1/2 mr-3 -translate-y-1/2"
+                  pose={result.stars === 3 ? "cheer" : result.stars > 0 ? "thumbs-up" : "thinking"}
+                  size="sm"
+                  decorative
+                />
+                <StarRow stars={result.stars} />
+              </div>
             </div>
           )}
 

@@ -8,6 +8,7 @@ import { useSpeakingContent } from "@/hooks/useSpeakingContent";
 import { useSpeakingProgress } from "@/hooks/useSpeakingProgress";
 import { STAGE_COLORS } from "@/components/learning/stageColors";
 import { Mascot } from "@/components/Mascot";
+import { BackLink } from "@/components/BackLink";
 
 export const Route = createFileRoute("/hoc-tap/luyen-noi")({
   head: () => ({
@@ -149,7 +150,15 @@ function TopicPicker() {
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+    <div className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      {/* Pinned to the page's top-left gutter — out of the flow, so it costs
+          the content no vertical space. */}
+      <BackLink
+        to="/hoc-tap"
+        label="Quay lại học tập"
+        className="absolute left-4 top-8 z-10 sm:left-6"
+      />
+
       {/* Hero */}
       <div className="mb-8 flex flex-col items-center gap-3 text-center">
         <Mascot pose="listening" size="md" bob decorative />
