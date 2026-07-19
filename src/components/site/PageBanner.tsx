@@ -20,10 +20,24 @@ export function PageBanner({
 }) {
   return (
     <div className="relative -mt-[4.5rem] overflow-hidden bg-gradient-to-br from-primary via-maroon to-maroon-deep px-4 pb-12 pt-32 sm:px-6 sm:pb-16 sm:pt-36">
-      {/* Same squircle motif as the Lời cảm ơn band, bleeding off the corners. */}
+      {/* Soft radial washes rather than hard-edged blobs: each fades to fully
+        transparent, so the band reads as light falling across it instead of
+        two shapes sitting on top of it. */}
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute -right-24 -top-32 h-[24rem] w-[24rem] rotate-[20deg] rounded-[30%] bg-primary-glow/40 blur-[2px]" />
-        <div className="absolute -bottom-44 -left-28 h-[20rem] w-[20rem] rotate-[20deg] rounded-[30%] bg-gold/20 blur-[2px]" />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(60rem 26rem at 78% -20%, color-mix(in oklab, var(--primary-glow) 55%, transparent) 0%, transparent 65%)",
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(40rem 22rem at 12% 120%, color-mix(in oklab, var(--gold) 22%, transparent) 0%, transparent 60%)",
+          }}
+        />
       </div>
 
       <div className="relative mx-auto max-w-6xl text-center">
