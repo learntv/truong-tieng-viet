@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   KeyRound,
-  Lock,
   Loader2,
   RotateCcw,
   Globe,
+  ImagePlus,
   Pencil,
   Check,
   Home,
@@ -18,6 +18,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { upsertProfile, generateUsername } from "@/lib/profile";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProgress } from "@/hooks/useUserProgress";
+import { useBadges } from "@/hooks/useBadges";
+import { BADGES } from "@/data/badges";
+import { BadgeCollection } from "@/components/learning/BadgeCollection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -45,13 +48,6 @@ const AVATAR_COLORS = [
   "bg-stage-3 text-white",
   "bg-stage-4 text-white",
   "bg-stage-5 text-white",
-];
-
-const BADGES = [
-  { emoji: "🌱", label: "Người mới", sublabel: "Bắt đầu hành trình", threshold: 0 },
-  { emoji: "⭐", label: "Ngôi sao", sublabel: "Hoàn thành 1 bài", threshold: 1 },
-  { emoji: "🏆", label: "Siêu sao", sublabel: "Hoàn thành 5 bài", threshold: 5 },
-  { emoji: "🦸", label: "Anh hùng", sublabel: "Hoàn thành 10 bài", threshold: 10 },
 ];
 
 const COUNTRIES = [
@@ -170,6 +166,9 @@ function computeStreak(completedAts: string[]): { days: number; studiedToday: bo
 
 // ─── Avatar picker ────────────────────────────────────────────────────────────
 
+const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
+const ACCEPTED_AVATAR_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
 function AvatarPickerDialog({
   current,
   open,
@@ -179,13 +178,39 @@ function AvatarPickerDialog({
   current: string | undefined;
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  onSelect: (emoji: string) => void;
+  onSelect: (avatar: { emoji?: string; url?: string }) => void;
 }) {
   const [saving, setSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSelect = async (emoji: string) => {
-    setSaving(true);
-    const { error } = await supabase.auth.updateUser({ data: { avatar_emoji: emoji } });
+  // Emoji and uploaded picture are mutually exclusive — the renderer prefers avatar_url, so
+  // picking an emoji has to clear the URL or the choice would appear to do nothing.
+  const save = async (avatar: { emoji?: string; url?: string }) => {
+    const emoji = avatar.emoji ?? null;
+    const url = avatar.url ?? null;
+
+    // Retire any previously uploaded picture. Must happen before the profile row is
+    // overwritten below — the server finds the object to delete by reading the row's current
+    // avatar_url. Best-effort: a leaked object shouldn't block the user's choice.
+    if (!url) {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session) {
+          await fetch("/api/avatar", {
+            method: "DELETE",
+            headers: { authorization: `Bearer ${session.access_token}` },
+          });
+        }
+      } catch {
+        // Ignore — cleanup failure must not stop the avatar change.
+      }
+    }
+
+    const { error } = await supabase.auth.updateUser({
+      data: { avatar_emoji: emoji, avatar_url: url },
+    });
     if (!error) {
       const {
         data: { user },
@@ -199,18 +224,65 @@ function AvatarPickerDialog({
           userId: user.id,
           displayName: name,
           avatarEmoji: emoji,
-          avatarUrl: user.user_metadata?.avatar_url as string | undefined,
+          avatarUrl: url,
           country: user.user_metadata?.country as string | undefined,
         });
       }
     }
-    setSaving(false);
     if (error) {
       toast.error("Không thể lưu avatar", { description: error.message });
     } else {
-      onSelect(emoji);
+      onSelect(avatar);
       onOpenChange(false);
       toast.success("Đã lưu avatar!");
+    }
+  };
+
+  const handleSelect = async (emoji: string) => {
+    setSaving(true);
+    await save({ emoji });
+    setSaving(false);
+  };
+
+  const handleFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    // Reset immediately so re-picking the same file still fires a change event.
+    event.target.value = "";
+    if (!file) return;
+
+    if (!ACCEPTED_AVATAR_TYPES.includes(file.type)) {
+      toast.error("Ảnh phải là JPG, PNG, WebP hoặc GIF");
+      return;
+    }
+    if (file.size > MAX_AVATAR_BYTES) {
+      toast.error("Ảnh phải nhỏ hơn 2MB");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) throw new Error("Em cần đăng nhập lại");
+
+      const body = new FormData();
+      body.append("file", file);
+      const res = await fetch("/api/avatar", {
+        method: "POST",
+        headers: { authorization: `Bearer ${session.access_token}` },
+        body,
+      });
+      if (!res.ok) throw new Error(await res.text());
+
+      const { url } = (await res.json()) as { url: string };
+      await save({ url });
+    } catch (err) {
+      toast.error("Không thể tải ảnh lên", {
+        description: err instanceof Error ? err.message : undefined,
+      });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -222,6 +294,29 @@ function AvatarPickerDialog({
             Chọn avatar của em 🎨
           </DialogTitle>
         </DialogHeader>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={ACCEPTED_AVATAR_TYPES.join(",")}
+          onChange={handleFile}
+          className="hidden"
+        />
+        <Button
+          variant="outline"
+          disabled={saving}
+          onClick={() => fileInputRef.current?.click()}
+          className="w-full rounded-xl"
+        >
+          {saving ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <ImagePlus className="h-4 w-4" />
+          )}
+          Tải ảnh của em lên
+        </Button>
+        <p className="text-center text-xs text-muted-foreground">
+          JPG, PNG, WebP hoặc GIF — tối đa 2MB
+        </p>
         <div className="grid grid-cols-5 gap-2">
           {AVATAR_OPTIONS.map((emoji) => (
             <button
@@ -357,6 +452,11 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
   const [avatarEmoji, setAvatarEmoji] = useState<string | undefined>(
     user.user_metadata?.avatar_emoji as string | undefined,
   );
+  // Seeded from user_metadata (an OAuth provider may have supplied it), but the user can
+  // replace it with their own upload, so it lives in state rather than being read-only.
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(
+    user.user_metadata?.avatar_url as string | undefined,
+  );
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState("");
   const [savingName, setSavingName] = useState(false);
@@ -366,7 +466,6 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
     (user.user_metadata?.full_name as string | undefined) ||
     user.email?.split("@")[0] ||
     "Học sinh";
-  const avatarUrl = user.user_metadata?.avatar_url as string | undefined;
   const avatarLetter = displayName[0]?.toUpperCase() ?? "?";
 
   // Ensure profile row exists
@@ -452,6 +551,10 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
     queryClient.setQueryData(["streak", user.id], { days: 0, studiedToday: false });
     queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
     queryClient.invalidateQueries({ queryKey: ["public-profile"] });
+    // Deleting the progress rows makes the DB revoke every badge, so the cached collection is
+    // now wrong. Without this it keeps rendering badges that no longer exist until staleTime
+    // expires — they would appear to vanish later, for no reason the child can see.
+    queryClient.invalidateQueries({ queryKey: ["badges", user.id] });
     setIsRestarting(false);
     toast.success("Tiến độ đã được đặt lại! Hãy bắt đầu lại nhé 🌱");
   };
@@ -496,20 +599,21 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                   <span className="text-3xl">{avatarLetter}</span>
                 )}
               </div>
-              {!avatarUrl && (
-                <button
-                  onClick={() => setAvatarPickerOpen(true)}
-                  className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-white shadow-bevel-neutral flex items-center justify-center transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-neutral-active"
-                  title="Đổi avatar"
-                >
-                  <Pencil className="h-3.5 w-3.5 text-navy" />
-                </button>
-              )}
+              <button
+                onClick={() => setAvatarPickerOpen(true)}
+                className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-white shadow-bevel-neutral flex items-center justify-center transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-neutral-active"
+                title="Đổi avatar"
+              >
+                <Pencil className="h-3.5 w-3.5 text-navy" />
+              </button>
               <AvatarPickerDialog
                 current={avatarEmoji}
                 open={avatarPickerOpen}
                 onOpenChange={setAvatarPickerOpen}
-                onSelect={setAvatarEmoji}
+                onSelect={({ emoji, url }) => {
+                  setAvatarEmoji(emoji);
+                  setAvatarUrl(url);
+                }}
               />
             </div>
 
@@ -625,7 +729,9 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
             <div
               className={[
                 "mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold",
-                streak.studiedToday ? "bg-stage-1-soft text-stage-1-deep" : "bg-muted text-muted-foreground",
+                streak.studiedToday
+                  ? "bg-stage-1-soft text-stage-1-deep"
+                  : "bg-muted text-muted-foreground",
               ].join(" ")}
             >
               {streak.studiedToday ? "✓ Hôm nay xong" : "Chưa học hôm nay"}
@@ -634,38 +740,11 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
         </div>
 
         {/* Badges */}
-        <div className="rounded-3xl bg-white ring-1 ring-border shadow-card p-6 mb-6">
-          <h2 className="font-display text-lg font-extrabold text-navy mb-4">🏅 Huy hiệu của em</h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {BADGES.map(({ emoji, label, sublabel, threshold }) => {
-              const earned = completedCount >= threshold;
-              return (
-                <div
-                  key={label}
-                  className={[
-                    "relative rounded-2xl border p-4 text-center transition-all",
-                    earned
-                      ? "border-2 border-dashed border-stage-4/55 bg-stage-4-soft shadow-sm"
-                      : "border border-dashed border-border bg-muted/40 opacity-55 grayscale",
-                  ].join(" ")}
-                >
-                  <div className={["text-3xl mb-2", earned ? "animate-stamp-in" : ""].join(" ")}>
-                    {emoji}
-                  </div>
-                  <div className="font-display text-sm font-bold text-navy leading-tight">
-                    {label}
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-0.5 leading-tight">
-                    {sublabel}
-                  </div>
-                  {!earned && (
-                    <Lock className="absolute top-2 right-2 h-3.5 w-3.5 text-muted-foreground" />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <BadgeCollection
+          userId={user.id}
+          title="🏅 Huy hiệu của em"
+          emptyHint="Em chưa có huy hiệu nào. Học hết một chủ đề để nhận huy hiệu đầu tiên nhé!"
+        />
 
         {/* Account actions */}
         <div className="rounded-3xl bg-white ring-1 ring-border shadow-card p-6 space-y-3">
@@ -760,6 +839,9 @@ function PublicView({ username }: { username: string }) {
     },
     staleTime: 60_000,
   });
+
+  const { earnedSlugs } = useBadges(profile?.id ?? null);
+  const badgeCount = BADGES.filter((b) => earnedSlugs.has(b.slug)).length;
 
   if (isLoading) {
     return (
@@ -860,48 +942,20 @@ function PublicView({ username }: { username: string }) {
           <div className="rounded-2xl p-4 text-center ring-1 ring-border shadow-card bg-stage-4-soft">
             <div className="text-2xl mb-1">🏅</div>
             <div className="font-display text-xl font-extrabold text-navy leading-none">
-              {(() => {
-                const earned = BADGES.filter((b) => profile.completed_count >= b.threshold);
-                return earned[earned.length - 1]?.label ?? "—";
-              })()}
+              {badgeCount}/{BADGES.length}
             </div>
             <div className="text-xs font-semibold mt-1 text-muted-foreground">
-              Huy hiệu cao nhất
+              Huy hiệu đã sưu tầm
             </div>
           </div>
         </div>
 
         {/* Badges */}
-        <div className="rounded-3xl bg-white ring-1 ring-border shadow-card p-6 mb-6">
-          <h2 className="font-display text-lg font-extrabold text-navy mb-4">🏅 Huy hiệu</h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {BADGES.map(({ emoji, label, sublabel, threshold }) => {
-              const earned = profile.completed_count >= threshold;
-              return (
-                <div
-                  key={label}
-                  className={[
-                    "relative rounded-2xl border p-4 text-center transition-all",
-                    earned
-                      ? "border-2 border-dashed border-stage-4/55 bg-stage-4-soft shadow-sm"
-                      : "border border-dashed border-border bg-muted/40 opacity-55 grayscale",
-                  ].join(" ")}
-                >
-                  <div className="text-3xl mb-2">{emoji}</div>
-                  <div className="font-display text-sm font-bold text-navy leading-tight">
-                    {label}
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-0.5 leading-tight">
-                    {sublabel}
-                  </div>
-                  {!earned && (
-                    <Lock className="absolute top-2 right-2 h-3.5 w-3.5 text-muted-foreground" />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <BadgeCollection
+          userId={profile.id}
+          title="🏅 Huy hiệu"
+          emptyHint="Bạn này chưa sưu tầm được huy hiệu nào."
+        />
 
         <p className="text-center text-xs text-muted-foreground pb-4">
           Trường Tiếng Việt Của Em 🇻🇳
