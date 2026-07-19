@@ -112,21 +112,6 @@ export function RoadmapList({
         {/* Header: the open-scrapbook spread — stamped tag + title on the left, a taped photo
             and rubber stamp on the right, progress panel underneath. */}
         <div className="relative overflow-hidden rounded-[1.75rem] border border-border bg-card p-4 shadow-card ring-1 ring-black/[0.03] sm:p-6 lg:p-8">
-          {/* Faint map linework printed into the paper, like the reference spread. */}
-          <svg
-            aria-hidden
-            className="pointer-events-none absolute -left-8 top-2 h-44 w-56 text-navy/[0.07]"
-            viewBox="0 0 200 160"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path d="M28 12c14 18 6 34 18 48s34 10 40 28-10 30-2 46 26 18 34 24" />
-            <path d="M74 4c10 22 30 26 44 42s10 34 26 44" />
-            <path d="M8 62c22-6 40 6 58 2s28-18 46-16" />
-            <circle cx="120" cy="96" r="26" strokeDasharray="4 6" />
-          </svg>
-
           <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-8">
             {/* Left page: tag, title, blurb, overview button. */}
             <div className="min-w-0">
@@ -149,7 +134,7 @@ export function RoadmapList({
                 {isLocked && (
                   <span
                     className={[
-                      "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide",
+                      "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
                       accent.soft,
                       accent.text,
                     ].join(" ")}
@@ -160,7 +145,7 @@ export function RoadmapList({
                 )}
               </div>
 
-              <h1 className="mt-3 flex items-center gap-2 font-display text-3xl font-extrabold leading-tight text-navy sm:text-4xl">
+              <h1 className="mt-3 flex items-center gap-2 font-display text-3xl font-bold leading-tight text-ink sm:text-4xl">
                 <span className="shrink-0 text-2xl sm:text-3xl">{chuDe.emoji}</span>
                 <span className="min-w-0">{location.name}</span>
               </h1>
@@ -172,7 +157,7 @@ export function RoadmapList({
               <button
                 type="button"
                 onClick={() => setShowOverview(true)}
-                className="mt-5 inline-flex cursor-pointer items-center gap-2 rounded-full border border-navy/15 bg-muted/50 px-4 py-2 font-display text-sm font-extrabold text-navy shadow-sm transition hover:bg-muted active:translate-y-[1px]"
+                className="mt-5 inline-flex cursor-pointer items-center gap-2 rounded-full border border-navy/15 bg-muted/50 px-4 py-2 font-display text-sm font-bold text-ink shadow-sm transition hover:bg-muted active:translate-y-[1px]"
               >
                 <Info className="h-4 w-4" strokeWidth={2.5} />
                 Khám phá {location.name}
@@ -218,7 +203,7 @@ export function RoadmapList({
               {!isLocked && (
                 <div className="relative mt-6 rounded-xl border border-navy/10 bg-muted/40 px-4 py-3.5 shadow-sm">
                   <div>
-                    <div className="font-display text-sm font-extrabold text-navy sm:text-base">
+                    <div className="font-display text-sm font-bold text-ink sm:text-base">
                       Tiến độ chủ đề
                     </div>
                     <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-navy/10">
@@ -230,7 +215,7 @@ export function RoadmapList({
                         style={{ width: `${pct}%` }}
                       />
                     </div>
-                    <div className="mt-2 text-xs font-bold text-navy/65">
+                    <div className="mt-2 text-xs font-bold text-ink/65">
                       {doneStages}/{totalStages} chặng đã hoàn thành
                     </div>
                   </div>
@@ -240,7 +225,7 @@ export function RoadmapList({
                     <div
                       className={[
                         "mt-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold",
-                        allDone ? "bg-green/15 text-green" : "bg-navy/5 text-navy/70",
+                        allDone ? "bg-green/15 text-green" : "bg-navy/5 text-ink/70",
                       ].join(" ")}
                     >
                       {allDone ? (
@@ -248,7 +233,7 @@ export function RoadmapList({
                           <Check className="h-4 w-4 shrink-0" strokeWidth={3} aria-hidden />
                           <span>
                             Em đã sưu tầm được huy hiệu{" "}
-                            <span className="font-extrabold">{badge.name}</span>!
+                            <span className="font-bold">{badge.name}</span>!
                           </span>
                         </>
                       ) : (
@@ -256,7 +241,7 @@ export function RoadmapList({
                           <Lock className="h-4 w-4 shrink-0" strokeWidth={3} aria-hidden />
                           <span>
                             Hoàn thành cả {totalStages} chặng để sưu tầm huy hiệu{" "}
-                            <span className="font-extrabold">{badge.name}</span>.
+                            <span className="font-bold">{badge.name}</span>.
                           </span>
                         </>
                       )}
@@ -295,11 +280,11 @@ export function RoadmapList({
             {/* The chặng list — replaces the old node map. */}
             <div className="overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-card">
               <div className="flex items-center justify-between border-b border-border/70 px-4 py-3">
-                <h2 className="flex min-w-0 items-center gap-2 font-display text-base font-extrabold text-navy sm:text-lg">
+                <h2 className="flex min-w-0 items-center gap-2 font-display text-base font-bold text-ink sm:text-lg">
                   <span className="shrink-0">📖</span>
                   <span className="truncate">Chủ đề: {titleName}</span>
                 </h2>
-                <span className="text-xs font-bold text-navy/60">
+                <span className="text-xs font-bold text-ink/60">
                   {doneStages}/{totalStages} hoàn thành
                 </span>
               </div>
@@ -318,7 +303,7 @@ export function RoadmapList({
                         aria-hidden
                         className={[
                           "absolute inset-y-0 left-0 w-1.5",
-                          isStageLocked ? "bg-stone-300" : color.bg,
+                          isStageLocked ? "bg-border" : color.bg,
                         ].join(" ")}
                       />
                       <button
@@ -335,8 +320,8 @@ export function RoadmapList({
                       >
                         <span
                           className={[
-                            "grid h-8 w-8 shrink-0 place-items-center rounded-full font-display text-sm font-extrabold text-white",
-                            isStageLocked ? "bg-stone-400" : color.bg,
+                            "grid h-8 w-8 shrink-0 place-items-center rounded-full font-display text-sm font-bold text-white",
+                            isStageLocked ? "bg-muted-foreground/50" : color.bg,
                           ].join(" ")}
                         >
                           {i + 1}
@@ -347,13 +332,13 @@ export function RoadmapList({
 
                         <span className="min-w-0 flex-1">
                           <span className="flex items-center gap-2">
-                            <span className="truncate font-display text-sm font-extrabold text-navy sm:text-base">
+                            <span className="truncate font-display text-sm font-bold text-ink sm:text-base">
                               {title}
                             </span>
                             {isCurrent && (
                               <span
                                 className={[
-                                  "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-extrabold text-white",
+                                  "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold text-white",
                                   color.bg,
                                 ].join(" ")}
                               >
@@ -371,7 +356,7 @@ export function RoadmapList({
                                   }}
                                 />
                               </span>
-                              <span className="text-[11px] font-bold text-navy/55">
+                              <span className="text-[11px] font-bold text-ink/55">
                                 {prog.current}/{prog.total} bài
                               </span>
                             </span>
@@ -388,13 +373,13 @@ export function RoadmapList({
                             <Check className="h-5 w-5" strokeWidth={3} />
                           </span>
                         ) : isStageLocked ? (
-                          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-stone-200 text-stone-500">
+                          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground">
                             <Lock className="h-4 w-4" strokeWidth={2.5} />
                           </span>
                         ) : (
                           <span
                             className={[
-                              "hidden shrink-0 rounded-full px-3 py-1.5 font-display text-xs font-extrabold text-white sm:block",
+                              "hidden shrink-0 rounded-full px-3 py-1.5 font-display text-xs font-bold text-white sm:block",
                               color.bg,
                             ].join(" ")}
                           >
@@ -415,9 +400,7 @@ export function RoadmapList({
                   🏅
                 </span>
                 <div>
-                  <div className="font-display text-sm font-extrabold text-navy">
-                    Phần thưởng chủ đề
-                  </div>
+                  <div className="font-display text-sm font-bold text-ink">Phần thưởng chủ đề</div>
                   <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
                     Hoàn thành cả {totalStages} chặng để nhận con dấu{" "}
                     <strong className="text-primary">{chuDe.title}</strong>.
@@ -429,9 +412,7 @@ export function RoadmapList({
                   🔥
                 </span>
                 <div>
-                  <div className="font-display text-sm font-extrabold text-navy">
-                    Giữ chuỗi ngày học!
-                  </div>
+                  <div className="font-display text-sm font-bold text-ink">Giữ chuỗi ngày học!</div>
                   <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
                     Học một chặng hôm nay để giữ ngọn lửa chuỗi ngày của em.
                   </p>
@@ -442,9 +423,7 @@ export function RoadmapList({
                   🗺️
                 </span>
                 <div>
-                  <div className="font-display text-sm font-extrabold text-navy">
-                    Khám phá văn hóa
-                  </div>
+                  <div className="font-display text-sm font-bold text-ink">Khám phá văn hóa</div>
                   <p className="mt-0.5 line-clamp-3 text-xs leading-snug text-muted-foreground">
                     {location.blurb}
                   </p>
@@ -473,16 +452,16 @@ export function RoadmapList({
               aria-hidden
               className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/10"
             />
-            <DialogClose className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white/90 text-navy shadow-[0_2px_0_0_rgba(0,0,0,0.15)] ring-1 ring-black/10 transition hover:scale-105">
+            <DialogClose className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white/90 text-ink shadow-[0_2px_0_0_rgba(0,0,0,0.15)] ring-1 ring-black/10 transition hover:scale-105">
               <X className="h-5 w-5" strokeWidth={2.5} />
               <span className="sr-only">Đóng</span>
             </DialogClose>
             <div className="absolute inset-x-4 bottom-4 sm:inset-x-6 sm:bottom-5">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.12em] text-primary">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-primary">
                 <Compass className="h-3 w-3" strokeWidth={2.75} />
                 Khám phá
               </span>
-              <DialogTitle className="mt-2 font-display text-2xl font-extrabold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] sm:text-4xl">
+              <DialogTitle className="mt-2 font-display text-2xl font-bold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] sm:text-4xl">
                 {location.name}
               </DialogTitle>
             </div>
@@ -503,7 +482,7 @@ export function RoadmapList({
                       className="rounded-xl border border-border bg-muted/40 px-2 py-3 text-center"
                     >
                       <div className="text-lg sm:text-xl">{f.icon}</div>
-                      <div className="mt-1 font-display text-sm font-extrabold leading-tight text-navy">
+                      <div className="mt-1 font-display text-sm font-bold leading-tight text-ink">
                         {f.value}
                       </div>
                       <div className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
@@ -515,13 +494,13 @@ export function RoadmapList({
 
                 {/* Part 1 — always readable. */}
                 <section className="mt-6">
-                  <h3 className="flex items-center gap-2 font-display text-lg font-extrabold text-navy">
-                    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary text-[11px] font-extrabold text-white">
+                  <h3 className="flex items-center gap-2 font-display text-lg font-bold text-ink">
+                    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary text-[11px] font-bold text-white">
                       1
                     </span>
                     {discovery.intro.heading}
                   </h3>
-                  <div className="mt-2.5 space-y-3 text-sm leading-relaxed text-navy/80">
+                  <div className="mt-2.5 space-y-3 text-sm leading-relaxed text-ink/80">
                     {discovery.intro.paragraphs.map((p) => (
                       <p key={p.slice(0, 24)}>{p}</p>
                     ))}
@@ -530,11 +509,11 @@ export function RoadmapList({
 
                 {/* Part 2 — the payoff for finishing every chặng. */}
                 <section className="mt-6">
-                  <h3 className="flex items-center gap-2 font-display text-lg font-extrabold text-navy">
+                  <h3 className="flex items-center gap-2 font-display text-lg font-bold text-ink">
                     <span
                       className={[
-                        "grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] font-extrabold text-white",
-                        allDone ? "bg-green" : "bg-stone-400",
+                        "grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] font-bold text-white",
+                        allDone ? "bg-green" : "bg-muted-foreground/50",
                       ].join(" ")}
                     >
                       2
@@ -543,7 +522,7 @@ export function RoadmapList({
                   </h3>
 
                   {allDone ? (
-                    <div className="mt-2.5 space-y-3 text-sm leading-relaxed text-navy/80">
+                    <div className="mt-2.5 space-y-3 text-sm leading-relaxed text-ink/80">
                       {discovery.deep.paragraphs.map((p) => (
                         <p key={p.slice(0, 24)}>{p}</p>
                       ))}
@@ -560,10 +539,10 @@ export function RoadmapList({
                       </div>
                       <div className="absolute inset-0 grid place-items-center bg-card/70 px-4 text-center backdrop-blur-[2px]">
                         <div>
-                          <span className="mx-auto grid h-11 w-11 place-items-center rounded-full bg-navy/10 text-navy">
+                          <span className="mx-auto grid h-11 w-11 place-items-center rounded-full bg-navy/10 text-ink">
                             <Lock className="h-5 w-5" strokeWidth={2.5} />
                           </span>
-                          <p className="mt-2.5 max-w-sm font-display text-sm font-extrabold text-navy">
+                          <p className="mt-2.5 max-w-sm font-display text-sm font-bold text-ink">
                             “{discovery.deep.teaser}”
                           </p>
                           <p className="mt-1.5 text-xs font-bold text-muted-foreground">
@@ -575,7 +554,7 @@ export function RoadmapList({
                               style={{ width: `${pct}%` }}
                             />
                           </div>
-                          <div className="mt-1.5 text-[11px] font-bold text-navy/55">
+                          <div className="mt-1.5 text-[11px] font-bold text-ink/55">
                             {doneStages}/{totalStages} chặng
                           </div>
                         </div>

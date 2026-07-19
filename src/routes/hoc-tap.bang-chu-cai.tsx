@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Mascot } from "@/components/Mascot";
 import { BackLink } from "@/components/BackLink";
+import { PageBanner } from "@/components/site/PageBanner";
 import { ALPHABET, type AlphabetLetter, type AlphabetWord } from "@/data/alphabet";
 import { loadAlphabetProgress, markLetterSeen } from "@/lib/alphabet-progress";
 import { STAGE_COLORS } from "@/components/learning/stageColors";
@@ -107,38 +108,29 @@ function BangChuCaiTab() {
 
   return (
     <main className="pb-24 animate-in fade-in slide-in-from-bottom-2 duration-300">
+      <PageBanner
+        title="Bảng chữ cái 🎈"
+        subtitle="Bấm vào từng chữ để gặp bạn thú, nghe cách đọc và học từ mới nhé!"
+        back={<BackLink to="/hoc-tap" label="Quay lại học tập" />}
+      />
+
       <div className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        {/* Pinned to the page's top-left gutter — out of the flow, so it costs
-            the content no vertical space. */}
-        <BackLink
-          to="/hoc-tap"
-          label="Quay lại học tập"
-          className="absolute left-4 top-8 z-10 sm:left-6"
-        />
-        {/* Hero + progress — same Card/Mascot header the other học tập pages use */}
+        {/* Progress — the title that used to head this card now lives in the
+          PageBanner, so the card carries the counter alone. */}
         <Card className="mx-auto mb-8 max-w-2xl p-6 sm:p-8">
           <div className="flex items-center gap-4">
-            <Mascot pose="reading" decorative className="h-20 sm:h-28" />
+            <Mascot pose="reading" decorative className="h-16 sm:h-20" />
             <div className="min-w-0 flex-1">
-              <h1 className="font-display text-2xl font-extrabold leading-tight text-navy sm:text-4xl">
-                Bảng chữ cái 🎈
-              </h1>
-              <p className="mt-1 max-w-md text-sm text-muted-foreground sm:text-base">
-                Bấm vào từng chữ để gặp bạn thú, nghe cách đọc và học từ mới nhé!
-              </p>
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                  Đã khám phá
+                </span>
+                <Badge variant="stage-1">
+                  {seenCount}/{total} chữ
+                </Badge>
+              </div>
+              <Progress tone="stage-1" value={total > 0 ? (seenCount / total) * 100 : 0} />
             </div>
-          </div>
-
-          <div className="mt-5">
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
-                Đã khám phá
-              </span>
-              <Badge variant="stage-1">
-                {seenCount}/{total} chữ
-              </Badge>
-            </div>
-            <Progress tone="stage-1" value={total > 0 ? (seenCount / total) * 100 : 0} />
           </div>
         </Card>
 
@@ -192,7 +184,7 @@ function LetterCard({
           alt={`Bạn thú chữ ${letter.letter}`}
           className="h-1/2 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
         />
-        <span className="font-display text-xl font-extrabold text-navy sm:text-2xl">
+        <span className="font-display text-xl font-bold text-ink sm:text-2xl">
           {letter.letter.toUpperCase()}/{letter.letter}
         </span>
       </button>
@@ -261,7 +253,7 @@ function WordRow({ word, color }: { word: AlphabetWord; color: StageColor }) {
       >
         <span className="text-3xl transition-transform group-hover:scale-110">{word.emoji}</span>
         <span className="flex-1">
-          <span className="block font-display text-base font-extrabold text-navy">{word.vi}</span>
+          <span className="block font-display text-base font-bold text-ink">{word.vi}</span>
           <span className="block text-sm text-muted-foreground">{word.en}</span>
         </span>
       </button>
@@ -288,7 +280,7 @@ function LetterDetailDialog({
         hideCloseButton
         className="max-h-[92vh] w-[calc(100%-1.5rem)] max-w-3xl gap-0 overflow-hidden border-0 bg-card p-0"
       >
-        <DialogClose className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white/90 text-navy shadow-[0_2px_0_0_rgba(0,0,0,0.15)] ring-1 ring-black/10 transition hover:scale-105">
+        <DialogClose className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white/90 text-ink shadow-[0_2px_0_0_rgba(0,0,0,0.15)] ring-1 ring-black/10 transition hover:scale-105">
           <X className="h-5 w-5" strokeWidth={2.5} />
           <span className="sr-only">Đóng</span>
         </DialogClose>
@@ -311,7 +303,7 @@ function LetterDetailDialog({
             {/* Right: letter + sound button, then the word list */}
             <div className="flex flex-1 flex-col gap-6 p-6 text-center sm:overflow-y-auto sm:p-8 sm:text-left">
               <div className="flex items-center justify-center gap-4 sm:justify-start">
-                <DialogTitle className="font-display text-4xl font-extrabold text-navy sm:text-5xl">
+                <DialogTitle className="font-display text-4xl font-bold text-ink sm:text-5xl">
                   {letter.letter.toUpperCase()}/{letter.letter}
                 </DialogTitle>
                 <LetterSoundButton text={letter.soundName} label={letter.letter} color={color} />

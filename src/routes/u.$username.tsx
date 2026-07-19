@@ -288,7 +288,7 @@ function AvatarPickerDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="rounded-3xl max-w-xs p-5">
         <DialogHeader>
-          <DialogTitle className="font-display text-xl font-extrabold text-navy">
+          <DialogTitle className="font-display text-xl font-bold text-ink">
             Chọn avatar của em 🎨
           </DialogTitle>
         </DialogHeader>
@@ -394,7 +394,7 @@ function CountryPickerDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="rounded-3xl max-w-sm p-5">
         <DialogHeader>
-          <DialogTitle className="font-display text-xl font-extrabold text-navy">
+          <DialogTitle className="font-display text-xl font-bold text-ink">
             Chọn quốc gia của em 🌍
           </DialogTitle>
         </DialogHeader>
@@ -418,7 +418,7 @@ function CountryPickerDialog({
               ].join(" ")}
             >
               <FlagImg code={c.code} size={28} />
-              <span className="text-[9px] font-semibold text-navy leading-tight line-clamp-1">
+              <span className="text-[9px] font-semibold text-ink leading-tight line-clamp-1">
                 {c.name}
               </span>
             </button>
@@ -571,16 +571,23 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
     <div className="flex min-h-screen flex-col">
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8 sm:px-6">
         {/* Hero card */}
-        <div className="relative mb-6 overflow-hidden rounded-3xl border border-border bg-card p-8 shadow-card ring-1 ring-black/[0.02]">
-          <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-secondary/20 blur-2xl" />
-          <div className="absolute -bottom-6 -left-6 h-32 w-32 rounded-full bg-primary/10 blur-2xl" />
+        <div className="relative mb-6 overflow-hidden rounded-3xl border border-border bg-card shadow-card ring-1 ring-black/[0.02]">
+          {/* Red cover strip, same gradient and squircle motif as PageBanner.
+            The avatar below overlaps it, so the card reads as a profile header
+            without any of its edit controls needing to work on red. */}
+          <div className="relative h-28 overflow-hidden bg-gradient-to-br from-primary via-maroon to-maroon-deep">
+            <div aria-hidden className="pointer-events-none absolute inset-0">
+              <div className="absolute -right-16 -top-20 h-56 w-56 rotate-[20deg] rounded-[30%] bg-primary-glow/40 blur-[2px]" />
+              <div className="absolute -bottom-24 -left-16 h-44 w-44 rotate-[20deg] rounded-[30%] bg-gold/20 blur-[2px]" />
+            </div>
+          </div>
 
-          <div className="relative flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
-            {/* Avatar */}
-            <div className="relative shrink-0">
+          <div className="relative flex flex-col items-center gap-4 p-8 pt-4 text-center sm:flex-row sm:items-start sm:text-left">
+            {/* Avatar — lifted so it straddles the cover strip's bottom edge. */}
+            <div className="relative -mt-16 shrink-0">
               <div
                 className={[
-                  "h-24 w-24 rounded-full shadow-lg ring-4 ring-white overflow-hidden flex items-center justify-center font-extrabold font-display",
+                  "h-24 w-24 rounded-full shadow-lg ring-4 ring-white overflow-hidden flex items-center justify-center font-bold font-display",
                   avatarUrl || avatarEmoji ? "bg-sky/30" : avatarColor(avatarLetter),
                 ].join(" ")}
               >
@@ -602,7 +609,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                 className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-white shadow-bevel-neutral flex items-center justify-center transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-neutral-active"
                 title="Đổi avatar"
               >
-                <Pencil className="h-3.5 w-3.5 text-navy" />
+                <Pencil className="h-3.5 w-3.5 text-ink" />
               </button>
               <AvatarPickerDialog
                 current={avatarEmoji}
@@ -629,7 +636,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                         if (e.key === "Enter") handleSaveName();
                         if (e.key === "Escape") setEditingName(false);
                       }}
-                      className="font-display text-2xl font-extrabold text-navy bg-white/70 rounded-lg px-2 py-0.5 border border-sky outline-none min-w-0 w-full"
+                      className="font-display text-2xl font-bold text-ink bg-white/70 rounded-lg px-2 py-0.5 border border-sky outline-none min-w-0 w-full"
                       maxLength={40}
                       autoFocus
                     />
@@ -646,7 +653,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                     </button>
                   </div>
                 ) : (
-                  <h1 className="font-display text-2xl font-extrabold text-navy leading-tight flex items-center gap-2 flex-wrap">
+                  <h1 className="font-display text-2xl font-bold text-ink leading-tight flex items-center gap-2 flex-wrap">
                     <span className="truncate">{displayName}</span>
                     <button
                       onClick={() => {
@@ -657,7 +664,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                       className="shrink-0 h-7 w-7 rounded-full bg-white shadow-bevel-neutral flex items-center justify-center transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-neutral-active"
                       title="Đổi tên"
                     >
-                      <Pencil className="h-3.5 w-3.5 text-navy/60" />
+                      <Pencil className="h-3.5 w-3.5 text-ink/60" />
                     </button>
                     <button
                       onClick={() => setCountryPickerOpen(true)}
@@ -667,7 +674,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                       {countryCode ? (
                         <FlagImg code={countryCode} size={32} />
                       ) : (
-                        <Globe className="h-5 w-5 text-navy/50 m-1" />
+                        <Globe className="h-5 w-5 text-ink/50 m-1" />
                       )}
                     </button>
                   </h1>
@@ -698,7 +705,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
               emoji: "📖",
               value: inProgressCount,
               label: "Đang học",
-              color: "bg-stage-4-soft text-navy",
+              color: "bg-stage-4-soft text-ink",
             },
           ].map(({ emoji, value, label, color }) => (
             <div
@@ -708,7 +715,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
               )}
             >
               <div className="text-2xl mb-1">{emoji}</div>
-              <div className="font-display text-2xl font-extrabold text-navy leading-none">
+              <div className="font-display text-2xl font-bold text-ink leading-none">
                 {isProgressLoading ? "—" : value}
               </div>
               <div className="text-xs font-semibold mt-1 text-muted-foreground leading-tight">
@@ -718,7 +725,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
           ))}
           <div className="rounded-2xl bg-primary/8 p-4 text-center shadow-card ring-1 ring-border">
             <div className="text-2xl mb-1">🔥</div>
-            <div className="font-display text-2xl font-extrabold text-navy leading-none">
+            <div className="font-display text-2xl font-bold text-ink leading-none">
               {streak.days}
             </div>
             <div className="text-xs font-semibold mt-1 text-muted-foreground leading-tight">
@@ -747,12 +754,12 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
 
         {/* Account actions */}
         <div className="rounded-3xl bg-white ring-1 ring-border shadow-card p-6 space-y-3">
-          <h2 className="font-display text-lg font-extrabold text-navy mb-4">⚙️ Tài khoản</h2>
+          <h2 className="font-display text-lg font-bold text-ink mb-4">⚙️ Tài khoản</h2>
 
           {isEmailUser && (
             <Button
               variant="outline"
-              className="w-full justify-start gap-3 rounded-xl h-12 font-bold text-navy border-border hover:bg-muted"
+              className="w-full justify-start gap-3 rounded-xl h-12 font-bold text-ink border-border hover:bg-muted"
               onClick={handleResetPassword}
               disabled={isSendingReset}
             >
@@ -782,7 +789,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
             </AlertDialogTrigger>
             <AlertDialogContent className="rounded-3xl">
               <AlertDialogHeader>
-                <AlertDialogTitle className="font-display text-xl font-extrabold text-navy">
+                <AlertDialogTitle className="font-display text-xl font-bold text-ink">
                   Bắt đầu lại từ đầu? 🔄
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-base leading-relaxed">
@@ -854,15 +861,15 @@ function PublicView({ username }: { username: string }) {
       <div className="min-h-screen">
         <main className="mx-auto max-w-lg px-4 py-20 text-center">
           <div className="text-6xl mb-4">🔍</div>
-          <h1 className="font-display text-2xl font-extrabold text-navy mb-2">
+          <h1 className="font-display text-2xl font-bold text-ink mb-2">
             Không tìm thấy người dùng
           </h1>
           <p className="text-muted-foreground mb-6">
-            Hồ sơ <span className="font-semibold text-navy">@{username}</span> không tồn tại.
+            Hồ sơ <span className="font-semibold text-ink">@{username}</span> không tồn tại.
           </p>
           <Link
             to="/"
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-display text-sm font-extrabold text-white shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active"
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-display text-sm font-bold text-white shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active"
           >
             <Home className="h-4 w-4" />
             Về trang chủ
@@ -882,14 +889,21 @@ function PublicView({ username }: { username: string }) {
     <div className="flex min-h-screen flex-col">
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8 sm:px-6">
         {/* Hero card */}
-        <div className="relative mb-6 overflow-hidden rounded-3xl border border-border bg-card p-8 shadow-card ring-1 ring-black/[0.02]">
-          <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-secondary/20 blur-2xl" />
-          <div className="absolute -bottom-6 -left-6 h-32 w-32 rounded-full bg-primary/10 blur-2xl" />
-          <div className="relative flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
-            <div className="shrink-0">
+        <div className="relative mb-6 overflow-hidden rounded-3xl border border-border bg-card shadow-card ring-1 ring-black/[0.02]">
+          {/* Red cover strip — matches the owner's own profile header. */}
+          <div className="relative h-28 overflow-hidden bg-gradient-to-br from-primary via-maroon to-maroon-deep">
+            <div aria-hidden className="pointer-events-none absolute inset-0">
+              <div className="absolute -right-16 -top-20 h-56 w-56 rotate-[20deg] rounded-[30%] bg-primary-glow/40 blur-[2px]" />
+              <div className="absolute -bottom-24 -left-16 h-44 w-44 rotate-[20deg] rounded-[30%] bg-gold/20 blur-[2px]" />
+            </div>
+          </div>
+
+          <div className="relative flex flex-col items-center gap-4 p-8 pt-4 text-center sm:flex-row sm:items-start sm:text-left">
+            {/* Lifted so it straddles the cover strip's bottom edge. */}
+            <div className="-mt-16 shrink-0">
               <div
                 className={[
-                  "h-24 w-24 rounded-full shadow-lg ring-4 ring-white overflow-hidden flex items-center justify-center font-extrabold font-display",
+                  "h-24 w-24 rounded-full shadow-lg ring-4 ring-white overflow-hidden flex items-center justify-center font-bold font-display",
                   profile.avatar_url || profile.avatar_emoji
                     ? "bg-sky/30"
                     : avatarColor(avatarLetter),
@@ -911,9 +925,7 @@ function PublicView({ username }: { username: string }) {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                <h1 className="font-display text-2xl font-extrabold text-navy">
-                  {profile.display_name}
-                </h1>
+                <h1 className="font-display text-2xl font-bold text-ink">{profile.display_name}</h1>
                 {profile.country && (
                   <span className="rounded-md border border-white/60 bg-white/50 shadow-sm overflow-hidden">
                     <FlagImg code={profile.country} size={28} />
@@ -930,7 +942,7 @@ function PublicView({ username }: { username: string }) {
         <div className="mb-6">
           <div className="rounded-2xl p-4 text-center ring-1 ring-border shadow-card bg-stage-1-soft">
             <div className="text-2xl mb-1">🎯</div>
-            <div className="font-display text-2xl font-extrabold text-navy leading-none">
+            <div className="font-display text-2xl font-bold text-ink leading-none">
               {profile.completed_count}
             </div>
             <div className="text-xs font-semibold mt-1 text-muted-foreground">Bài hoàn thành</div>
