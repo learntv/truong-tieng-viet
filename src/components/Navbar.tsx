@@ -40,6 +40,9 @@ export function Navbar() {
   const avatarUrl = user?.user_metadata?.avatar_url as string | undefined;
   const avatarEmoji = user?.user_metadata?.avatar_emoji as string | undefined;
   const myUsername = user ? generateUsername(displayName, user.id) : null;
+  // Any profile page lights the avatar, not just your own — the ring marks
+  // "you are in the profile section", the same way the tab pills do.
+  const onProfile = pathname.startsWith("/u/");
 
   const closeSidebar = () => setSidebarOpen(false);
 
@@ -100,7 +103,16 @@ export function Navbar() {
               {!isLoading && user && (
                 <DropdownMenu modal={false}>
                   <DropdownMenuTrigger asChild>
-                    <button className="relative h-9 w-9 overflow-hidden rounded-full bg-primary text-sm font-bold text-white shadow-sm ring-2 ring-transparent transition-all hover:ring-primary/40">
+                    <button
+                      aria-current={onProfile ? "page" : undefined}
+                      className={[
+                        "relative h-9 w-9 overflow-hidden rounded-full bg-primary text-sm font-bold text-white shadow-sm transition-all",
+                        "ring-2 ring-offset-2 ring-offset-white",
+                        onProfile
+                          ? "ring-primary"
+                          : "ring-transparent hover:ring-primary/40",
+                      ].join(" ")}
+                    >
                       {avatarUrl ? (
                         <img
                           src={avatarUrl}
