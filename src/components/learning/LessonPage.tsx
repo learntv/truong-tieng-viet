@@ -10,7 +10,7 @@ import {
   Loader2,
   X,
 } from "lucide-react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useCanGoBack, useNavigate, useRouter } from "@tanstack/react-router";
 import { useLearningContent } from "@/hooks/useLearningContent";
 import { useSingletonAudio } from "@/hooks/useSingletonAudio";
 import type { Bai, Hinh, NoiDung } from "@/lib/learning";
@@ -39,10 +39,26 @@ function BackToMapButton({
   arrowClassName: string;
   iconClassName: string;
 }) {
+  const router = useRouter();
+  const canGoBack = useCanGoBack();
+
   return (
     <Link
       to="/hoc-tap/quyen-1/chu-de-{$chuDeIndex}"
       params={{ chuDeIndex: String(topicIndex + 1) }}
+      // The child almost always arrives here from the map, so the map is already sitting
+      // one step back in history. Pop that entry rather than pushing (or replacing with)
+      // another chủ đề entry — otherwise the browser's own back button either re-enters
+      // the chặng or lands on a duplicate map entry that looks like nothing happened.
+      // Kept as a real <Link> so the href, middle-click and right-click still work; only
+      // the plain left-click is intercepted, and direct-load (no history) falls through.
+      onClick={(e) => {
+        if (!canGoBack) return;
+        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+          return;
+        e.preventDefault();
+        router.history.back();
+      }}
       aria-label="Quay lại bản đồ"
       className={[className, color.bgSoft, color.bevel, color.bevelActive].join(" ")}
     >
