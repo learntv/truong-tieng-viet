@@ -93,12 +93,16 @@
   --shadow-glow-current: 0 0 0 6px oklch(0.52 0.213 29.2 / 0.22), 0 12px 32px -8px oklch(0.52 0.213 29.2 / 0.35);
 
   /* ── Clean, professional palette ── */
-  --background: oklch(0.99 0.003 250); /* near-white */
+  --background: oklch(1 0 0); /* pure white — no tint, so it reads clean next
+                                 to the warm rose bands */
   --foreground: oklch(0.28 0.045 260); /* deep navy ink */
 
   --card: oklch(1 0 0); /* pure white */
   --card-foreground: oklch(0.28 0.045 260);
-  --surface-subtle: oklch(0.97 0.006 250); /* alternating section band */
+  /* #fffbf7 — the warm off-white the TTVCE-UI red theme uses as its page
+     surface. Warm rather than the old blue-grey, so it sits under the red
+     theme instead of fighting it. */
+  --surface-subtle: oklch(0.99 0.0068 67.7);
 
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.28 0.045 260);
@@ -108,7 +112,7 @@
      icons sit on the fill, and `primary-glow` carries the pure brand red for
      gradients and decoration. */
   --primary: oklch(0.52 0.213 29.2); /* #cc0000 */
-  --primary-foreground: oklch(0.99 0.003 250);
+  --primary-foreground: oklch(1 0 0);
   --primary-glow: oklch(0.628 0.258 29.2); /* #ff0000 */
 
   /* dark red band + gold, from the TTVCE-UI red theme */
@@ -154,7 +158,7 @@
   --stage-5-soft: oklch(0.95 0.03 15);
 
   --destructive: oklch(0.55 0.19 27);
-  --destructive-foreground: oklch(0.99 0.003 250);
+  --destructive-foreground: oklch(1 0 0);
 
   --border: oklch(0.9 0.008 250);
   --input: oklch(0.92 0.008 250);
@@ -163,7 +167,7 @@
   --gradient-sky: linear-gradient(180deg, oklch(0.93 0.03 235) 0%, oklch(0.86 0.05 235) 100%);
   --gradient-night: linear-gradient(180deg, oklch(0.22 0.03 260) 0%, oklch(0.14 0.02 260) 100%);
   --gradient-primary: linear-gradient(135deg, oklch(0.628 0.258 29.2), oklch(0.42 0.176 29.2));
-  --gradient-hero: linear-gradient(180deg, oklch(0.99 0.003 250) 0%, oklch(0.97 0.006 250) 100%);
+  --gradient-hero: linear-gradient(180deg, oklch(1 0 0) 0%, oklch(0.985 0.003 250) 100%);
 
   --shadow-soft: 0 10px 30px -12px oklch(0.28 0.045 260 / 0.16);
   --shadow-card: 0 2px 10px -2px oklch(0.28 0.045 260 / 0.08), 0 1px 2px -1px oklch(0.28 0.045 260 / 0.06);
@@ -604,5 +608,43 @@
   transform: translateY(0);
   @media (min-width: 640px) {
     transform: translateX(0);
+  }
+}
+
+/* Auto-scrolling picture marquee on the homepage. The track holds two copies of
+   the same images, so translating it exactly -50% lands the second copy where
+   the first began and the loop is seamless. */
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@utility animate-marquee {
+  animation: marquee-scroll 30s linear infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* Gentle float for the hero's culture symbols — the design gives each one its
+   own duration so they drift out of sync rather than bobbing in unison. */
+@keyframes float-up-down {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+@utility animate-float {
+  animation: float-up-down 3.5s cubic-bezier(0.54, 0.085, 0.5, 0.92) infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
 }

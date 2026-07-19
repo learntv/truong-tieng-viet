@@ -1,5 +1,6 @@
 import { Info } from "lucide-react";
 import { InfoHero } from "./InfoHero";
+import { InfoCarousel } from "./InfoCarousel";
 import { InfoStats } from "./InfoStats";
 import aoDai from "@/assets/symbols/ao-dai.png";
 import nonLa from "@/assets/symbols/non-la.png";
@@ -9,8 +10,22 @@ import hoaSen from "@/assets/symbols/hoa-sen.png";
 import { Card } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
 
+/**
+ * Each card is washed with the dominant hue of its own symbol — áo dài blue,
+ * nón lá orange, tre green, phở amber — sampled from the artwork rather than
+ * picked by eye. Kept at very low chroma so the row still reads as one set and
+ * the red theme stays dominant.
+ */
+const TINTS = {
+  blue: "bg-[oklch(0.975_0.018_240)]",
+  orange: "bg-[oklch(0.975_0.020_55)]",
+  green: "bg-[oklch(0.975_0.020_140)]",
+  amber: "bg-[oklch(0.975_0.022_85)]",
+} as const;
+
 const ROWS = [
   {
+    tint: TINTS.blue,
     heading: "Bảo trợ chuyên môn",
     body: (
       <>
@@ -24,6 +39,7 @@ const ROWS = [
     image: aoDai,
   },
   {
+    tint: TINTS.orange,
     heading: "Dự án số hóa",
     body: (
       <>
@@ -37,6 +53,7 @@ const ROWS = [
     image: nonLa,
   },
   {
+    tint: TINTS.green,
     heading: "Hệ sinh thái",
     body: (
       <>
@@ -50,6 +67,7 @@ const ROWS = [
     image: tre,
   },
   {
+    tint: TINTS.amber,
     heading: "Bản quyền",
     body: (
       <>
@@ -70,8 +88,9 @@ export function InfoTab() {
   return (
     <div className="w-full">
       <InfoHero />
+      <InfoCarousel />
 
-      <div id="gioi-thieu" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-16 sm:px-6 sm:py-24">
+      <div id="gioi-thieu" className="mx-auto max-w-6xl scroll-mt-24 px-4 pt-8 pb-16 sm:px-6 sm:pt-12 sm:pb-24">
         <SectionHeader
           align="center"
           eyebrow="Về dự án"
@@ -85,13 +104,13 @@ export function InfoTab() {
             <Card
               key={r.heading}
               interactive
-              className="flex items-start gap-4 p-5 text-left sm:gap-5 sm:p-6"
+              className={`flex items-start gap-4 p-5 text-left sm:gap-5 sm:p-6 ${r.tint}`}
             >
-              <div className="shrink-0">
-                <div className="grid h-20 w-20 place-items-center rounded-full bg-primary/10 p-2 sm:h-24 sm:w-24">
-                  <img src={r.image} alt="" className="h-14 w-14 object-contain sm:h-16 sm:w-16" />
-                </div>
-              </div>
+              <img
+                src={r.image}
+                alt=""
+                className="h-16 w-16 shrink-0 object-contain sm:h-20 sm:w-20"
+              />
               <div className="min-w-0">
                 <h3 className="font-display text-lg font-extrabold text-navy sm:text-xl">
                   {r.heading}
@@ -112,8 +131,20 @@ export function InfoTab() {
         bleeding off opposite corners, per the TTVCE-UI red theme. */}
       <div className="relative overflow-hidden bg-maroon px-4 py-16 sm:px-6 sm:py-24">
         <div aria-hidden className="pointer-events-none absolute inset-0">
-          <div className="absolute -right-28 -top-28 h-[26rem] w-[26rem] rotate-[20deg] rounded-[30%] bg-gradient-to-br from-primary-glow/60 to-maroon-deep/60 blur-[2px]" />
-          <div className="absolute -bottom-40 -left-32 h-[22rem] w-[22rem] rotate-[20deg] rounded-[30%] bg-gradient-to-tr from-primary-glow/40 to-gold/30 blur-[2px]" />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(60rem 28rem at 82% -10%, color-mix(in oklab, var(--primary-glow) 50%, transparent) 0%, transparent 65%)",
+            }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(44rem 24rem at 10% 115%, color-mix(in oklab, var(--gold) 24%, transparent) 0%, transparent 60%)",
+            }}
+          />
         </div>
 
         <div className="relative mx-auto max-w-3xl text-center">
