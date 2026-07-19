@@ -1,4 +1,5 @@
-import { BookOpenText, Copyright, Info, Network } from "lucide-react";
+import { ArrowRight, BookOpenText, Copyright, Info, Network } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { InfoHero } from "./InfoHero";
 import { InfoCarousel } from "./InfoCarousel";
 import { InfoStats } from "./InfoStats";
@@ -121,9 +122,21 @@ export function InfoTab() {
         </div>
       </div>
 
-      <div className="w-full bg-rose-tint px-4 py-16 sm:px-6 sm:py-24">
+      <div id="lo-trinh" className="w-full scroll-mt-24 bg-rose-tint px-4 py-16 sm:px-6 sm:py-24">
         <SectionHeader align="center" title="Lộ trình học thú vị" className="mb-10 sm:mb-12" />
         <InfoStats />
+
+        {/* Repeats the hero's primary CTA at the point where the reader has
+          just seen what the course actually contains. */}
+        <div className="mt-12 flex justify-center sm:mt-14">
+          <Link
+            to="/hoc-tap"
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-bold text-primary-foreground shadow-card transition-colors hover:bg-primary/90 sm:text-base"
+          >
+            Học ngay
+            <ArrowRight className="h-5 w-5" />
+          </Link>
+        </div>
       </div>
 
       {/* Lời cảm ơn — full-bleed deep red band with two soft squircle shapes

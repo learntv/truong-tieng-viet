@@ -10,17 +10,35 @@ import caPheSuaDa from "@/assets/symbols/ca-phe-sua-da.png";
 /**
  * Symbols drifting in the hero's margins, three per side, clear of the centre
  * column. Each gets its own float duration so they drift out of sync rather
- * than bobbing in unison. Hidden below `lg`, where the centred column fills the
- * width and they would crowd the headline rather than frame it.
+ * than bobbing in unison.
+ *
+ * From `lg` up there is real margin either side of the 3xl column, so they
+ * frame the text. Below that the column fills the width and the same
+ * percentages put them under the copy instead — which is fine, since the
+ * content column paints above this layer. They only shrink a little and ease
+ * off in opacity. Hidden below `sm`, where a phone has no room at any weight.
  */
 const DECOR = [
-  { src: chimLac, className: "left-[5%] top-[22%] h-14", duration: "3.2s" },
-  { src: hoaSen, className: "left-[11%] top-[46%] h-16", duration: "4.1s" },
+  { src: chimLac, className: "left-[5%] top-[22%] h-12 lg:h-14", duration: "3.2s" },
+  { src: hoaSen, className: "left-[11%] top-[46%] h-14 lg:h-16", duration: "4.1s" },
   // Trâu con with the flag, sized up a little — he's the mascot, not a motif.
-  { src: trauCo, className: "bottom-[16%] left-[5%] h-24", duration: "3.6s" },
-  { src: nonLa, className: "right-[6%] top-[24%] h-16", duration: "3.9s" },
-  { src: tre, className: "right-[12%] top-[48%] h-14", duration: "3.3s" },
-  { src: caPheSuaDa, className: "bottom-[20%] right-[7%] h-14", duration: "4.4s" },
+  { src: trauCo, className: "bottom-[16%] left-[5%] h-20 lg:h-24", duration: "3.6s" },
+  { src: nonLa, className: "right-[6%] top-[24%] h-14 lg:h-16", duration: "3.9s" },
+  { src: tre, className: "right-[12%] top-[48%] h-12 lg:h-14", duration: "3.3s" },
+  { src: caPheSuaDa, className: "bottom-[20%] right-[7%] h-12 lg:h-14", duration: "4.4s" },
+];
+
+/**
+ * Narrow-but-tall phones (a 20:9 handset in portrait) have no side margin for
+ * DECOR, but they do have deep empty bands above and below the centred copy.
+ * These four move into that vertical space instead — two under the nav, two
+ * above the scroll cue — and only render in that shape.
+ */
+const TALL_DECOR = [
+  { src: chimLac, className: "left-[8%] top-[11%] h-12", duration: "3.2s" },
+  { src: nonLa, className: "right-[9%] top-[15%] h-12", duration: "3.9s" },
+  { src: tre, className: "left-[11%] bottom-[15%] h-12", duration: "3.3s" },
+  { src: trauCo, className: "right-[7%] bottom-[11%] h-16", duration: "3.6s" },
 ];
 
 /** Small flat bubbles scattered between the symbols. */
@@ -60,9 +78,30 @@ export function InfoHero() {
         />
       </div>
 
-      <div aria-hidden className="pointer-events-none absolute inset-0 hidden lg:block">
+      {/* Portrait handsets taller than 20:11 — the vertical arrangement above.
+        Everything here is off by `sm`, where DECOR takes over. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 hidden [@media(max-aspect-ratio:11/20)]:block sm:[@media(max-aspect-ratio:11/20)]:hidden"
+      >
+        {TALL_DECOR.map((d, i) => (
+          <img
+            key={i}
+            src={d.src}
+            alt=""
+            style={{
+              animationDuration: d.duration,
+              filter:
+                "drop-shadow(0 10px 18px color-mix(in oklab, var(--maroon-deep) 12%, transparent))",
+            }}
+            className={`absolute animate-float object-contain opacity-70 ${d.className}`}
+          />
+        ))}
+      </div>
+
+      <div aria-hidden className="pointer-events-none absolute inset-0 hidden sm:block">
         {BUBBLES.map((b, i) => (
-          <span key={i} className={`absolute rounded-full opacity-70 ${b}`} />
+          <span key={i} className={`absolute rounded-full opacity-60 lg:opacity-70 ${b}`} />
         ))}
         {DECOR.map((d, i) => (
           <img
@@ -74,7 +113,7 @@ export function InfoHero() {
               filter:
                 "drop-shadow(0 10px 18px color-mix(in oklab, var(--maroon-deep) 12%, transparent))",
             }}
-            className={`absolute animate-float object-contain opacity-90 ${d.className}`}
+            className={`absolute animate-float object-contain opacity-70 lg:opacity-90 ${d.className}`}
           />
         ))}
       </div>
@@ -106,30 +145,28 @@ export function InfoHero() {
             Học ngay
             <ArrowRight className="h-5 w-5" />
           </Link>
-          <Link
-            to="/hoc-tap"
+          {/* Scrolls to the lộ trình band rather than navigating — "Học ngay"
+            already covers /hoc-tap, and this mirrors the "Khám phá" cue below. */}
+          <button
+            type="button"
+            onClick={() => {
+              document
+                .getElementById("lo-trinh")
+                ?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
             className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-7 py-3.5 text-sm font-bold text-navy transition-colors hover:border-primary/40 hover:text-primary sm:text-base"
           >
             <Map className="h-5 w-5" />
             Khám phá lộ trình
-          </Link>
+          </button>
         </div>
 
-        <div className="mt-7 flex items-center justify-center gap-3">
-          <div className="flex -space-x-2">
-            {["bg-stage-4", "bg-stage-5", "bg-stage-1", "bg-stage-2"].map((c, i) => (
-              <div
-                key={i}
-                className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-card ${c} text-xs`}
-              >
-                😊
-              </div>
-            ))}
-          </div>
-          <span className="text-sm font-medium text-muted-foreground">
-            Hơn 10.000 trẻ em đang học mỗi ngày
-          </span>
-        </div>
+        {/* Replaces a row of stand-in faces and a "hơn 10.000 trẻ em" figure
+          that implied a userbase we cannot vouch for. */}
+        <p className="mt-7 text-sm font-medium text-muted-foreground">
+          Chơi mà học, học mà chơi — cùng{" "}
+          <strong className="font-bold text-primary">Trâu Con</strong> khám phá tiếng Việt mỗi ngày
+        </p>
       </div>
 
       {/* Scroll-down indicator */}
