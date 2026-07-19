@@ -70,6 +70,7 @@ export function useUserProgress(userId: string | null) {
         queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
         queryClient.invalidateQueries({ queryKey: ["streak", userId] });
         queryClient.invalidateQueries({ queryKey: ["public-profile"] });
+      queryClient.invalidateQueries({ queryKey: ["badges", userId] });
       }
     },
     [userId, queryClient],
@@ -147,6 +148,7 @@ export function useUserProgress(userId: string | null) {
       queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
       queryClient.invalidateQueries({ queryKey: ["streak", userId] });
       queryClient.invalidateQueries({ queryKey: ["public-profile"] });
+      queryClient.invalidateQueries({ queryKey: ["badges", userId] });
       return !mergeFailed;
     },
 

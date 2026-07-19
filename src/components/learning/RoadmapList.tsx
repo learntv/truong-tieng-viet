@@ -1,4 +1,4 @@
-import { ArrowLeft, Check, Info, Lock, X } from "lucide-react";
+import { ArrowLeft, Check, Compass, Info, Lock, X } from "lucide-react";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
@@ -12,7 +12,9 @@ import type { ChuDe } from "@/data/topics";
 import { STAGE_COLORS } from "./stageColors";
 import { Button } from "@/components/ui/button";
 import { locationForChuDe, sceneForChuDe } from "@/data/scenes";
-import { QUYEN1_LANDMARKS } from "@/data/overworld";
+import { QUYEN1_LANDMARKS, type Discovery } from "@/data/overworld";
+import { badgeForChuDe } from "@/data/badges";
+import { BadgeMedal } from "./BadgeMedal";
 
 // Per-topic accent so the page gently recolors as the child moves between chủ đề — keyed by
 // ChuDe.accent. `soft`/`text` tint the "về bản đồ" button, `solid` the progress fill.
@@ -45,10 +47,20 @@ function getLessonButtonLabel(
  * journey (chủ đề 2 is Hội An, but its backdrop is the golden-bridge painting). Fall back to the
  * scenes entry only for chủ đề the landmark list doesn't cover.
  */
-function placeForChuDe(chuDeIndex: number): { name: string; blurb: string; photo?: string } {
+function placeForChuDe(chuDeIndex: number): {
+  name: string;
+  blurb: string;
+  photo?: string;
+  discovery?: Discovery;
+} {
   const landmark = QUYEN1_LANDMARKS.find((l) => l.chuDeIndex === chuDeIndex);
   if (landmark) {
-    return { name: landmark.name, blurb: landmark.description, photo: landmark.photo };
+    return {
+      name: landmark.name,
+      blurb: landmark.description,
+      photo: landmark.photo,
+      discovery: landmark.discovery,
+    };
   }
   return locationForChuDe(chuDeIndex);
 }
@@ -79,7 +91,9 @@ export function RoadmapList({
   const accent = ACCENT[chuDe.accent] ?? ACCENT.primary;
   const location = placeForChuDe(chuDeIndex);
   const photo = location.photo;
+  const discovery = location.discovery;
   const [showOverview, setShowOverview] = useState(false);
+  const badge = badgeForChuDe(chuDeIndex);
 
   const totalStages = changTitles.length;
   const doneStages = Math.min(completedChangs.size, totalStages);
@@ -161,7 +175,7 @@ export function RoadmapList({
                 className="mt-5 inline-flex cursor-pointer items-center gap-2 rounded-full border border-navy/15 bg-muted/50 px-4 py-2 font-display text-sm font-extrabold text-navy shadow-sm transition hover:bg-muted active:translate-y-[1px]"
               >
                 <Info className="h-4 w-4" strokeWidth={2.5} />
-                Tổng quan chủ đề
+                Khám phá {location.name}
               </button>
             </div>
 
@@ -188,25 +202,22 @@ export function RoadmapList({
                   </div>
                 )}
 
-                {/* Round rubber stamp, overlapping the photo's corner like a passport mark. */}
-                <div
-                  aria-hidden
-                  className="absolute -right-1 top-2 grid h-20 w-20 rotate-[-12deg] place-items-center rounded-full border-[3px] border-dashed border-primary/50 bg-white/45 text-center text-primary/80 sm:h-24 sm:w-24"
-                >
-                  <span className="text-[8px] font-bold uppercase leading-[1.35] tracking-wide sm:text-[9px]">
-                    ★ ★ ★
-                    <br />
-                    {location.name.split(" ").slice(-1)[0]}
-                    <br />
-                    Việt Nam
-                  </span>
-                </div>
+                {/* The chủ đề's collectible badge, overlapping the photo's corner like a
+                    passport mark — greyed out with a lock until every chặng is done. */}
+                {badge && (
+                  <BadgeMedal
+                    badge={badge}
+                    earned={allDone}
+                    size="md"
+                    className="absolute -right-1 top-2 rotate-[-12deg] drop-shadow-md"
+                  />
+                )}
               </div>
 
               {/* Progress panel */}
               {!isLocked && (
                 <div className="relative mt-6 rounded-xl border border-navy/10 bg-muted/40 px-4 py-3.5 shadow-sm">
-                  <div className="pr-24">
+                  <div>
                     <div className="font-display text-sm font-extrabold text-navy sm:text-base">
                       Tiến độ chủ đề
                     </div>
@@ -224,17 +235,31 @@ export function RoadmapList({
                     </div>
                   </div>
 
-                  {/* "Hoàn thành" rubber stamp, slapped on once every chặng is done. */}
-                  {allDone && (
+                  {/* Says out loud what the badge on the photo is for. */}
+                  {badge && (
                     <div
-                      aria-hidden
-                      className="absolute right-3 top-1/2 grid -translate-y-1/2 rotate-[-8deg] place-items-center rounded-lg border-[3px] border-double border-green px-2.5 py-1.5 text-green"
+                      className={[
+                        "mt-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold",
+                        allDone ? "bg-green/15 text-green" : "bg-navy/5 text-navy/70",
+                      ].join(" ")}
                     >
-                      <span className="text-[10px] font-bold uppercase leading-tight tracking-wide">
-                        ★★★
-                        <br />
-                        Hoàn thành
-                      </span>
+                      {allDone ? (
+                        <>
+                          <Check className="h-4 w-4 shrink-0" strokeWidth={3} aria-hidden />
+                          <span>
+                            Em đã sưu tầm được huy hiệu{" "}
+                            <span className="font-extrabold">{badge.name}</span>!
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="h-4 w-4 shrink-0" strokeWidth={3} aria-hidden />
+                          <span>
+                            Hoàn thành cả {totalStages} chặng để sưu tầm huy hiệu{" "}
+                            <span className="font-extrabold">{badge.name}</span>.
+                          </span>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
@@ -430,34 +455,136 @@ export function RoadmapList({
         )}
       </div>
 
-      {/* "Tổng quan chủ đề" — fullscreen look at the place this chủ đề is set in. */}
+      {/* "Khám phá <địa điểm>" — a two-part read about the real place. Part 2 stays locked until
+          every chặng is done, so finishing the chủ đề buys the rest of the story. */}
       <Dialog open={showOverview} onOpenChange={setShowOverview}>
         <DialogContent
           hideCloseButton
-          className="left-0 top-0 h-full max-h-none w-full max-w-none translate-x-0 translate-y-0 gap-0 overflow-hidden border-0 bg-transparent p-0 sm:rounded-none"
+          className="max-h-[92vh] w-[calc(100%-1.5rem)] max-w-3xl gap-0 overflow-y-auto border-0 bg-card p-0"
         >
-          <div
-            className="relative h-full w-full bg-cover bg-center"
-            style={{ backgroundImage: `url(${sceneForChuDe(chuDeIndex)})` }}
-          >
-            <DialogClose className="absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full bg-white/90 text-navy shadow-[0_2px_0_0_rgba(0,0,0,0.15)] ring-1 ring-black/10 transition hover:scale-105">
+          {/* Cover: a photo of the real place, title laid over the bottom of it. */}
+          <div className="relative">
+            <img
+              src={location.photo ?? sceneForChuDe(chuDeIndex)}
+              alt={location.name}
+              className="h-44 w-full object-cover sm:h-60"
+            />
+            <div
+              aria-hidden
+              className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/10"
+            />
+            <DialogClose className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white/90 text-navy shadow-[0_2px_0_0_rgba(0,0,0,0.15)] ring-1 ring-black/10 transition hover:scale-105">
               <X className="h-5 w-5" strokeWidth={2.5} />
               <span className="sr-only">Đóng</span>
             </DialogClose>
-            <div className="absolute inset-x-4 bottom-4 z-10 max-w-2xl sm:inset-x-8 sm:bottom-8">
-              <DialogTitle
-                className="font-display text-2xl font-extrabold text-white sm:text-4xl"
-                style={{ WebkitTextStroke: "1.5px black", paintOrder: "stroke fill" }}
-              >
+            <div className="absolute inset-x-4 bottom-4 sm:inset-x-6 sm:bottom-5">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.12em] text-primary">
+                <Compass className="h-3 w-3" strokeWidth={2.75} />
+                Khám phá
+              </span>
+              <DialogTitle className="mt-2 font-display text-2xl font-extrabold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] sm:text-4xl">
                 {location.name}
               </DialogTitle>
-              <DialogDescription
-                className="mt-2 text-sm leading-relaxed text-white sm:text-base"
-                style={{ textShadow: "0 1px 3px rgba(0,0,0,0.9), 0 1px 8px rgba(0,0,0,0.6)" }}
-              >
-                {location.blurb}
-              </DialogDescription>
             </div>
+          </div>
+
+          <div className="px-4 py-5 sm:px-7 sm:py-6">
+            <DialogDescription className="text-sm leading-relaxed text-muted-foreground">
+              {location.blurb}
+            </DialogDescription>
+
+            {discovery && (
+              <>
+                {/* Postcard stats */}
+                <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
+                  {discovery.facts.map((f) => (
+                    <div
+                      key={f.label}
+                      className="rounded-xl border border-border bg-muted/40 px-2 py-3 text-center"
+                    >
+                      <div className="text-lg sm:text-xl">{f.icon}</div>
+                      <div className="mt-1 font-display text-sm font-extrabold leading-tight text-navy">
+                        {f.value}
+                      </div>
+                      <div className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+                        {f.label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Part 1 — always readable. */}
+                <section className="mt-6">
+                  <h3 className="flex items-center gap-2 font-display text-lg font-extrabold text-navy">
+                    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary text-[11px] font-extrabold text-white">
+                      1
+                    </span>
+                    {discovery.intro.heading}
+                  </h3>
+                  <div className="mt-2.5 space-y-3 text-sm leading-relaxed text-navy/80">
+                    {discovery.intro.paragraphs.map((p) => (
+                      <p key={p.slice(0, 24)}>{p}</p>
+                    ))}
+                  </div>
+                </section>
+
+                {/* Part 2 — the payoff for finishing every chặng. */}
+                <section className="mt-6">
+                  <h3 className="flex items-center gap-2 font-display text-lg font-extrabold text-navy">
+                    <span
+                      className={[
+                        "grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] font-extrabold text-white",
+                        allDone ? "bg-green" : "bg-stone-400",
+                      ].join(" ")}
+                    >
+                      2
+                    </span>
+                    {allDone ? discovery.deep.heading : "Phần 2 còn khoá"}
+                  </h3>
+
+                  {allDone ? (
+                    <div className="mt-2.5 space-y-3 text-sm leading-relaxed text-navy/80">
+                      {discovery.deep.paragraphs.map((p) => (
+                        <p key={p.slice(0, 24)}>{p}</p>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="relative mt-2.5 overflow-hidden rounded-2xl border-2 border-dashed border-border bg-muted/40">
+                      {/* A couple of blurred dummy lines so it reads as text hiding behind the lock. */}
+                      <div aria-hidden className="space-y-2.5 p-4 blur-[5px] select-none">
+                        <div className="h-2.5 w-full rounded-full bg-navy/15" />
+                        <div className="h-2.5 w-11/12 rounded-full bg-navy/15" />
+                        <div className="h-2.5 w-9/12 rounded-full bg-navy/15" />
+                        <div className="h-2.5 w-full rounded-full bg-navy/15" />
+                        <div className="h-2.5 w-8/12 rounded-full bg-navy/15" />
+                      </div>
+                      <div className="absolute inset-0 grid place-items-center bg-card/70 px-4 text-center backdrop-blur-[2px]">
+                        <div>
+                          <span className="mx-auto grid h-11 w-11 place-items-center rounded-full bg-navy/10 text-navy">
+                            <Lock className="h-5 w-5" strokeWidth={2.5} />
+                          </span>
+                          <p className="mt-2.5 max-w-sm font-display text-sm font-extrabold text-navy">
+                            “{discovery.deep.teaser}”
+                          </p>
+                          <p className="mt-1.5 text-xs font-bold text-muted-foreground">
+                            Học nốt {totalStages - doneStages} chặng nữa để mở khoá phần này.
+                          </p>
+                          <div className="mx-auto mt-3 h-2 w-40 overflow-hidden rounded-full bg-navy/10">
+                            <div
+                              className={["h-full rounded-full", accent.solid].join(" ")}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                          <div className="mt-1.5 text-[11px] font-bold text-navy/55">
+                            {doneStages}/{totalStages} chặng
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </section>
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>

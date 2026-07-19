@@ -296,6 +296,50 @@ export type Database = {
         }
         Relationships: []
       }
+      badge_rule: {
+        Row: {
+          rule_ref: string | null
+          rule_type: string
+          slug: string
+        }
+        Insert: {
+          rule_ref?: string | null
+          rule_type: string
+          slug: string
+        }
+        Update: {
+          rule_ref?: string | null
+          rule_type?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      user_badges: {
+        Row: {
+          badge_slug: string
+          earned_at: string
+          user_id: string
+        }
+        Insert: {
+          badge_slug: string
+          earned_at?: string
+          user_id: string
+        }
+        Update: {
+          badge_slug?: string
+          earned_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_slug_fkey"
+            columns: ["badge_slug"]
+            isOneToOne: false
+            referencedRelation: "badge_rule"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
       user_progress: {
         Row: {
           chang_id: string
