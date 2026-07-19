@@ -4,7 +4,7 @@ import nonLa from "@/assets/symbols/non-la.png";
 import hoaSen from "@/assets/symbols/hoa-sen.png";
 import trauCo from "@/assets/mascot/flag.png";
 import chimLac from "@/assets/symbols/chim-lac.png";
-import chuaMotCot from "@/assets/symbols/chua-mot-cot.png";
+import tre from "@/assets/symbols/tre.png";
 import caPheSuaDa from "@/assets/symbols/ca-phe-sua-da.png";
 
 /**
@@ -19,7 +19,7 @@ const DECOR = [
   // Trâu con with the flag, sized up a little — he's the mascot, not a motif.
   { src: trauCo, className: "bottom-[16%] left-[5%] h-24", duration: "3.6s" },
   { src: nonLa, className: "right-[6%] top-[24%] h-16", duration: "3.9s" },
-  { src: chuaMotCot, className: "right-[12%] top-[48%] h-14", duration: "3.3s" },
+  { src: tre, className: "right-[12%] top-[48%] h-14", duration: "3.3s" },
   { src: caPheSuaDa, className: "bottom-[20%] right-[7%] h-14", duration: "4.4s" },
 ];
 

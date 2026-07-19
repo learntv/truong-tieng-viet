@@ -1,45 +1,32 @@
-import { Info } from "lucide-react";
+import { BookOpenText, Copyright, Info, Network } from "lucide-react";
 import { InfoHero } from "./InfoHero";
 import { InfoCarousel } from "./InfoCarousel";
 import { InfoStats } from "./InfoStats";
-import aoDai from "@/assets/symbols/ao-dai.png";
-import nonLa from "@/assets/symbols/non-la.png";
-import tre from "@/assets/symbols/tre.png";
-import pho from "@/assets/symbols/pho.png";
 import hoaSen from "@/assets/symbols/hoa-sen.png";
-import { Card } from "@/components/ui/card";
+import chimLac from "@/assets/symbols/chim-lac.png";
 import { SectionHeader } from "@/components/ui/section-header";
 
 /**
- * Each card is washed with the dominant hue of its own symbol — áo dài blue,
- * nón lá orange, tre green, phở amber — sampled from the artwork rather than
- * picked by eye. Kept at very low chroma so the row still reads as one set and
- * the red theme stays dominant.
+ * The content is not four equal facts: the Bộ Ngoại giao sponsorship is the
+ * trust signal and leads on a full-width maroon card; the rest drop to a plain
+ * bordered trio with red line-icons. No tints, no decorative symbol artwork.
  */
-const TINTS = {
-  blue: "bg-[oklch(0.975_0.018_240)]",
-  orange: "bg-[oklch(0.975_0.020_55)]",
-  green: "bg-[oklch(0.975_0.020_140)]",
-  amber: "bg-[oklch(0.975_0.022_85)]",
-} as const;
+const LEAD = {
+  heading: "Bảo trợ chuyên môn",
+  body: (
+    <>
+      Dự án thực hiện dưới sự bảo trợ và ủng hộ của{" "}
+      <strong className="font-bold text-gold">
+        Ủy ban Nhà nước về người Việt Nam ở nước ngoài – Bộ Ngoại giao
+      </strong>
+      .
+    </>
+  ),
+};
 
 const ROWS = [
   {
-    tint: TINTS.blue,
-    heading: "Bảo trợ chuyên môn",
-    body: (
-      <>
-        Dự án thực hiện dưới sự bảo trợ và ủng hộ của{" "}
-        <strong className="font-bold text-foreground">
-          Ủy ban Nhà nước về người Việt Nam ở nước ngoài – Bộ Ngoại giao
-        </strong>
-        .
-      </>
-    ),
-    image: aoDai,
-  },
-  {
-    tint: TINTS.orange,
+    icon: BookOpenText,
     heading: "Dự án số hóa",
     body: (
       <>
@@ -50,10 +37,9 @@ const ROWS = [
         <strong className="font-bold text-foreground">UBNVONN – Bộ Ngoại giao</strong> phát động.
       </>
     ),
-    image: nonLa,
   },
   {
-    tint: TINTS.green,
+    icon: Network,
     heading: "Hệ sinh thái",
     body: (
       <>
@@ -64,23 +50,16 @@ const ROWS = [
         .
       </>
     ),
-    image: tre,
   },
   {
-    tint: TINTS.amber,
+    icon: Copyright,
     heading: "Bản quyền",
     body: (
       <>
-        Dự án được bảo hộ bản quyền bởi đồng tác giả:
-        <br />
-        <strong className="font-bold text-foreground">
-          Phan Thị Quỳnh Trang - Nguyễn Trần Thanh Hải - Đỗ Thị Phương Mai - Trần Thanh Phúc - Trần
-          Văn Nhật
-        </strong>
-        .
+        Dự án được bảo hộ bản quyền bởi đồng tác giả: Phan Thị Quỳnh Trang, Nguyễn Trần Thanh Hải,
+        Đỗ Thị Phương Mai, Trần Thanh Phúc, Trần Văn Nhật.
       </>
     ),
-    image: pho,
   },
 ];
 
@@ -99,26 +78,46 @@ export function InfoTab() {
           className="mx-auto mb-10 sm:mb-14"
         />
 
-        <div className="mx-auto grid max-w-5xl gap-5 sm:grid-cols-2 sm:gap-6">
-          {ROWS.map((r) => (
-            <Card
-              key={r.heading}
-              interactive
-              className={`flex items-start gap-4 p-5 text-left sm:gap-5 sm:p-6 ${r.tint}`}
-            >
-              <img
-                src={r.image}
-                alt=""
-                className="h-16 w-16 shrink-0 object-contain sm:h-20 sm:w-20"
-              />
-              <div className="min-w-0">
-                <h3 className="font-display text-lg font-extrabold text-navy sm:text-xl">
-                  {r.heading}
-                </h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{r.body}</p>
+        <div className="mx-auto max-w-5xl">
+          <div className="relative overflow-hidden rounded-2xl bg-maroon px-6 py-8 sm:px-10 sm:py-10">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background:
+                  "radial-gradient(40rem 20rem at 88% -20%, color-mix(in oklab, var(--primary-glow) 45%, transparent) 0%, transparent 65%)",
+              }}
+            />
+            <div className="relative flex flex-col items-center gap-5 text-center sm:flex-row sm:items-center sm:gap-8 sm:text-left">
+              {/* The symbol PNGs carry a white matte fringe from how they were
+                cut out. Rather than fight it, the badge gives the artwork a pale
+                disc to sit on, so the fringe lands on near-white and disappears. */}
+              <div className="grid h-24 w-24 shrink-0 place-items-center rounded-full bg-white/92 shadow-sm ring-1 ring-white/25 sm:h-28 sm:w-28">
+                <img src={chimLac} alt="" className="h-16 w-16 object-contain sm:h-20 sm:w-20" />
               </div>
-            </Card>
-          ))}
+              <div className="min-w-0">
+                <h3 className="text-xs font-bold tracking-[0.12em] text-gold uppercase">
+                  {LEAD.heading}
+                </h3>
+                <p className="mt-2 text-base leading-relaxed text-white/90 sm:text-lg">
+                  {LEAD.body}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-5 sm:mt-6 sm:grid-cols-3 sm:gap-6">
+            {ROWS.map((r) => (
+              <div
+                key={r.heading}
+                className="rounded-2xl border border-border bg-card px-6 py-6 shadow-card sm:px-7 sm:py-7"
+              >
+                <r.icon className="h-6 w-6 text-primary" strokeWidth={2} aria-hidden />
+                <h3 className="mt-4 font-display text-lg font-extrabold text-navy">{r.heading}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{r.body}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
