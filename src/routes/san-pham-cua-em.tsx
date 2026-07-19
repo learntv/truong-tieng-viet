@@ -1,6 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { ComingSoonTab } from "@/components/tabs/ComingSoonTab";
 
 export const Route = createFileRoute("/san-pham-cua-em")({
@@ -15,12 +13,8 @@ export const Route = createFileRoute("/san-pham-cua-em")({
 
 function SanPhamCuaEm() {
   return (
-    <div className="flex min-h-screen flex-col">
-      <Navbar />
-      <main className="flex-1 animate-in fade-in slide-in-from-bottom-2 duration-300">
-        <ComingSoonTab />
-      </main>
-      <Footer />
-    </div>
+    <main className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+      <ComingSoonTab />
+    </main>
   );
 }

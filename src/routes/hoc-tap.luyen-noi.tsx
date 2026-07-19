@@ -6,8 +6,9 @@ import { extractSpeakingSentences } from "@/lib/speech";
 import { type SpeakingProgress } from "@/lib/speaking-progress";
 import { useSpeakingContent } from "@/hooks/useSpeakingContent";
 import { useSpeakingProgress } from "@/hooks/useSpeakingProgress";
-import { STAGE_COLORS } from "@/components/learning/StageCard";
-import trauCon from "@/assets/trau-con.png";
+import { STAGE_COLORS } from "@/components/learning/stageColors";
+import { Mascot } from "@/components/Mascot";
+import { BackLink } from "@/components/BackLink";
 
 export const Route = createFileRoute("/hoc-tap/luyen-noi")({
   head: () => ({
@@ -104,7 +105,7 @@ function TopicCard({ card }: { card: TopicCardData }) {
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="mb-4 font-display text-lg font-extrabold text-white sm:text-xl">{children}</h2>
+    <h2 className="mb-4 font-display text-lg font-extrabold text-navy sm:text-xl">{children}</h2>
   );
 }
 
@@ -149,14 +150,22 @@ function TopicPicker() {
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+    <div className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      {/* Pinned to the page's top-left gutter — out of the flow, so it costs
+          the content no vertical space. */}
+      <BackLink
+        to="/hoc-tap"
+        label="Quay lại học tập"
+        className="absolute left-4 top-8 z-10 sm:left-6"
+      />
+
       {/* Hero */}
       <div className="mb-8 flex flex-col items-center gap-3 text-center">
-        <img src={trauCon} alt="Trâu con đội nón lá" className="h-24 w-auto animate-bob" />
-        <h1 className="font-display text-3xl font-extrabold text-white">
+        <Mascot pose="listening" size="md" bob decorative />
+        <h1 className="font-display text-3xl font-extrabold text-navy">
           Luyện nói cùng Trâu con 🎤
         </h1>
-        <p className="max-w-md text-sm text-slate-200">
+        <p className="max-w-md text-sm text-muted-foreground">
           Em chọn một chủ đề, nghe cô đọc mẫu rồi nói theo nhé. Nói hay sẽ được sao đấy!
         </p>
       </div>

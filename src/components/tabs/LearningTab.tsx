@@ -1,15 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { learningImagesQueryOptions, learningStructureQueryOptions } from "@/lib/learning";
-import { TOPICS } from "@/data/topics";
-import { RoadmapMap, NODE_POSITIONS, type ChuDeNavItem } from "@/components/learning/RoadmapMap";
+import {
+  learningImagesQueryOptions,
+  learningStructureQueryOptions,
+  quyen1ChuDes,
+} from "@/lib/learning";
+import { RoadmapList } from "@/components/learning/RoadmapList";
 import { RoadmapSkeleton } from "@/components/learning/RoadmapSkeleton";
 import { buildSlides } from "@/components/learning/LessonPage";
 import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
 import { Button } from "@/components/ui/button";
-
 
 export const BUFFALO_POS_KEY = "vui-hoc-buffalo-pos";
 
@@ -34,8 +36,13 @@ function saveBuffaloPos(pos: BuffaloPos) {
 }
 
 export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: number }) {
-  const { data, isLoading, error } = useQuery(learningStructureQueryOptions);
+  const { data: allChuDes, isLoading, error } = useQuery(learningStructureQueryOptions);
   const navigate = useNavigate();
+
+  // The roadmap only ever shows Quyển 1's chủ đề; the rest of the `chude` table belongs to
+  // Quyển 2. Narrowing once here keeps every count below (progress, celebration) on-book.
+  const data = useMemo(() => (allChuDes ? quyen1ChuDes(allChuDes) : undefined), [allChuDes]);
+
   const queryClient = useQueryClient();
 
   // The roadmap loads a lightweight, image-free payload so its skeleton clears fast. Once it's
@@ -65,24 +72,6 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
   const [currentChangIndex, setCurrentChangIndex] = useState(seedChangIndex);
   const { authIsLoading, activeProgressMap, isProgressLoading } = useLearningProgress();
 
-  const [selectedChangIndex, setSelectedChangIndex] = useState<number | null>(seedChangIndex);
-  const [buffaloChangIndex, setBuffaloChangIndex] = useState(seedChangIndex);
-
-  // The roadmap renders exactly NODE_POSITIONS.length nodes per topic. A topic with more
-  // stages in the DB silently hides the extras; fewer renders empty cards. Warn so a
-  // content-shape change is caught in the console instead of by a confused user.
-  useEffect(() => {
-    if (!data) return;
-    for (const { chuDe, changs: topicChangs } of data) {
-      if (topicChangs.length !== NODE_POSITIONS.length) {
-        console.warn(
-          `[roadmap] Topic "${chuDe.title}" has ${topicChangs.length} stages but the map ` +
-            `renders exactly ${NODE_POSITIONS.length} — extra stages are hidden, missing ones show empty cards.`,
-        );
-      }
-    }
-  }, [data]);
-
   // Restore the stage *within* the current chủ đề once data + progress are ready. The chủ đề
   // itself is pinned by the URL (source of truth), so this never navigates to a *different* chủ
   // đề — refreshing or deep-linking to a chủ đề keeps you exactly there. Cross-chủ-đề "resume
@@ -95,8 +84,6 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
 
     const setStage = (changIdx: number) => {
       setCurrentChangIndex(changIdx);
-      setBuffaloChangIndex(changIdx);
-      setSelectedChangIndex(changIdx);
     };
 
     const firstIncompleteWithin = (ti: number) => {
@@ -106,7 +93,9 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
         return prog && !prog.isCompleted && prog.noiDungIndex > 0;
       });
       if (inProgress !== -1) return inProgress;
-      const firstIncomplete = topicChangs.findIndex((ch) => !activeProgressMap.get(ch.id)?.isCompleted);
+      const firstIncomplete = topicChangs.findIndex(
+        (ch) => !activeProgressMap.get(ch.id)?.isCompleted,
+      );
       if (firstIncomplete !== -1) return firstIncomplete;
       return Math.max(0, topicChangs.length - 1);
     };
@@ -129,7 +118,11 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
         return;
       }
       // Saved stage is completed or locked — discard stale position
-      try { sessionStorage.removeItem(BUFFALO_POS_KEY); } catch { /* ignore */ }
+      try {
+        sessionStorage.removeItem(BUFFALO_POS_KEY);
+      } catch {
+        /* ignore */
+      }
     }
 
     setStage(firstIncompleteWithin(currentChuDeIndex));
@@ -137,16 +130,9 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
 
   const chuDes = useMemo(() => (data ?? []).map((d) => d.chuDe), [data]);
 
-  // The DB only has content for the first `availableCount` chủ đề; the rest of the planned
-  // journey (TOPICS) is surfaced as "coming soon" so the child can see the whole path —
-  // where they are, what's done, and what's next — even before that content ships.
+  // A chủ đề the book plans for but the DB has no content for yet renders as "coming soon".
   const availableCount = chuDes.length;
-  const plannedCount = TOPICS.length;
-  const allTopics = useMemo(
-    () => TOPICS.map((planned, i) => (i < availableCount ? chuDes[i] : planned)),
-    [chuDes, availableCount],
-  );
-  const currentTopic = allTopics[currentChuDeIndex] ?? chuDes[0];
+  const currentTopic = chuDes[currentChuDeIndex] ?? chuDes[0];
   const isCurrentLocked = currentChuDeIndex >= availableCount;
 
   const changs = useMemo(() => data?.[currentChuDeIndex]?.changs ?? [], [data, currentChuDeIndex]);
@@ -167,27 +153,6 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
   const completedChangs = useMemo(
     () => new Set(completedByChuDe[currentChuDeIndex] ?? []),
     [completedByChuDe, currentChuDeIndex],
-  );
-
-  // The full 8-topic navigator: each planned chủ đề tagged with its progress state so the
-  // header can draw a clear stepper (done / current / available / coming-soon).
-  const chuDeNav = useMemo<ChuDeNavItem[]>(
-    () =>
-      TOPICS.map((planned, i) => {
-        const isAvailable = i < availableCount;
-        const src = isAvailable ? chuDes[i] : planned;
-        const shortTitle = src.title.replace(/^Chủ đề\s*\d+\s*[:：]\s*/i, "").trim() || src.title;
-        let status: ChuDeNavItem["status"];
-        if (i === currentChuDeIndex) status = "current";
-        else if (!isAvailable) status = "locked";
-        else {
-          const total = data?.[i]?.changs.length ?? 0;
-          const done = completedByChuDe[i]?.length ?? 0;
-          status = total > 0 && done >= total ? "completed" : "available";
-        }
-        return { index: i, title: src.title, shortTitle, emoji: src.emoji, status };
-      }),
-    [chuDes, availableCount, currentChuDeIndex, data, completedByChuDe],
   );
 
   // "X/Y bài" tracks flattened slides (one per bai) — not raw noiDung steps, which are
@@ -233,21 +198,6 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
     navigate({ to: "/hoc-tap/quyen-1/$changId", params: { changId: chang.id } });
   };
 
-  // Lets a user freely move between chủ đề: any available topic (to review), plus the first
-  // upcoming one (shown as a "coming soon" preview). This is the only way to switch topics,
-  // since the map otherwise only auto-lands on one via the one-time restore effect above.
-  const goToChuDe = (index: number) => {
-    if (index < 0 || index > availableCount || index >= plannedCount || index === currentChuDeIndex) return;
-    setCurrentChangIndex(0);
-    setSelectedChangIndex(0);
-    setBuffaloChangIndex(0);
-    try { sessionStorage.removeItem(BUFFALO_POS_KEY); } catch { /* ignore */ }
-    navigate({
-      to: "/hoc-tap/quyen-1/chu-de-{$chuDeIndex}",
-      params: { chuDeIndex: String(index + 1) },
-    });
-  };
-
   // One-time celebration when the entire roadmap is complete.
   const CELEBRATION_SEEN_KEY = "vui-hoc-celebration-seen";
   const totalStages = useMemo(
@@ -264,18 +214,24 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
     if (!allEverythingDone) return;
     try {
       if (localStorage.getItem(CELEBRATION_SEEN_KEY)) return;
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     setShowCelebration(true);
   }, [allEverythingDone]);
   const dismissCelebration = () => {
     setShowCelebration(false);
-    try { localStorage.setItem(CELEBRATION_SEEN_KEY, "1"); } catch { /* ignore */ }
+    try {
+      localStorage.setItem(CELEBRATION_SEEN_KEY, "1");
+    } catch {
+      /* ignore */
+    }
   };
 
   if (isLoading || authIsLoading || isProgressLoading) {
     return (
       <section className="min-h-[70vh] w-full">
-        <RoadmapSkeleton chuDeIndex={currentChuDeIndex} />
+        <RoadmapSkeleton />
       </section>
     );
   }
@@ -296,24 +252,15 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
   return (
     <section className="w-full" id="roadmap-start">
       <div className="relative w-full">
-        <RoadmapMap
+        <RoadmapList
           chuDe={currentTopic}
           chuDeIndex={currentChuDeIndex}
-          chuDeNav={chuDeNav}
           isLocked={isCurrentLocked}
-          onSelectChuDe={goToChuDe}
-          canGoPrevChuDe={currentChuDeIndex > 0}
-          canGoNextChuDe={currentChuDeIndex < availableCount && currentChuDeIndex < plannedCount - 1}
-          onPrevChuDe={() => goToChuDe(currentChuDeIndex - 1)}
-          onNextChuDe={() => goToChuDe(currentChuDeIndex + 1)}
           changTitles={changTitles}
           changEmojis={changEmojis}
           currentChangIndex={currentChangIndex}
-          buffaloChangIndex={buffaloChangIndex}
           completedChangs={completedChangs}
           startedChangs={startedChangs}
-          selectedChangIndex={selectedChangIndex}
-          onSelectStage={(i) => { setSelectedChangIndex(i); setBuffaloChangIndex(i); }}
           onOpenLesson={openChang}
           changProgress={changProgress}
         />
@@ -321,11 +268,15 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
       {showCelebration && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
           <div className="relative w-full max-w-md rounded-3xl border-2 border-black/10 bg-white p-8 text-center shadow-[0_4px_0_0_rgba(0,0,0,0.12)]">
-            <ConfettiBurst onDone={() => { /* keep card visible until user dismisses */ }} />
+            <ConfettiBurst
+              onDone={() => {
+                /* keep card visible until user dismisses */
+              }}
+            />
             <p className="font-display text-xl font-extrabold text-navy sm:text-2xl">
               🎉 Em đã hoàn thành cả lộ trình! Em giỏi lắm!
             </p>
-            <Button variant="bevel-yellow" onClick={dismissCelebration} className="mt-6">
+            <Button variant="bevel" tone="stage-4" onClick={dismissCelebration} className="mt-6">
               Ôn tập lại
             </Button>
           </div>
@@ -334,4 +285,3 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
     </section>
   );
 }
-

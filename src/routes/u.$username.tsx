@@ -2,21 +2,26 @@ import type { User } from "@supabase/supabase-js";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { KeyRound, Lock, Loader2, RotateCcw, Globe, Pencil, Check, Home, LogOut } from "lucide-react";
+import {
+  KeyRound,
+  Loader2,
+  RotateCcw,
+  Globe,
+  ImagePlus,
+  Pencil,
+  Check,
+  Home,
+  LogOut,
+} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { upsertProfile, generateUsername } from "@/lib/profile";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProgress } from "@/hooks/useUserProgress";
-import { Navbar } from "@/components/Navbar";
+import { BadgeCollection } from "@/components/learning/BadgeCollection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,18 +41,11 @@ export const Route = createFileRoute("/u/$username")({
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const AVATAR_COLORS = [
-  "bg-green text-white",
-  "bg-sky text-navy",
-  "bg-purple text-white",
-  "bg-yellow text-navy",
-  "bg-pink text-white",
-];
-
-const BADGES = [
-  { emoji: "🌱", label: "Người mới", sublabel: "Bắt đầu hành trình", threshold: 0 },
-  { emoji: "⭐", label: "Ngôi sao", sublabel: "Hoàn thành 1 bài", threshold: 1 },
-  { emoji: "🏆", label: "Siêu sao", sublabel: "Hoàn thành 5 bài", threshold: 5 },
-  { emoji: "🦸", label: "Anh hùng", sublabel: "Hoàn thành 10 bài", threshold: 10 },
+  "bg-stage-1 text-white",
+  "bg-stage-2 text-white",
+  "bg-stage-3 text-white",
+  "bg-stage-4 text-white",
+  "bg-stage-5 text-white",
 ];
 
 const COUNTRIES = [
@@ -100,10 +98,26 @@ const COUNTRIES = [
 ];
 
 const AVATAR_OPTIONS = [
-  "🐯", "🐼", "🐨", "🦊", "🐸",
-  "🐙", "🦋", "🐬", "🦁", "🐺",
-  "🐻", "🦝", "🦄", "🐲", "🐧",
-  "🦜", "🐳", "🦔", "🐮", "🐱",
+  "🐯",
+  "🐼",
+  "🐨",
+  "🦊",
+  "🐸",
+  "🐙",
+  "🦋",
+  "🐬",
+  "🦁",
+  "🐺",
+  "🐻",
+  "🦝",
+  "🦄",
+  "🐲",
+  "🐧",
+  "🦜",
+  "🐳",
+  "🦔",
+  "🐮",
+  "🐱",
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -126,8 +140,16 @@ function FlagImg({ code, size = 24 }: { code: string; size?: number }) {
 
 function computeStreak(completedAts: string[]): { days: number; studiedToday: boolean } {
   const MS_PER_DAY = 86400_000;
-  const toDay = (iso: string) => { const d = new Date(iso); d.setHours(0, 0, 0, 0); return d.getTime(); };
-  const today = (() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime(); })();
+  const toDay = (iso: string) => {
+    const d = new Date(iso);
+    d.setHours(0, 0, 0, 0);
+    return d.getTime();
+  };
+  const today = (() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d.getTime();
+  })();
   if (completedAts.length === 0) return { days: 0, studiedToday: false };
   const days = [...new Set(completedAts.map(toDay))].sort((a, b) => b - a);
   const studiedToday = days[0] === today;
@@ -142,37 +164,157 @@ function computeStreak(completedAts: string[]): { days: number; studiedToday: bo
 
 // ─── Avatar picker ────────────────────────────────────────────────────────────
 
+const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
+const ACCEPTED_AVATAR_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
 function AvatarPickerDialog({
-  current, open, onOpenChange, onSelect,
+  current,
+  open,
+  onOpenChange,
+  onSelect,
 }: {
   current: string | undefined;
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  onSelect: (emoji: string) => void;
+  onSelect: (avatar: { emoji?: string; url?: string }) => void;
 }) {
   const [saving, setSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Emoji and uploaded picture are mutually exclusive — the renderer prefers avatar_url, so
+  // picking an emoji has to clear the URL or the choice would appear to do nothing.
+  const save = async (avatar: { emoji?: string; url?: string }) => {
+    const emoji = avatar.emoji ?? null;
+    const url = avatar.url ?? null;
+
+    // Retire any previously uploaded picture. Must happen before the profile row is
+    // overwritten below — the server finds the object to delete by reading the row's current
+    // avatar_url. Best-effort: a leaked object shouldn't block the user's choice.
+    if (!url) {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session) {
+          await fetch("/api/avatar", {
+            method: "DELETE",
+            headers: { authorization: `Bearer ${session.access_token}` },
+          });
+        }
+      } catch {
+        // Ignore — cleanup failure must not stop the avatar change.
+      }
+    }
+
+    const { error } = await supabase.auth.updateUser({
+      data: { avatar_emoji: emoji, avatar_url: url },
+    });
+    if (!error) {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        const name =
+          (user.user_metadata?.full_name as string | undefined) ||
+          user.email?.split("@")[0] ||
+          "Học sinh";
+        await upsertProfile({
+          userId: user.id,
+          displayName: name,
+          avatarEmoji: emoji,
+          avatarUrl: url,
+          country: user.user_metadata?.country as string | undefined,
+        });
+      }
+    }
+    if (error) {
+      toast.error("Không thể lưu avatar", { description: error.message });
+    } else {
+      onSelect(avatar);
+      onOpenChange(false);
+      toast.success("Đã lưu avatar!");
+    }
+  };
 
   const handleSelect = async (emoji: string) => {
     setSaving(true);
-    const { error } = await supabase.auth.updateUser({ data: { avatar_emoji: emoji } });
-    if (!error) {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const name = (user.user_metadata?.full_name as string | undefined) || user.email?.split("@")[0] || "Học sinh";
-        await upsertProfile({ userId: user.id, displayName: name, avatarEmoji: emoji, avatarUrl: user.user_metadata?.avatar_url as string | undefined, country: user.user_metadata?.country as string | undefined });
-      }
-    }
+    await save({ emoji });
     setSaving(false);
-    if (error) { toast.error("Không thể lưu avatar", { description: error.message }); }
-    else { onSelect(emoji); onOpenChange(false); toast.success("Đã lưu avatar!"); }
+  };
+
+  const handleFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    // Reset immediately so re-picking the same file still fires a change event.
+    event.target.value = "";
+    if (!file) return;
+
+    if (!ACCEPTED_AVATAR_TYPES.includes(file.type)) {
+      toast.error("Ảnh phải là JPG, PNG, WebP hoặc GIF");
+      return;
+    }
+    if (file.size > MAX_AVATAR_BYTES) {
+      toast.error("Ảnh phải nhỏ hơn 2MB");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) throw new Error("Em cần đăng nhập lại");
+
+      const body = new FormData();
+      body.append("file", file);
+      const res = await fetch("/api/avatar", {
+        method: "POST",
+        headers: { authorization: `Bearer ${session.access_token}` },
+        body,
+      });
+      if (!res.ok) throw new Error(await res.text());
+
+      const { url } = (await res.json()) as { url: string };
+      await save({ url });
+    } catch (err) {
+      toast.error("Không thể tải ảnh lên", {
+        description: err instanceof Error ? err.message : undefined,
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="rounded-3xl max-w-xs p-5">
         <DialogHeader>
-          <DialogTitle className="font-display text-xl font-extrabold text-navy">Chọn avatar của em 🎨</DialogTitle>
+          <DialogTitle className="font-display text-xl font-extrabold text-navy">
+            Chọn avatar của em 🎨
+          </DialogTitle>
         </DialogHeader>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={ACCEPTED_AVATAR_TYPES.join(",")}
+          onChange={handleFile}
+          className="hidden"
+        />
+        <Button
+          variant="outline"
+          disabled={saving}
+          onClick={() => fileInputRef.current?.click()}
+          className="w-full rounded-xl"
+        >
+          {saving ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <ImagePlus className="h-4 w-4" />
+          )}
+          Tải ảnh của em lên
+        </Button>
+        <p className="text-center text-xs text-muted-foreground">
+          JPG, PNG, WebP hoặc GIF — tối đa 2MB
+        </p>
         <div className="grid grid-cols-5 gap-2">
           {AVATAR_OPTIONS.map((emoji) => (
             <button
@@ -181,7 +323,9 @@ function AvatarPickerDialog({
               disabled={saving}
               className={[
                 "h-12 w-full rounded-xl text-2xl flex items-center justify-center transition-all active:scale-90 disabled:opacity-50",
-                current === emoji ? "bg-sky/50 ring-2 ring-sky scale-110 shadow-sm" : "bg-muted/40 hover:bg-sky/20",
+                current === emoji
+                  ? "bg-sky/50 ring-2 ring-sky scale-110 shadow-sm"
+                  : "bg-muted/40 hover:bg-sky/20",
               ].join(" ")}
             >
               {emoji}
@@ -196,7 +340,10 @@ function AvatarPickerDialog({
 // ─── Country picker ───────────────────────────────────────────────────────────
 
 function CountryPickerDialog({
-  current, open, onOpenChange, onSelect,
+  current,
+  open,
+  onOpenChange,
+  onSelect,
 }: {
   current: string | undefined;
   open: boolean;
@@ -207,31 +354,57 @@ function CountryPickerDialog({
   const [saving, setSaving] = useState(false);
 
   const filtered = COUNTRIES.filter(
-    (c) => c.name.toLowerCase().includes(search.toLowerCase()) || c.code.toLowerCase().includes(search.toLowerCase()),
+    (c) =>
+      c.name.toLowerCase().includes(search.toLowerCase()) ||
+      c.code.toLowerCase().includes(search.toLowerCase()),
   );
 
   const handleSelect = async (code: string) => {
     setSaving(true);
     const { error } = await supabase.auth.updateUser({ data: { country: code } });
     if (!error) {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (user) {
-        const name = (user.user_metadata?.full_name as string | undefined) || user.email?.split("@")[0] || "Học sinh";
-        await upsertProfile({ userId: user.id, displayName: name, avatarEmoji: user.user_metadata?.avatar_emoji as string | undefined, avatarUrl: user.user_metadata?.avatar_url as string | undefined, country: code });
+        const name =
+          (user.user_metadata?.full_name as string | undefined) ||
+          user.email?.split("@")[0] ||
+          "Học sinh";
+        await upsertProfile({
+          userId: user.id,
+          displayName: name,
+          avatarEmoji: user.user_metadata?.avatar_emoji as string | undefined,
+          avatarUrl: user.user_metadata?.avatar_url as string | undefined,
+          country: code,
+        });
       }
     }
     setSaving(false);
-    if (error) { toast.error("Không thể lưu quốc gia", { description: error.message }); }
-    else { onSelect(code); onOpenChange(false); toast.success("Đã lưu quốc gia!"); }
+    if (error) {
+      toast.error("Không thể lưu quốc gia", { description: error.message });
+    } else {
+      onSelect(code);
+      onOpenChange(false);
+      toast.success("Đã lưu quốc gia!");
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="rounded-3xl max-w-sm p-5">
         <DialogHeader>
-          <DialogTitle className="font-display text-xl font-extrabold text-navy">Chọn quốc gia của em 🌍</DialogTitle>
+          <DialogTitle className="font-display text-xl font-extrabold text-navy">
+            Chọn quốc gia của em 🌍
+          </DialogTitle>
         </DialogHeader>
-        <Input placeholder="Tìm kiếm..." value={search} onChange={(e) => setSearch(e.target.value)} className="rounded-xl" autoFocus />
+        <Input
+          placeholder="Tìm kiếm..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="rounded-xl"
+          autoFocus
+        />
         <div className="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto pr-1">
           {filtered.map((c) => (
             <button
@@ -245,11 +418,15 @@ function CountryPickerDialog({
               ].join(" ")}
             >
               <FlagImg code={c.code} size={28} />
-              <span className="text-[9px] font-semibold text-navy leading-tight line-clamp-1">{c.name}</span>
+              <span className="text-[9px] font-semibold text-navy leading-tight line-clamp-1">
+                {c.name}
+              </span>
             </button>
           ))}
           {filtered.length === 0 && (
-            <p className="col-span-4 text-center text-sm text-muted-foreground py-4">Không tìm thấy quốc gia</p>
+            <p className="col-span-4 text-center text-sm text-muted-foreground py-4">
+              Không tìm thấy quốc gia
+            </p>
           )}
         </div>
       </DialogContent>
@@ -265,10 +442,19 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
   const { progressMap, isProgressLoading } = useUserProgress(user.id);
   const [isSendingReset, setIsSendingReset] = useState(false);
   const [isRestarting, setIsRestarting] = useState(false);
-  const [countryCode, setCountryCode] = useState<string | undefined>(user.user_metadata?.country as string | undefined);
+  const [countryCode, setCountryCode] = useState<string | undefined>(
+    user.user_metadata?.country as string | undefined,
+  );
   const [countryPickerOpen, setCountryPickerOpen] = useState(false);
   const [avatarPickerOpen, setAvatarPickerOpen] = useState(false);
-  const [avatarEmoji, setAvatarEmoji] = useState<string | undefined>(user.user_metadata?.avatar_emoji as string | undefined);
+  const [avatarEmoji, setAvatarEmoji] = useState<string | undefined>(
+    user.user_metadata?.avatar_emoji as string | undefined,
+  );
+  // Seeded from user_metadata (an OAuth provider may have supplied it), but the user can
+  // replace it with their own upload, so it lives in state rather than being read-only.
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(
+    user.user_metadata?.avatar_url as string | undefined,
+  );
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState("");
   const [savingName, setSavingName] = useState(false);
@@ -278,7 +464,6 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
     (user.user_metadata?.full_name as string | undefined) ||
     user.email?.split("@")[0] ||
     "Học sinh";
-  const avatarUrl = user.user_metadata?.avatar_url as string | undefined;
   const avatarLetter = displayName[0]?.toUpperCase() ?? "?";
 
   // Ensure profile row exists
@@ -286,14 +471,16 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
     if (user) {
       upsertProfile({ userId: user.id, displayName, avatarEmoji, avatarUrl, country: countryCode });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   const { data: streak = { days: 0, studiedToday: false } } = useQuery({
     queryKey: ["streak", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("user_progress").select("completed_at").not("completed_at", "is", null);
+        .from("user_progress")
+        .select("completed_at")
+        .not("completed_at", "is", null);
       if (error) throw error;
       return computeStreak(data.map((r) => r.completed_at as string));
     },
@@ -303,11 +490,20 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
 
   const handleSaveName = async () => {
     const trimmed = nameInput.trim();
-    if (!trimmed || trimmed === displayName) { setEditingName(false); return; }
+    if (!trimmed || trimmed === displayName) {
+      setEditingName(false);
+      return;
+    }
     setSavingName(true);
     const { error } = await supabase.auth.updateUser({ data: { full_name: trimmed } });
     if (!error && user) {
-      const { username } = await upsertProfile({ userId: user.id, displayName: trimmed, avatarEmoji, avatarUrl, country: countryCode });
+      const { username } = await upsertProfile({
+        userId: user.id,
+        displayName: trimmed,
+        avatarEmoji,
+        avatarUrl,
+        country: countryCode,
+      });
       setSavingName(false);
       setEditingName(false);
       toast.success("Đã lưu tên!");
@@ -315,7 +511,9 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
       return;
     }
     setSavingName(false);
-    if (error) { toast.error("Không thể lưu tên", { description: error.message }); }
+    if (error) {
+      toast.error("Không thể lưu tên", { description: error.message });
+    }
   };
 
   const handleResetPassword = async () => {
@@ -325,8 +523,11 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     setIsSendingReset(false);
-    if (error) { toast.error("Không thể gửi email", { description: error.message }); }
-    else { toast.success("Email đặt lại mật khẩu đã được gửi! 📬"); }
+    if (error) {
+      toast.error("Không thể gửi email", { description: error.message });
+    } else {
+      toast.success("Email đặt lại mật khẩu đã được gửi! 📬");
+    }
   };
 
   const handleRestartProgress = async () => {
@@ -339,59 +540,84 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
       return;
     }
     localStorage.removeItem("vui-hoc-progress");
-    try { sessionStorage.removeItem("vui-hoc-buffalo-pos"); } catch { /* ignore */ }
+    try {
+      sessionStorage.removeItem("vui-hoc-buffalo-pos");
+    } catch {
+      /* ignore */
+    }
     queryClient.setQueryData(["user-progress", user.id], new Map());
     queryClient.setQueryData(["streak", user.id], { days: 0, studiedToday: false });
     queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
     queryClient.invalidateQueries({ queryKey: ["public-profile"] });
+    // Deleting the progress rows makes the DB revoke every badge, so the cached collection is
+    // now wrong. Without this it keeps rendering badges that no longer exist until staleTime
+    // expires — they would appear to vanish later, for no reason the child can see.
+    queryClient.invalidateQueries({ queryKey: ["badges", user.id] });
     setIsRestarting(false);
     toast.success("Tiến độ đã được đặt lại! Hãy bắt đầu lại nhé 🌱");
   };
 
-  const memberSince = new Date(user.created_at).toLocaleDateString("vi-VN", { year: "numeric", month: "long" });
+  const memberSince = new Date(user.created_at).toLocaleDateString("vi-VN", {
+    year: "numeric",
+    month: "long",
+  });
   const completedCount = [...progressMap.values()].filter((p) => p.isCompleted).length;
-  const inProgressCount = [...progressMap.values()].filter((p) => !p.isCompleted && p.noiDungIndex > 0).length;
+  const inProgressCount = [...progressMap.values()].filter(
+    (p) => !p.isCompleted && p.noiDungIndex > 0,
+  ).length;
   const isEmailUser = user.app_metadata?.provider !== "google";
 
   return (
-    <div className="min-h-screen">
-      <Navbar />
-      <main className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-
+    <div className="flex min-h-screen flex-col">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8 sm:px-6">
         {/* Hero card */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-cream via-sky/40 to-purple/20 p-8 ring-[3px] ring-white shadow-card mb-6">
-          <div className="absolute -top-8 -right-8 h-40 w-40 rounded-full bg-yellow/20 blur-2xl" />
-          <div className="absolute -bottom-6 -left-6 h-32 w-32 rounded-full bg-pink/20 blur-2xl" />
+        <div className="relative mb-6 overflow-hidden rounded-3xl border border-border bg-card p-8 shadow-card ring-1 ring-black/[0.02]">
+          <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-secondary/20 blur-2xl" />
+          <div className="absolute -bottom-6 -left-6 h-32 w-32 rounded-full bg-primary/10 blur-2xl" />
 
           <div className="relative flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
             {/* Avatar */}
             <div className="relative shrink-0">
-              <div className={[
-                "h-24 w-24 rounded-full shadow-lg ring-4 ring-white overflow-hidden flex items-center justify-center font-extrabold font-display",
-                avatarUrl || avatarEmoji ? "bg-sky/30" : avatarColor(avatarLetter),
-              ].join(" ")}>
+              <div
+                className={[
+                  "h-24 w-24 rounded-full shadow-lg ring-4 ring-white overflow-hidden flex items-center justify-center font-extrabold font-display",
+                  avatarUrl || avatarEmoji ? "bg-sky/30" : avatarColor(avatarLetter),
+                ].join(" ")}
+              >
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+                  <img
+                    src={avatarUrl}
+                    alt="Avatar"
+                    className="h-full w-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
                 ) : avatarEmoji ? (
                   <span className="text-5xl">{avatarEmoji}</span>
                 ) : (
                   <span className="text-3xl">{avatarLetter}</span>
                 )}
               </div>
-              {!avatarUrl && (
-                <button
-                  onClick={() => setAvatarPickerOpen(true)}
-                  className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-white shadow-bevel-neutral flex items-center justify-center transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-neutral-active"
-                  title="Đổi avatar"
-                >
-                  <Pencil className="h-3.5 w-3.5 text-navy" />
-                </button>
-              )}
-              <AvatarPickerDialog current={avatarEmoji} open={avatarPickerOpen} onOpenChange={setAvatarPickerOpen} onSelect={setAvatarEmoji} />
+              <button
+                onClick={() => setAvatarPickerOpen(true)}
+                className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-white shadow-bevel-neutral flex items-center justify-center transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-neutral-active"
+                title="Đổi avatar"
+              >
+                <Pencil className="h-3.5 w-3.5 text-navy" />
+              </button>
+              <AvatarPickerDialog
+                current={avatarEmoji}
+                open={avatarPickerOpen}
+                onOpenChange={setAvatarPickerOpen}
+                onSelect={({ emoji, url }) => {
+                  setAvatarEmoji(emoji);
+                  setAvatarUrl(url);
+                }}
+              />
             </div>
 
             {/* Info */}
             <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-primary/80">Trang cá nhân của em ♥</p>
               <div className="flex items-center gap-2 flex-wrap">
                 {editingName ? (
                   <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -399,7 +625,10 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                       ref={nameInputRef}
                       value={nameInput}
                       onChange={(e) => setNameInput(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === "Enter") handleSaveName(); if (e.key === "Escape") setEditingName(false); }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSaveName();
+                        if (e.key === "Escape") setEditingName(false);
+                      }}
                       className="font-display text-2xl font-extrabold text-navy bg-white/70 rounded-lg px-2 py-0.5 border border-sky outline-none min-w-0 w-full"
                       maxLength={40}
                       autoFocus
@@ -409,14 +638,22 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                       disabled={savingName}
                       className="shrink-0 h-8 w-8 rounded-full bg-green shadow-bevel-green flex items-center justify-center text-white transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-green-active disabled:opacity-50 disabled:pointer-events-none"
                     >
-                      {savingName ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                      {savingName ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Check className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                 ) : (
                   <h1 className="font-display text-2xl font-extrabold text-navy leading-tight flex items-center gap-2 flex-wrap">
                     <span className="truncate">{displayName}</span>
                     <button
-                      onClick={() => { setNameInput(displayName); setEditingName(true); setTimeout(() => nameInputRef.current?.select(), 0); }}
+                      onClick={() => {
+                        setNameInput(displayName);
+                        setEditingName(true);
+                        setTimeout(() => nameInputRef.current?.select(), 0);
+                      }}
                       className="shrink-0 h-7 w-7 rounded-full bg-white shadow-bevel-neutral flex items-center justify-center transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-neutral-active"
                       title="Đổi tên"
                     >
@@ -427,12 +664,21 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                       className="shrink-0 rounded-md border border-white/60 bg-white/50 shadow-sm ease-bounce transition-all hover:-translate-y-0.5 hover:bg-white hover:shadow-md active:translate-y-0 active:scale-95 overflow-hidden cursor-pointer"
                       title="Chọn quốc gia"
                     >
-                      {countryCode ? <FlagImg code={countryCode} size={32} /> : <Globe className="h-5 w-5 text-navy/50 m-1" />}
+                      {countryCode ? (
+                        <FlagImg code={countryCode} size={32} />
+                      ) : (
+                        <Globe className="h-5 w-5 text-navy/50 m-1" />
+                      )}
                     </button>
                   </h1>
                 )}
               </div>
-              <CountryPickerDialog current={countryCode} open={countryPickerOpen} onOpenChange={setCountryPickerOpen} onSelect={setCountryCode} />
+              <CountryPickerDialog
+                current={countryCode}
+                open={countryPickerOpen}
+                onOpenChange={setCountryPickerOpen}
+                onSelect={setCountryCode}
+              />
               <p className="text-sm text-muted-foreground mt-0.5 truncate">{user.email}</p>
               <p className="text-xs text-muted-foreground mt-1">Thành viên từ {memberSince}</p>
             </div>
@@ -442,45 +688,65 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
         {/* Stats row */}
         <div className="grid grid-cols-3 gap-3 mb-6">
           {[
-            { emoji: "🎯", value: completedCount, label: "Bài hoàn thành", color: "bg-green/10 text-green" },
-            { emoji: "📖", value: inProgressCount, label: "Đang học", color: "bg-yellow/20 text-navy" },
+            {
+              emoji: "🎯",
+              value: completedCount,
+              label: "Bài hoàn thành",
+              color: "bg-stage-1-soft text-stage-1-deep",
+            },
+            {
+              emoji: "📖",
+              value: inProgressCount,
+              label: "Đang học",
+              color: "bg-stage-4-soft text-navy",
+            },
           ].map(({ emoji, value, label, color }) => (
-            <div key={label} className={["rounded-2xl p-4 text-center ring-[3px] ring-white shadow-card", color].join(" ")}>
+            <div
+              key={label}
+              className={["rounded-2xl p-4 text-center ring-1 ring-border shadow-card", color].join(
+                " ",
+              )}
+            >
               <div className="text-2xl mb-1">{emoji}</div>
-              <div className="font-display text-2xl font-extrabold text-navy leading-none">{isProgressLoading ? "—" : value}</div>
-              <div className="text-xs font-semibold mt-1 text-muted-foreground leading-tight">{label}</div>
+              <div className="font-display text-2xl font-extrabold text-navy leading-none">
+                {isProgressLoading ? "—" : value}
+              </div>
+              <div className="text-xs font-semibold mt-1 text-muted-foreground leading-tight">
+                {label}
+              </div>
             </div>
           ))}
-          <div className="rounded-2xl p-4 text-center ring-[3px] ring-white shadow-card bg-orange-50 text-orange-600">
+          <div className="rounded-2xl bg-primary/8 p-4 text-center shadow-card ring-1 ring-border">
             <div className="text-2xl mb-1">🔥</div>
-            <div className="font-display text-2xl font-extrabold text-navy leading-none">{streak.days}</div>
-            <div className="text-xs font-semibold mt-1 text-muted-foreground leading-tight">Ngày liên tiếp</div>
-            <div className={["mt-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold inline-block", streak.studiedToday ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-600"].join(" ")}>
+            <div className="font-display text-2xl font-extrabold text-navy leading-none">
+              {streak.days}
+            </div>
+            <div className="text-xs font-semibold mt-1 text-muted-foreground leading-tight">
+              Ngày liên tiếp
+            </div>
+            <div
+              className={[
+                "mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold",
+                streak.studiedToday
+                  ? "bg-stage-1-soft text-stage-1-deep"
+                  : "bg-muted text-muted-foreground",
+              ].join(" ")}
+            >
               {streak.studiedToday ? "✓ Hôm nay xong" : "Chưa học hôm nay"}
             </div>
           </div>
         </div>
 
         {/* Badges */}
-        <div className="rounded-3xl bg-white ring-[3px] ring-white shadow-card p-6 mb-6">
-          <h2 className="font-display text-lg font-extrabold text-navy mb-4">🏅 Huy hiệu của em</h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {BADGES.map(({ emoji, label, sublabel, threshold }) => {
-              const earned = completedCount >= threshold;
-              return (
-                <div key={label} className={["relative rounded-2xl border p-4 text-center transition-all", earned ? "bg-gradient-to-b from-yellow/20 to-cream border-yellow/40 shadow-sm" : "bg-muted/40 border-border opacity-50 grayscale"].join(" ")}>
-                  <div className={["text-3xl mb-2", earned ? "animate-stamp-in" : ""].join(" ")}>{emoji}</div>
-                  <div className="font-display text-sm font-bold text-navy leading-tight">{label}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5 leading-tight">{sublabel}</div>
-                  {!earned && <Lock className="absolute top-2 right-2 h-3.5 w-3.5 text-muted-foreground" />}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <BadgeCollection
+          userId={user.id}
+          title="🏅 Huy hiệu của em"
+          emptyHint="Em chưa có huy hiệu nào. Học hết một chủ đề để nhận huy hiệu đầu tiên nhé!"
+          zoomable
+        />
 
         {/* Account actions */}
-        <div className="rounded-3xl bg-white ring-[3px] ring-white shadow-card p-6 space-y-3">
+        <div className="rounded-3xl bg-white ring-1 ring-border shadow-card p-6 space-y-3">
           <h2 className="font-display text-lg font-extrabold text-navy mb-4">⚙️ Tài khoản</h2>
 
           {isEmailUser && (
@@ -490,7 +756,11 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
               onClick={handleResetPassword}
               disabled={isSendingReset}
             >
-              {isSendingReset ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4 text-primary" />}
+              {isSendingReset ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <KeyRound className="h-4 w-4 text-primary" />
+              )}
               Đổi mật khẩu
             </Button>
           )}
@@ -499,23 +769,35 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
             <AlertDialogTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full justify-start gap-3 rounded-xl h-12 font-bold text-orange-500 border-orange-200 hover:bg-orange-50 hover:border-orange-300"
+                className="h-12 w-full justify-start gap-3 rounded-xl border-stage-4/40 font-bold text-stage-4-deep hover:border-stage-4/60 hover:bg-stage-4-soft"
                 disabled={isRestarting}
               >
-                {isRestarting ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
+                {isRestarting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RotateCcw className="h-4 w-4" />
+                )}
                 Bắt đầu lại từ đầu
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent className="rounded-3xl">
               <AlertDialogHeader>
-                <AlertDialogTitle className="font-display text-xl font-extrabold text-navy">Bắt đầu lại từ đầu? 🔄</AlertDialogTitle>
+                <AlertDialogTitle className="font-display text-xl font-extrabold text-navy">
+                  Bắt đầu lại từ đầu? 🔄
+                </AlertDialogTitle>
                 <AlertDialogDescription className="text-base leading-relaxed">
-                  Tất cả tiến độ học tập của em sẽ bị xóa và em sẽ bắt đầu lại từ bài đầu tiên. Tài khoản của em vẫn được giữ lại.
+                  Tất cả tiến độ học tập của em sẽ bị xóa và em sẽ bắt đầu lại từ bài đầu tiên. Tài
+                  khoản của em vẫn được giữ lại.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel className="rounded-xl font-bold">Thôi, giữ lại</AlertDialogCancel>
-                <AlertDialogAction onClick={handleRestartProgress} className="rounded-xl font-bold bg-orange-500 hover:bg-orange-600">
+                <AlertDialogCancel className="rounded-xl font-bold">
+                  Thôi, giữ lại
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleRestartProgress}
+                  className="rounded-xl bg-stage-4 font-bold hover:brightness-95"
+                >
                   Bắt đầu lại
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -547,7 +829,10 @@ function PublicView({ username }: { username: string }) {
     queryKey: ["public-profile", username],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("profiles").select("*").eq("username", username).maybeSingle();
+        .from("profiles")
+        .select("*")
+        .eq("username", username)
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
@@ -557,7 +842,6 @@ function PublicView({ username }: { username: string }) {
   if (isLoading) {
     return (
       <div className="min-h-screen">
-        <Navbar />
         <div className="flex items-center justify-center py-32">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -568,14 +852,18 @@ function PublicView({ username }: { username: string }) {
   if (!profile) {
     return (
       <div className="min-h-screen">
-        <Navbar />
         <main className="mx-auto max-w-lg px-4 py-20 text-center">
           <div className="text-6xl mb-4">🔍</div>
-          <h1 className="font-display text-2xl font-extrabold text-navy mb-2">Không tìm thấy người dùng</h1>
+          <h1 className="font-display text-2xl font-extrabold text-navy mb-2">
+            Không tìm thấy người dùng
+          </h1>
           <p className="text-muted-foreground mb-6">
             Hồ sơ <span className="font-semibold text-navy">@{username}</span> không tồn tại.
           </p>
-          <Link to="/" className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-display text-sm font-extrabold text-white shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-display text-sm font-extrabold text-white shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active"
+          >
             <Home className="h-4 w-4" />
             Về trang chủ
           </Link>
@@ -585,22 +873,35 @@ function PublicView({ username }: { username: string }) {
   }
 
   const avatarLetter = profile.display_name[0]?.toUpperCase() ?? "?";
-  const memberSince = new Date(profile.created_at).toLocaleDateString("vi-VN", { year: "numeric", month: "long" });
+  const memberSince = new Date(profile.created_at).toLocaleDateString("vi-VN", {
+    year: "numeric",
+    month: "long",
+  });
 
   return (
-    <div className="min-h-screen">
-      <Navbar />
-      <main className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-
+    <div className="flex min-h-screen flex-col">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8 sm:px-6">
         {/* Hero card */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-cream via-sky/40 to-purple/20 p-8 ring-[3px] ring-white shadow-card mb-6">
-          <div className="absolute -top-8 -right-8 h-40 w-40 rounded-full bg-yellow/20 blur-2xl" />
-          <div className="absolute -bottom-6 -left-6 h-32 w-32 rounded-full bg-pink/20 blur-2xl" />
+        <div className="relative mb-6 overflow-hidden rounded-3xl border border-border bg-card p-8 shadow-card ring-1 ring-black/[0.02]">
+          <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-secondary/20 blur-2xl" />
+          <div className="absolute -bottom-6 -left-6 h-32 w-32 rounded-full bg-primary/10 blur-2xl" />
           <div className="relative flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
             <div className="shrink-0">
-              <div className={["h-24 w-24 rounded-full shadow-lg ring-4 ring-white overflow-hidden flex items-center justify-center font-extrabold font-display", profile.avatar_url || profile.avatar_emoji ? "bg-sky/30" : avatarColor(avatarLetter)].join(" ")}>
+              <div
+                className={[
+                  "h-24 w-24 rounded-full shadow-lg ring-4 ring-white overflow-hidden flex items-center justify-center font-extrabold font-display",
+                  profile.avatar_url || profile.avatar_emoji
+                    ? "bg-sky/30"
+                    : avatarColor(avatarLetter),
+                ].join(" ")}
+              >
                 {profile.avatar_url ? (
-                  <img src={profile.avatar_url} alt="Avatar" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+                  <img
+                    src={profile.avatar_url}
+                    alt="Avatar"
+                    className="h-full w-full object-cover"
+                    referrerPolicy="no-referrer"
+                  />
                 ) : profile.avatar_emoji ? (
                   <span className="text-5xl">{profile.avatar_emoji}</span>
                 ) : (
@@ -610,7 +911,9 @@ function PublicView({ username }: { username: string }) {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                <h1 className="font-display text-2xl font-extrabold text-navy">{profile.display_name}</h1>
+                <h1 className="font-display text-2xl font-extrabold text-navy">
+                  {profile.display_name}
+                </h1>
                 {profile.country && (
                   <span className="rounded-md border border-white/60 bg-white/50 shadow-sm overflow-hidden">
                     <FlagImg code={profile.country} size={28} />
@@ -624,40 +927,27 @@ function PublicView({ username }: { username: string }) {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="rounded-2xl p-4 text-center ring-[3px] ring-white shadow-card bg-green/10">
+        <div className="mb-6">
+          <div className="rounded-2xl p-4 text-center ring-1 ring-border shadow-card bg-stage-1-soft">
             <div className="text-2xl mb-1">🎯</div>
-            <div className="font-display text-2xl font-extrabold text-navy leading-none">{profile.completed_count}</div>
-            <div className="text-xs font-semibold mt-1 text-muted-foreground">Bài hoàn thành</div>
-          </div>
-          <div className="rounded-2xl p-4 text-center ring-[3px] ring-white shadow-card bg-yellow/20">
-            <div className="text-2xl mb-1">🏅</div>
-            <div className="font-display text-xl font-extrabold text-navy leading-none">
-              {(() => { const earned = BADGES.filter((b) => profile.completed_count >= b.threshold); return earned[earned.length - 1]?.label ?? "—"; })()}
+            <div className="font-display text-2xl font-extrabold text-navy leading-none">
+              {profile.completed_count}
             </div>
-            <div className="text-xs font-semibold mt-1 text-muted-foreground">Huy hiệu cao nhất</div>
+            <div className="text-xs font-semibold mt-1 text-muted-foreground">Bài hoàn thành</div>
           </div>
         </div>
 
         {/* Badges */}
-        <div className="rounded-3xl bg-white ring-[3px] ring-white shadow-card p-6 mb-6">
-          <h2 className="font-display text-lg font-extrabold text-navy mb-4">🏅 Huy hiệu</h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {BADGES.map(({ emoji, label, sublabel, threshold }) => {
-              const earned = profile.completed_count >= threshold;
-              return (
-                <div key={label} className={["relative rounded-2xl border p-4 text-center transition-all", earned ? "bg-gradient-to-b from-yellow/20 to-cream border-yellow/40 shadow-sm" : "bg-muted/40 border-border opacity-50 grayscale"].join(" ")}>
-                  <div className="text-3xl mb-2">{emoji}</div>
-                  <div className="font-display text-sm font-bold text-navy leading-tight">{label}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5 leading-tight">{sublabel}</div>
-                  {!earned && <Lock className="absolute top-2 right-2 h-3.5 w-3.5 text-muted-foreground" />}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <BadgeCollection
+          userId={profile.id}
+          title="🏅 Huy hiệu"
+          emptyHint="Bạn này chưa sưu tầm được huy hiệu nào."
+          showLocked={false}
+        />
 
-        <p className="text-center text-xs text-muted-foreground pb-4">Trường Tiếng Việt Của Em 🇻🇳</p>
+        <p className="text-center text-xs text-muted-foreground pb-4">
+          Trường Tiếng Việt Của Em 🇻🇳
+        </p>
       </main>
     </div>
   );
@@ -672,7 +962,6 @@ function ProfilePage() {
   if (isLoading) {
     return (
       <div className="min-h-screen">
-        <Navbar />
         <div className="flex items-center justify-center py-32">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>

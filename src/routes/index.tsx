@@ -1,6 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { InfoTab } from "@/components/tabs/InfoTab";
 
 export const Route = createFileRoute("/")({
@@ -25,12 +23,8 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <div className="flex min-h-screen flex-col">
-      <Navbar />
-      <main className="flex-1 animate-in fade-in slide-in-from-bottom-2 duration-300">
-        <InfoTab />
-      </main>
-      <Footer />
-    </div>
+    <main className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+      <InfoTab />
+    </main>
   );
 }

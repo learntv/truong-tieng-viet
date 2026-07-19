@@ -55,7 +55,16 @@ export async function headObject(key: string): Promise<boolean> {
   return true;
 }
 
-export async function putObject(key: string, body: Uint8Array, contentType: string): Promise<void> {
+// `cacheControl` defaults to a year-long immutable lifetime, which suits content-hashed
+// objects that are only ever added (audio). Callers that also *delete* objects must pass
+// something shorter — an immutable edge-cached copy outlives the delete, so the object stays
+// publicly fetchable long after it's gone from the bucket (see api.avatar.ts).
+export async function putObject(
+  key: string,
+  body: Uint8Array,
+  contentType: string,
+  cacheControl = "public, max-age=31536000, immutable",
+): Promise<void> {
   const { client } = getConfig();
   const res = await client.fetch(objectUrl(key), {
     method: "PUT",
@@ -65,9 +74,7 @@ export async function putObject(key: string, body: Uint8Array, contentType: stri
     body: new Blob([body as BlobPart]),
     headers: {
       "content-type": contentType,
-      // The key is content-hashed, so the object itself is genuinely immutable — safe for
-      // the bucket's public endpoint to hand browsers a year-long cache lifetime.
-      "cache-control": "public, max-age=31536000, immutable",
+      "cache-control": cacheControl,
     },
   });
   if (!res.ok) throw new Error(`R2 putObject(${key}) failed (${res.status}): ${await res.text()}`);

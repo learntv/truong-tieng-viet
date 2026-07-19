@@ -207,11 +207,22 @@ export const learningImagesQueryOptions = queryOptions({
   staleTime: 5 * 60_000,
 });
 
-// The one shared definition of "is this the Quyển 1 roadmap" — used by both the immersive
-// layout branch (src/routes/hoc-tap.tsx) and the scroll-restoration opt-out (src/router.tsx).
-// A plain `pathname.startsWith("/hoc-tap/quyen-1")` would also match a future
-// "/hoc-tap/quyen-10" or "/hoc-tap/quyen-1-preview" route; matching the exact segment avoids
-// that, and keeping it in one place means both call sites can't drift out of sync.
-export function isQuyen1Path(pathname: string): boolean {
-  return pathname === "/hoc-tap/quyen-1" || pathname.startsWith("/hoc-tap/quyen-1/");
+// Quyển 1 covers the first four chủ đề in the `chude` table; chủ đề 5-8 belong to Quyển 2. The
+// table has no quyển column, so the split is positional — this constant is the single place that
+// encodes it, used by the overworld map, the roadmap and the chủ đề route's range check.
+export const QUYEN_1_CHU_DE_COUNT = 4;
+
+export function quyen1ChuDes(data: ChuDeWithChangs[] | undefined): ChuDeWithChangs[] {
+  return (data ?? []).slice(0, QUYEN_1_CHU_DE_COUNT);
 }
+
+// A chủ đề counts as finished only when it has chặng *and* every one of them is complete — an
+// empty chủ đề must not read as "done", or the map would unlock the whole journey on missing
+// content. Shared so the map, the index route and the roadmap can't drift apart.
+export function isChuDeComplete(
+  changs: { id: string }[],
+  progressMap: Map<string, { isCompleted: boolean }>,
+): boolean {
+  return changs.length > 0 && changs.every((ch) => progressMap.get(ch.id)?.isCompleted);
+}
+

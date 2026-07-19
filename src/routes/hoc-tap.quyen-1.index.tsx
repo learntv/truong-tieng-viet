@@ -1,46 +1,37 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { learningStructureQueryOptions } from "@/lib/learning";
+import { learningStructureQueryOptions, quyen1ChuDes } from "@/lib/learning";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
-import { loadBuffaloPos } from "@/components/tabs/LearningTab";
-import { RoadmapSkeleton } from "@/components/learning/RoadmapSkeleton";
+import { OverworldMap } from "@/components/learning/OverworldMap";
+import { OverworldSkeleton } from "@/components/learning/RoadmapSkeleton";
 
-// Bare "/hoc-tap/quyen-1" has no chủ đề of its own — bounce to wherever the user is actually
-// studying: the last-opened topic if it isn't finished yet, otherwise the first chủ đề that
-// still has incomplete stages (so finishing chủ đề 1 lands you on chủ đề 2, not back on 1).
+// "/hoc-tap/quyen-1" is the hub of the book: an overworld map of Việt Nam with one landmark per
+// chủ đề. Moving between chủ đề goes through this map rather than a stepper, so the child always
+// sees where they are in the journey.
 export const Route = createFileRoute("/hoc-tap/quyen-1/")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const navigate = useNavigate();
-  const { data } = useQuery(learningStructureQueryOptions);
+  const { data, isLoading, error } = useQuery(learningStructureQueryOptions);
   const { authIsLoading, activeProgressMap, isProgressLoading } = useLearningProgress();
 
-  useEffect(() => {
-    if (!data || data.length === 0 || authIsLoading || isProgressLoading) return;
+  if (isLoading || authIsLoading || isProgressLoading) return <OverworldSkeleton />;
 
-    const isChuDeComplete = (i: number) => {
-      const changs = data[i]?.changs ?? [];
-      return changs.length > 0 && changs.every((ch) => activeProgressMap.get(ch.id)?.isCompleted);
-    };
+  const chuDes = quyen1ChuDes(data);
 
-    const saved = loadBuffaloPos();
-    let chuDeIndex: number;
-    if (saved && saved.chuDeIndex >= 0 && saved.chuDeIndex < data.length && !isChuDeComplete(saved.chuDeIndex)) {
-      chuDeIndex = saved.chuDeIndex;
-    } else {
-      const firstIncomplete = data.findIndex((_, i) => !isChuDeComplete(i));
-      chuDeIndex = firstIncomplete !== -1 ? firstIncomplete : data.length - 1;
-    }
+  if (error || chuDes.length === 0) {
+    return (
+      <section className="flex min-h-[60vh] w-full items-center justify-center px-4 text-center text-navy">
+        <div>
+          <p className="font-display text-lg font-bold">Chưa có dữ liệu bài học.</p>
+          {error ? (
+            <p className="mt-2 text-sm text-muted-foreground">{(error as Error).message}</p>
+          ) : null}
+        </div>
+      </section>
+    );
+  }
 
-    navigate({
-      to: "/hoc-tap/quyen-1/chu-de-{$chuDeIndex}",
-      params: { chuDeIndex: String(chuDeIndex + 1) },
-      replace: true,
-    });
-  }, [data, authIsLoading, isProgressLoading, activeProgressMap, navigate]);
-
-  return <RoadmapSkeleton />;
+  return <OverworldMap chuDes={chuDes} progressMap={activeProgressMap} />;
 }

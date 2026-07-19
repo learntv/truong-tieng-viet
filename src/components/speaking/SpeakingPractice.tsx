@@ -14,8 +14,9 @@ import {
   type WordMatch,
 } from "@/lib/speech";
 import { useSpeakingProgress } from "@/hooks/useSpeakingProgress";
-import { STAGE_COLORS } from "@/components/learning/StageCard";
+import { STAGE_COLORS } from "@/components/learning/stageColors";
 import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
+import { Mascot } from "@/components/Mascot";
 import { useSingletonAudio } from "@/hooks/useSingletonAudio";
 import { ttsSrc } from "@/lib/tts/text";
 import { RecordButton } from "./RecordButton";
@@ -197,10 +198,10 @@ export function SpeakingPractice({
     return (
       <div className="mx-auto max-w-lg px-4 py-20 text-center">
         <div className="mb-4 text-6xl">🎤</div>
-        <h1 className="mb-2 font-display text-2xl font-extrabold text-white">
+        <h1 className="mb-2 font-display text-2xl font-extrabold text-navy">
           Chủ đề này chưa có câu luyện
         </h1>
-        <p className="mb-6 text-slate-200">Em chọn chủ đề khác để luyện nói nhé!</p>
+        <p className="mb-6 text-muted-foreground">Em chọn chủ đề khác để luyện nói nhé!</p>
         <Link
           to="/hoc-tap/luyen-noi"
           className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary/90"
@@ -248,10 +249,9 @@ export function SpeakingPractice({
 
       {/* Everything below lives in a single Duolingo-style bevel card. */}
       <div
-        className={[
-          "overflow-hidden rounded-2xl border-2 border-black/10 bg-white",
-          color.bevel,
-        ].join(" ")}
+        className={["overflow-hidden rounded-2xl border border-border bg-card", color.bevel].join(
+          " ",
+        )}
       >
         {/* Colored header strip */}
         <div className={["flex items-center gap-3 px-5 py-4 sm:px-8", color.bg].join(" ")}>
@@ -314,14 +314,14 @@ export function SpeakingPractice({
                               className={
                                 c.ok
                                   ? "text-navy"
-                                  : "text-red-500 underline decoration-wavy decoration-2 underline-offset-4"
+                                  : "text-destructive underline decoration-wavy decoration-2 underline-offset-4"
                               }
                             >
                               {c.char}
                             </span>
                           ))
                         ) : (
-                          <span className="text-red-400 underline decoration-wavy decoration-2 underline-offset-4">
+                          <span className="text-destructive/70 underline decoration-wavy decoration-2 underline-offset-4">
                             {w.word}
                           </span>
                         )}
@@ -407,7 +407,20 @@ export function SpeakingPractice({
 
           {showGraded && !grading && (
             <div className="mb-6 flex justify-center">
-              <StarRow stars={result.stars} />
+              {/* Stars stay centered on the card — the same spot they occupy
+                before grading — with Trâu con hung off their left edge so he
+                does not push them off-centre. He reacts to the attempt: never
+                disappointed, just thoughtful when it did not land, so a miss
+                stays encouraging. */}
+              <div className="relative">
+                <Mascot
+                  className="absolute right-full top-1/2 mr-3 -translate-y-1/2"
+                  pose={result.stars === 3 ? "cheer" : result.stars > 0 ? "thumbs-up" : "thinking"}
+                  size="sm"
+                  decorative
+                />
+                <StarRow stars={result.stars} />
+              </div>
             </div>
           )}
 

@@ -4,16 +4,23 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
     variants: {
       variant: {
-        default: "border-transparent bg-primary text-primary-foreground shadow hover:bg-primary/80",
+        default: "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
         secondary:
           "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground shadow hover:bg-destructive/80",
+          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground",
+        success: "border-transparent bg-stage-1-soft text-stage-1-deep",
+        locked: "border-transparent bg-muted text-muted-foreground",
+        "stage-1": "border-transparent bg-stage-1-soft text-stage-1-deep",
+        "stage-2": "border-transparent bg-stage-2-soft text-stage-2-deep",
+        "stage-3": "border-transparent bg-stage-3-soft text-stage-3-deep",
+        "stage-4": "border-transparent bg-stage-4-soft text-stage-4-deep",
+        "stage-5": "border-transparent bg-stage-5-soft text-stage-5-deep",
       },
     },
     defaultVariants: {

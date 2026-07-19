@@ -6,7 +6,9 @@ import nonLa from "@/assets/symbols/non-la.png";
 import tre from "@/assets/symbols/tre.png";
 import pho from "@/assets/symbols/pho.png";
 import hoaSen from "@/assets/symbols/hoa-sen.png";
-import tilePattern from "@/assets/symbols/tile-pattern.svg";
+import { Card } from "@/components/ui/card";
+import { SectionHeader } from "@/components/ui/section-header";
+import { Mascot } from "@/components/Mascot";
 
 const ROWS = [
   {
@@ -21,21 +23,19 @@ const ROWS = [
       </>
     ),
     image: aoDai,
-    headingColor: "text-sky-600",
   },
   {
     heading: "Dự án số hóa",
     body: (
       <>
         Dự án số hóa hai cuốn sách của{" "}
-        <strong className="font-bold text-foreground">NXB ĐH Sư Phạm TP Hồ Chí Minh</strong>, được thực
-        hiện trong khuôn khổ Chương trình Tôn vinh tiếng Việt trong cộng đồng người Việt Nam ở nước
-        ngoài, do <strong className="font-bold text-foreground">UBNVONN – Bộ Ngoại giao</strong> phát
-        động.
+        <strong className="font-bold text-foreground">NXB ĐH Sư Phạm TP Hồ Chí Minh</strong>, được
+        thực hiện trong khuôn khổ Chương trình Tôn vinh tiếng Việt trong cộng đồng người Việt Nam ở
+        nước ngoài, do{" "}
+        <strong className="font-bold text-foreground">UBNVONN – Bộ Ngoại giao</strong> phát động.
       </>
     ),
     image: nonLa,
-    headingColor: "text-amber-700",
   },
   {
     heading: "Hệ sinh thái",
@@ -49,7 +49,6 @@ const ROWS = [
       </>
     ),
     image: tre,
-    headingColor: "text-green-600",
   },
   {
     heading: "Bản quyền",
@@ -58,109 +57,103 @@ const ROWS = [
         Dự án được bảo hộ bản quyền bởi đồng tác giả:
         <br />
         <strong className="font-bold text-foreground">
-          Phan Thị Quỳnh Trang - Nguyễn Trần Thanh Hải - Đỗ Thị Phương Mai - Trần Thanh Phúc - Trần Văn
-          Nhật
+          Phan Thị Quỳnh Trang - Nguyễn Trần Thanh Hải - Đỗ Thị Phương Mai - Trần Thanh Phúc - Trần
+          Văn Nhật
         </strong>
         .
       </>
     ),
     image: pho,
-    headingColor: "text-orange-600",
   },
 ];
 
 export function InfoTab() {
   return (
-    <section className="w-full pb-10">
+    <div className="w-full">
       <InfoHero />
 
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
-        <header id="gioi-thieu" className="mb-8 flex flex-col items-center text-center sm:mb-12 scroll-mt-24">
-          <div className="flex items-center gap-3">
-            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-red-500 to-orange-400 text-white shadow-lg">
-              <Info className="h-5 w-5" strokeWidth={2.5} />
-            </span>
-            <h2 className="font-display text-3xl font-extrabold text-red-700 sm:text-5xl">
-              Giới thiệu
-            </h2>
-          </div>
-          <p className="mx-auto mt-3 max-w-2xl text-base text-foreground/70">
-            Đôi nét về sứ mệnh, đối tác và bản quyền của Trường Tiếng Việt Của Em.
-          </p>
-        </header>
+      <div id="gioi-thieu" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-16 sm:px-6 sm:py-24">
+        <SectionHeader
+          align="center"
+          eyebrow="Về dự án"
+          title="Giới thiệu"
+          subtitle="Đôi nét về sứ mệnh, đối tác và bản quyền của Trường Tiếng Việt Của Em."
+          className="mx-auto mb-10 sm:mb-14"
+        />
 
-        <div id="info-rows-start" className="mx-auto flex max-w-4xl flex-col gap-24 sm:gap-32">
-          {ROWS.map((r, i) => (
-            <div
+        <div className="mx-auto grid max-w-5xl gap-5 sm:grid-cols-2 sm:gap-6">
+          {ROWS.map((r) => (
+            <Card
               key={r.heading}
-              className={`flex flex-col items-center gap-8 text-center sm:gap-14 sm:text-left ${
-                i % 2 === 1 ? "sm:flex-row-reverse" : "sm:flex-row"
-              }`}
+              interactive
+              className="flex items-start gap-4 p-5 text-left sm:gap-5 sm:p-6"
             >
               <div className="shrink-0">
-                <img src={r.image} alt="" className="h-32 w-32 object-contain sm:h-40 sm:w-40" />
+                <div className="grid h-20 w-20 place-items-center rounded-full bg-primary/10 p-2 sm:h-24 sm:w-24">
+                  <img src={r.image} alt="" className="h-14 w-14 object-contain sm:h-16 sm:w-16" />
+                </div>
               </div>
-              <div>
-                <h3 className={`font-display text-3xl font-extrabold sm:text-4xl ${r.headingColor}`}>
+              <div className="min-w-0">
+                <h3 className="font-display text-lg font-extrabold text-navy sm:text-xl">
                   {r.heading}
                 </h3>
-                <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-foreground/70 sm:mx-0">
-                  {r.body}
-                </p>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{r.body}</p>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       </div>
 
-      <div
-        className="w-full bg-indigo-400 px-4 py-14 sm:px-6 sm:py-20"
-        style={{ backgroundImage: `url(${tilePattern})`, backgroundRepeat: "repeat" }}
-      >
-        <h3 className="text-center font-display text-2xl font-extrabold text-white opacity-90 sm:text-4xl">
-          Lộ trình học thú vị
-        </h3>
-        <div className="mt-10 sm:mt-12">
-          <InfoStats />
-        </div>
+      <div className="w-full bg-navy px-4 py-16 sm:px-6 sm:py-24">
+        <SectionHeader
+          align="center"
+          title="Lộ trình học thú vị"
+          light
+          className="mb-10 sm:mb-12"
+        />
+        <InfoStats />
       </div>
 
-      <div className="mx-auto max-w-6xl px-4 pb-10 pt-16 sm:px-6 sm:pb-14 sm:pt-20">
+      <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24">
+        {/* Trâu con peeks over the top edge of the letter. He sits on this
+          wrapper because the Card itself clips its children, and his height is
+          kept under the section's top padding so he never reaches the band
+          above. */}
         <div className="relative">
-          <div className="flex justify-center">
-            <img
-              src={hoaSen}
-              alt=""
-              className="relative z-10 -mb-12 h-28 w-28 object-contain sm:-mb-16 sm:h-36 sm:w-36"
-            />
-          </div>
-          <article className="rounded-3xl bg-pink-100 px-12 pb-8 pt-16 sm:px-20 sm:pb-10 sm:pt-20">
-            <div className="flex items-center justify-center">
-              <h3
-                className="font-display text-2xl font-extrabold text-red-600 sm:text-3xl"
-                style={{ WebkitTextStroke: "1.5px white", paintOrder: "stroke fill" }}
-              >
-                Lời cảm ơn
-              </h3>
-            </div>
-            <p className="mt-4 text-center text-[15px] leading-relaxed text-black/80 sm:text-base">
+          {/* translate-y drops him a few px onto the card's top edge, and z-10
+            keeps him in front of it so his paws rest on the letter instead of
+            disappearing behind the border. */}
+          <Mascot
+            pose="peeking-over"
+            decorative
+            className="pointer-events-none absolute bottom-full right-8 z-10 h-16 translate-y-[6px] sm:h-20"
+          />
+          <Card className="relative overflow-hidden px-6 py-10 text-center sm:px-16 sm:py-14">
+            <img src={hoaSen} alt="" className="mx-auto mb-4 h-14 w-14 object-contain" />
+            <h3 className="inline-flex items-center gap-2 font-display text-2xl font-extrabold text-navy sm:text-3xl">
+              <Info className="h-6 w-6 text-primary sm:h-7 sm:w-7" strokeWidth={2.5} />
+              Lời cảm ơn
+            </h3>
+            <p className="mx-auto mt-4 max-w-2xl text-[15px] leading-relaxed text-muted-foreground sm:text-base">
               Ban quản lý dự án xin được gửi lời cảm ơn chân thành tới{" "}
-              <strong className="font-bold text-black">
+              <strong className="font-bold text-foreground">
                 Ủy ban Nhà nước về người Việt Nam ở nước ngoài - Bộ Ngoại giao
               </strong>{" "}
-              nước Cộng hòa xã hội chủ nghĩa Việt Nam đã luôn đồng hành
-              và định hướng. Chúng tôi xin gửi lời tri ân sâu sắc tới các Đại sứ
-              quán, các cơ quan ban ngành tại Việt Nam và Canada, cùng Mạng lưới
-              giảng dạy tiếng Việt đã tạo điều kiện và hỗ trợ quý báu để dự án{" "}
-              <strong className="font-bold text-black">&quot;Trường Tiếng Việt Của Em&quot;</strong>{" "}
-              được hoàn thiện và đi vào vận hành. Sự
-              đồng hành của quý vị là nguồn động lực to lớn giúp chúng tôi gìn giữ
-              và lan tỏa ngôn ngữ, văn hóa Việt đến với thế hệ trẻ tại Canada nói
-              riêng và trên toàn thế giới nói chung.
+              nước Cộng hòa xã hội chủ nghĩa Việt Nam đã luôn đồng hành và định hướng. Chúng tôi xin
+              gửi lời tri ân sâu sắc tới các Đại sứ quán, các cơ quan ban ngành tại Việt Nam và
+              Canada, cùng Mạng lưới giảng dạy tiếng Việt đã tạo điều kiện và hỗ trợ quý báu để dự
+              án{" "}
+              <strong className="font-bold text-foreground">
+                &quot;Trường Tiếng Việt Của Em&quot;
+              </strong>{" "}
+              được hoàn thiện và đi vào vận hành. Sự đồng hành của quý vị là nguồn động lực to lớn
+              giúp chúng tôi gìn giữ và lan tỏa ngôn ngữ, văn hóa Việt đến với thế hệ trẻ tại Canada
+              nói riêng và trên toàn thế giới nói chung.
             </p>
-          </article>
+            <p className="mt-5 text-sm font-semibold text-muted-foreground">— Ban quản lý dự án</p>
+          </Card>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

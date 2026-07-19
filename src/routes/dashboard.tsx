@@ -79,8 +79,8 @@ const WEEKLY_GROWTH = [
 ];
 
 const COMPLETION_DATA = [
-  { name: "Đã hoàn thành", value: 312, color: "#10b981" },
-  { name: "Đang học", value: 980, color: "#f59e0b" },
+  { name: "Đã hoàn thành", value: 312, color: "var(--stage-1)" },
+  { name: "Đang học", value: 980, color: "var(--stage-4)" },
   { name: "Mới bắt đầu", value: 555, color: "#e5e7eb" },
 ];
 
@@ -132,7 +132,7 @@ function countryFill(isoId: string): string {
   const c = COUNTRY_BY_ISO[isoId];
   if (!c) return "#e2e8f0";
   const intensity = 0.2 + 0.8 * (c.students / MAX_STUDENTS);
-  return `rgba(220, 38, 38, ${intensity.toFixed(2)})`;
+  return `color-mix(in oklab, var(--primary) ${(intensity * 100).toFixed(0)}%, transparent)`;
 }
 
 function StatCard({ title, value, sub, badge }: { title: string; value: string; sub?: string; badge?: string }) {
@@ -210,7 +210,7 @@ function MapView() {
                   strokeWidth={0.5}
                   style={{
                     default: { outline: "none" },
-                    hover: { outline: "none", fill: data ? "#b91c1c" : "#cbd5e1", cursor: data ? "pointer" : "default" },
+                    hover: { outline: "none", fill: data ? "var(--primary)" : "#cbd5e1", cursor: data ? "pointer" : "default" },
                     pressed: { outline: "none" },
                   }}
                   onMouseEnter={() => data && setHovered(data)}
@@ -296,8 +296,8 @@ function DashboardPage() {
                   <AreaChart data={growthData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="gradStudents" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#ef4444" stopOpacity={0.15} />
-                        <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                        <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.15} />
+                        <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <XAxis dataKey="period" tick={{ fontSize: 12, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
@@ -306,7 +306,7 @@ function DashboardPage() {
                       formatter={(v: number) => [`${v.toLocaleString("en-US")} học sinh`, "Tổng"]}
                       contentStyle={{ borderRadius: "8px", fontSize: "13px", border: "1px solid #e5e7eb" }}
                     />
-                    <Area type="monotone" dataKey="students" stroke="#ef4444" strokeWidth={2.5} fill="url(#gradStudents)" dot={false} activeDot={{ r: 5, fill: "#ef4444" }} />
+                    <Area type="monotone" dataKey="students" stroke="var(--primary)" strokeWidth={2.5} fill="url(#gradStudents)" dot={false} activeDot={{ r: 5, fill: "var(--primary)" }} />
                   </AreaChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -333,9 +333,9 @@ function DashboardPage() {
                     <XAxis dataKey="label" tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} />
                     <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "#9ca3af" }} axisLine={false} tickLine={false} width={30} tickFormatter={(v) => `${v}%`} />
                     <Tooltip formatter={(v: number) => [`${v}%`, "Giữ chân"]} contentStyle={{ fontSize: "12px", borderRadius: "6px", border: "1px solid #e5e7eb" }} />
-                    <ReferenceLine y={SCALE_STATS.retentionWeek1} stroke="#6366f1" strokeDasharray="3 3" />
-                    <ReferenceLine y={SCALE_STATS.retentionMonth1} stroke="#a5b4fc" strokeDasharray="3 3" />
-                    <Line type="monotone" dataKey="rate" stroke="#6366f1" strokeWidth={2} dot={{ r: 3, fill: "#6366f1", strokeWidth: 0 }} activeDot={{ r: 5 }} />
+                    <ReferenceLine y={SCALE_STATS.retentionWeek1} stroke="var(--stage-3)" strokeDasharray="3 3" />
+                    <ReferenceLine y={SCALE_STATS.retentionMonth1} stroke="var(--stage-3-soft)" strokeDasharray="3 3" />
+                    <Line type="monotone" dataKey="rate" stroke="var(--stage-3)" strokeWidth={2} dot={{ r: 3, fill: "var(--stage-3)", strokeWidth: 0 }} activeDot={{ r: 5 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>

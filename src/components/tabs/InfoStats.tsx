@@ -6,12 +6,20 @@ import caPheSuaDa from "@/assets/symbols/ca-phe-sua-da.png";
 const STATS = [
   {
     image: trau,
-    title: (<><span className="font-extrabold">40</span> bài học</>),
+    title: (
+      <>
+        <span className="font-extrabold">40</span> bài học
+      </>
+    ),
     desc: "Bám sát 2 quyển sách Vui học Tiếng Việt",
   },
   {
     image: caPheSuaDa,
-    title: (<><span className="font-extrabold">8</span> chủ đề</>),
+    title: (
+      <>
+        <span className="font-extrabold">8</span> chủ đề
+      </>
+    ),
     desc: "Mỗi quyển có 4 chủ đề, mỗi chủ đề 5 bài học",
   },
   {
@@ -30,13 +38,10 @@ export function InfoStats() {
   return (
     <div className="mx-auto grid max-w-3xl grid-cols-1 gap-6 sm:grid-cols-2">
       {STATS.map((s, i) => (
-        <div
-          key={i}
-          className="flex flex-col items-center rounded-2xl bg-white p-6 text-center shadow-md"
-        >
+        <div key={i} className="flex flex-col items-center rounded-2xl bg-white/10 p-6 text-center">
           <img src={s.image} alt="" className="h-16 w-16 shrink-0 object-contain" />
-          <div className="mt-4 text-lg font-bold text-foreground">{s.title}</div>
-          <div className="mt-1 text-sm text-foreground/60">{s.desc}</div>
+          <div className="mt-4 text-lg font-bold text-white">{s.title}</div>
+          <div className="mt-1 text-sm text-white/70">{s.desc}</div>
         </div>
       ))}
     </div>

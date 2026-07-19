@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Navbar } from "@/components/Navbar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -62,8 +61,7 @@ function ResetPassword() {
   };
 
   return (
-    <div className="flex h-screen flex-col">
-      <Navbar />
+    <div className="flex min-h-[70vh] flex-col">
       <main className="flex flex-1 items-center justify-center px-4">
         <div className="w-full max-w-sm space-y-6">
           <div className="text-center">
