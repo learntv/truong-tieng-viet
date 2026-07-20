@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { BookOpen, Home, LogOut, Menu, Star, Trophy, User, UserCircle, X } from "lucide-react";
+import { BarChart3, BookOpen, Home, LogOut, Menu, Star, Trophy, User, UserCircle, X } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
+import { useHasRole } from "@/hooks/useHasRole";
 import { generateUsername } from "@/lib/profile";
 import { AuthModal } from "@/components/AuthModal";
 import { Logo } from "@/components/Logo";
@@ -29,6 +30,7 @@ export function Navbar() {
   const { location } = useRouterState();
   const pathname = location.pathname;
   const { user, isLoading, signOut } = useAuth();
+  const isStaff = useHasRole("staff");
   const [authOpen, setAuthOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -144,6 +146,17 @@ export function Navbar() {
                         >
                           <UserCircle className="mr-2 h-4 w-4" />
                           Trang cá nhân
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+                    {isStaff && (
+                      <DropdownMenuItem asChild>
+                        <Link
+                          to="/dashboard"
+                          className="flex cursor-pointer items-center"
+                        >
+                          <BarChart3 className="mr-2 h-4 w-4" />
+                          Báo cáo
                         </Link>
                       </DropdownMenuItem>
                     )}

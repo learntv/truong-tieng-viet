@@ -51,7 +51,14 @@ function createSupabaseClient() {
       storage: typeof window !== 'undefined' ? localStorage : undefined,
       persistSession: true,
       autoRefreshToken: true,
-    }
+    },
+    // The app never opens a Realtime channel, but supabase-js always constructs a
+    // RealtimeClient and eagerly resolves a WebSocket constructor even when it's unused —
+    // which throws under Node < 22 during SSR (no global WebSocket there). Any placeholder
+    // satisfies that check without ever being invoked.
+    realtime: {
+      transport: (() => {}) as unknown as typeof WebSocket,
+    },
   });
 }
 

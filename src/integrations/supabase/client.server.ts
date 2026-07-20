@@ -51,7 +51,13 @@ function createSupabaseAdminClient() {
       storage: undefined,
       persistSession: false,
       autoRefreshToken: false,
-    }
+    },
+    // Never opens a Realtime channel, but supabase-js always constructs a RealtimeClient and
+    // eagerly resolves a WebSocket constructor even when unused — which throws under Node < 22
+    // (no global WebSocket there). Any placeholder satisfies that check without being invoked.
+    realtime: {
+      transport: (() => {}) as unknown as typeof WebSocket,
+    },
   });
 }
 

@@ -1,13 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { ComposableMap, Geographies, Geography } from "react-simple-maps";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
+import { useMemo, useState } from "react";
+import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
+import { Minus, Plus, RotateCcw } from "lucide-react";
 import {
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
   LineChart,
   Line,
+  CartesianGrid,
   XAxis,
   YAxis,
   Tooltip,
@@ -15,7 +14,6 @@ import {
   PieChart,
   Pie,
   Cell,
-  ReferenceLine,
 } from "recharts";
 import {
   Card,
@@ -24,118 +22,56 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
 import { PageBanner } from "@/components/site/PageBanner";
+import { useDashboardStats, type CountryCount } from "@/hooks/useDashboardStats";
+import { StudentReport } from "@/components/dashboard/StudentReport";
+import { ISO_ALPHA2_TO_NUMERIC } from "@/lib/iso3166";
 
 export const Route = createFileRoute("/dashboard")({
+  // UX gate — sends non-staff back to the homepage. The real protection is the
+  // staff-read RLS on the progress tables; this just avoids rendering an empty
+  // dashboard for people who shouldn't be here.
+  beforeLoad: async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw redirect({ to: "/" });
+    const { data } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "staff")
+      .maybeSingle();
+    if (!data) throw redirect({ to: "/" });
+  },
   head: () => ({
     meta: [
       { title: "Báo cáo tác động — Trường Tiếng Việt Của Em" },
       {
         name: "description",
         content:
-          "Báo cáo tác động xã hội của Trường Tiếng Việt Của Em: quy mô, tăng trưởng, phân bổ địa lý và tiến độ học tập.",
+          "Báo cáo tác động xã hội của Trường Tiếng Việt Của Em: quy mô, tăng trưởng và phân bổ địa lý.",
       },
     ],
   }),
   component: DashboardPage,
 });
 
-const COUNTRY_DATA = [
-  { country: "Canada", flag: "🇨🇦", students: 450, isoNum: "124" },
-  { country: "Úc (Australia)", flag: "🇦🇺", students: 300, isoNum: "036" },
-  { country: "Mỹ (USA)", flag: "🇺🇸", students: 280, isoNum: "840" },
-  { country: "Pháp (France)", flag: "🇫🇷", students: 210, isoNum: "250" },
-  { country: "Đức (Germany)", flag: "🇩🇪", students: 185, isoNum: "276" },
-  { country: "Nhật (Japan)", flag: "🇯🇵", students: 120, isoNum: "392" },
-  { country: "Anh (UK)", flag: "🇬🇧", students: 98, isoNum: "826" },
-  { country: "Hàn Quốc", flag: "🇰🇷", students: 75, isoNum: "410" },
-  { country: "Đài Loan", flag: "🇹🇼", students: 60, isoNum: "158" },
-  { country: "Khác", flag: "🌍", students: 69, isoNum: "" },
-];
+const REGION_NAMES = new Intl.DisplayNames(["vi"], { type: "region" });
 
-const COUNTRY_BY_ISO: Record<string, (typeof COUNTRY_DATA)[number]> = Object.fromEntries(
-  COUNTRY_DATA.filter((c) => c.isoNum).map((c) => [c.isoNum, c]),
-);
+function countryLabel(code: string): string {
+  try {
+    return REGION_NAMES.of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
 
-const TOTAL_STUDENTS = COUNTRY_DATA.reduce((s, c) => s + c.students, 0);
-const MAX_STUDENTS = COUNTRY_DATA[0].students;
-
-const MONTHLY_GROWTH = [
-  { period: "T7/2025", students: 210 },
-  { period: "T8/2025", students: 268 },
-  { period: "T9/2025", students: 320 },
-  { period: "T10/2025", students: 395 },
-  { period: "T11/2025", students: 470 },
-  { period: "T12/2025", students: 580 },
-  { period: "T1/2026", students: 720 },
-  { period: "T2/2026", students: 890 },
-  { period: "T3/2026", students: 1050 },
-  { period: "T4/2026", students: 1280 },
-  { period: "T5/2026", students: 1550 },
-  { period: "T6/2026", students: 1847 },
-];
-
-const WEEKLY_GROWTH = [
-  { period: "T1", students: 1420 },
-  { period: "T2", students: 1510 },
-  { period: "T3", students: 1620 },
-  { period: "T4", students: 1700 },
-  { period: "T5", students: 1750 },
-  { period: "T6", students: 1810 },
-  { period: "T7", students: 1847 },
-];
-
-const COMPLETION_DATA = [
-  { name: "Đã hoàn thành", value: 312, color: "var(--stage-1)" },
-  { name: "Đang học", value: 980, color: "var(--stage-2)" },
-  { name: "Mới bắt đầu", value: 555, color: "var(--muted)" },
-];
-
-const TOPIC_COMPLETION = [
-  { label: "Gia đình", emoji: "👨‍👩‍👧", completed: 312 },
-  { label: "Con vật", emoji: "🐰", completed: 287 },
-  { label: "Cây cối", emoji: "🌳", completed: 261 },
-  { label: "Nhà ở", emoji: "🏡", completed: 234 },
-  { label: "Thời tiết", emoji: "🌤️", completed: 198 },
-  { label: "Đi chơi", emoji: "🎈", completed: 165 },
-  { label: "Trường học", emoji: "🏫", completed: 124 },
-  { label: "Văn hóa Việt", emoji: "🏯", completed: 89 },
-];
-
-const STATS = {
-  totalHours: 5847,
-  totalSessions: 28340,
-  avgHoursPerStudent: 3.2,
-  completedAll8Topics: 312,
-  certificatesIssued: 289,
-  completionRate: 16.9,
-};
-
-const SCALE_STATS = {
-  totalRegistered: 1847,
-  dau: 284,
-  mau: 1320,
-  dauGrowth: "+8% vs tuần trước",
-  mauGrowth: "+15% vs tháng trước",
-  retentionWeek1: 78,
-  retentionMonth1: 52,
-};
-
-const REPORT_UPDATED_AT = "24/06/2026";
-
-const RETENTION_CURVE = [
-  { label: "Ngày 1", rate: 100 },
-  { label: "Tuần 1", rate: 78 },
-  { label: "Tuần 2", rate: 68 },
-  { label: "Tuần 3", rate: 59 },
-  { label: "Tháng 1", rate: 52 },
-  { label: "Tháng 2", rate: 44 },
-  { label: "Tháng 3", rate: 38 },
-];
+function countryFlag(code: string): string {
+  if (code.length !== 2) return "🌍";
+  const codePoints = [...code.toUpperCase()].map((c) => 0x1f1e6 + (c.charCodeAt(0) - 65));
+  return String.fromCodePoint(...codePoints);
+}
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
@@ -148,384 +84,380 @@ const TOOLTIP_STYLE: React.CSSProperties = {
   boxShadow: "0 8px 24px -12px oklch(0 0 0 / 0.2)",
 };
 
-function countryFill(isoId: string): string {
-  const c = COUNTRY_BY_ISO[isoId];
-  if (!c) return "color-mix(in oklab, var(--muted) 80%, transparent)";
-  const intensity = 0.2 + 0.8 * (c.students / MAX_STUDENTS);
-  return `color-mix(in oklab, var(--primary) ${(intensity * 100).toFixed(0)}%, transparent)`;
+function countryFill(count: number | undefined, maxCount: number): string {
+  if (!count) return "color-mix(in oklab, var(--muted) 65%, var(--foreground))";
+  // sqrt scale so mid-sized counts stay visually distinct from the top country instead
+  // of clustering near the low end.
+  const intensity = 0.35 + 0.65 * Math.sqrt(count / maxCount);
+  return `color-mix(in oklab, var(--primary) ${(intensity * 100).toFixed(0)}%, var(--card))`;
 }
 
-function StatCard({
+/** A single cell within a merged KPI row — label on top, big number, small delta/sub below. */
+function KpiCell({
   title,
   value,
   sub,
-  badge,
+  deltaTone,
 }: {
   title: string;
   value: string;
   sub?: string;
-  badge?: string;
+  /** "up" renders sub in green (positive change), "down" in red — omit for a neutral/gray sub. */
+  deltaTone?: "up" | "down";
 }) {
   return (
-    <Card className="shadow-card">
-      <CardHeader className="pb-2">
-        <CardDescription className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          {title}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="font-display text-3xl font-extrabold text-foreground">{value}</div>
-        {sub && <p className="mt-1 text-sm text-muted-foreground">{sub}</p>}
-        {badge && (
-          <Badge variant="secondary" className="mt-2 bg-primary/10 text-primary hover:bg-primary/10">
-            {badge}
-          </Badge>
-        )}
-      </CardContent>
+    <div className="min-w-0 px-4 py-3">
+      <div className="truncate text-xs text-muted-foreground">{title}</div>
+      <div className="mt-1 font-display text-2xl font-bold leading-none tabular-nums text-foreground">
+        {value}
+      </div>
+      {sub && (
+        <div
+          className={`mt-1.5 truncate text-xs font-medium ${
+            deltaTone === "up"
+              ? "text-emerald-600 dark:text-emerald-400"
+              : deltaTone === "down"
+                ? "text-red-600 dark:text-red-400"
+                : "text-muted-foreground"
+          }`}
+        >
+          {sub}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Merges KPI cells into one bordered card with dividers between them, Sellforte-style. */
+function KpiRow({ children }: { children: React.ReactNode }) {
+  return (
+    <Card className="rounded-lg py-0 shadow-sm">
+      <div className="grid grid-cols-1 divide-y divide-border sm:grid-cols-4 sm:divide-y-0 sm:divide-x">
+        {children}
+      </div>
     </Card>
   );
 }
 
-function BarsView() {
-  return (
-    <div className="space-y-3">
-      {COUNTRY_DATA.map((row) => {
-        const pct = ((row.students / TOTAL_STUDENTS) * 100).toFixed(1);
-        return (
-          <div key={row.country} className="space-y-1">
-            <div className="flex items-center justify-between text-sm">
-              <span className="flex items-center gap-2 font-medium text-foreground">
-                <span className="text-lg">{row.flag}</span>
-                {row.country}
-              </span>
-              <span className="flex items-center gap-2 tabular-nums text-muted-foreground">
-                <span className="text-xs font-semibold">{pct}%</span>
-                {row.students.toLocaleString("en-US")} trẻ
-              </span>
-            </div>
-            <Progress value={(row.students / MAX_STUDENTS) * 100} className="h-2" />
-          </div>
-        );
-      })}
-      <Separator className="my-2" />
-      <p className="text-right text-xs text-muted-foreground">
-        Tổng: {TOTAL_STUDENTS.toLocaleString("en-US")} học sinh tại {COUNTRY_DATA.length} quốc gia
-      </p>
-    </div>
-  );
-}
+const DEFAULT_MAP_CENTER: [number, number] = [10, 10];
+const MIN_MAP_ZOOM = 1;
+const MAX_MAP_ZOOM = 8;
 
-function MapView() {
-  const [hovered, setHovered] = useState<(typeof COUNTRY_DATA)[0] | null>(null);
+function MapView({ countryData, total }: { countryData: CountryCount[]; total: number }) {
+  const [hovered, setHovered] = useState<CountryCount | null>(null);
+  const [pointer, setPointer] = useState<{ x: number; y: number } | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const [center, setCenter] = useState<[number, number]>(DEFAULT_MAP_CENTER);
+  const maxCount = countryData[0]?.count ?? 1;
+  const countByNumeric = useMemo(() => {
+    const map = new Map<string, CountryCount>();
+    for (const row of countryData) {
+      const numeric = ISO_ALPHA2_TO_NUMERIC[row.code];
+      if (numeric) map.set(numeric, row);
+    }
+    return map;
+  }, [countryData]);
 
   return (
-    <div className="space-y-3">
-      <div className="flex h-8 items-center">
-        {hovered ? (
-          <div className="flex items-center gap-2 rounded-md bg-muted px-3 py-1 text-sm font-medium text-foreground">
-            <span className="text-base">{hovered.flag}</span>
-            <span>{hovered.country}</span>
+    <div className="space-y-2">
+      <div
+        className="relative"
+        onMouseMove={(e) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          setPointer({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+        }}
+        onMouseLeave={() => {
+          setHovered(null);
+          setPointer(null);
+        }}
+      >
+        {hovered && pointer && (
+          <div
+            className="pointer-events-none absolute z-10 flex -translate-x-1/2 -translate-y-full items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground shadow-md"
+            style={{ left: pointer.x, top: pointer.y - 10 }}
+          >
+            <span className="text-base">{countryFlag(hovered.code)}</span>
+            <span>{countryLabel(hovered.code)}</span>
             <span className="font-bold text-primary">
-              {hovered.students.toLocaleString("en-US")} trẻ
+              {hovered.count.toLocaleString("en-US")} học sinh
             </span>
           </div>
-        ) : (
-          <p className="text-xs text-muted-foreground">Di chuột vào quốc gia để xem chi tiết</p>
         )}
-      </div>
 
-      <ComposableMap
-        projectionConfig={{ scale: 140, center: [10, 10] }}
-        style={{ width: "100%", height: "auto" }}
-      >
-        <Geographies geography={GEO_URL}>
-          {({ geographies }) =>
-            geographies.map((geo) => {
-              const data = COUNTRY_BY_ISO[geo.id];
-              return (
-                <Geography
-                  key={geo.rsmKey}
-                  geography={geo}
-                  fill={countryFill(geo.id)}
-                  stroke="var(--card)"
-                  strokeWidth={0.5}
-                  style={{
-                    default: { outline: "none" },
-                    hover: {
-                      outline: "none",
-                      fill: data ? "var(--primary)" : "var(--muted)",
-                      cursor: data ? "pointer" : "default",
-                    },
-                    pressed: { outline: "none" },
-                  }}
-                  onMouseEnter={() => data && setHovered(data)}
-                  onMouseLeave={() => setHovered(null)}
-                />
-              );
-            })
-          }
-        </Geographies>
-      </ComposableMap>
+        <ComposableMap
+          width={800}
+          height={300}
+          projectionConfig={{ scale: 130, center: [10, 10] }}
+          style={{ width: "100%", height: "auto" }}
+        >
+          <ZoomableGroup
+            zoom={zoom}
+            center={center}
+            minZoom={MIN_MAP_ZOOM}
+            maxZoom={MAX_MAP_ZOOM}
+            translateExtent={[
+              [-100, -100],
+              [900, 520],
+            ]}
+            onMoveEnd={({ zoom: z, coordinates }) => {
+              setZoom(z);
+              setCenter(coordinates);
+            }}
+          >
+            <Geographies geography={GEO_URL}>
+              {({ geographies }) =>
+                geographies.map((geo) => {
+                  const data = countByNumeric.get(geo.id);
+                  return (
+                    <Geography
+                      key={geo.rsmKey}
+                      geography={geo}
+                      fill={countryFill(data?.count, maxCount)}
+                      stroke="var(--card)"
+                      strokeWidth={0.5 / zoom}
+                      style={{
+                        default: { outline: "none" },
+                        hover: {
+                          outline: "none",
+                          fill: data
+                            ? "color-mix(in oklab, var(--primary) 85%, var(--foreground))"
+                            : "color-mix(in oklab, var(--muted) 55%, var(--foreground))",
+                          cursor: data ? "pointer" : "default",
+                        },
+                        pressed: { outline: "none" },
+                      }}
+                      onMouseEnter={() => data && setHovered(data)}
+                      onMouseLeave={() => setHovered(null)}
+                    />
+                  );
+                })
+              }
+            </Geographies>
+          </ZoomableGroup>
+        </ComposableMap>
+
+        <div className="absolute right-2 top-2 flex flex-col gap-1">
+          <button
+            type="button"
+            aria-label="Phóng to"
+            onClick={() => setZoom((z) => Math.min(MAX_MAP_ZOOM, z * 1.5))}
+            className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card text-foreground shadow-sm hover:bg-muted"
+          >
+            <Plus className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            aria-label="Thu nhỏ"
+            onClick={() => setZoom((z) => Math.max(MIN_MAP_ZOOM, z / 1.5))}
+            className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card text-foreground shadow-sm hover:bg-muted"
+          >
+            <Minus className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            aria-label="Đặt lại"
+            onClick={() => {
+              setZoom(1);
+              setCenter(DEFAULT_MAP_CENTER);
+            }}
+            className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card text-foreground shadow-sm hover:bg-muted"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
 
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <span>Ít hơn</span>
         <div className="flex gap-0.5">
-          {[0.2, 0.4, 0.6, 0.8, 1.0].map((op) => (
+          {[0.2, 0.4, 0.6, 0.8, 1.0].map((frac) => (
             <div
-              key={op}
-              className="h-3 w-5 rounded-sm"
-              style={{
-                background: `color-mix(in oklab, var(--primary) ${op * 100}%, transparent)`,
-              }}
+              key={frac}
+              className="h-3 w-5 rounded-sm border border-border/50"
+              style={{ background: countryFill(frac, 1) }}
             />
           ))}
         </div>
         <span>Nhiều hơn</span>
-        <span className="ml-auto">Tổng: {TOTAL_STUDENTS.toLocaleString("en-US")} học sinh</span>
+        <span className="ml-auto">Tổng: {total.toLocaleString("en-US")} học sinh</span>
       </div>
     </div>
   );
 }
 
-function SectionHeading({ children }: { children: React.ReactNode }) {
+function TopCountries({ countryData, total }: { countryData: CountryCount[]; total: number }) {
+  const top = countryData.slice(0, 8);
+  const max = countryData[0]?.count ?? 1;
   return (
-    <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-      {children}
-    </h2>
+    <div className="space-y-2">
+      {top.map((c) => (
+        <div key={c.code} className="flex items-center gap-2">
+          <span className="text-base leading-none">{countryFlag(c.code)}</span>
+          <span className="w-24 shrink-0 truncate text-xs text-foreground">
+            {countryLabel(c.code)}
+          </span>
+          <div className="h-1.5 flex-1 overflow-hidden rounded-sm bg-muted">
+            <div
+              className="h-full rounded-sm bg-primary"
+              style={{ width: `${Math.max(4, (c.count / max) * 100)}%` }}
+            />
+          </div>
+          <span className="w-14 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+            {c.count.toLocaleString("en-US")}
+            <span className="ml-1 text-[10px]">
+              {total > 0 ? `${((c.count / total) * 100).toFixed(0)}%` : ""}
+            </span>
+          </span>
+        </div>
+      ))}
+    </div>
   );
 }
 
 function DashboardPage() {
   const [growthView, setGrowthView] = useState<"monthly" | "weekly">("monthly");
-  const [countryView, setCountryView] = useState<"bars" | "map">("bars");
-  const growthData = growthView === "monthly" ? MONTHLY_GROWTH : WEEKLY_GROWTH;
+  const { stats, isStatsLoading } = useDashboardStats();
+  const growthData = stats
+    ? growthView === "monthly"
+      ? stats.monthlyGrowth
+      : stats.weeklyGrowth
+    : [];
+
+  // Newest bucket's net additions — the cumulative series' last step.
+  const recentAdds = stats
+    ? (() => {
+        const g = stats.monthlyGrowth;
+        if (g.length === 0) return 0;
+        if (g.length === 1) return g[0].students;
+        return g[g.length - 1].students - g[g.length - 2].students;
+      })()
+    : 0;
+
+  const completionData = stats
+    ? [
+        { name: "Đã hoàn thành", value: stats.completion.completed, color: "var(--stage-1)" },
+        { name: "Đang học", value: stats.completion.inProgress, color: "var(--stage-2)" },
+        { name: "Mới bắt đầu", value: stats.completion.notStarted, color: "var(--muted)" },
+      ]
+    : [];
 
   return (
-    <main>
+    <main className="bg-muted/40">
       <PageBanner
         title="Báo cáo tác động xã hội"
-        subtitle={`Trường Tiếng Việt Của Em · Dành cho Bộ Ngoại Giao & Ban Quản Lý · Cập nhật ${REPORT_UPDATED_AT}`}
+        subtitle="Trường Tiếng Việt Của Em · Dành cho Bộ Ngoại Giao & Ban Quản Lý"
       />
 
-      <div className="mx-auto max-w-7xl space-y-10 px-4 py-10 sm:px-6 sm:py-14">
-        <section className="space-y-4">
-          <SectionHeading>Tổng Quan</SectionHeading>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-            <StatCard
-              title="Tài khoản"
-              value={SCALE_STATS.totalRegistered.toLocaleString("en-US")}
-              sub="đã đăng ký"
-              badge="↑ 24%"
-            />
-            <StatCard
-              title="Người dùng / ngày"
-              value={SCALE_STATS.dau.toLocaleString("en-US")}
-              sub="hoạt động hôm nay"
-              badge={SCALE_STATS.dauGrowth}
-            />
-            <StatCard
-              title="Người dùng / tháng"
-              value={SCALE_STATS.mau.toLocaleString("en-US")}
-              sub="hoạt động tháng này"
-              badge={SCALE_STATS.mauGrowth}
-            />
-            <StatCard
-              title="Giờ học"
-              value={STATS.totalHours.toLocaleString("en-US")}
-              sub={`${STATS.totalSessions.toLocaleString("en-US")} phiên`}
-            />
-            <StatCard
-              title="Chứng chỉ"
-              value={STATS.certificatesIssued.toLocaleString("en-US")}
-              sub="đã cấp"
-              badge={`${STATS.completionRate}% tỷ lệ`}
-            />
-            <StatCard
-              title="TB / học sinh"
-              value={`${STATS.avgHoursPerStudent}h`}
-              sub="giờ học trung bình"
-            />
-          </div>
-        </section>
+      <div className="mx-auto max-w-7xl space-y-4 px-4 py-6 sm:px-6">
+        {isStatsLoading || !stats ? (
+          <p className="text-center text-sm text-muted-foreground">Đang tải dữ liệu...</p>
+        ) : (
+          <>
+            {/* KPI row — one merged card, columns divided by hairlines */}
+            <KpiRow>
+              <KpiCell
+                title="Tài khoản"
+                value={stats.totalRegistered.toLocaleString("en-US")}
+                sub={recentAdds > 0 ? `+${recentAdds} kỳ gần nhất` : "đã đăng ký"}
+                deltaTone={recentAdds > 0 ? "up" : undefined}
+              />
+              <KpiCell
+                title="Hoàn thành"
+                value={stats.completion.completed.toLocaleString("en-US")}
+                sub={`${stats.completionRate.toFixed(1)}% tỷ lệ`}
+              />
+              <KpiCell
+                title="Đang học"
+                value={stats.completion.inProgress.toLocaleString("en-US")}
+                sub="đang trong tiến trình"
+              />
+              <KpiCell
+                title="Quốc gia"
+                value={stats.countryData.length.toLocaleString("en-US")}
+                sub="có học sinh"
+              />
+            </KpiRow>
 
-        <section className="space-y-4">
-          <SectionHeading>Tăng Trưởng &amp; Giữ Chân</SectionHeading>
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            <Card className="shadow-card lg:col-span-2">
-              <CardHeader className="flex flex-row items-start justify-between gap-3">
-                <div>
-                  <CardTitle className="font-display">Tốc độ tăng trưởng người dùng</CardTitle>
-                  <CardDescription>Tổng học sinh tích lũy theo thời gian</CardDescription>
-                </div>
-                <Tabs
-                  value={growthView}
-                  onValueChange={(v) => setGrowthView(v as "monthly" | "weekly")}
-                >
-                  <TabsList className="h-8">
-                    <TabsTrigger value="monthly" className="px-3 text-xs">
-                      Tháng
-                    </TabsTrigger>
-                    <TabsTrigger value="weekly" className="px-3 text-xs">
-                      Tuần
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={240}>
-                  <AreaChart data={growthData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="gradStudents" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.2} />
-                        <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <XAxis
-                      dataKey="period"
-                      tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <YAxis
-                      tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
-                      axisLine={false}
-                      tickLine={false}
-                      width={45}
-                    />
-                    <Tooltip
-                      formatter={(v: number) => [`${v.toLocaleString("en-US")} học sinh`, "Tổng"]}
-                      contentStyle={TOOLTIP_STYLE}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="students"
-                      stroke="var(--primary)"
-                      strokeWidth={2.5}
-                      fill="url(#gradStudents)"
-                      dot={false}
-                      activeDot={{ r: 5, fill: "var(--primary)" }}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card className="flex flex-col shadow-card">
-              <CardHeader>
-                <CardTitle className="font-display">Tỷ lệ giữ chân</CardTitle>
-                <CardDescription>% học sinh quay lại sau đăng ký</CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-1 flex-col gap-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-lg bg-primary/10 p-3 text-center">
-                    <div className="font-display text-2xl font-bold text-primary">
-                      {SCALE_STATS.retentionWeek1}%
-                    </div>
-                    <div className="mt-0.5 text-xs text-muted-foreground">Sau tuần đầu</div>
+            {/* Growth + completion bento */}
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+              <Card className="rounded-lg shadow-sm lg:col-span-2">
+                <CardHeader className="flex flex-row items-start justify-between gap-3 px-4 pb-2 pt-4">
+                  <div>
+                    <CardTitle className="font-display text-sm">
+                      Tốc độ tăng trưởng người dùng
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      Tổng học sinh tích lũy theo thời gian đăng ký
+                    </CardDescription>
                   </div>
-                  <div className="rounded-lg bg-primary/5 p-3 text-center">
-                    <div className="font-display text-2xl font-bold text-primary/70">
-                      {SCALE_STATS.retentionMonth1}%
-                    </div>
-                    <div className="mt-0.5 text-xs text-muted-foreground">Sau tháng đầu</div>
-                  </div>
-                </div>
-                <ResponsiveContainer width="100%" height={140}>
-                  <LineChart
-                    data={RETENTION_CURVE}
-                    margin={{ top: 4, right: 8, left: 0, bottom: 0 }}
+                  <Tabs
+                    value={growthView}
+                    onValueChange={(v) => setGrowthView(v as "monthly" | "weekly")}
                   >
-                    <XAxis
-                      dataKey="label"
-                      tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <YAxis
-                      domain={[0, 100]}
-                      tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
-                      axisLine={false}
-                      tickLine={false}
-                      width={30}
-                      tickFormatter={(v) => `${v}%`}
-                    />
-                    <Tooltip
-                      formatter={(v: number) => [`${v}%`, "Giữ chân"]}
-                      contentStyle={TOOLTIP_STYLE}
-                    />
-                    <ReferenceLine
-                      y={SCALE_STATS.retentionWeek1}
-                      stroke="var(--stage-3)"
-                      strokeDasharray="3 3"
-                    />
-                    <ReferenceLine
-                      y={SCALE_STATS.retentionMonth1}
-                      stroke="var(--stage-3-soft)"
-                      strokeDasharray="3 3"
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="rate"
-                      stroke="var(--stage-3)"
-                      strokeWidth={2}
-                      dot={{ r: 3, fill: "var(--stage-3)", strokeWidth: 0 }}
-                      activeDot={{ r: 5 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-
-        <section className="space-y-4">
-          <SectionHeading>Phân Bổ Địa Lý &amp; Tiến Độ Học Tập</SectionHeading>
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            <Card className="shadow-card lg:col-span-2">
-              <CardHeader className="flex flex-row items-start justify-between gap-3">
-                <div>
-                  <CardTitle className="font-display">Học sinh theo quốc gia</CardTitle>
-                  <CardDescription>
-                    {TOTAL_STUDENTS.toLocaleString("en-US")} học sinh tại {COUNTRY_DATA.length} quốc
-                    gia
-                  </CardDescription>
-                </div>
-                <Tabs
-                  value={countryView}
-                  onValueChange={(v) => setCountryView(v as "bars" | "map")}
-                >
-                  <TabsList className="h-8">
-                    <TabsTrigger value="bars" className="px-3 text-xs">
-                      Biểu đồ
-                    </TabsTrigger>
-                    <TabsTrigger value="map" className="px-3 text-xs">
-                      Bản đồ
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </CardHeader>
-              <CardContent>{countryView === "bars" ? <BarsView /> : <MapView />}</CardContent>
-            </Card>
-
-            <div className="flex flex-col gap-6">
-              <Card className="flex-1 shadow-card">
-                <CardHeader className="pb-2">
-                  <CardTitle className="font-display">Tỷ lệ hoàn thành</CardTitle>
-                  <CardDescription>Tiến độ qua 8 chủ đề địa danh</CardDescription>
+                    <TabsList className="h-8">
+                      <TabsTrigger value="monthly" className="px-3 text-xs">
+                        Tháng
+                      </TabsTrigger>
+                      <TabsTrigger value="weekly" className="px-3 text-xs">
+                        Tuần
+                      </TabsTrigger>
+                    </TabsList>
+                  </Tabs>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <ResponsiveContainer width="100%" height={160}>
+                <CardContent className="px-4 pb-4">
+                  <ResponsiveContainer width="100%" height={180}>
+                    <LineChart data={growthData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                      <CartesianGrid
+                        vertical={false}
+                        stroke="var(--border)"
+                        strokeDasharray="3 3"
+                      />
+                      <XAxis
+                        dataKey="period"
+                        tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+                        axisLine={false}
+                        tickLine={false}
+                        width={45}
+                      />
+                      <Tooltip
+                        formatter={(v: number) => [`${v.toLocaleString("en-US")} học sinh`, "Tổng"]}
+                        contentStyle={TOOLTIP_STYLE}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="students"
+                        stroke="var(--primary)"
+                        strokeWidth={2}
+                        dot={false}
+                        activeDot={{ r: 4, fill: "var(--primary)" }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-lg shadow-sm">
+                <CardHeader className="px-4 pb-2 pt-4">
+                  <CardTitle className="font-display text-sm">Tỷ lệ hoàn thành</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 px-4 pb-4">
+                  <ResponsiveContainer width="100%" height={120}>
                     <PieChart>
                       <Pie
-                        data={COMPLETION_DATA}
+                        data={completionData}
                         cx="50%"
                         cy="50%"
-                        innerRadius={48}
-                        outerRadius={72}
+                        innerRadius={40}
+                        outerRadius={62}
                         paddingAngle={3}
                         dataKey="value"
                       >
-                        {COMPLETION_DATA.map((entry) => (
+                        {completionData.map((entry) => (
                           <Cell key={entry.name} fill={entry.color} />
                         ))}
                       </Pie>
@@ -535,9 +467,9 @@ function DashboardPage() {
                       />
                     </PieChart>
                   </ResponsiveContainer>
-                  {COMPLETION_DATA.map((entry) => (
+                  {completionData.map((entry) => (
                     <div key={entry.name}>
-                      <div className="mb-1 flex items-center justify-between text-xs">
+                      <div className="mb-0.5 flex items-center justify-between text-xs">
                         <span className="flex items-center gap-1.5 text-muted-foreground">
                           <span
                             className="inline-block h-2 w-2 rounded-full"
@@ -549,67 +481,47 @@ function DashboardPage() {
                           {entry.value.toLocaleString("en-US")}
                         </span>
                       </div>
-                      <Progress value={(entry.value / TOTAL_STUDENTS) * 100} className="h-1" />
+                      <Progress
+                        value={(entry.value / (stats.totalRegistered || 1)) * 100}
+                        className="h-1"
+                      />
                     </div>
                   ))}
-                  <Separator />
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Chứng chỉ đã cấp</span>
-                    <span className="font-bold text-primary">{STATS.certificatesIssued}</span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="flex-1 shadow-card">
-                <CardHeader className="pb-2">
-                  <CardTitle className="font-display">Hoàn thành theo chủ đề</CardTitle>
-                  <CardDescription>Số học sinh hoàn thành từng chủ đề</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={160}>
-                    <BarChart
-                      data={TOPIC_COMPLETION}
-                      margin={{ top: 4, right: 4, left: -20, bottom: 0 }}
-                      barSize={14}
-                    >
-                      <XAxis
-                        dataKey="emoji"
-                        tick={{ fontSize: 13 }}
-                        axisLine={false}
-                        tickLine={false}
-                      />
-                      <YAxis
-                        tick={{ fontSize: 10, fill: "var(--muted-foreground)" }}
-                        axisLine={false}
-                        tickLine={false}
-                      />
-                      <Tooltip
-                        formatter={(v: number) => [`${v} học sinh`, "Hoàn thành"]}
-                        labelFormatter={(label: string) => {
-                          const t = TOPIC_COMPLETION.find((x) => x.emoji === label);
-                          return t ? t.label : label;
-                        }}
-                        contentStyle={TOOLTIP_STYLE}
-                      />
-                      <Bar dataKey="completed" radius={[3, 3, 0, 0]}>
-                        {TOPIC_COMPLETION.map((entry, i) => (
-                          <Cell
-                            key={entry.label}
-                            fill={`color-mix(in oklab, var(--primary) ${40 + 7.5 * (TOPIC_COMPLETION.length - 1 - i)}%, transparent)`}
-                          />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
                 </CardContent>
               </Card>
             </div>
-          </div>
-        </section>
 
-        <p className="pb-4 text-center text-xs text-muted-foreground">
-          Dữ liệu mẫu · Trường Tiếng Việt Của Em
-        </p>
+            {/* Map + top countries bento */}
+            <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
+              <Card className="rounded-lg shadow-sm lg:col-span-2">
+                <CardHeader className="px-4 pb-2 pt-4">
+                  <CardTitle className="font-display text-sm">Học sinh theo quốc gia</CardTitle>
+                  <CardDescription className="text-xs">
+                    {stats.totalRegistered.toLocaleString("en-US")} học sinh tại{" "}
+                    {stats.countryData.length} quốc gia
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="px-4 pb-4">
+                  <MapView countryData={stats.countryData} total={stats.totalRegistered} />
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-lg shadow-sm">
+                <CardHeader className="px-4 pb-2 pt-4">
+                  <CardTitle className="font-display text-sm">Quốc gia dẫn đầu</CardTitle>
+                </CardHeader>
+                <CardContent className="px-4 pb-4">
+                  <TopCountries
+                    countryData={stats.countryData}
+                    total={stats.totalRegistered}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+
+            <StudentReport />
+          </>
+        )}
       </div>
     </main>
   );
