@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Loader2, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import type { User } from "@supabase/supabase-js";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { FlagImg } from "@/components/FlagImg";
 import { upsertProfile } from "@/lib/profile";
 import {
   Dialog,
@@ -70,28 +72,22 @@ const COUNTRIES = [
   { code: "MO", name: "Macau" },
 ];
 
-function FlagImg({ code, size = 24 }: { code: string; size?: number }) {
-  return (
-    <img
-      src={`https://flagcdn.com/w40/${code.toLowerCase()}.png`}
-      width={size}
-      height={size * 0.75}
-      alt={code}
-      className="block object-cover"
-    />
-  );
-}
-
 interface ProfileSetupModalProps {
   user: User;
   onComplete: () => void;
 }
 
 export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) {
+  const queryClient = useQueryClient();
   const defaultName =
     (user.user_metadata?.full_name as string | undefined) ||
     user.email?.split("@")[0] ||
     "";
+
+  // A provider avatar (e.g. Google's profile photo) always wins over an emoji in the avatar
+  // display everywhere else in the app, so offering the emoji grid here would be a choice
+  // that silently does nothing. Skip it and just show what will actually be used.
+  const hasProviderAvatar = Boolean(user.user_metadata?.avatar_url);
 
   const [name, setName] = useState(defaultName);
   const [selectedEmoji, setSelectedEmoji] = useState<string>(AVATAR_OPTIONS[0]);
@@ -138,7 +134,7 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
     const { error } = await supabase.auth.updateUser({
       data: {
         full_name: trimmedName,
-        avatar_emoji: selectedEmoji,
+        avatar_emoji: hasProviderAvatar ? null : selectedEmoji,
         country: countryCode || null,
         profile_setup_completed: true,
       },
@@ -149,10 +145,11 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
         await upsertProfile({
           userId: user.id,
           displayName: trimmedName,
-          avatarEmoji: selectedEmoji,
+          avatarEmoji: hasProviderAvatar ? null : selectedEmoji,
           avatarUrl: user.user_metadata?.avatar_url as string | undefined,
           country: countryCode || null,
         });
+        queryClient.invalidateQueries({ queryKey: ["own-profile", user.id] });
       }
     }
     setSaving(false);
@@ -180,27 +177,41 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
         </DialogHeader>
 
         <div className="space-y-5 mt-2">
-          {/* Avatar picker */}
-          <div className="space-y-2">
-            <Label className="font-bold text-navy">Chọn avatar của em</Label>
-            <div className="grid grid-cols-5 gap-1.5">
-              {AVATAR_OPTIONS.map((emoji) => (
-                <button
-                  key={emoji}
-                  type="button"
-                  onClick={() => setSelectedEmoji(emoji)}
-                  className={[
-                    "h-12 w-full rounded-xl text-2xl flex items-center justify-center transition-all active:scale-90",
-                    selectedEmoji === emoji
-                      ? "bg-sky/50 ring-2 ring-sky scale-110 shadow-sm"
-                      : "bg-muted/40 hover:bg-sky/20",
-                  ].join(" ")}
-                >
-                  {emoji}
-                </button>
-              ))}
+          {/* Avatar */}
+          {hasProviderAvatar ? (
+            <div className="flex items-center gap-3 rounded-xl bg-muted/40 p-3">
+              <img
+                src={user.user_metadata?.avatar_url as string}
+                alt="Avatar"
+                referrerPolicy="no-referrer"
+                className="h-12 w-12 shrink-0 rounded-full object-cover ring-2 ring-white shadow-sm"
+              />
+              <p className="text-sm text-muted-foreground">
+                Bọn mình sẽ dùng ảnh đại diện Google của em nhé 👍
+              </p>
             </div>
-          </div>
+          ) : (
+            <div className="space-y-2">
+              <Label className="font-bold text-navy">Chọn avatar của em</Label>
+              <div className="grid grid-cols-5 gap-1.5">
+                {AVATAR_OPTIONS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => setSelectedEmoji(emoji)}
+                    className={[
+                      "h-12 w-full rounded-xl text-2xl flex items-center justify-center transition-all active:scale-90",
+                      selectedEmoji === emoji
+                        ? "bg-sky/50 ring-2 ring-sky scale-110 shadow-sm"
+                        : "bg-muted/40 hover:bg-sky/20",
+                    ].join(" ")}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Name */}
           <div className="space-y-1.5">

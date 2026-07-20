@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { FlagImg } from "@/components/FlagImg";
 import { upsertProfile, generateUsername } from "@/lib/profile";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProgress } from "@/hooks/useUserProgress";
@@ -126,17 +127,6 @@ function avatarColor(letter: string) {
   return AVATAR_COLORS[letter.charCodeAt(0) % AVATAR_COLORS.length];
 }
 
-function FlagImg({ code, size = 24 }: { code: string; size?: number }) {
-  return (
-    <img
-      src={`https://flagcdn.com/w40/${code.toLowerCase()}.png`}
-      width={size}
-      height={size * 0.75}
-      alt={code}
-      className="block object-cover"
-    />
-  );
-}
 
 function computeStreak(completedAts: string[]): { days: number; studiedToday: boolean } {
   const MS_PER_DAY = 86400_000;

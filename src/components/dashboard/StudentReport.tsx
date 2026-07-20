@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { FlagImg } from "@/components/FlagImg";
 import {
   Table,
   TableBody,
@@ -34,12 +35,6 @@ function countryLabel(code: string | null): string {
   } catch {
     return code;
   }
-}
-
-function countryFlag(code: string | null): string {
-  if (!code || code.length !== 2) return "🌍";
-  const cp = [...code.toUpperCase()].map((c) => 0x1f1e6 + (c.charCodeAt(0) - 65));
-  return String.fromCodePoint(...cp);
 }
 
 function relativeTime(d: Date | null): string {
@@ -248,8 +243,12 @@ function StudentTable({ students }: { students: StudentRow[] }) {
                       </Link>
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
-                      <span className="mr-1.5">{countryFlag(s.country)}</span>
-                      {countryLabel(s.country)}
+                      <span className="inline-flex items-center gap-1.5">
+                        {s.country && s.country.length === 2 && (
+                          <FlagImg code={s.country} size={16} />
+                        )}
+                        {countryLabel(s.country)}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <ProgressBar pct={s.completionPct} />

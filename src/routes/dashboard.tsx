@@ -28,6 +28,7 @@ import { PageBanner } from "@/components/site/PageBanner";
 import { useDashboardStats, type CountryCount } from "@/hooks/useDashboardStats";
 import { StudentReport } from "@/components/dashboard/StudentReport";
 import { ISO_ALPHA2_TO_NUMERIC } from "@/lib/iso3166";
+import { FlagImg } from "@/components/FlagImg";
 
 export const Route = createFileRoute("/dashboard")({
   // UX gate — sends non-staff back to the homepage. The real protection is the
@@ -65,12 +66,6 @@ function countryLabel(code: string): string {
   } catch {
     return code;
   }
-}
-
-function countryFlag(code: string): string {
-  if (code.length !== 2) return "🌍";
-  const codePoints = [...code.toUpperCase()].map((c) => 0x1f1e6 + (c.charCodeAt(0) - 65));
-  return String.fromCodePoint(...codePoints);
 }
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
@@ -176,7 +171,7 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
             className="pointer-events-none absolute z-10 flex -translate-x-1/2 -translate-y-full items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground shadow-md"
             style={{ left: pointer.x, top: pointer.y - 10 }}
           >
-            <span className="text-base">{countryFlag(hovered.code)}</span>
+            <FlagImg code={hovered.code} size={18} />
             <span>{countryLabel(hovered.code)}</span>
             <span className="font-bold text-primary">
               {hovered.count.toLocaleString("en-US")} học sinh
@@ -292,7 +287,7 @@ function TopCountries({ countryData, total }: { countryData: CountryCount[]; tot
     <div className="space-y-2">
       {top.map((c) => (
         <div key={c.code} className="flex items-center gap-2">
-          <span className="text-base leading-none">{countryFlag(c.code)}</span>
+          <FlagImg code={c.code} size={18} />
           <span className="w-24 shrink-0 truncate text-xs text-foreground">
             {countryLabel(c.code)}
           </span>
