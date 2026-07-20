@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { BarChart3, BookOpen, Home, LogOut, Menu, Star, Trophy, User, UserCircle, X } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useHasRole } from "@/hooks/useHasRole";
 import { generateUsername } from "@/lib/profile";
@@ -39,8 +41,25 @@ export function Navbar() {
     user?.email?.split("@")[0] ||
     "Học sinh";
   const avatarLetter = displayName[0]?.toUpperCase() ?? "?";
-  const avatarUrl = user?.user_metadata?.avatar_url as string | undefined;
-  const avatarEmoji = user?.user_metadata?.avatar_emoji as string | undefined;
+  // The profiles row is the source of truth — user_metadata gets overwritten by the OAuth
+  // provider (e.g. Google's picture) on every login, so it can't be trusted for a saved avatar.
+  const { data: ownProfile } = useQuery({
+    queryKey: ["own-profile", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("avatar_url, avatar_emoji")
+        .eq("id", user!.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+  const avatarUrl =
+    ownProfile?.avatar_url ?? (user?.user_metadata?.avatar_url as string | undefined);
+  const avatarEmoji =
+    ownProfile?.avatar_emoji ?? (user?.user_metadata?.avatar_emoji as string | undefined);
   const myUsername = user ? generateUsername(displayName, user.id) : null;
   // Any profile page lights the avatar, not just your own — the ring marks
   // "you are in the profile section", the same way the tab pills do.
