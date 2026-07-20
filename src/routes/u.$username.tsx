@@ -341,11 +341,17 @@ function AvatarPickerDialog({
 
 function CountryPickerDialog({
   current,
+  displayName,
+  avatarEmoji,
+  avatarUrl,
   open,
   onOpenChange,
   onSelect,
 }: {
   current: string | undefined;
+  displayName: string;
+  avatarEmoji: string | undefined;
+  avatarUrl: string | undefined;
   open: boolean;
   onOpenChange: (v: boolean) => void;
   onSelect: (code: string) => void;
@@ -367,15 +373,11 @@ function CountryPickerDialog({
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
-        const name =
-          (user.user_metadata?.full_name as string | undefined) ||
-          user.email?.split("@")[0] ||
-          "Học sinh";
         await upsertProfile({
           userId: user.id,
-          displayName: name,
-          avatarEmoji: user.user_metadata?.avatar_emoji as string | undefined,
-          avatarUrl: user.user_metadata?.avatar_url as string | undefined,
+          displayName,
+          avatarEmoji,
+          avatarUrl,
           country: code,
         });
       }
@@ -447,14 +449,8 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
   );
   const [countryPickerOpen, setCountryPickerOpen] = useState(false);
   const [avatarPickerOpen, setAvatarPickerOpen] = useState(false);
-  const [avatarEmoji, setAvatarEmoji] = useState<string | undefined>(
-    user.user_metadata?.avatar_emoji as string | undefined,
-  );
-  // Seeded from user_metadata (an OAuth provider may have supplied it), but the user can
-  // replace it with their own upload, so it lives in state rather than being read-only.
-  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(
-    user.user_metadata?.avatar_url as string | undefined,
-  );
+  const [avatarEmoji, setAvatarEmoji] = useState<string | undefined>(undefined);
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(undefined);
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState("");
   const [savingName, setSavingName] = useState(false);
@@ -466,13 +462,38 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
     "Học sinh";
   const avatarLetter = displayName[0]?.toUpperCase() ?? "?";
 
-  // Ensure profile row exists
+  // The profiles row is the source of truth for avatar/country — user_metadata gets
+  // overwritten by the OAuth provider (e.g. Google's picture) on every login, so it must only
+  // seed these fields the first time a profile row is created, never on later logins.
+  const { data: ownProfile, isLoading: isOwnProfileLoading } = useQuery({
+    queryKey: ["own-profile", user.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
   useEffect(() => {
-    if (user) {
-      upsertProfile({ userId: user.id, displayName, avatarEmoji, avatarUrl, country: countryCode });
+    if (isOwnProfileLoading) return;
+    if (ownProfile) {
+      setAvatarEmoji(ownProfile.avatar_emoji ?? undefined);
+      setAvatarUrl(ownProfile.avatar_url ?? undefined);
+      if (ownProfile.country) setCountryCode(ownProfile.country);
+      return;
     }
+    // No profile row yet — this is a brand-new user, seed from OAuth metadata once and create it.
+    const emoji = user.user_metadata?.avatar_emoji as string | undefined;
+    const url = user.user_metadata?.avatar_url as string | undefined;
+    setAvatarEmoji(emoji);
+    setAvatarUrl(url);
+    upsertProfile({ userId: user.id, displayName, avatarEmoji: emoji, avatarUrl: url, country: countryCode });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+  }, [isOwnProfileLoading, ownProfile, user.id]);
 
   const { data: streak = { days: 0, studiedToday: false } } = useQuery({
     queryKey: ["streak", user?.id],
@@ -682,6 +703,9 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
               </div>
               <CountryPickerDialog
                 current={countryCode}
+                displayName={displayName}
+                avatarEmoji={avatarEmoji}
+                avatarUrl={avatarUrl}
                 open={countryPickerOpen}
                 onOpenChange={setCountryPickerOpen}
                 onSelect={setCountryCode}
