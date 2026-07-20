@@ -609,7 +609,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
               <div
                 className={[
                   "h-24 w-24 rounded-full shadow-lg ring-4 ring-white overflow-hidden flex items-center justify-center font-bold font-display",
-                  avatarUrl || avatarEmoji ? "bg-sky/30" : avatarColor(avatarLetter),
+                  avatarUrl || avatarEmoji ? "bg-sky-100" : avatarColor(avatarLetter),
                 ].join(" ")}
               >
                 {avatarUrl ? (
@@ -929,7 +929,7 @@ function PublicView({ username }: { username: string }) {
                 className={[
                   "h-24 w-24 rounded-full shadow-lg ring-4 ring-white overflow-hidden flex items-center justify-center font-bold font-display",
                   profile.avatar_url || profile.avatar_emoji
-                    ? "bg-sky/30"
+                    ? "bg-sky-100"
                     : avatarColor(avatarLetter),
                 ].join(" ")}
               >
