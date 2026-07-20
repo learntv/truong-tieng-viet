@@ -22,6 +22,7 @@ import { Route as HocTapQuyen1RouteImport } from './routes/hoc-tap.quyen-1'
 import { Route as HocTapLuyenNoiRouteImport } from './routes/hoc-tap.luyen-noi'
 import { Route as HocTapBangChuCaiRouteImport } from './routes/hoc-tap.bang-chu-cai'
 import { Route as ApiTtsRouteImport } from './routes/api.tts'
+import { Route as ApiAvatarRouteImport } from './routes/api.avatar'
 import { Route as HocTapQuyen1IndexRouteImport } from './routes/hoc-tap.quyen-1.index'
 import { Route as HocTapQuyen1ChangIdRouteImport } from './routes/hoc-tap_.quyen-1_.$changId'
 import { Route as HocTapQuyen1ChuDeChar123chuDeIndexChar125RouteImport } from './routes/hoc-tap.quyen-1.chu-de-{$chuDeIndex}'
@@ -92,6 +93,11 @@ const ApiTtsRoute = ApiTtsRouteImport.update({
   path: '/api/tts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAvatarRoute = ApiAvatarRouteImport.update({
+  id: '/api/avatar',
+  path: '/api/avatar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HocTapQuyen1IndexRoute = HocTapQuyen1IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -121,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/hoc-tap': typeof HocTapRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
+  '/api/avatar': typeof ApiAvatarRoute
   '/api/tts': typeof ApiTtsRoute
   '/hoc-tap/bang-chu-cai': typeof HocTapBangChuCaiRoute
   '/hoc-tap/luyen-noi': typeof HocTapLuyenNoiRouteWithChildren
@@ -139,6 +146,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
+  '/api/avatar': typeof ApiAvatarRoute
   '/api/tts': typeof ApiTtsRoute
   '/hoc-tap/bang-chu-cai': typeof HocTapBangChuCaiRoute
   '/hoc-tap/luyen-noi': typeof HocTapLuyenNoiRouteWithChildren
@@ -158,6 +166,7 @@ export interface FileRoutesById {
   '/hoc-tap': typeof HocTapRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
+  '/api/avatar': typeof ApiAvatarRoute
   '/api/tts': typeof ApiTtsRoute
   '/hoc-tap/bang-chu-cai': typeof HocTapBangChuCaiRoute
   '/hoc-tap/luyen-noi': typeof HocTapLuyenNoiRouteWithChildren
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/hoc-tap'
     | '/reset-password'
     | '/san-pham-cua-em'
+    | '/api/avatar'
     | '/api/tts'
     | '/hoc-tap/bang-chu-cai'
     | '/hoc-tap/luyen-noi'
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/reset-password'
     | '/san-pham-cua-em'
+    | '/api/avatar'
     | '/api/tts'
     | '/hoc-tap/bang-chu-cai'
     | '/hoc-tap/luyen-noi'
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/hoc-tap'
     | '/reset-password'
     | '/san-pham-cua-em'
+    | '/api/avatar'
     | '/api/tts'
     | '/hoc-tap/bang-chu-cai'
     | '/hoc-tap/luyen-noi'
@@ -235,6 +247,7 @@ export interface RootRouteChildren {
   HocTapRoute: typeof HocTapRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   SanPhamCuaEmRoute: typeof SanPhamCuaEmRoute
+  ApiAvatarRoute: typeof ApiAvatarRoute
   ApiTtsRoute: typeof ApiTtsRoute
   UUsernameRoute: typeof UUsernameRoute
   HocTapQuyen1ChangIdRoute: typeof HocTapQuyen1ChangIdRoute
@@ -333,6 +346,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTtsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/avatar': {
+      id: '/api/avatar'
+      path: '/api/avatar'
+      fullPath: '/api/avatar'
+      preLoaderRoute: typeof ApiAvatarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/hoc-tap/quyen-1/': {
       id: '/hoc-tap/quyen-1/'
       path: '/'
@@ -417,6 +437,7 @@ const rootRouteChildren: RootRouteChildren = {
   HocTapRoute: HocTapRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   SanPhamCuaEmRoute: SanPhamCuaEmRoute,
+  ApiAvatarRoute: ApiAvatarRoute,
   ApiTtsRoute: ApiTtsRoute,
   UUsernameRoute: UUsernameRoute,
   HocTapQuyen1ChangIdRoute: HocTapQuyen1ChangIdRoute,
