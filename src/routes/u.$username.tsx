@@ -2,6 +2,7 @@ import type { User } from "@supabase/supabase-js";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import {
   KeyRound,
   Loader2,
@@ -12,7 +13,10 @@ import {
   Check,
   Home,
   LogOut,
+  Trash2,
 } from "lucide-react";
+import { toast } from "sonner";
+import { deleteOwnAccount } from "@/lib/account.functions";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { FlagImg } from "@/components/FlagImg";
