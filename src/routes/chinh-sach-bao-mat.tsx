@@ -177,10 +177,10 @@ function PrivacyPolicy() {
             Nếu bạn có câu hỏi về chính sách bảo mật này hoặc muốn thực hiện các quyền nêu
             trên, vui lòng liên hệ:{" "}
             <a
-              href="mailto:info@bambootech.fi"
+              href="mailto:contact@cvcec.org"
               className="font-semibold text-primary underline underline-offset-2"
             >
-              info@bambootech.fi
+              contact@cvcec.org
             </a>
             .
           </p>
@@ -322,10 +322,10 @@ function PrivacyPolicy() {
             Questions about this Privacy Policy or requests to exercise the rights above can be
             sent to:{" "}
             <a
-              href="mailto:info@bambootech.fi"
+              href="mailto:contact@cvcec.org"
               className="font-semibold text-primary underline underline-offset-2"
             >
-              info@bambootech.fi
+              contact@cvcec.org
             </a>
             .
           </p>

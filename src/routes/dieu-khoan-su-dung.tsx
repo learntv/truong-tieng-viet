@@ -130,10 +130,10 @@ function TermsOfService() {
           <p>
             Nếu bạn có câu hỏi về các điều khoản này, vui lòng liên hệ:{" "}
             <a
-              href="mailto:info@bambootech.fi"
+              href="mailto:contact@cvcec.org"
               className="font-semibold text-primary underline underline-offset-2"
             >
-              info@bambootech.fi
+              contact@cvcec.org
             </a>
             .
           </p>
@@ -230,10 +230,10 @@ function TermsOfService() {
           <p>
             Questions about these Terms can be sent to:{" "}
             <a
-              href="mailto:info@bambootech.fi"
+              href="mailto:contact@cvcec.org"
               className="font-semibold text-primary underline underline-offset-2"
             >
-              info@bambootech.fi
+              contact@cvcec.org
             </a>
             .
           </p>
