@@ -1,4 +1,5 @@
 import { ArrowRight, Facebook, Music2, Twitter, Youtube } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import boLogo from "@/assets/uy-ban.png";
 import cvcecLogo from "@/assets/cvcec.jpg";
 import { Logo } from "@/components/Logo";
@@ -67,14 +68,17 @@ export function Footer() {
           <div>
             <h4 className="mb-4 font-display text-sm font-extrabold text-white">Chính sách</h4>
             <ul className="flex flex-col gap-2.5">
-              {["Điều khoản sử dụng", "Chính sách bảo mật", "Chính sách nội dung"].map((link) => (
-                <li key={link}>
-                  <a
-                    href="#"
+              {[
+                { label: "Điều khoản sử dụng", to: "/dieu-khoan-su-dung" },
+                { label: "Chính sách bảo mật", to: "/chinh-sach-bao-mat" },
+              ].map(({ label, to }) => (
+                <li key={label}>
+                  <Link
+                    to={to}
                     className="text-sm text-gold-soft/80 transition-colors hover:text-gold"
                   >
-                    {link}
-                  </a>
+                    {label}
+                  </Link>
                 </li>
               ))}
             </ul>
