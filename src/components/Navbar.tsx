@@ -71,7 +71,7 @@ export function Navbar() {
     <>
       <header className="sticky top-4 z-40 w-full px-4">
         <nav className="mx-auto flex w-full max-w-6xl items-center gap-4 rounded-full border border-border/60 bg-white/90 px-4 py-2.5 shadow-card backdrop-blur-md sm:px-6">
-          <div className="flex w-full items-center gap-4">
+          <div className="relative flex w-full items-center gap-4">
             {/* Hamburger — mobile only */}
             <button
               onClick={() => setSidebarOpen(true)}
@@ -85,8 +85,9 @@ export function Navbar() {
               <Logo size="sm" />
             </Link>
 
-            {/* Desktop nav */}
-            <ul className="hidden flex-1 items-center justify-center gap-2 md:flex">
+            {/* Desktop nav — centered on the whole bar via absolute positioning, so it stays
+            put regardless of how wide the logo or the auth control on the right are. */}
+            <ul className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-2 md:flex">
               {tabs.map(({ to, label }) => {
                 const isActive = pathname === to || pathname.startsWith(`${to}/`);
 

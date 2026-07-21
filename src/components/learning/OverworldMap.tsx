@@ -59,11 +59,15 @@ export function OverworldMap({
 }) {
   const navigate = useNavigate();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
-  const [mounted, setMounted] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
 
-  // Read the flag lazily so the overlay never flashes on a repeat visit.
-  const [showTutorial, setShowTutorial] = useState(() => !hasSeenTutorial());
+  // Starts closed — `hasSeenTutorial` reads localStorage, which doesn't exist during SSR, so
+  // deciding this eagerly would bake "show" into the server HTML and mismatch on hydration.
+  // Checked once after mount instead, client-side only.
+  const [showTutorial, setShowTutorial] = useState(false);
+  useEffect(() => {
+    if (!hasSeenTutorial()) setShowTutorial(true);
+  }, []);
   const dismissTutorial = () => {
     setShowTutorial(false);
     try {
@@ -119,12 +123,6 @@ export function OverworldMap({
     const current = statuses.indexOf("current");
     return current === -1 ? Math.max(0, chuDes.length - 1) : current;
   }, [statuses, chuDes.length]);
-
-  // Stagger the pins in on first paint.
-  useEffect(() => {
-    const raf = requestAnimationFrame(() => setMounted(true));
-    return () => cancelAnimationFrame(raf);
-  }, []);
 
   // Fire confetti when the child lands back on the map having just finished a landmark.
   useEffect(() => {
@@ -239,7 +237,7 @@ export function OverworldMap({
                 />
               )}
 
-              {landmarks.map((lm, i) => {
+              {landmarks.map((lm) => {
                 const cd = chuDes[lm.chuDeIndex]?.chuDe;
                 const status: PinStatus = cd ? statuses[lm.chuDeIndex] : "coming-soon";
                 const isOpen = status === "completed" || status === "current";
@@ -264,9 +262,6 @@ export function OverworldMap({
                       left: `${lm.x}%`,
                       top: `${lm.y}%`,
                       transform: "translate(-50%, -100%)",
-                      transition: "opacity 400ms ease-out",
-                      opacity: mounted ? 1 : 0,
-                      transitionDelay: `${i * 90}ms`,
                     }}
                     onClick={(e) => e.stopPropagation()}
                   >

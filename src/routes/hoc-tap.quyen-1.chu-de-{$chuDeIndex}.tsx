@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { QUYEN_1_CHU_DE_COUNT } from "@/lib/learning";
+import { QUYEN_1_CHU_DE_COUNT, learningStructureQueryOptions } from "@/lib/learning";
 import { Quyen1Roadmap } from "@/components/tabs/LoTrinhTab";
 
 export const Route = createFileRoute("/hoc-tap/quyen-1/chu-de-{$chuDeIndex}")({
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/hoc-tap/quyen-1/chu-de-{$chuDeIndex}")({
       });
     }
   },
+  loader: ({ context }) => context.queryClient.ensureQueryData(learningStructureQueryOptions),
   component: RouteComponent,
 });
 

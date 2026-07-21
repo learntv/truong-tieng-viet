@@ -5,6 +5,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { Mascot } from "@/components/Mascot";
 import { PageBanner } from "@/components/site/PageBanner";
 
+const leaderboardQueryOptions = {
+  queryKey: ["leaderboard"],
+  queryFn: async () => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("username, display_name, avatar_emoji, avatar_url, country, completed_count")
+      .order("completed_count", { ascending: false })
+      .order("created_at", { ascending: true });
+    if (error) throw error;
+    return data;
+  },
+  staleTime: 60_000,
+};
+
 export const Route = createFileRoute("/bang-xep-hang")({
   head: () => ({
     meta: [
@@ -12,6 +26,7 @@ export const Route = createFileRoute("/bang-xep-hang")({
       { name: "description", content: "Xem danh sách học sinh xuất sắc nhất trường." },
     ],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(leaderboardQueryOptions),
   component: BangXepHang,
 });
 
@@ -34,19 +49,7 @@ const RANK_STYLES: Record<number, { emoji: string }> = {
 };
 
 function BangXepHang() {
-  const { data: profiles, isLoading } = useQuery({
-    queryKey: ["leaderboard"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("username, display_name, avatar_emoji, avatar_url, country, completed_count")
-        .order("completed_count", { ascending: false })
-        .order("created_at", { ascending: true });
-      if (error) throw error;
-      return data;
-    },
-    staleTime: 60_000,
-  });
+  const { data: profiles, isLoading } = useQuery(leaderboardQueryOptions);
 
   return (
     <main>

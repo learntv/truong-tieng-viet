@@ -3,20 +3,22 @@ import { useQuery } from "@tanstack/react-query";
 import { learningStructureQueryOptions, quyen1ChuDes } from "@/lib/learning";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
 import { OverworldMap } from "@/components/learning/OverworldMap";
-import { OverworldSkeleton } from "@/components/learning/RoadmapSkeleton";
 
 // "/hoc-tap/quyen-1" is the hub of the book: an overworld map of Việt Nam with one landmark per
 // chủ đề. Moving between chủ đề goes through this map rather than a stepper, so the child always
 // sees where they are in the journey.
 export const Route = createFileRoute("/hoc-tap/quyen-1/")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(learningStructureQueryOptions),
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { data, isLoading, error } = useQuery(learningStructureQueryOptions);
-  const { authIsLoading, activeProgressMap, isProgressLoading } = useLearningProgress();
-
-  if (isLoading || authIsLoading || isProgressLoading) return <OverworldSkeleton />;
+  const { data, error } = useQuery(learningStructureQueryOptions);
+  // Progress isn't awaited here — the map (background art + pins) renders as soon as the
+  // lesson structure is in, using whichever progress is available yet (empty on first paint
+  // for a still-resolving session). Statuses correct themselves a beat later instead of the
+  // whole map staying behind a skeleton while auth/progress resolve.
+  const { activeProgressMap } = useLearningProgress();
 
   const chuDes = quyen1ChuDes(data);
 
