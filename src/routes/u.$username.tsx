@@ -448,6 +448,33 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
   const [nameInput, setNameInput] = useState("");
   const [savingName, setSavingName] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const deleteAccountFn = useServerFn(deleteOwnAccount);
+
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteAccountFn();
+      await queryClient.cancelQueries();
+      queryClient.clear();
+      await supabase.auth.signOut();
+      try {
+        localStorage.removeItem("vui-hoc-progress");
+        sessionStorage.removeItem("vui-hoc-buffalo-pos");
+      } catch {
+        /* ignore */
+      }
+      toast.success("Tài khoản đã được xóa. Tạm biệt em! 👋");
+      navigate({ to: "/", replace: true });
+    } catch (err) {
+      setIsDeleting(false);
+      toast.error("Không thể xóa tài khoản", {
+        description: err instanceof Error ? err.message : "Vui lòng thử lại.",
+      });
+    }
+  };
 
   const displayName =
     (user.user_metadata?.full_name as string | undefined) ||
