@@ -111,12 +111,22 @@ export function Footer() {
 
       <div className="border-t border-white/15 py-4">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-4 sm:px-6">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-gold-soft/80">
+            <a href="/chinh-sach-bao-mat" className="hover:text-gold">
+              Chính sách bảo mật
+            </a>
+            <span aria-hidden className="text-gold-soft/40">·</span>
+            <a href="/dieu-khoan-su-dung" className="hover:text-gold">
+              Điều khoản sử dụng
+            </a>
+          </div>
           <p className="text-center text-xs text-gold-soft/70">
             © {COPYRIGHT_YEAR} Trường Tiếng Việt Của Em · Embassy of Vietnam in Canada. Tất cả quyền
             được bảo lưu.
           </p>
         </div>
       </div>
+
     </footer>
   );
 }
