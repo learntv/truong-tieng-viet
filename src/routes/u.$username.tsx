@@ -2,7 +2,6 @@ import type { User } from "@supabase/supabase-js";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import {
   KeyRound,
   Loader2,
@@ -13,10 +12,8 @@ import {
   Check,
   Home,
   LogOut,
-  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
-import { deleteOwnAccount } from "@/lib/account.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { FlagImg } from "@/components/FlagImg";
 import { upsertProfile, generateUsername } from "@/lib/profile";
@@ -448,33 +445,6 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
   const [nameInput, setNameInput] = useState("");
   const [savingName, setSavingName] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
-  const deleteAccountFn = useServerFn(deleteOwnAccount);
-
-  const handleDeleteAccount = async () => {
-    setIsDeleting(true);
-    try {
-      await deleteAccountFn();
-      await queryClient.cancelQueries();
-      queryClient.clear();
-      await supabase.auth.signOut();
-      try {
-        localStorage.removeItem("vui-hoc-progress");
-        sessionStorage.removeItem("vui-hoc-buffalo-pos");
-      } catch {
-        /* ignore */
-      }
-      toast.success("Tài khoản đã được xóa. Tạm biệt em! 👋");
-      navigate({ to: "/", replace: true });
-    } catch (err) {
-      setIsDeleting(false);
-      toast.error("Không thể xóa tài khoản", {
-        description: err instanceof Error ? err.message : "Vui lòng thử lại.",
-      });
-    }
-  };
 
   const displayName =
     (user.user_metadata?.full_name as string | undefined) ||
@@ -863,75 +833,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
             <LogOut className="h-4 w-4" />
             Đăng xuất
           </Button>
-
-          <div className="pt-4 mt-2 border-t border-destructive/20">
-            <p className="text-xs font-bold uppercase tracking-wide text-destructive/80 mb-2">
-              Vùng nguy hiểm
-            </p>
-            <AlertDialog
-              open={deleteOpen}
-              onOpenChange={(open) => {
-                if (!isDeleting) {
-                  setDeleteOpen(open);
-                  if (!open) setDeleteConfirm("");
-                }
-              }}
-            >
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start gap-3 rounded-xl h-12 font-bold bg-destructive text-destructive-foreground border-destructive hover:bg-destructive/90 hover:text-destructive-foreground"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Xóa tài khoản
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="rounded-3xl">
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="font-display text-xl font-bold text-destructive">
-                    Xóa tài khoản vĩnh viễn? ⚠️
-                  </AlertDialogTitle>
-                  <AlertDialogDescription className="text-base leading-relaxed">
-                    Toàn bộ hồ sơ, tiến độ học tập và huy hiệu của em sẽ bị xóa
-                    vĩnh viễn và không thể khôi phục. Hãy gõ{" "}
-                    <span className="font-bold text-destructive">XÓA</span> vào ô
-                    bên dưới để xác nhận.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <Input
-                  value={deleteConfirm}
-                  onChange={(e) => setDeleteConfirm(e.target.value)}
-                  placeholder="Gõ XÓA để xác nhận"
-                  className="rounded-xl"
-                  disabled={isDeleting}
-                />
-                <AlertDialogFooter>
-                  <AlertDialogCancel
-                    disabled={isDeleting}
-                    className="rounded-xl font-bold"
-                  >
-                    Hủy
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleDeleteAccount();
-                    }}
-                    disabled={isDeleting || deleteConfirm.trim().toUpperCase() !== "XÓA"}
-                    className="rounded-xl bg-destructive font-bold text-destructive-foreground hover:bg-destructive/90"
-                  >
-                    {isDeleting ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      "Xóa vĩnh viễn"
-                    )}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
         </div>
-
 
         <p className="text-center text-xs text-muted-foreground mt-6 pb-4">
           Phiên bản 1.0 · Trường Tiếng Việt Của Em 🇻🇳

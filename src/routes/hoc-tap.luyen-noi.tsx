@@ -1,8 +1,6 @@
 import { createFileRoute, Link, Outlet, useChildMatches } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { useLearningContent } from "@/hooks/useLearningContent";
 import { Loader2, Mic, Star } from "lucide-react";
-import { extractSpeakingSentences } from "@/lib/speech";
 import { type SpeakingProgress } from "@/lib/speaking-progress";
 import { useSpeakingContent } from "@/hooks/useSpeakingContent";
 import { useSpeakingProgress } from "@/hooks/useSpeakingProgress";
@@ -108,7 +106,6 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 }
 
 function TopicPicker() {
-  const { data, isLoading, error } = useLearningContent();
   const {
     data: speakingTopics,
     isLoading: speakingContentLoading,
@@ -127,24 +124,6 @@ function TopicPicker() {
         ...countStats(topic.sentences, progress),
       })),
     [speakingTopics, progress],
-  );
-
-  const lessonCards = useMemo<TopicCardData[]>(
-    () =>
-      (data ?? [])
-        .map((topic, i) => {
-          const sentences = extractSpeakingSentences(topic);
-          return {
-            id: topic.chuDe.id,
-            emoji: topic.chuDe.emoji,
-            label: topic.chuDe.title.split(":")[1]?.trim() || topic.chuDe.title,
-            total: sentences.length,
-            colorIndex: i,
-            ...countStats(sentences, progress),
-          };
-        })
-        .filter((c) => c.total > 0),
-    [data, progress],
   );
 
   return (
@@ -172,28 +151,6 @@ function TopicPicker() {
           {!speakingContentLoading && !speakingContentError && (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {staticCards.map((card) => (
-                <TopicCard key={card.id} card={card} />
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* Topics derived from lesson content */}
-        <section>
-          <SectionHeading>📚 Luyện theo bài học của em</SectionHeading>
-          {isLoading && (
-            <div className="flex justify-center py-10">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          )}
-          {error != null && !isLoading && (
-            <p className="py-8 text-center text-sm font-semibold text-white/80">
-              Chưa tải được bài học — em vẫn luyện được các chủ đề phía trên nhé!
-            </p>
-          )}
-          {!isLoading && !error && (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {lessonCards.map((card) => (
                 <TopicCard key={card.id} card={card} />
               ))}
             </div>

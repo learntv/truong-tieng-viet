@@ -9,8 +9,7 @@ export type SpeakingTopic = {
   sentences: SpeakingSentence[];
 };
 
-// Curated speaking-practice topics for /luyen-noi, alongside the ones derived
-// from lesson content (see extractSpeakingSentences). Lives in speaking_topic/
+// Curated speaking-practice topics for /luyen-noi. Lives in speaking_topic/
 // speaking_sentence rather than the chude/chang curriculum tables so it can't
 // collide with curriculum ids in the /luyen-noi/$chuDeId param — sentence and
 // topic ids keep the "noi-" prefix used since the content was hardcoded.
