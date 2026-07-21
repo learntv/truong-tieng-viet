@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { deleteOwnAccount } from "@/lib/account.functions";
-import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { FlagImg } from "@/components/FlagImg";
 import { upsertProfile, generateUsername } from "@/lib/profile";
