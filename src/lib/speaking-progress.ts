@@ -3,7 +3,7 @@ import type { Stars } from "@/lib/speech";
 // Speaking-coach practice stats for anonymous (logged-out) visitors. Logged-in
 // progress lives in the speaking_progress table instead (see useSpeakingProgress),
 // which merges this local store in on login. Keyed by the stable sentence ids
-// from speaking_sentence.id.
+// from extractSpeakingSentences / speaking_sentence.id.
 
 export type SpeakingStat = { attempts: number; bestStars: Stars };
 export type SpeakingProgress = Record<string, SpeakingStat>;
