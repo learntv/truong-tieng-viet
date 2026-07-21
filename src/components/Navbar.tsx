@@ -75,7 +75,7 @@ export function Navbar() {
             {/* Hamburger — mobile only */}
             <button
               onClick={() => setSidebarOpen(true)}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-foreground/70 transition-all hover:bg-muted md:hidden"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-foreground/70 transition-all hover:bg-muted min-[900px]:hidden"
               aria-label="Mở menu"
             >
               <Menu className="h-5 w-5" strokeWidth={2.5} />
@@ -87,7 +87,7 @@ export function Navbar() {
 
             {/* Desktop nav — centered on the whole bar via absolute positioning, so it stays
             put regardless of how wide the logo or the auth control on the right are. */}
-            <ul className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-2 md:flex">
+            <ul className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-2 min-[900px]:flex">
               {tabs.map(({ to, label }) => {
                 const isActive = pathname === to || pathname.startsWith(`${to}/`);
 
@@ -96,7 +96,7 @@ export function Navbar() {
                     <Link
                       to={to}
                       className={[
-                        "rounded-full px-4 py-1.5 text-sm font-bold transition-colors",
+                        "whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-bold transition-colors",
                         isActive
                           ? "bg-primary text-white"
                           : "text-foreground/70 hover:bg-muted hover:text-foreground",
@@ -199,7 +199,7 @@ export function Navbar() {
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm min-[900px]:hidden"
           onClick={closeSidebar}
         />
       )}
@@ -207,7 +207,7 @@ export function Navbar() {
       {/* Mobile sidebar */}
       <aside
         className={[
-          "fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out md:hidden",
+          "fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out min-[900px]:hidden",
           sidebarOpen ? "translate-x-0" : "-translate-x-full",
         ].join(" ")}
       >
