@@ -863,7 +863,75 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
             <LogOut className="h-4 w-4" />
             Đăng xuất
           </Button>
+
+          <div className="pt-4 mt-2 border-t border-destructive/20">
+            <p className="text-xs font-bold uppercase tracking-wide text-destructive/80 mb-2">
+              Vùng nguy hiểm
+            </p>
+            <AlertDialog
+              open={deleteOpen}
+              onOpenChange={(open) => {
+                if (!isDeleting) {
+                  setDeleteOpen(open);
+                  if (!open) setDeleteConfirm("");
+                }
+              }}
+            >
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-3 rounded-xl h-12 font-bold bg-destructive text-destructive-foreground border-destructive hover:bg-destructive/90 hover:text-destructive-foreground"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Xóa tài khoản
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="rounded-3xl">
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="font-display text-xl font-bold text-destructive">
+                    Xóa tài khoản vĩnh viễn? ⚠️
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="text-base leading-relaxed">
+                    Toàn bộ hồ sơ, tiến độ học tập và huy hiệu của em sẽ bị xóa
+                    vĩnh viễn và không thể khôi phục. Hãy gõ{" "}
+                    <span className="font-bold text-destructive">XÓA</span> vào ô
+                    bên dưới để xác nhận.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <Input
+                  value={deleteConfirm}
+                  onChange={(e) => setDeleteConfirm(e.target.value)}
+                  placeholder="Gõ XÓA để xác nhận"
+                  className="rounded-xl"
+                  disabled={isDeleting}
+                />
+                <AlertDialogFooter>
+                  <AlertDialogCancel
+                    disabled={isDeleting}
+                    className="rounded-xl font-bold"
+                  >
+                    Hủy
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDeleteAccount();
+                    }}
+                    disabled={isDeleting || deleteConfirm.trim().toUpperCase() !== "XÓA"}
+                    className="rounded-xl bg-destructive font-bold text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    {isDeleting ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      "Xóa vĩnh viễn"
+                    )}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
+
 
         <p className="text-center text-xs text-muted-foreground mt-6 pb-4">
           Phiên bản 1.0 · Trường Tiếng Việt Của Em 🇻🇳
