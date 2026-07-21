@@ -1,5 +1,3 @@
-import type { ChuDeWithChangs } from "@/lib/learning";
-
 // Speech helpers for the speaking-coach feature (/luyen-noi).
 // Text-to-speech playback lives in src/hooks/useSingletonAudio.ts + src/lib/tts/text.ts
 // (Google Cloud TTS via /api/tts) — everything below is about the child's own voice, which
@@ -406,44 +404,4 @@ export function starsFromRatio(ratio: number, spokeAnything: boolean): Stars {
   return 1;
 }
 
-// ─── Practice-sentence extraction from the existing curriculum ────────────────
-
 export type SpeakingSentence = { id: string; text: string; imageUrl?: string };
-
-const MIN_WORDS = 2;
-const MAX_WORDS = 10;
-const MAX_PER_TOPIC = 24;
-
-// Pulls speakable sentences out of a topic's lesson content (bai texts + image
-// captions). IDs are derived from DB row ids so saved practice stats stay
-// stable across sessions and content re-ordering.
-export function extractSpeakingSentences(topic: ChuDeWithChangs): SpeakingSentence[] {
-  const out: SpeakingSentence[] = [];
-  const seen = new Set<string>();
-
-  const push = (id: string, text: string, imageUrl?: string) => {
-    if (out.length >= MAX_PER_TOPIC) return;
-    const clean = text.replace(/\s+/g, " ").trim();
-    if (/https?:\/\//i.test(clean)) return;
-    const norm = normalizeSpoken(clean);
-    const wordCount = norm ? norm.split(" ").length : 0;
-    if (wordCount < MIN_WORDS || wordCount > MAX_WORDS) return;
-    if (seen.has(norm)) return;
-    seen.add(norm);
-    out.push({ id, text: clean, imageUrl });
-  };
-
-  for (const chang of topic.changs) {
-    for (const nd of chang.noiDungs) {
-      for (const bai of nd.bais) {
-        const baiImage = bai.hinhs[0]?.url || undefined;
-        bai.texts.forEach((t, i) => push(`${bai.id}#t${i}`, t, baiImage));
-        for (const hinh of bai.hinhs) {
-          hinh.captions.forEach((c, i) => push(`${hinh.id}#c${i}`, c, hinh.url || baiImage));
-        }
-      }
-    }
-  }
-
-  return out;
-}
