@@ -18,9 +18,13 @@ import { joinForSpeech, ttsSrc } from "@/lib/tts/text";
 import { STAGE_COLORS } from "./stageColors";
 import { ConfettiBurst } from "./ConfettiBurst";
 import { ImageHighlightOverlay } from "./ImageHighlightOverlay";
+import { BadgeMedal } from "./BadgeMedal";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
 import { Button } from "@/components/ui/button";
+import { badgeForChuDe } from "@/data/badges";
 import mapPinIcon from "@/assets/map-pin-icon.png";
+
+export const BADGE_TOAST_KEY = "vui-hoc-badge-toast";
 
 type StageColor = (typeof STAGE_COLORS)[number];
 
@@ -345,12 +349,14 @@ export function LessonPage({ changId }: { changId: string }) {
 
   const [showConfetti, setShowConfetti] = useState(false);
   const [showNextPrompt, setShowNextPrompt] = useState(false);
+  const [showBadgeCelebration, setShowBadgeCelebration] = useState(false);
 
   // Dismiss any lingering "next lesson" prompt / confetti as soon as the lesson changes,
   // regardless of whether data for the new lesson has loaded yet.
   useEffect(() => {
     setShowNextPrompt(false);
     setShowConfetti(false);
+    setShowBadgeCelebration(false);
   }, [changId]);
 
   // Resets to the right starting slide once per lesson — continuing from the saved position,
@@ -471,6 +477,7 @@ export function LessonPage({ changId }: { changId: string }) {
       requestAnimationFrame(() => setFading(false));
     }, 160);
   };
+  const earnedBadge = badgeForChuDe(topicIndex);
   const handleComplete = async () => {
     if (isCompleted) return;
     setShowConfetti(true);
@@ -481,7 +488,27 @@ export function LessonPage({ changId }: { changId: string }) {
         duration: 3000,
       });
     }
-    if (nextChang) setShowNextPrompt(true);
+    if (nextChang) {
+      setShowNextPrompt(true);
+    } else if (earnedBadge) {
+      // Last chặng of the chủ đề: celebrate the newly-earned huy hiệu.
+      setShowBadgeCelebration(true);
+    }
+  };
+
+  const claimBadge = () => {
+    setShowBadgeCelebration(false);
+    if (earnedBadge) {
+      try {
+        sessionStorage.setItem(BADGE_TOAST_KEY, earnedBadge.slug);
+      } catch {
+        /* ignore */
+      }
+    }
+    navigate({
+      to: "/hoc-tap/quyen-1/chu-de-{$chuDeIndex}",
+      params: { chuDeIndex: String(topicIndex + 1) },
+    });
   };
 
   const goToNextChang = () => {
@@ -779,6 +806,46 @@ export function LessonPage({ changId }: { changId: string }) {
                 strokeWidth={3}
               />
             </button>
+          </div>
+        </div>
+      )}
+
+      {showBadgeCelebration && earnedBadge && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-300">
+          <div className="relative w-full max-w-md overflow-hidden rounded-3xl border-2 border-black/10 bg-white p-8 pt-10 text-center shadow-[0_10px_40px_-10px_rgba(0,0,0,0.35)] animate-in zoom-in-95 duration-300">
+            <ConfettiBurst onDone={() => { /* keep card visible until claimed */ }} />
+            <p className="font-display text-sm font-extrabold uppercase tracking-wide text-stage-2-deep">
+              Chúc mừng!
+            </p>
+            <h2 className="mt-1 font-display text-2xl font-extrabold text-navy sm:text-3xl">
+              Em đã sưu tầm được huy hiệu mới
+            </h2>
+            <div className="relative mx-auto mt-6 grid place-items-center">
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 -m-6 rounded-full bg-[radial-gradient(circle,rgba(255,215,120,0.55)_0%,rgba(255,215,120,0)_65%)] animate-pulse"
+              />
+              <div className="relative animate-[float-badge_3s_ease-in-out_infinite]">
+                <BadgeMedal badge={earnedBadge} earned size="xl" />
+                <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-full">
+                  <span className="absolute inset-y-0 -left-1/2 w-1/2 animate-shine bg-gradient-to-r from-transparent via-white/70 to-transparent" />
+                </span>
+              </div>
+            </div>
+            <p className="mt-6 font-display text-lg font-extrabold text-navy">
+              {earnedBadge.name}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Em đã hoàn thành toàn bộ chủ đề này. Tuyệt vời lắm!
+            </p>
+            <Button
+              variant="bevel"
+              tone="stage-1"
+              onClick={claimBadge}
+              className="mx-auto mt-6 w-fit"
+            >
+              Nhận ngay
+            </Button>
           </div>
         </div>
       )}
