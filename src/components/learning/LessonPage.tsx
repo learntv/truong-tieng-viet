@@ -477,6 +477,7 @@ export function LessonPage({ changId }: { changId: string }) {
       requestAnimationFrame(() => setFading(false));
     }, 160);
   };
+  const earnedBadge = badgeForChuDe(topicIndex);
   const handleComplete = async () => {
     if (isCompleted) return;
     setShowConfetti(true);
@@ -487,7 +488,27 @@ export function LessonPage({ changId }: { changId: string }) {
         duration: 3000,
       });
     }
-    if (nextChang) setShowNextPrompt(true);
+    if (nextChang) {
+      setShowNextPrompt(true);
+    } else if (earnedBadge) {
+      // Last chặng of the chủ đề: celebrate the newly-earned huy hiệu.
+      setShowBadgeCelebration(true);
+    }
+  };
+
+  const claimBadge = () => {
+    setShowBadgeCelebration(false);
+    if (earnedBadge) {
+      try {
+        sessionStorage.setItem(BADGE_TOAST_KEY, earnedBadge.slug);
+      } catch {
+        /* ignore */
+      }
+    }
+    navigate({
+      to: "/hoc-tap/quyen-1/chu-de-{$chuDeIndex}",
+      params: { chuDeIndex: String(topicIndex + 1) },
+    });
   };
 
   const goToNextChang = () => {
