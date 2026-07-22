@@ -401,10 +401,11 @@ export function RoadmapList({
                   🏅
                 </span>
                 <div>
-                  <div className="font-display text-sm font-bold text-ink">Phần thưởng chủ đề</div>
+                  <div className="font-display text-sm font-bold text-ink">
+                    Nhận con dấu {location.name}
+                  </div>
                   <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
-                    Hoàn thành cả {totalStages} chặng để nhận con dấu{" "}
-                    <strong className="text-primary">{chuDe.title}</strong>.
+                    Hoàn thành cả {totalStages} chặng để đoạt được con dấu này nhé!
                   </p>
                 </div>
               </div>
