@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, BookOpen, Layers, Lock, Sparkles } from "lucide-react";
+import { ArrowRight, Lock, Sparkles } from "lucide-react";
 import quyen1Cover from "@/assets/quyen_1_cover.jpg";
 import quyen2Cover from "@/assets/quyen_2_cover.jpg";
 import aImg from "@/assets/alphabet/a.png";
@@ -27,7 +27,6 @@ export function HocTapHome() {
             title="Quyển 1"
             subtitle="Làm quen tiếng Việt"
             description="4 chủ đề · 20 bài học cùng Trâu con khám phá quê hương."
-            meta={["4 chủ đề", "20 bài học"]}
             status="Đang học"
             to="/hoc-tap/quyen-1"
           />
@@ -36,7 +35,6 @@ export function HocTapHome() {
             title="Quyển 2"
             subtitle="Nâng cao vốn từ"
             description="Hành trình tiếp theo đang được biên soạn, sẽ sớm ra mắt các em."
-            meta={["Đang biên soạn"]}
             status="Sắp ra mắt"
             locked
             to="/hoc-tap/quyen-2"
@@ -88,7 +86,6 @@ function BookCard({
   title,
   subtitle,
   description,
-  meta,
   status,
   locked,
   to,
@@ -97,7 +94,6 @@ function BookCard({
   title: string;
   subtitle: string;
   description: string;
-  meta: string[];
   status: string;
   locked?: boolean;
   to: "/hoc-tap/quyen-1" | "/hoc-tap/quyen-2";
@@ -130,18 +126,7 @@ function BookCard({
             {description}
           </p>
 
-          <div className="mt-auto flex items-end justify-between gap-2 pt-3">
-            <div className="flex flex-wrap gap-1.5">
-              {meta.map((m, i) => (
-                <span
-                  key={m}
-                  className="inline-flex items-center gap-1 rounded-full bg-surface-subtle px-2 py-0.5 text-[10px] font-bold text-ink/70"
-                >
-                  {i === 0 ? <Layers className="h-3 w-3" /> : <BookOpen className="h-3 w-3" />}
-                  {m}
-                </span>
-              ))}
-            </div>
+          <div className="mt-auto flex items-end justify-end gap-2 pt-3">
             <span
               className={[
                 "inline-flex shrink-0 items-center gap-1 text-sm font-bold",
