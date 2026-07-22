@@ -69,16 +69,16 @@ export function useLearningProgress() {
   }, [user?.id, isLocalProgressLoaded]);
 
 
-  const markChangComplete = (changId: string, noiDungIndex: number) => {
+  const markChangComplete = (changId: string, noiDungIndex: number): boolean | Promise<boolean> => {
     if (user) {
-      markComplete(changId);
-    } else {
-      setLocalProgressMap((prev) => {
-        const next = new Map(prev);
-        next.set(changId, { noiDungIndex, isCompleted: true });
-        return next;
-      });
+      return markComplete(changId);
     }
+    setLocalProgressMap((prev) => {
+      const next = new Map(prev);
+      next.set(changId, { noiDungIndex, isCompleted: true });
+      return next;
+    });
+    return true;
   };
 
   const saveChangPosition = (changId: string, noiDungIndex: number, isCompleted: boolean) => {

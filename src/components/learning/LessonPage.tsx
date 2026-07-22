@@ -471,14 +471,16 @@ export function LessonPage({ changId }: { changId: string }) {
       requestAnimationFrame(() => setFading(false));
     }, 160);
   };
-  const handleComplete = () => {
+  const handleComplete = async () => {
     if (isCompleted) return;
     setShowConfetti(true);
-    markChangComplete(chang.id, currentSlide?.ndIndex ?? 0);
-    toast.success(`Chặng ${changIndex + 1} hoàn thành! 🎉`, {
-      description: "Tiếp tục giỏi nhé!",
-      duration: 3000,
-    });
+    const ok = await markChangComplete(chang.id, currentSlide?.ndIndex ?? 0);
+    if (ok) {
+      toast.success(`Chặng ${changIndex + 1} hoàn thành! 🎉`, {
+        description: "Tiếp tục giỏi nhé!",
+        duration: 3000,
+      });
+    }
     if (nextChang) setShowNextPrompt(true);
   };
 

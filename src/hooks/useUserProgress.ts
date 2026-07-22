@@ -45,8 +45,8 @@ export function useUserProgress(userId: string | null) {
 
 
   const markComplete = useCallback(
-    async (changId: string) => {
-      if (!userId) return;
+    async (changId: string): Promise<boolean> => {
+      if (!userId) return false;
       const key = progressQueryKey(userId);
       // Snapshot before optimistic update for rollback
       const snapshot = queryClient.getQueryData<Map<string, ChangProgress>>(key);
@@ -55,18 +55,24 @@ export function useUserProgress(userId: string | null) {
         next.set(changId, { noiDungIndex: next.get(changId)?.noiDungIndex ?? 0, isCompleted: true });
         return next;
       });
-      const { error } = await (supabase.rpc as unknown as (fn: string, args: Record<string, unknown>) => Promise<{ error: unknown }>)("complete_chang", { _chang_id: changId });
+      const { error } = await supabase
+        .from("user_progress")
+        .upsert(
+          { user_id: userId, chang_id: changId, completed_at: new Date().toISOString() },
+          { onConflict: "user_id,chang_id" },
+        );
       if (error) {
         queryClient.setQueryData(key, snapshot);
         console.error("Failed to save completion:", error);
         notifySaveFailed();
-      } else {
-        // DB trigger updates profiles.completed_count — invalidate dependent caches
-        queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
-        queryClient.invalidateQueries({ queryKey: ["streak", userId] });
-        queryClient.invalidateQueries({ queryKey: ["public-profile"] });
-      queryClient.invalidateQueries({ queryKey: ["badges", userId] });
+        return false;
       }
+      // DB trigger updates profiles.completed_count — invalidate dependent caches
+      queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
+      queryClient.invalidateQueries({ queryKey: ["streak", userId] });
+      queryClient.invalidateQueries({ queryKey: ["public-profile"] });
+      queryClient.invalidateQueries({ queryKey: ["badges", userId] });
+      return true;
     },
     [userId, queryClient],
   );
