@@ -14,6 +14,7 @@ export const Route = createFileRoute("/san-pham-cua-em")({
       { property: "og:description", content: "Nơi trưng bày những bài làm và tác phẩm của các bạn nhỏ Trường Tiếng Việt Của Em." },
       { property: "og:url", content: "/san-pham-cua-em" },
     ],
+    links: [{ rel: "canonical", href: "/san-pham-cua-em" }],
   }),
   component: SanPhamCuaEm,
 });

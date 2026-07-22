@@ -58,6 +58,7 @@ export const Route = createFileRoute("/dashboard")({
       { name: "robots", content: "noindex" },
       { property: "og:url", content: "/dashboard" },
     ],
+    links: [{ rel: "canonical", href: "/dashboard" }],
   }),
   component: DashboardPage,
 });

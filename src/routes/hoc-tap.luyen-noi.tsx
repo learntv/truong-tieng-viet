@@ -20,6 +20,7 @@ export const Route = createFileRoute("/hoc-tap/luyen-noi")({
       { property: "og:description", content: "Luyện nói tiếng Việt cùng Trâu con: nghe mẫu, ghi âm và nhận sao khích lệ." },
       { property: "og:url", content: "/hoc-tap/luyen-noi" },
     ],
+    links: [{ rel: "canonical", href: "/hoc-tap/luyen-noi" }],
   }),
   component: LuyenNoiTab,
 });

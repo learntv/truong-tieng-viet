@@ -14,6 +14,7 @@ export const Route = createFileRoute("/chinh-sach-bao-mat")({
       { property: "og:description", content: "Dữ liệu chúng tôi thu thập, cách sử dụng, và quyền của phụ huynh/học sinh." },
       { property: "og:url", content: "/chinh-sach-bao-mat" },
     ],
+    links: [{ rel: "canonical", href: "/chinh-sach-bao-mat" }],
   }),
   component: PrivacyPolicy,
 });

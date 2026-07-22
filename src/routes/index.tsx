@@ -4,13 +4,13 @@ import { InfoTab } from "@/components/tabs/InfoTab";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Trường Tiếng Việt Của Em — Học tiếng Việt cùng Trâu con đội nón lá" },
+      { title: "Trường Tiếng Việt Của Em — Học tiếng Việt vui nhộn" },
       {
         name: "description",
         content:
           "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào 5–12 tuổi, dưới sự bảo trợ của UBNVONN – Bộ Ngoại giao.",
       },
-      { property: "og:title", content: "Trường Tiếng Việt Của Em — Học tiếng Việt cùng Trâu con" },
+      { property: "og:title", content: "Trường Tiếng Việt Của Em — Học tiếng Việt vui nhộn" },
       {
         property: "og:description",
         content:
@@ -18,6 +18,7 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:url", content: "/" },
     ],
+    links: [{ rel: "canonical", href: "/" }],
   }),
   component: Index,
 });
