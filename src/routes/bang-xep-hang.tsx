@@ -137,7 +137,7 @@ function BangXepHang() {
                         {profile.avatar_url ? (
                           <img
                             src={profile.avatar_url}
-                            alt="Avatar"
+                            alt={`Ảnh đại diện của ${profile.display_name}`}
                             className="h-full w-full object-cover"
                             referrerPolicy="no-referrer"
                           />

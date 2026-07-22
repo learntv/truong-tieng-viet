@@ -130,7 +130,7 @@ export function InfoHero() {
         {/* Sized to keep "Trường Tiếng Việt Của Em" on two lines, breaking
           after "Việt" rather than orphaning "Em" onto a third. */}
         <h1 className="mt-5 animate-in fade-in slide-in-from-bottom-4 font-display text-[2rem] font-extrabold leading-[1.12] text-navy duration-700 sm:text-5xl lg:text-6xl">
-          Trường Tiếng Việt Của Em
+          Trường Tiếng Việt Của Em — Học tiếng Việt cùng Trâu con
         </h1>
         <p className="mx-auto mt-5 max-w-xl animate-in fade-in slide-in-from-bottom-4 text-base leading-relaxed text-muted-foreground duration-1000 sm:text-lg">
           Hành trình gìn giữ và lan tỏa tiếng Việt, văn hóa Việt đến với thế hệ trẻ kiều bào trên
