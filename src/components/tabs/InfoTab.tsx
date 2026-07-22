@@ -1,4 +1,4 @@
-import { ArrowRight, BookOpenText, Copyright, Info, Network } from "lucide-react";
+import { ArrowRight, BookOpenText, Copyright, Network } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { InfoHero } from "./InfoHero";
 import { InfoCarousel } from "./InfoCarousel";
@@ -166,7 +166,6 @@ export function InfoTab() {
             className="mx-auto mb-5 h-20 w-20 object-contain sm:h-24 sm:w-24"
           />
           <h3 className="inline-flex items-center gap-2 font-display text-2xl font-extrabold text-white sm:text-3xl">
-            <Info className="h-6 w-6 text-gold sm:h-7 sm:w-7" strokeWidth={2.5} />
             Lời cảm ơn
           </h3>
           <p className="mx-auto mt-5 max-w-2xl text-[15px] leading-relaxed text-white/90 sm:text-base">
