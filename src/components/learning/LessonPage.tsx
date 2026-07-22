@@ -487,7 +487,15 @@ export function LessonPage({ changId }: { changId: string }) {
   const goToNextChang = () => {
     if (!nextChang) return;
     setShowNextPrompt(false);
-    navigate({ to: "/hoc-tap/quyen-1/$changId", params: { changId: nextChang.id } });
+    // Replace (not push) so the history stack stays flat across consecutive "next lesson"
+    // clicks — otherwise each click stacks another chặng entry between the map and the
+    // current page, and BackToMapButton's router.history.back() (which assumes the map is
+    // always exactly one entry back) lands on the previous chặng instead of the map.
+    navigate({
+      to: "/hoc-tap/quyen-1/$changId",
+      params: { changId: nextChang.id },
+      replace: true,
+    });
   };
 
   return (
