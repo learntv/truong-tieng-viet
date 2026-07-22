@@ -1,4 +1,5 @@
 import { ArrowLeft, Check, Compass, Info, Lock, X } from "lucide-react";
+import { Mascot } from "@/components/Mascot";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
