@@ -10,6 +10,9 @@ export const Route = createFileRoute("/chinh-sach-bao-mat")({
         content:
           "Chính sách bảo mật của Trường Tiếng Việt Của Em: dữ liệu chúng tôi thu thập, cách sử dụng, và quyền của phụ huynh/học sinh.",
       },
+      { property: "og:title", content: "Chính sách bảo mật — Trường Tiếng Việt Của Em" },
+      { property: "og:description", content: "Dữ liệu chúng tôi thu thập, cách sử dụng, và quyền của phụ huynh/học sinh." },
+      { property: "og:url", content: "/chinh-sach-bao-mat" },
     ],
   }),
   component: PrivacyPolicy,
