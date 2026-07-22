@@ -10,6 +10,9 @@ export const Route = createFileRoute("/dieu-khoan-su-dung")({
         content:
           "Điều khoản sử dụng của Trường Tiếng Việt Của Em: quyền và trách nhiệm khi sử dụng nền tảng học tiếng Việt.",
       },
+      { property: "og:title", content: "Điều khoản sử dụng — Trường Tiếng Việt Của Em" },
+      { property: "og:description", content: "Điều khoản sử dụng của Trường Tiếng Việt Của Em: quyền và trách nhiệm khi sử dụng nền tảng học tiếng Việt." },
+      { property: "og:url", content: "/dieu-khoan-su-dung" },
     ],
   }),
   component: TermsOfService,
