@@ -480,19 +480,27 @@ export function LessonPage({ changId }: { changId: string }) {
   const earnedBadge = badgeForChuDe(topicIndex);
   const handleComplete = async () => {
     if (isCompleted) return;
-    setShowConfetti(true);
     const ok = await markChangComplete(chang.id, currentSlide?.ndIndex ?? 0);
-    if (ok) {
-      toast.success(`Chặng ${changIndex + 1} hoàn thành! 🎉`, {
-        description: "Tiếp tục giỏi nhé!",
-        duration: 3000,
-      });
-    }
     if (nextChang) {
+      setShowConfetti(true);
+      if (ok) {
+        toast.success(`Chặng ${changIndex + 1} hoàn thành! 🎉`, {
+          description: "Tiếp tục giỏi nhé!",
+          duration: 3000,
+        });
+      }
       setShowNextPrompt(true);
     } else if (earnedBadge) {
       // Last chặng of the chủ đề: celebrate the newly-earned huy hiệu.
       setShowBadgeCelebration(true);
+    } else {
+      setShowConfetti(true);
+      if (ok) {
+        toast.success(`Chặng ${changIndex + 1} hoàn thành! 🎉`, {
+          description: "Tiếp tục giỏi nhé!",
+          duration: 3000,
+        });
+      }
     }
   };
 
