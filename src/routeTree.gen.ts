@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SanPhamCuaEmRouteImport } from './routes/san-pham-cua-em'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as HocTapRouteImport } from './routes/hoc-tap'
+import { Route as DieuKhoanSuDungRouteImport } from './routes/dieu-khoan-su-dung'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as ChinhSachBaoMatRouteImport } from './routes/chinh-sach-bao-mat'
 import { Route as BangXepHangRouteImport } from './routes/bang-xep-hang'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HocTapIndexRouteImport } from './routes/hoc-tap.index'
@@ -43,9 +45,19 @@ const HocTapRoute = HocTapRouteImport.update({
   path: '/hoc-tap',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DieuKhoanSuDungRoute = DieuKhoanSuDungRouteImport.update({
+  id: '/dieu-khoan-su-dung',
+  path: '/dieu-khoan-su-dung',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChinhSachBaoMatRoute = ChinhSachBaoMatRouteImport.update({
+  id: '/chinh-sach-bao-mat',
+  path: '/chinh-sach-bao-mat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BangXepHangRoute = BangXepHangRouteImport.update({
@@ -123,7 +135,9 @@ const HocTapLuyenNoiChuDeIdRoute = HocTapLuyenNoiChuDeIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bang-xep-hang': typeof BangXepHangRoute
+  '/chinh-sach-bao-mat': typeof ChinhSachBaoMatRoute
   '/dashboard': typeof DashboardRoute
+  '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/hoc-tap': typeof HocTapRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
@@ -143,7 +157,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bang-xep-hang': typeof BangXepHangRoute
+  '/chinh-sach-bao-mat': typeof ChinhSachBaoMatRoute
   '/dashboard': typeof DashboardRoute
+  '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
   '/api/avatar': typeof ApiAvatarRoute
@@ -162,7 +178,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/bang-xep-hang': typeof BangXepHangRoute
+  '/chinh-sach-bao-mat': typeof ChinhSachBaoMatRoute
   '/dashboard': typeof DashboardRoute
+  '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/hoc-tap': typeof HocTapRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
@@ -184,7 +202,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/bang-xep-hang'
+    | '/chinh-sach-bao-mat'
     | '/dashboard'
+    | '/dieu-khoan-su-dung'
     | '/hoc-tap'
     | '/reset-password'
     | '/san-pham-cua-em'
@@ -204,7 +224,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/bang-xep-hang'
+    | '/chinh-sach-bao-mat'
     | '/dashboard'
+    | '/dieu-khoan-su-dung'
     | '/reset-password'
     | '/san-pham-cua-em'
     | '/api/avatar'
@@ -222,7 +244,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/bang-xep-hang'
+    | '/chinh-sach-bao-mat'
     | '/dashboard'
+    | '/dieu-khoan-su-dung'
     | '/hoc-tap'
     | '/reset-password'
     | '/san-pham-cua-em'
@@ -243,7 +267,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BangXepHangRoute: typeof BangXepHangRoute
+  ChinhSachBaoMatRoute: typeof ChinhSachBaoMatRoute
   DashboardRoute: typeof DashboardRoute
+  DieuKhoanSuDungRoute: typeof DieuKhoanSuDungRoute
   HocTapRoute: typeof HocTapRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   SanPhamCuaEmRoute: typeof SanPhamCuaEmRoute
@@ -276,11 +302,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HocTapRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dieu-khoan-su-dung': {
+      id: '/dieu-khoan-su-dung'
+      path: '/dieu-khoan-su-dung'
+      fullPath: '/dieu-khoan-su-dung'
+      preLoaderRoute: typeof DieuKhoanSuDungRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chinh-sach-bao-mat': {
+      id: '/chinh-sach-bao-mat'
+      path: '/chinh-sach-bao-mat'
+      fullPath: '/chinh-sach-bao-mat'
+      preLoaderRoute: typeof ChinhSachBaoMatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bang-xep-hang': {
@@ -433,7 +473,9 @@ const HocTapRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BangXepHangRoute: BangXepHangRoute,
+  ChinhSachBaoMatRoute: ChinhSachBaoMatRoute,
   DashboardRoute: DashboardRoute,
+  DieuKhoanSuDungRoute: DieuKhoanSuDungRoute,
   HocTapRoute: HocTapRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   SanPhamCuaEmRoute: SanPhamCuaEmRoute,
@@ -445,3 +487,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
