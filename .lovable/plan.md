@@ -1,8 +1,8 @@
-Mục tiêu: Xóa icon `Info` (Lucide icon dấu chấm than) đang nằm ngay trước chữ "Lời cảm ơn" trong section cảm ơn của `src/components/tabs/InfoTab.tsx`.
+The tagline " — Học tiếng Việt cùng Trâu con" currently only appears in the visible homepage heading at `src/components/tabs/InfoHero.tsx:133`.
 
-Thay đổi:
-- Trong `src/components/tabs/InfoTab.tsx`, dòng ~169 hiện có `<Info className="h-6 w-6 text-gold sm:h-7 sm:w-7" strokeWidth={2.5} />` bên trong thẻ `<h3>`.
-- Xóa dòng icon này.
-- Giữ nguyên tiêu đề "Lời cảm ơn" và toàn bộ style hiện có (gap-2 trên h3 không còn cần thiết nhưng không gây hại, nên có thể bỏ hoặc giữ để giảm thiểu thay đổi).
+Plan:
+1. Update the `<h1>` in `InfoHero.tsx` from `Trường Tiếng Việt Của Em — Học tiếng Việt cùng Trâu con` to just `Trường Tiếng Việt Của Em`.
+2. Confirm the `<title>` meta tag in `src/routes/index.tsx` already reads `Trường Tiếng Việt Của Em — Học tiếng Việt vui nhộn` and is unaffected.
+3. Run a quick search to ensure no other heading or title carries the removed tagline.
 
-Phạm vi: Chỉ sửa file `src/components/tabs/InfoTab.tsx`, không động chạm logic hay route khác.
+This is a one-line content change with no routing or data impact.
