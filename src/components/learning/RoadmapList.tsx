@@ -1,4 +1,5 @@
 import { ArrowLeft, Check, Compass, Info, Lock, X } from "lucide-react";
+import { Mascot } from "@/components/Mascot";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
@@ -400,10 +401,11 @@ export function RoadmapList({
                   🏅
                 </span>
                 <div>
-                  <div className="font-display text-sm font-bold text-ink">Phần thưởng chủ đề</div>
+                  <div className="font-display text-sm font-bold text-ink">
+                    Nhận con dấu {location.name}
+                  </div>
                   <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
-                    Hoàn thành cả {totalStages} chặng để nhận con dấu{" "}
-                    <strong className="text-primary">{chuDe.title}</strong>.
+                    Hoàn thành cả {totalStages} chặng để đoạt được con dấu này nhé!
                   </p>
                 </div>
               </div>
@@ -418,16 +420,8 @@ export function RoadmapList({
                   </p>
                 </div>
               </div>
-              <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-card">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-stage-2-soft text-xl">
-                  🗺️
-                </span>
-                <div>
-                  <div className="font-display text-sm font-bold text-ink">Khám phá văn hóa</div>
-                  <p className="mt-0.5 line-clamp-3 text-xs leading-snug text-muted-foreground">
-                    {location.blurb}
-                  </p>
-                </div>
+              <div className="flex items-center justify-center rounded-2xl border border-border bg-card p-4 shadow-card">
+                <Mascot pose="wave" size="lg" />
               </div>
             </div>
           </div>
