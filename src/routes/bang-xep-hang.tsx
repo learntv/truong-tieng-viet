@@ -24,6 +24,9 @@ export const Route = createFileRoute("/bang-xep-hang")({
     meta: [
       { title: "Bảng xếp hạng — Trường Tiếng Việt Của Em" },
       { name: "description", content: "Xem danh sách học sinh xuất sắc nhất trường." },
+      { property: "og:title", content: "Bảng xếp hạng — Trường Tiếng Việt Của Em" },
+      { property: "og:description", content: "Những học sinh chăm chỉ nhất Trường Tiếng Việt Của Em." },
+      { property: "og:url", content: "/bang-xep-hang" },
     ],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(leaderboardQueryOptions),
