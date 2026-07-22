@@ -23,7 +23,7 @@ const STATIC_ROUTES: SitemapEntry[] = [
   { path: "/dieu-khoan-su-dung", changefreq: "yearly", priority: "0.4" },
 ];
 
-export const Route = createFileRoute("/sitemap/xml")({
+export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
