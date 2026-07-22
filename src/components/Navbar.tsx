@@ -56,10 +56,12 @@ export function Navbar() {
     },
     enabled: !!user,
   });
-  const avatarUrl =
-    ownProfile?.avatar_url ?? (user?.user_metadata?.avatar_url as string | undefined);
-  const avatarEmoji =
-    ownProfile?.avatar_emoji ?? (user?.user_metadata?.avatar_emoji as string | undefined);
+  const avatarUrl = ownProfile
+    ? ownProfile.avatar_url
+    : (user?.user_metadata?.avatar_url as string | undefined);
+  const avatarEmoji = ownProfile
+    ? ownProfile.avatar_emoji
+    : (user?.user_metadata?.avatar_emoji as string | undefined);
   const myUsername = user ? generateUsername(displayName, user.id) : null;
   // Any profile page lights the avatar, not just your own — the ring marks
   // "you are in the profile section", the same way the tab pills do.
