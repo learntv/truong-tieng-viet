@@ -1,5 +1,7 @@
-import { ArrowRight, BookOpenText, Copyright, Mail, MessageCircle, Network } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, BookOpenText, Check, Copyright, Copy, Mail, MessageCircle, Network } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { InfoHero } from "./InfoHero";
 import { InfoCarousel } from "./InfoCarousel";
 import { InfoStats } from "./InfoStats";
@@ -24,6 +26,62 @@ const LEAD = {
     </>
   ),
 };
+
+function ContactCard({
+  icon: Icon,
+  label,
+  value,
+  href,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+  href: string;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.success("Đã sao chép: " + value);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      toast.error("Không thể sao chép");
+    }
+  };
+
+  return (
+    <div className="group flex items-center justify-between gap-3 rounded-2xl bg-card px-5 py-4 text-left shadow-card transition-all hover:shadow-card-hover sm:px-6">
+      <a href={href} className="flex min-w-0 flex-1 items-center gap-3">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
+          <Icon className="h-5 w-5" />
+        </span>
+        <span className="min-w-0">
+          <span className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            {label}
+          </span>
+          <span className="block select-all font-display text-base font-bold text-navy">{value}</span>
+        </span>
+      </a>
+      <button
+        type="button"
+        onClick={handleCopy}
+        className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+        aria-label="Sao chép"
+        title="Sao chép"
+      >
+        {copied ? (
+          <Check className="h-4 w-4 text-green-600" aria-hidden />
+        ) : (
+          <Copy className="h-4 w-4" aria-hidden />
+        )}
+      </button>
+    </div>
+  );
+}
 
 const ROWS = [
   {
@@ -201,42 +259,19 @@ export function InfoTab() {
             và đồng hành cùng chúng tôi qua:
           </p>
 
-          <div className="mt-8 flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:items-center">
-            <a
+          <div className="mt-8 flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:items-stretch">
+            <ContactCard
+              icon={Mail}
+              label="Email"
+              value="contact@cvcec.org"
               href="mailto:contact@cvcec.org"
-              className="inline-flex items-center justify-center gap-3 rounded-2xl bg-card px-6 py-4 text-left shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover sm:justify-start"
-            >
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
-                <Mail className="h-5 w-5" />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Email
-                </span>
-                <span className="block truncate font-display text-base font-bold text-navy">
-                  contact@cvcec.org
-                </span>
-              </span>
-            </a>
-
-            <a
+            />
+            <ContactCard
+              icon={MessageCircle}
+              label="WhatsApp"
+              value="+1 647 897 2358"
               href="https://wa.me/16478972358"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-3 rounded-2xl bg-card px-6 py-4 text-left shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover sm:justify-start"
-            >
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
-                <MessageCircle className="h-5 w-5" />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  WhatsApp
-                </span>
-                <span className="block truncate font-display text-base font-bold text-navy">
-                  +1 647 897 2358
-                </span>
-              </span>
-            </a>
+            />
           </div>
 
           <p className="mt-8 font-display text-base font-semibold text-primary">
