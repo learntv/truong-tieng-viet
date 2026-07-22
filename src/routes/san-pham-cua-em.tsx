@@ -17,7 +17,7 @@ export const Route = createFileRoute("/san-pham-cua-em")({
 
 function SanPhamCuaEm() {
   return (
-    <main className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+    <main className="">
       <PageBanner
         title="Sản phẩm của em"
         subtitle="Nơi trưng bày những bài làm và tác phẩm của các bạn nhỏ."

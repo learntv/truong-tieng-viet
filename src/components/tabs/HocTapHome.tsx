@@ -12,7 +12,7 @@ import { PageBanner } from "@/components/site/PageBanner";
 
 export function HocTapHome() {
   return (
-    <main className="pb-24 animate-in fade-in slide-in-from-bottom-2 duration-300">
+    <main className="pb-24">
       <PageBanner
         title="Em muốn học gì hôm nay? 🌟"
         subtitle="Chọn một hành trình bên dưới để cùng Trâu con khám phá tiếng Việt nhé!"

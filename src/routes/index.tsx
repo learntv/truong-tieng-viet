@@ -23,7 +23,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <main className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+    <main className="">
       <InfoTab />
     </main>
   );
