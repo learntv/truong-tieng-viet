@@ -168,11 +168,11 @@ export function RoadmapList({
               </button>
             </div>
 
-            {/* Right page: taped photo + rubber stamp, then the progress panel. */}
+            {/* Right page: taped photo + rubber stamp side by side, then the progress panel. */}
             <div className="min-w-0">
-              <div className="relative mx-auto w-full max-w-md">
+              <div className="mx-auto flex max-w-md flex-nowrap items-center gap-4">
                 {photo && (
-                  <div className="relative w-full rotate-[1.2deg]">
+                  <div className="relative min-w-0 flex-1 rotate-[1.2deg]">
                     <span
                       aria-hidden
                       className="washi-tape absolute -top-2 left-8 z-10 h-6 w-24 -rotate-6 rounded-[2px]"
@@ -191,10 +191,9 @@ export function RoadmapList({
                   </div>
                 )}
 
-                {/* The chủ đề's collectible badge, overlapping the photo's corner like a
-                    passport mark — greyed out with a lock until every chặng is done. */}
+                {/* The chủ đề's collectible badge, greyed out with a lock until every chặng is done. */}
                 {badge && (
-                  <div className="absolute -right-1 top-2 rotate-[-12deg] drop-shadow-md">
+                  <div className="shrink-0">
                     <BadgeMedal badge={badge} earned={allDone} size="md" />
                   </div>
                 )}
