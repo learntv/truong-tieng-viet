@@ -349,12 +349,14 @@ export function LessonPage({ changId }: { changId: string }) {
 
   const [showConfetti, setShowConfetti] = useState(false);
   const [showNextPrompt, setShowNextPrompt] = useState(false);
+  const [showBadgeCelebration, setShowBadgeCelebration] = useState(false);
 
   // Dismiss any lingering "next lesson" prompt / confetti as soon as the lesson changes,
   // regardless of whether data for the new lesson has loaded yet.
   useEffect(() => {
     setShowNextPrompt(false);
     setShowConfetti(false);
+    setShowBadgeCelebration(false);
   }, [changId]);
 
   // Resets to the right starting slide once per lesson — continuing from the saved position,
