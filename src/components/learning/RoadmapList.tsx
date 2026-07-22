@@ -170,9 +170,9 @@ export function RoadmapList({
 
             {/* Right page: taped photo + rubber stamp, then the progress panel. */}
             <div className="min-w-0">
-              <div className="relative flex items-start justify-center gap-2 sm:justify-start">
+              <div className="relative mx-auto w-full max-w-md">
                 {photo && (
-                  <div className="relative w-full max-w-md rotate-[1.2deg]">
+                  <div className="relative w-full rotate-[1.2deg]">
                     <span
                       aria-hidden
                       className="washi-tape absolute -top-2 left-8 z-10 h-6 w-24 -rotate-6 rounded-[2px]"
