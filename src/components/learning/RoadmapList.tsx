@@ -1,5 +1,4 @@
 import { ArrowLeft, Check, Compass, Info, Lock, X } from "lucide-react";
-import { Mascot } from "@/components/Mascot";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
@@ -16,6 +15,8 @@ import { locationForChuDe, sceneForChuDe } from "@/data/scenes";
 import { QUYEN1_LANDMARKS, type Discovery } from "@/data/overworld";
 import { badgeForChuDe } from "@/data/badges";
 import { BadgeMedal } from "./BadgeMedal";
+import { AuthModal } from "@/components/AuthModal";
+import { useAuth } from "@/hooks/useAuth";
 
 // Per-topic accent so the page gently recolors as the child moves between chủ đề — keyed by
 // ChuDe.accent. `soft`/`text` tint the "về bản đồ" button, `solid` the progress fill.
