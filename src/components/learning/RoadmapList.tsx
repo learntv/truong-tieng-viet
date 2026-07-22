@@ -95,6 +95,8 @@ export function RoadmapList({
   const photo = location.photo;
   const discovery = location.discovery;
   const [showOverview, setShowOverview] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+  const { user } = useAuth();
   const badge = badgeForChuDe(chuDeIndex);
 
   const totalStages = changTitles.length;
