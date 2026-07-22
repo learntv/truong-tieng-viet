@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 import {
   learningImagesQueryOptions,
   learningStructureQueryOptions,
@@ -9,9 +10,11 @@ import {
 import { RoadmapList } from "@/components/learning/RoadmapList";
 import { RoadmapSkeleton } from "@/components/learning/RoadmapSkeleton";
 import { buildSlides } from "@/components/learning/LessonPage";
+import { BADGE_TOAST_KEY } from "@/components/learning/LessonPage";
 import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
 import { Button } from "@/components/ui/button";
+import { BADGES } from "@/data/badges";
 
 export const BUFFALO_POS_KEY = "vui-hoc-buffalo-pos";
 
