@@ -40,7 +40,7 @@ const structuredData = JSON.stringify({
       logo: `${SITE_URL}${iconUrl}`,
       image: OG_IMAGE,
       description:
-        "Nền tảng học tiếng Việt dành cho trẻ em Việt Nam tiểu học ở trong và ngoài nước, dưới sự bảo trợ của UBNVONN – Bộ Ngoại giao.",
+        "Nền tảng học tiếng Việt dành cho trẻ em Việt Nam ở trong và ngoài nước, dưới sự bảo trợ của UBNVONN – Bộ Ngoại giao.",
       inLanguage: "vi",
       sameAs: [SITE_URL],
     },
