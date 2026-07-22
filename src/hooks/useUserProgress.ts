@@ -105,23 +105,26 @@ export function useUserProgress(userId: string | null) {
       if (!userId || localMap.size === 0) return true;
 
 
-      const completedRows: { user_id: string; chang_id: string; noidung_index: number; completed_at: string }[] = [];
-      const inProgressRows: { user_id: string; chang_id: string; noidung_index: number; completed_at: null }[] = [];
+      const completedChangIds: string[] = [];
+      const inProgressRows: { user_id: string; chang_id: string; noidung_index: number }[] = [];
 
       localMap.forEach((prog, changId) => {
         if (prog.isCompleted) {
-          completedRows.push({ user_id: userId, chang_id: changId, noidung_index: prog.noiDungIndex, completed_at: new Date().toISOString() });
+          completedChangIds.push(changId);
         } else {
-          inProgressRows.push({ user_id: userId, chang_id: changId, noidung_index: prog.noiDungIndex, completed_at: null });
+          inProgressRows.push({ user_id: userId, chang_id: changId, noidung_index: prog.noiDungIndex });
         }
       });
 
       let mergeFailed = false;
       const ops: Promise<void>[] = [];
-      if (completedRows.length > 0) {
+      if (completedChangIds.length > 0) {
         ops.push(
           Promise.resolve(
-            supabase.from("user_progress").upsert(completedRows, { onConflict: "user_id,chang_id" })
+            (supabase.rpc as unknown as (fn: string, args: Record<string, unknown>) => Promise<{ error: unknown }>)(
+              "complete_changs",
+              { _chang_ids: completedChangIds },
+            )
           ).then(({ error }) => { if (error) { mergeFailed = true; console.error("Merge completed error:", error); } }),
         );
       }
