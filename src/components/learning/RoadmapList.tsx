@@ -583,6 +583,8 @@ export function RoadmapList({
           </div>
         </DialogContent>
       </Dialog>
+
+      <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
     </div>
   );
 }
