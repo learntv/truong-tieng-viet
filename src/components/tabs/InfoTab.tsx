@@ -1,4 +1,4 @@
-import { ArrowRight, BookOpenText, Copyright, Network } from "lucide-react";
+import { ArrowRight, BookOpenText, Copyright, Mail, MessageCircle, Network } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { InfoHero } from "./InfoHero";
 import { InfoCarousel } from "./InfoCarousel";
@@ -182,6 +182,66 @@ export function InfoTab() {
             nói riêng và trên toàn thế giới nói chung.
           </p>
           <p className="mt-6 text-sm font-semibold text-gold-soft">— Ban quản lý dự án</p>
+        </div>
+      </div>
+
+      {/* Đồng hành / Call to action — light band after the maroon thank-you. */}
+      <div id="dong-hanh" className="w-full scroll-mt-24 bg-rose-tint px-4 py-16 sm:px-6 sm:py-24">
+        <div className="mx-auto max-w-3xl text-center">
+          <h3 className="font-display text-2xl font-extrabold text-navy sm:text-3xl">
+            Chung tay gieo hạt giống cội nguồn cho thế hệ mai sau
+          </h3>
+          <p className="mx-auto mt-5 max-w-2xl text-[15px] leading-relaxed text-muted-foreground sm:text-base">
+            Hành trình gìn giữ tiếng mẹ đẻ nơi xứ người là một sứ mệnh đầy tự hào nhưng cũng cần rất
+            nhiều nguồn lực. Dự án phi lợi nhuận{" "}
+            <strong className="font-bold text-primary">&quot;Trường Tiếng Việt Của Em&quot;</strong> luôn
+            rộng mở đón nhận sự đồng hành, đóng góp và tài trợ từ các bậc phụ huynh, kiều bào và các
+            mạnh thường quân để nuôi dưỡng ngọn lửa văn hóa Việt trong tâm hồn thế hệ trẻ. Mỗi sự đóng
+            góp – dù là nhỏ nhất – đều là nguồn lực quý báu để dự án vươn xa hơn. Xin vui lòng liên hệ
+            và đồng hành cùng chúng tôi qua:
+          </p>
+
+          <div className="mt-8 flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:items-center">
+            <a
+              href="mailto:contact@cvcec.org"
+              className="inline-flex items-center justify-center gap-3 rounded-2xl bg-card px-6 py-4 text-left shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover sm:justify-start"
+            >
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
+                <Mail className="h-5 w-5" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Email
+                </span>
+                <span className="block truncate font-display text-base font-bold text-navy">
+                  contact@cvcec.org
+                </span>
+              </span>
+            </a>
+
+            <a
+              href="https://wa.me/16478972358"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-3 rounded-2xl bg-card px-6 py-4 text-left shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover sm:justify-start"
+            >
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
+                <MessageCircle className="h-5 w-5" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  WhatsApp
+                </span>
+                <span className="block truncate font-display text-base font-bold text-navy">
+                  +1 647 897 2358
+                </span>
+              </span>
+            </a>
+          </div>
+
+          <p className="mt-8 font-display text-base font-semibold text-primary">
+            Xin chân thành cảm ơn!
+          </p>
         </div>
       </div>
     </div>
