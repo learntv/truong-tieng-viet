@@ -201,9 +201,9 @@ function PrivacyPolicy() {
         <hr className="my-12 border-border" />
 
         {/* English version */}
-        <h1 className="mb-2 font-display text-2xl font-extrabold text-foreground">
+        <h2 className="mb-2 font-display text-2xl font-extrabold text-foreground">
           Privacy Policy (English)
-        </h1>
+        </h2>
         <p className="mb-8 text-sm text-muted-foreground">Last updated: {LAST_UPDATED}</p>
 
         <Section title="1. Information We Collect">
