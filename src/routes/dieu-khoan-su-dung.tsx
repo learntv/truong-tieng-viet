@@ -14,6 +14,7 @@ export const Route = createFileRoute("/dieu-khoan-su-dung")({
       { property: "og:description", content: "Điều khoản sử dụng của Trường Tiếng Việt Của Em: quyền và trách nhiệm khi sử dụng nền tảng học tiếng Việt." },
       { property: "og:url", content: "/dieu-khoan-su-dung" },
     ],
+    links: [{ rel: "canonical", href: "/dieu-khoan-su-dung" }],
   }),
   component: TermsOfService,
 });

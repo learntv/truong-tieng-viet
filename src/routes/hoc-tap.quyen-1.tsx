@@ -9,6 +9,7 @@ export const Route = createFileRoute("/hoc-tap/quyen-1")({
       { property: "og:description", content: "Lộ trình học tiếng Việt với 40 bài học qua 8 chủ đề dành cho trẻ em kiều bào." },
       { property: "og:url", content: "/hoc-tap/quyen-1" },
     ],
+    links: [{ rel: "canonical", href: "/hoc-tap/quyen-1" }],
   }),
   component: Outlet,
 });

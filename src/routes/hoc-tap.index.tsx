@@ -13,6 +13,7 @@ export const Route = createFileRoute("/hoc-tap/")({
       { property: "og:description", content: "Chọn lộ trình học, bảng chữ cái hoặc luyện nói để bắt đầu học tiếng Việt cùng Trâu con." },
       { property: "og:url", content: "/hoc-tap" },
     ],
+    links: [{ rel: "canonical", href: "/hoc-tap" }],
   }),
   component: HocTapHome,
 });
