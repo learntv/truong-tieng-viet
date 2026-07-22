@@ -23,11 +23,20 @@ export const Route = createFileRoute("/bang-xep-hang")({
   head: () => ({
     meta: [
       { title: "Bảng xếp hạng — Trường Tiếng Việt Của Em" },
-      { name: "description", content: "Xem danh sách học sinh xuất sắc nhất trường." },
+      {
+        name: "description",
+        content:
+          "Xem bảng xếp hạng học sinh chăm chỉ nhất Trường Tiếng Việt Của Em và theo dõi tiến độ học tập.",
+      },
       { property: "og:title", content: "Bảng xếp hạng — Trường Tiếng Việt Của Em" },
-      { property: "og:description", content: "Những học sinh chăm chỉ nhất Trường Tiếng Việt Của Em." },
+      {
+        property: "og:description",
+        content:
+          "Xem bảng xếp hạng học sinh chăm chỉ nhất Trường Tiếng Việt Của Em và theo dõi tiến độ học tập.",
+      },
       { property: "og:url", content: "/bang-xep-hang" },
     ],
+    links: [{ rel: "canonical", href: "/bang-xep-hang" }],
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(leaderboardQueryOptions),
   component: BangXepHang,
