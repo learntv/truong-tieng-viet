@@ -17,6 +17,36 @@ import { ProfileSetupModal } from "@/components/ProfileSetupModal";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 
+const SITE_URL = "https://truongtiengviet.cvcec.org";
+const OG_IMAGE =
+  "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/23fe28ec-8f13-4117-91d0-e728c468b1e1/id-preview-55843cf1--6f159385-7fe4-4d96-95b9-462c8529b5ee.lovable.app-1782308677073.png";
+
+const structuredData = JSON.stringify({
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      name: "Trường Tiếng Việt Của Em",
+      url: SITE_URL,
+      description:
+        "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào.",
+      image: OG_IMAGE,
+      inLanguage: "vi",
+    },
+    {
+      "@type": ["Organization", "EducationalOrganization"],
+      name: "Trường Tiếng Việt Của Em",
+      url: SITE_URL,
+      logo: `${SITE_URL}${iconUrl}`,
+      image: OG_IMAGE,
+      description:
+        "Nền tảng học tiếng Việt dành cho trẻ em Việt Nam tiểu học ở trong và ngoài nước, dưới sự bảo trợ của UBNVONN – Bộ Ngoại giao.",
+      inLanguage: "vi",
+      sameAs: [SITE_URL],
+    },
+  ],
+});
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
     meta: [
@@ -41,13 +71,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       {
         property: "og:image",
-        content:
-          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/23fe28ec-8f13-4117-91d0-e728c468b1e1/id-preview-55843cf1--6f159385-7fe4-4d96-95b9-462c8529b5ee.lovable.app-1782308677073.png",
+        content: OG_IMAGE,
       },
       {
         name: "twitter:image",
-        content:
-          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/23fe28ec-8f13-4117-91d0-e728c468b1e1/id-preview-55843cf1--6f159385-7fe4-4d96-95b9-462c8529b5ee.lovable.app-1782308677073.png",
+        content: OG_IMAGE,
       },
     ],
     links: [
@@ -58,6 +86,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap",
+      },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: structuredData,
       },
     ],
   }),
