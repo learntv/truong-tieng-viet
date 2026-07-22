@@ -42,6 +42,25 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
   const { data: allChuDes, isLoading, error } = useQuery(learningStructureQueryOptions);
   const navigate = useNavigate();
 
+  // When arriving from the badge-celebration "Nhận ngay" button, pop a corner toast so it's
+  // clear the huy hiệu is now in the collection. Purely cosmetic — the badge is awarded by
+  // the DB the moment the last chặng is completed, whether or not the user clicked the button.
+  useEffect(() => {
+    let slug: string | null = null;
+    try {
+      slug = sessionStorage.getItem(BADGE_TOAST_KEY);
+      if (slug) sessionStorage.removeItem(BADGE_TOAST_KEY);
+    } catch {
+      return;
+    }
+    if (!slug) return;
+    const badge = BADGES.find((b) => b.slug === slug);
+    toast.success("Chúc mừng, bé đã nhận được huy hiệu cho chủ đề này!", {
+      description: badge?.name,
+      duration: 5000,
+    });
+  }, []);
+
   // The roadmap only ever shows Quyển 1's chủ đề; the rest of the `chude` table belongs to
   // Quyển 2. Narrowing once here keeps every count below (progress, celebration) on-book.
   const data = useMemo(() => (allChuDes ? quyen1ChuDes(allChuDes) : undefined), [allChuDes]);
