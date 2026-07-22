@@ -1,5 +1,4 @@
 import { ArrowLeft, Check, Compass, Info, Lock, X } from "lucide-react";
-import { Mascot } from "@/components/Mascot";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
@@ -16,6 +15,8 @@ import { locationForChuDe, sceneForChuDe } from "@/data/scenes";
 import { QUYEN1_LANDMARKS, type Discovery } from "@/data/overworld";
 import { badgeForChuDe } from "@/data/badges";
 import { BadgeMedal } from "./BadgeMedal";
+import { AuthModal } from "@/components/AuthModal";
+import { useAuth } from "@/hooks/useAuth";
 
 // Per-topic accent so the page gently recolors as the child moves between chủ đề — keyed by
 // ChuDe.accent. `soft`/`text` tint the "về bản đồ" button, `solid` the progress fill.
@@ -94,6 +95,8 @@ export function RoadmapList({
   const photo = location.photo;
   const discovery = location.discovery;
   const [showOverview, setShowOverview] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+  const { user } = useAuth();
   const badge = badgeForChuDe(chuDeIndex);
 
   const totalStages = changTitles.length;
@@ -416,9 +419,28 @@ export function RoadmapList({
                   </p>
                 </div>
               </div>
-              <div className="flex items-center justify-center rounded-2xl border border-border bg-card p-4 shadow-card">
-                <Mascot pose="wave" size="lg" />
-              </div>
+              {!user && (
+                <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-card">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-xl">
+                    👤
+                  </span>
+                  <div>
+                    <div className="font-display text-sm font-bold text-ink">Đăng nhập để lưu tiến độ</div>
+                    <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
+                      Lưu bài học và đua cùng bạn bè nhé!
+                    </p>
+                    <Button
+                      variant="bevel"
+                      tone="primary"
+                      size="sm"
+                      className="mt-2"
+                      onClick={() => setAuthOpen(true)}
+                    >
+                      Đăng nhập
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -557,6 +579,8 @@ export function RoadmapList({
           </div>
         </DialogContent>
       </Dialog>
+
+      <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
     </div>
   );
 }
