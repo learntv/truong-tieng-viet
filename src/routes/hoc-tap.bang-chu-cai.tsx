@@ -94,7 +94,7 @@ export const Route = createFileRoute("/hoc-tap/bang-chu-cai")({
   component: BangChuCaiTab,
 });
 
-const ALPHABET_PDF_URL = "https://bucket.bambootech.fi/misc/bang-chu-cai-tieng-viet.pdf";
+const ALPHABET_PDF_URL = "https://bucket.bambootech.fi/misc/bang-chu-cai-tieng-viet-v2.pdf";
 
 function BangChuCaiTab() {
   const [progress, setProgress] = useState<Record<string, true>>({});
