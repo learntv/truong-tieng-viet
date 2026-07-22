@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SanPhamCuaEmRouteImport } from './routes/san-pham-cua-em'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as HocTapRouteImport } from './routes/hoc-tap'
@@ -19,7 +20,6 @@ import { Route as BangXepHangRouteImport } from './routes/bang-xep-hang'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HocTapIndexRouteImport } from './routes/hoc-tap.index'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
-import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as HocTapQuyen2RouteImport } from './routes/hoc-tap.quyen-2'
 import { Route as HocTapQuyen1RouteImport } from './routes/hoc-tap.quyen-1'
 import { Route as HocTapLuyenNoiRouteImport } from './routes/hoc-tap.luyen-noi'
@@ -31,6 +31,11 @@ import { Route as HocTapQuyen1ChangIdRouteImport } from './routes/hoc-tap_.quyen
 import { Route as HocTapQuyen1ChuDeChar123chuDeIndexChar125RouteImport } from './routes/hoc-tap.quyen-1.chu-de-{$chuDeIndex}'
 import { Route as HocTapLuyenNoiChuDeIdRouteImport } from './routes/hoc-tap.luyen-noi.$chuDeId'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SanPhamCuaEmRoute = SanPhamCuaEmRouteImport.update({
   id: '/san-pham-cua-em',
   path: '/san-pham-cua-em',
@@ -79,11 +84,6 @@ const HocTapIndexRoute = HocTapIndexRouteImport.update({
 const UUsernameRoute = UUsernameRouteImport.update({
   id: '/u/$username',
   path: '/u/$username',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapXmlRoute = SitemapXmlRouteImport.update({
-  id: '/sitemap/xml',
-  path: '/sitemap/xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HocTapQuyen2Route = HocTapQuyen2RouteImport.update({
@@ -147,13 +147,13 @@ export interface FileRoutesByFullPath {
   '/hoc-tap': typeof HocTapRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/avatar': typeof ApiAvatarRoute
   '/api/tts': typeof ApiTtsRoute
   '/hoc-tap/bang-chu-cai': typeof HocTapBangChuCaiRoute
   '/hoc-tap/luyen-noi': typeof HocTapLuyenNoiRouteWithChildren
   '/hoc-tap/quyen-1': typeof HocTapQuyen1RouteWithChildren
   '/hoc-tap/quyen-2': typeof HocTapQuyen2Route
-  '/sitemap/xml': typeof SitemapXmlRoute
   '/u/$username': typeof UUsernameRoute
   '/hoc-tap/': typeof HocTapIndexRoute
   '/hoc-tap/luyen-noi/$chuDeId': typeof HocTapLuyenNoiChuDeIdRoute
@@ -169,12 +169,12 @@ export interface FileRoutesByTo {
   '/dieu-khoan-su-dung': typeof DieuKhoanSuDungRoute
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/avatar': typeof ApiAvatarRoute
   '/api/tts': typeof ApiTtsRoute
   '/hoc-tap/bang-chu-cai': typeof HocTapBangChuCaiRoute
   '/hoc-tap/luyen-noi': typeof HocTapLuyenNoiRouteWithChildren
   '/hoc-tap/quyen-2': typeof HocTapQuyen2Route
-  '/sitemap/xml': typeof SitemapXmlRoute
   '/u/$username': typeof UUsernameRoute
   '/hoc-tap': typeof HocTapIndexRoute
   '/hoc-tap/luyen-noi/$chuDeId': typeof HocTapLuyenNoiChuDeIdRoute
@@ -192,13 +192,13 @@ export interface FileRoutesById {
   '/hoc-tap': typeof HocTapRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/san-pham-cua-em': typeof SanPhamCuaEmRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/avatar': typeof ApiAvatarRoute
   '/api/tts': typeof ApiTtsRoute
   '/hoc-tap/bang-chu-cai': typeof HocTapBangChuCaiRoute
   '/hoc-tap/luyen-noi': typeof HocTapLuyenNoiRouteWithChildren
   '/hoc-tap/quyen-1': typeof HocTapQuyen1RouteWithChildren
   '/hoc-tap/quyen-2': typeof HocTapQuyen2Route
-  '/sitemap/xml': typeof SitemapXmlRoute
   '/u/$username': typeof UUsernameRoute
   '/hoc-tap/': typeof HocTapIndexRoute
   '/hoc-tap/luyen-noi/$chuDeId': typeof HocTapLuyenNoiChuDeIdRoute
@@ -217,13 +217,13 @@ export interface FileRouteTypes {
     | '/hoc-tap'
     | '/reset-password'
     | '/san-pham-cua-em'
+    | '/sitemap.xml'
     | '/api/avatar'
     | '/api/tts'
     | '/hoc-tap/bang-chu-cai'
     | '/hoc-tap/luyen-noi'
     | '/hoc-tap/quyen-1'
     | '/hoc-tap/quyen-2'
-    | '/sitemap/xml'
     | '/u/$username'
     | '/hoc-tap/'
     | '/hoc-tap/luyen-noi/$chuDeId'
@@ -239,12 +239,12 @@ export interface FileRouteTypes {
     | '/dieu-khoan-su-dung'
     | '/reset-password'
     | '/san-pham-cua-em'
+    | '/sitemap.xml'
     | '/api/avatar'
     | '/api/tts'
     | '/hoc-tap/bang-chu-cai'
     | '/hoc-tap/luyen-noi'
     | '/hoc-tap/quyen-2'
-    | '/sitemap/xml'
     | '/u/$username'
     | '/hoc-tap'
     | '/hoc-tap/luyen-noi/$chuDeId'
@@ -261,13 +261,13 @@ export interface FileRouteTypes {
     | '/hoc-tap'
     | '/reset-password'
     | '/san-pham-cua-em'
+    | '/sitemap.xml'
     | '/api/avatar'
     | '/api/tts'
     | '/hoc-tap/bang-chu-cai'
     | '/hoc-tap/luyen-noi'
     | '/hoc-tap/quyen-1'
     | '/hoc-tap/quyen-2'
-    | '/sitemap/xml'
     | '/u/$username'
     | '/hoc-tap/'
     | '/hoc-tap/luyen-noi/$chuDeId'
@@ -285,15 +285,22 @@ export interface RootRouteChildren {
   HocTapRoute: typeof HocTapRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   SanPhamCuaEmRoute: typeof SanPhamCuaEmRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiAvatarRoute: typeof ApiAvatarRoute
   ApiTtsRoute: typeof ApiTtsRoute
-  SitemapXmlRoute: typeof SitemapXmlRoute
   UUsernameRoute: typeof UUsernameRoute
   HocTapQuyen1ChangIdRoute: typeof HocTapQuyen1ChangIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/san-pham-cua-em': {
       id: '/san-pham-cua-em'
       path: '/san-pham-cua-em'
@@ -362,13 +369,6 @@ declare module '@tanstack/react-router' {
       path: '/u/$username'
       fullPath: '/u/$username'
       preLoaderRoute: typeof UUsernameRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap/xml': {
-      id: '/sitemap/xml'
-      path: '/sitemap/xml'
-      fullPath: '/sitemap/xml'
-      preLoaderRoute: typeof SitemapXmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hoc-tap/quyen-2': {
@@ -499,22 +499,12 @@ const rootRouteChildren: RootRouteChildren = {
   HocTapRoute: HocTapRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   SanPhamCuaEmRoute: SanPhamCuaEmRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiAvatarRoute: ApiAvatarRoute,
   ApiTtsRoute: ApiTtsRoute,
-  SitemapXmlRoute: SitemapXmlRoute,
   UUsernameRoute: UUsernameRoute,
   HocTapQuyen1ChangIdRoute: HocTapQuyen1ChangIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
