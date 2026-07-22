@@ -18,9 +18,13 @@ import { joinForSpeech, ttsSrc } from "@/lib/tts/text";
 import { STAGE_COLORS } from "./stageColors";
 import { ConfettiBurst } from "./ConfettiBurst";
 import { ImageHighlightOverlay } from "./ImageHighlightOverlay";
+import { BadgeMedal } from "./BadgeMedal";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
 import { Button } from "@/components/ui/button";
+import { badgeForChuDe } from "@/data/badges";
 import mapPinIcon from "@/assets/map-pin-icon.png";
+
+export const BADGE_TOAST_KEY = "vui-hoc-badge-toast";
 
 type StageColor = (typeof STAGE_COLORS)[number];
 
