@@ -809,6 +809,46 @@ export function LessonPage({ changId }: { changId: string }) {
           </div>
         </div>
       )}
+
+      {showBadgeCelebration && earnedBadge && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-300">
+          <div className="relative w-full max-w-md overflow-hidden rounded-3xl border-2 border-black/10 bg-white p-8 pt-10 text-center shadow-[0_10px_40px_-10px_rgba(0,0,0,0.35)] animate-in zoom-in-95 duration-300">
+            <ConfettiBurst onDone={() => { /* keep card visible until claimed */ }} />
+            <p className="font-display text-sm font-extrabold uppercase tracking-wide text-stage-2-deep">
+              Chúc mừng!
+            </p>
+            <h2 className="mt-1 font-display text-2xl font-extrabold text-navy sm:text-3xl">
+              Em đã sưu tầm được huy hiệu mới
+            </h2>
+            <div className="relative mx-auto mt-6 grid place-items-center">
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 -m-6 rounded-full bg-[radial-gradient(circle,rgba(255,215,120,0.55)_0%,rgba(255,215,120,0)_65%)] animate-pulse"
+              />
+              <div className="relative animate-[float-badge_3s_ease-in-out_infinite]">
+                <BadgeMedal badge={earnedBadge} earned size="xl" />
+                <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-full">
+                  <span className="absolute inset-y-0 -left-1/2 w-1/2 animate-shine bg-gradient-to-r from-transparent via-white/70 to-transparent" />
+                </span>
+              </div>
+            </div>
+            <p className="mt-6 font-display text-lg font-extrabold text-navy">
+              {earnedBadge.name}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Em đã hoàn thành toàn bộ chủ đề này. Tuyệt vời lắm!
+            </p>
+            <Button
+              variant="bevel"
+              tone="stage-1"
+              onClick={claimBadge}
+              className="mx-auto mt-6 w-fit"
+            >
+              Nhận ngay
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
