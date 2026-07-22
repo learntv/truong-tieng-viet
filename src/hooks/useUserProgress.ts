@@ -55,7 +55,7 @@ export function useUserProgress(userId: string | null) {
         next.set(changId, { noiDungIndex: next.get(changId)?.noiDungIndex ?? 0, isCompleted: true });
         return next;
       });
-      const { error } = await supabase.rpc("complete_chang", { _chang_id: changId });
+      const { error } = await (supabase.rpc as unknown as (fn: string, args: Record<string, unknown>) => Promise<{ error: unknown }>)("complete_chang", { _chang_id: changId });
       if (error) {
         queryClient.setQueryData(key, snapshot);
         console.error("Failed to save completion:", error);
