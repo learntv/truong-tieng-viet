@@ -107,7 +107,7 @@ function BangChuCaiTab() {
   };
 
   return (
-    <main className="pb-24 animate-in fade-in slide-in-from-bottom-2 duration-300">
+    <main className="pb-24">
       <PageBanner
         title="Bảng chữ cái 🎈"
         subtitle="Bấm vào từng chữ để gặp bạn thú, nghe cách đọc và học từ mới nhé!"

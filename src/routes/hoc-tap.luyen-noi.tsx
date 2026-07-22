@@ -27,7 +27,7 @@ function LuyenNoiTab() {
   const hasChild = useChildMatches().length > 0;
 
   return (
-    <main className="flex-1 animate-in fade-in slide-in-from-bottom-2 duration-300">
+    <main className="flex-1">
       {hasChild ? <Outlet /> : <TopicPicker />}
     </main>
   );
