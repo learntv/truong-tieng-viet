@@ -32,7 +32,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function TermsOfService() {
   return (
-    <main className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+    <main className="">
       <PageBanner title="Điều khoản sử dụng" subtitle={`Cập nhật lần cuối: ${LAST_UPDATED}`} />
 
       <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">

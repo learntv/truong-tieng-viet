@@ -32,7 +32,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function PrivacyPolicy() {
   return (
-    <main className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+    <main className="">
       <PageBanner
         title="Chính sách bảo mật"
         subtitle={`Cập nhật lần cuối: ${LAST_UPDATED}`}
