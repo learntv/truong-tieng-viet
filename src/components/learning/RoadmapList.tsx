@@ -194,12 +194,9 @@ export function RoadmapList({
                 {/* The chủ đề's collectible badge, overlapping the photo's corner like a
                     passport mark — greyed out with a lock until every chặng is done. */}
                 {badge && (
-                  <BadgeMedal
-                    badge={badge}
-                    earned={allDone}
-                    size="md"
-                    className="absolute -right-1 top-2 rotate-[-12deg] drop-shadow-md"
-                  />
+                  <div className="absolute -right-1 top-2 rotate-[-12deg] drop-shadow-md">
+                    <BadgeMedal badge={badge} earned={allDone} size="md" />
+                  </div>
                 )}
               </div>
 
