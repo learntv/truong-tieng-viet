@@ -19,6 +19,7 @@ import { Route as BangXepHangRouteImport } from './routes/bang-xep-hang'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HocTapIndexRouteImport } from './routes/hoc-tap.index'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
+import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as HocTapQuyen2RouteImport } from './routes/hoc-tap.quyen-2'
 import { Route as HocTapQuyen1RouteImport } from './routes/hoc-tap.quyen-1'
 import { Route as HocTapLuyenNoiRouteImport } from './routes/hoc-tap.luyen-noi'
@@ -78,6 +79,11 @@ const HocTapIndexRoute = HocTapIndexRouteImport.update({
 const UUsernameRoute = UUsernameRouteImport.update({
   id: '/u/$username',
   path: '/u/$username',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapXmlRoute = SitemapXmlRouteImport.update({
+  id: '/sitemap/xml',
+  path: '/sitemap/xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HocTapQuyen2Route = HocTapQuyen2RouteImport.update({
@@ -147,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/hoc-tap/luyen-noi': typeof HocTapLuyenNoiRouteWithChildren
   '/hoc-tap/quyen-1': typeof HocTapQuyen1RouteWithChildren
   '/hoc-tap/quyen-2': typeof HocTapQuyen2Route
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/u/$username': typeof UUsernameRoute
   '/hoc-tap/': typeof HocTapIndexRoute
   '/hoc-tap/luyen-noi/$chuDeId': typeof HocTapLuyenNoiChuDeIdRoute
@@ -167,6 +174,7 @@ export interface FileRoutesByTo {
   '/hoc-tap/bang-chu-cai': typeof HocTapBangChuCaiRoute
   '/hoc-tap/luyen-noi': typeof HocTapLuyenNoiRouteWithChildren
   '/hoc-tap/quyen-2': typeof HocTapQuyen2Route
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/u/$username': typeof UUsernameRoute
   '/hoc-tap': typeof HocTapIndexRoute
   '/hoc-tap/luyen-noi/$chuDeId': typeof HocTapLuyenNoiChuDeIdRoute
@@ -190,6 +198,7 @@ export interface FileRoutesById {
   '/hoc-tap/luyen-noi': typeof HocTapLuyenNoiRouteWithChildren
   '/hoc-tap/quyen-1': typeof HocTapQuyen1RouteWithChildren
   '/hoc-tap/quyen-2': typeof HocTapQuyen2Route
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/u/$username': typeof UUsernameRoute
   '/hoc-tap/': typeof HocTapIndexRoute
   '/hoc-tap/luyen-noi/$chuDeId': typeof HocTapLuyenNoiChuDeIdRoute
@@ -214,6 +223,7 @@ export interface FileRouteTypes {
     | '/hoc-tap/luyen-noi'
     | '/hoc-tap/quyen-1'
     | '/hoc-tap/quyen-2'
+    | '/sitemap/xml'
     | '/u/$username'
     | '/hoc-tap/'
     | '/hoc-tap/luyen-noi/$chuDeId'
@@ -234,6 +244,7 @@ export interface FileRouteTypes {
     | '/hoc-tap/bang-chu-cai'
     | '/hoc-tap/luyen-noi'
     | '/hoc-tap/quyen-2'
+    | '/sitemap/xml'
     | '/u/$username'
     | '/hoc-tap'
     | '/hoc-tap/luyen-noi/$chuDeId'
@@ -256,6 +267,7 @@ export interface FileRouteTypes {
     | '/hoc-tap/luyen-noi'
     | '/hoc-tap/quyen-1'
     | '/hoc-tap/quyen-2'
+    | '/sitemap/xml'
     | '/u/$username'
     | '/hoc-tap/'
     | '/hoc-tap/luyen-noi/$chuDeId'
@@ -275,6 +287,7 @@ export interface RootRouteChildren {
   SanPhamCuaEmRoute: typeof SanPhamCuaEmRoute
   ApiAvatarRoute: typeof ApiAvatarRoute
   ApiTtsRoute: typeof ApiTtsRoute
+  SitemapXmlRoute: typeof SitemapXmlRoute
   UUsernameRoute: typeof UUsernameRoute
   HocTapQuyen1ChangIdRoute: typeof HocTapQuyen1ChangIdRoute
 }
@@ -349,6 +362,13 @@ declare module '@tanstack/react-router' {
       path: '/u/$username'
       fullPath: '/u/$username'
       preLoaderRoute: typeof UUsernameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap/xml': {
+      id: '/sitemap/xml'
+      path: '/sitemap/xml'
+      fullPath: '/sitemap/xml'
+      preLoaderRoute: typeof SitemapXmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hoc-tap/quyen-2': {
@@ -481,9 +501,20 @@ const rootRouteChildren: RootRouteChildren = {
   SanPhamCuaEmRoute: SanPhamCuaEmRoute,
   ApiAvatarRoute: ApiAvatarRoute,
   ApiTtsRoute: ApiTtsRoute,
+  SitemapXmlRoute: SitemapXmlRoute,
   UUsernameRoute: UUsernameRoute,
   HocTapQuyen1ChangIdRoute: HocTapQuyen1ChangIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
