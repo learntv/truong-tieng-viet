@@ -259,42 +259,19 @@ export function InfoTab() {
             và đồng hành cùng chúng tôi qua:
           </p>
 
-          <div className="mt-8 flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:items-center">
-            <a
+          <div className="mt-8 flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:items-stretch">
+            <ContactCard
+              icon={Mail}
+              label="Email"
+              value="contact@cvcec.org"
               href="mailto:contact@cvcec.org"
-              className="inline-flex items-center justify-center gap-3 rounded-2xl bg-card px-6 py-4 text-left shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover sm:justify-start"
-            >
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
-                <Mail className="h-5 w-5" />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Email
-                </span>
-                <span className="block truncate font-display text-base font-bold text-navy">
-                  contact@cvcec.org
-                </span>
-              </span>
-            </a>
-
-            <a
+            />
+            <ContactCard
+              icon={MessageCircle}
+              label="WhatsApp"
+              value="+1 647 897 2358"
               href="https://wa.me/16478972358"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-3 rounded-2xl bg-card px-6 py-4 text-left shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover sm:justify-start"
-            >
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
-                <MessageCircle className="h-5 w-5" />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  WhatsApp
-                </span>
-                <span className="block truncate font-display text-base font-bold text-navy">
-                  +1 647 897 2358
-                </span>
-              </span>
-            </a>
+            />
           </div>
 
           <p className="mt-8 font-display text-base font-semibold text-primary">
