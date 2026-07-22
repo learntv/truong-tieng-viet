@@ -423,9 +423,28 @@ export function RoadmapList({
                   </p>
                 </div>
               </div>
-              <div className="flex items-center justify-center rounded-2xl border border-border bg-card p-4 shadow-card">
-                <Mascot pose="wave" size="lg" />
-              </div>
+              {!user && (
+                <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-card">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-xl">
+                    👤
+                  </span>
+                  <div>
+                    <div className="font-display text-sm font-bold text-ink">Đăng nhập để lưu tiến độ</div>
+                    <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
+                      Lưu bài học và đua cùng bạn bè nhé!
+                    </p>
+                    <Button
+                      variant="bevel"
+                      tone="primary"
+                      size="sm"
+                      className="mt-2"
+                      onClick={() => setAuthOpen(true)}
+                    >
+                      Đăng nhập
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
