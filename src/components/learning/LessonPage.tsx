@@ -455,8 +455,9 @@ export function LessonPage({ changId }: { changId: string }) {
   const fallbackHinhs = (() => {
     for (let i = slideIndex - 1; i >= 0; i--) {
       const prev = slides[i]?.bai;
-      if (prev && !prev.meta?.video_url && !prev.meta?.link && prev.hinhs.length > 0) {
-        return prev.hinhs;
+      if (prev && !prev.meta?.video_url && !prev.meta?.link) {
+        const imgs = prev.hinhs.filter((h) => h.url);
+        if (imgs.length > 0) return imgs;
       }
     }
     return [];
@@ -654,10 +655,17 @@ export function LessonPage({ changId }: { changId: string }) {
                 (() => {
                   const hasVideo = !!bai.meta?.video_url;
                   const hasEmbed = !!bai.meta?.link;
-                  // Fall back to the previous slide's images when this bài has none of its own
-                  // (and nothing else to show) — e.g. text that says "look at the previous image".
-                  const hinhs =
-                    !hasVideo && !hasEmbed && bai.hinhs.length === 0 ? fallbackHinhs : bai.hinhs;
+                  // A bài "has its own image" only if some hình actually carries a URL — many
+                  // bài hold caption-only hình (words to learn) whose text says "nhìn lại hình
+                  // ở trang trước". When there's no image of our own (and no video/embed), borrow
+                  // the nearest previous slide's image and keep our own caption words beside it.
+                  const hasOwnImage = bai.hinhs.some((h) => h.url);
+                  const useFallback =
+                    !hasVideo && !hasEmbed && !hasOwnImage && fallbackHinhs.length > 0;
+                  const ownCaptions = bai.hinhs.flatMap((h) => h.captions);
+                  const hinhs = useFallback
+                    ? fallbackHinhs.map((h, i) => ({ ...h, captions: i === 0 ? ownCaptions : [] }))
+                    : bai.hinhs;
                   const isSingle = hinhs.length === 1;
                   return (
                     <article className="flex flex-col gap-2 sm:min-h-0 sm:flex-1">
