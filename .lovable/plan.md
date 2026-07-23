@@ -1,8 +1,29 @@
-The tagline " — Học tiếng Việt cùng Trâu con" currently only appears in the visible homepage heading at `src/components/tabs/InfoHero.tsx:133`.
+# New branded social preview image
 
-Plan:
-1. Update the `<h1>` in `InfoHero.tsx` from `Trường Tiếng Việt Của Em — Học tiếng Việt cùng Trâu con` to just `Trường Tiếng Việt Của Em`.
-2. Confirm the `<title>` meta tag in `src/routes/index.tsx` already reads `Trường Tiếng Việt Của Em — Học tiếng Việt vui nhộn` and is unaffected.
-3. Run a quick search to ensure no other heading or title carries the removed tagline.
+## Goal
+Replace the current social preview image with a fresh, on-brand 1200×630 illustration that uses the project's mascot, Vietnamese cultural symbols, and red/gold palette, then update `__root.tsx` so the new image is used for `og:image`, `twitter:image`, and JSON-LD.
 
-This is a one-line content change with no routing or data impact.
+## Plan
+
+1. Generate the image
+   - Size: 1200×630 (standard OG share image)
+   - Style: Warm, kid-friendly, clean vector-like illustration
+   - Content: Trâu Con (the buffalo mascot) holding a small Vietnamese flag, surrounded by subtle Vietnamese motifs (nón lá, hoa sen, chim lạc, tre). Soft radial red/gold glow behind the mascot. Site title "Trường Tiếng Việt Của Em" in bold friendly display type, and the tagline "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào."
+   - Save to a temporary path for upload
+
+2. Upload to Lovable assets
+   - Use `lovable-assets create` to upload the generated PNG
+   - Write the resulting `.asset.json` pointer to `src/assets/og-image.png.asset.json`
+   - Use the CDN URL from the pointer file
+
+3. Update metadata
+   - In `src/routes/__root.tsx`, replace the `OG_IMAGE` constant with the new CDN URL
+   - Update the `image` field in the JSON-LD `WebSite` and `Organization` blocks
+   - Leave `og:title`, `og:description`, `twitter:title`, `twitter:description` unchanged
+
+4. Verify
+   - Run the TypeScript/build check to confirm no broken imports
+   - Confirm the new image URL is visible in the rendered `<head>` tags
+
+## Outcome
+The social share preview will show a unified branded image across Facebook, Twitter, Zalo, and other platforms that embed the homepage link.
