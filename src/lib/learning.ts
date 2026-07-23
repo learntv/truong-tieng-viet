@@ -20,10 +20,6 @@ function allTexts(text: unknown): string[] {
   return [];
 }
 
-function titleCase(s: string): string {
-  return s.toLocaleLowerCase("vi").replace(/(^|\s)\p{L}/gu, (m) => m.toLocaleUpperCase("vi"));
-}
-
 export type Hinh = {
   id: string;
   captions: string[];
@@ -133,7 +129,7 @@ async function fetchLearningStructure(): Promise<ChuDeWithChangs[]> {
   }
 
   return chude.map((cd, ti) => {
-    const chuDeTitle = titleCase(firstText(cd.text));
+    const chuDeTitle = firstText(cd.text);
     const chuDe: ChuDe = {
       id: cd.id,
       title: `Chủ đề ${ti + 1}: ${chuDeTitle}`,
@@ -143,7 +139,7 @@ async function fetchLearningStructure(): Promise<ChuDeWithChangs[]> {
 
     const changs: Chang[] = (changByChude.get(cd.id) ?? []).map((ch, si) => ({
       id: ch.id,
-      title: titleCase(firstText(ch.text)),
+      title: firstText(ch.text),
       emoji: STAGE_EMOJIS[si % STAGE_EMOJIS.length],
       noiDungs: ndByChang.get(ch.id) ?? [],
     }));
