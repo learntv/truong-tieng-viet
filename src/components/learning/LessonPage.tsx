@@ -449,6 +449,18 @@ export function LessonPage({ changId }: { changId: string }) {
   const currentSlide = slides[slideIndex];
   const currentNoiDung = currentSlide?.nd;
   const bai = currentSlide?.bai ?? null;
+  // Some bài carry only instruction text ("nhìn lại hình ở trang trước") without images of
+  // their own. When a bài has nothing visual to show, fall back to the most recent previous
+  // slide's images so the learner still sees what the text refers to.
+  const fallbackHinhs = (() => {
+    for (let i = slideIndex - 1; i >= 0; i--) {
+      const prev = slides[i]?.bai;
+      if (prev && !prev.meta?.video_url && !prev.meta?.link && prev.hinhs.length > 0) {
+        return prev.hinhs;
+      }
+    }
+    return [];
+  })();
   const hasSpeakableText = !!bai && bai.texts.some((t) => t.trim().length > 0);
   // A manually-curated narration takes priority over TTS (skip synthesis entirely when
   // someone already recorded/uploaded real audio for this bài), and — same as before TTS
@@ -642,7 +654,10 @@ export function LessonPage({ changId }: { changId: string }) {
                 (() => {
                   const hasVideo = !!bai.meta?.video_url;
                   const hasEmbed = !!bai.meta?.link;
-                  const hinhs = bai.hinhs;
+                  // Fall back to the previous slide's images when this bài has none of its own
+                  // (and nothing else to show) — e.g. text that says "look at the previous image".
+                  const hinhs =
+                    !hasVideo && !hasEmbed && bai.hinhs.length === 0 ? fallbackHinhs : bai.hinhs;
                   const isSingle = hinhs.length === 1;
                   return (
                     <article className="flex flex-col gap-2 sm:min-h-0 sm:flex-1">
