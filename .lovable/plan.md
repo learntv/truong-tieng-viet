@@ -1,29 +1,19 @@
-# New branded social preview image
+## Fix build errors
 
-## Goal
-Replace the current social preview image with a fresh, on-brand 1200×630 illustration that uses the project's mascot, Vietnamese cultural symbols, and red/gold palette, then update `__root.tsx` so the new image is used for `og:image`, `twitter:image`, and JSON-LD.
+Delete `src/components/Footer.test.tsx` — the project has no vitest/testing-library setup and this stray test file is breaking the typecheck.
 
-## Plan
+## Simpler social preview
 
-1. Generate the image
-   - Size: 1200×630 (standard OG share image)
-   - Style: Warm, kid-friendly, clean vector-like illustration
-   - Content: Trâu Con (the buffalo mascot) holding a small Vietnamese flag, surrounded by subtle Vietnamese motifs (nón lá, hoa sen, chim lạc, tre). Soft radial red/gold glow behind the mascot. Site title "Trường Tiếng Việt Của Em" in bold friendly display type, and the tagline "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào."
-   - Save to a temporary path for upload
+Regenerate `/tmp/og-image.jpg` with PIL:
 
-2. Upload to Lovable assets
-   - Use `lovable-assets create` to upload the generated PNG
-   - Write the resulting `.asset.json` pointer to `src/assets/og-image.png.asset.json`
-   - Use the CDN URL from the pointer file
+- 1200×630 canvas with a diagonal red→amber gradient using existing theme colors (primary red + gold accent).
+- Centered composition mirroring the navbar Logo:
+  - `src/assets/buffalo-icon.png` on the left, ~360px tall.
+  - Wordmark to the right: "Trường Tiếng Việt" (white) over "Của Em" (soft cream), Noto Serif Display extra-bold, tight leading — same two-line stack as `Logo.tsx`.
+- No badges, no URL, no tagline, no bench-scene background.
 
-3. Update metadata
-   - In `src/routes/__root.tsx`, replace the `OG_IMAGE` constant with the new CDN URL
-   - Update the `image` field in the JSON-LD `WebSite` and `Organization` blocks
-   - Leave `og:title`, `og:description`, `twitter:title`, `twitter:description` unchanged
+Then:
+- Delete the previous asset pointer `src/assets/og-image-new.png.asset.json` (leftover, unused).
+- Overwrite `src/assets/og-image.jpg.asset.json` via `lovable-assets create` so `__root.tsx` picks up the new URL automatically (it already imports that pointer).
 
-4. Verify
-   - Run the TypeScript/build check to confirm no broken imports
-   - Confirm the new image URL is visible in the rendered `<head>` tags
-
-## Outcome
-The social share preview will show a unified branded image across Facebook, Twitter, Zalo, and other platforms that embed the homepage link.
+Note to user: social platforms cache previews, so they can force-refresh via their link debugger to see it immediately.
