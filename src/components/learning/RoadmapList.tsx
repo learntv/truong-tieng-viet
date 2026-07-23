@@ -282,7 +282,7 @@ export function RoadmapList({
               <div className="flex items-center justify-between border-b border-border/70 px-4 py-3">
                 <h2 className="flex min-w-0 items-center gap-2 font-display text-base font-bold text-ink sm:text-lg">
                   <span className="shrink-0">📖</span>
-                  <span className="truncate">Chủ đề: {titleName}</span>
+                  <span className="truncate">CHỦ ĐỀ: {titleName}</span>
                 </h2>
                 <span className="text-xs font-bold text-ink/60">
                   {doneStages}/{totalStages} hoàn thành
