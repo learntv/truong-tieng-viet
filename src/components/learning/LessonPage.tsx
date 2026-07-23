@@ -264,12 +264,6 @@ function HinhBlock({
             (Không tải được hình)
           </div>
         )}
-
-        {hasHighlights && hinh.url && (
-          <p className="mt-3 shrink-0 text-center text-sm font-bold text-amber-600">
-            🔍 Rê chuột hoặc chạm vào hình để xem gợi ý
-          </p>
-        )}
       </div>
 
       {hasCaptions && (
