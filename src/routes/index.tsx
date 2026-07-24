@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InfoTab } from "@/components/tabs/InfoTab";
+import { CurtainOpening } from "@/components/CurtainOpening";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <main className="">
+      <CurtainOpening />
       <InfoTab />
     </main>
   );
