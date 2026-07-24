@@ -15,7 +15,7 @@ import { SectionHeader } from "@/components/ui/section-header";
  * bordered trio with red line-icons. No tints, no decorative symbol artwork.
  */
 const LEAD = {
-  heading: "Bảo trợ chuyên môn",
+  heading: "Đồng hành chuyên môn",
   body: (
     <>
       Dự án thực hiện dưới sự bảo trợ và ủng hộ của{" "}
