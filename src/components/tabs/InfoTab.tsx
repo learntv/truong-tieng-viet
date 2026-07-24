@@ -18,7 +18,7 @@ const LEAD = {
   heading: "Đồng hành chuyên môn",
   body: (
     <>
-      Dự án thực hiện dưới sự bảo trợ và ủng hộ của{" "}
+      Dự án thực hiện dưới sự đồng hành và ủng hộ của{" "}
       <strong className="font-bold text-gold">
         Ủy ban Nhà nước về người Việt Nam ở nước ngoài – Bộ Ngoại giao
       </strong>
