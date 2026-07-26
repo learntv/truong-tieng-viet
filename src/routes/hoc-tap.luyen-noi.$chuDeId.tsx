@@ -4,6 +4,21 @@ import { useSpeakingContent } from "@/hooks/useSpeakingContent";
 import { SpeakingPractice } from "@/components/speaking/SpeakingPractice";
 
 export const Route = createFileRoute("/hoc-tap/luyen-noi/$chuDeId")({
+  head: ({ params }) => {
+    const title = `Luyện nói: ${params.chuDeId} — Trường Tiếng Việt Của Em`;
+    const description = `Luyện nói tiếng Việt theo chủ đề "${params.chuDeId}": nghe câu mẫu, ghi âm và nhận sao khích lệ cùng Trâu con.`;
+    const url = `/hoc-tap/luyen-noi/${params.chuDeId}`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: url },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: SpeakingRoute,
 });
 

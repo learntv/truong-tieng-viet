@@ -39,6 +39,22 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/u/$username")({
+  head: ({ params }) => {
+    const title = `Hồ sơ của ${params.username} — Trường Tiếng Việt Của Em`;
+    const description = `Xem hồ sơ và tiến trình học tiếng Việt của ${params.username} trên Trường Tiếng Việt Của Em.`;
+    const url = `/u/${params.username}`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { name: "robots", content: "noindex" },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: url },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: ProfilePage,
 });
 

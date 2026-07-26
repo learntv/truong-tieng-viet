@@ -8,6 +8,23 @@ import { OverworldMap } from "@/components/learning/OverworldMap";
 // chủ đề. Moving between chủ đề goes through this map rather than a stepper, so the child always
 // sees where they are in the journey.
 export const Route = createFileRoute("/hoc-tap/quyen-1/")({
+  head: () => ({
+    meta: [
+      { title: "Bản đồ Quyển 1 — Trường Tiếng Việt Của Em" },
+      {
+        name: "description",
+        content:
+          "Bản đồ Việt Nam với 8 chủ đề của Quyển 1: chọn địa danh để bắt đầu hành trình học tiếng Việt cùng con.",
+      },
+      { property: "og:title", content: "Bản đồ Quyển 1 — Trường Tiếng Việt Của Em" },
+      {
+        property: "og:description",
+        content: "Chọn một trong 8 chủ đề trên bản đồ Việt Nam để bắt đầu học Quyển 1.",
+      },
+      { property: "og:url", content: "/hoc-tap/quyen-1" },
+    ],
+    links: [{ rel: "canonical", href: "/hoc-tap/quyen-1" }],
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(learningStructureQueryOptions),
   component: RouteComponent,
 });
