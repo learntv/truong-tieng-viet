@@ -124,15 +124,16 @@ export function InfoHero() {
       <div className="relative mx-auto flex max-w-3xl flex-1 flex-col justify-center px-4 pb-12 pt-32 text-center sm:px-6 sm:pb-16 sm:pt-36 lg:pt-40">
         {/* self-center keeps the pill shrink-to-fit: as a flex-column child it
           would otherwise stretch to the full container width. */}
-        <span className="animate-in fade-in slide-in-from-bottom-3 self-center rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-primary duration-700">
+        <span className="self-center rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-primary">
           Thông tin dự án
         </span>
         {/* Sized to keep "Trường Tiếng Việt Của Em" on two lines, breaking
-          after "Việt" rather than orphaning "Em" onto a third. */}
-        <h1 className="mt-5 animate-in fade-in slide-in-from-bottom-4 font-display text-[2rem] font-extrabold leading-[1.12] text-navy duration-700 sm:text-5xl lg:text-6xl">
+          after "Việt" rather than orphaning "Em" onto a third. LCP element —
+          no entry animation so the browser paints it immediately. */}
+        <h1 className="mt-5 font-display text-[2rem] font-extrabold leading-[1.12] text-navy sm:text-5xl lg:text-6xl">
           Trường Tiếng Việt Của Em
         </h1>
-        <p className="mx-auto mt-5 max-w-xl animate-in fade-in slide-in-from-bottom-4 text-base leading-relaxed text-muted-foreground duration-1000 sm:text-lg">
+        <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
           Hành trình gìn giữ và lan tỏa tiếng Việt, văn hóa Việt đến với thế hệ trẻ kiều bào trên
           khắp thế giới.
         </p>
