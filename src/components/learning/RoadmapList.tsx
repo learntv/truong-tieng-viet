@@ -111,83 +111,63 @@ export function RoadmapList({
     : chuDe.title;
 
   return (
-    <div className="w-full px-3 pt-8 pb-10 sm:px-4 sm:pt-12">
+    <div className="w-full px-4 pt-8 pb-12 sm:px-6">
       <div className="mx-auto max-w-7xl">
-        {/* Header: the open-scrapbook spread — stamped tag + title on the left, a taped photo
-            and rubber stamp on the right, progress panel underneath. */}
-        <div className="relative overflow-hidden rounded-[1.75rem] border border-border bg-card p-4 shadow-card ring-1 ring-black/[0.03] sm:p-6 lg:p-8">
-          <div className="relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-8">
-            {/* Left page: tag, title, blurb, overview button. */}
+        {/* Header: flat surface — overline, title, blurb and action on the left, a plain
+            photo block, badge and progress meter on the right. */}
+        <div className="rounded-lg border border-border bg-card p-5 sm:p-6 lg:p-8">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
+            {/* Left column */}
             <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-3">
                 {/* Back to the overworld map — the only way to another chủ đề. */}
                 <Link
                   to="/hoc-tap/quyen-1"
                   aria-label="Về bản đồ"
-                  className={[
-                    "grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-full transition hover:brightness-95 active:translate-y-[1px]",
-                    accent.soft,
-                    accent.text,
-                  ].join(" ")}
+                  className="-ml-1 grid h-9 w-9 shrink-0 place-items-center rounded-full text-ink/70 transition-colors hover:bg-muted hover:text-ink"
                 >
-                  <ArrowLeft className="h-4.5 w-4.5" strokeWidth={2.75} />
+                  <ArrowLeft className="h-5 w-5" strokeWidth={2.5} />
                 </Link>
-                <span className="rounded-md border-2 border-dashed border-primary/60 bg-white/70 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-primary">
+                <span className={["text-xs font-bold uppercase tracking-[0.12em]", accent.text].join(" ")}>
                   Địa điểm {chuDeIndex + 1}
                 </span>
                 {isLocked && (
-                  <span
-                    className={[
-                      "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
-                      accent.soft,
-                      accent.text,
-                    ].join(" ")}
-                  >
+                  <span className="inline-flex items-center gap-1 rounded-sm bg-muted px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
                     <Lock className="h-3 w-3" strokeWidth={2.5} />
                     Sắp có
                   </span>
                 )}
               </div>
 
-              <h1 className="mt-3 flex items-center gap-2 font-display text-3xl font-bold leading-tight text-ink sm:text-4xl">
+              <h1 className="mt-4 flex items-center gap-2 font-display text-3xl font-bold leading-tight text-ink sm:text-4xl">
                 <span className="shrink-0 text-2xl sm:text-3xl">{chuDe.emoji}</span>
                 <span className="min-w-0">{location.name}</span>
               </h1>
 
-              <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
                 {location.blurb}
               </p>
 
               <button
                 type="button"
                 onClick={() => setShowOverview(true)}
-                className="mt-5 inline-flex cursor-pointer items-center gap-2 rounded-full border border-navy/15 bg-muted/50 px-4 py-2 font-display text-sm font-bold text-ink shadow-sm transition hover:bg-muted active:translate-y-[1px]"
+                className="mt-6 inline-flex cursor-pointer items-center gap-2 rounded-sm border border-border bg-card px-4 py-2.5 text-sm font-bold text-ink transition-colors hover:bg-muted"
               >
                 <Info className="h-4 w-4" strokeWidth={2.5} />
                 Khám phá {location.name}
               </button>
             </div>
 
-            {/* Right page: taped photo + rubber stamp side by side, then the progress panel. */}
+            {/* Right column: flat photo block, badge, progress meter. */}
             <div className="min-w-0">
-              <div className="mx-auto flex max-w-md flex-nowrap items-center gap-4">
+              <div className="flex items-center gap-5">
                 {photo && (
-                  <div className="relative min-w-0 flex-1 rotate-[1.2deg]">
-                    <span
-                      aria-hidden
-                      className="washi-tape absolute -top-2 left-8 z-10 h-6 w-24 -rotate-6 rounded-[2px]"
+                  <div className="min-w-0 flex-1 overflow-hidden rounded-sm border border-border">
+                    <img
+                      src={photo}
+                      alt={location.name}
+                      className="aspect-[4/3] w-full object-cover"
                     />
-                    <span
-                      aria-hidden
-                      className="washi-tape absolute -top-2 right-10 z-10 h-6 w-20 rotate-6 rounded-[2px]"
-                    />
-                    <div className="rounded-[3px] bg-white p-2 pb-3 shadow-[0_14px_30px_-12px_rgba(30,32,60,0.35)]">
-                      <img
-                        src={photo}
-                        alt={location.name}
-                        className="h-40 w-full rounded-[2px] object-cover sm:h-48"
-                      />
-                    </div>
                   </div>
                 )}
 
@@ -199,38 +179,38 @@ export function RoadmapList({
                 )}
               </div>
 
-              {/* Progress panel */}
+              {/* Progress meter */}
               {!isLocked && (
-                <div className="relative mt-6 rounded-xl border border-navy/10 bg-muted/40 px-4 py-3.5 shadow-sm">
-                  <div>
-                    <div className="font-display text-sm font-bold text-ink sm:text-base">
+                <div className="mt-5 border-t border-border pt-5">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
                       Tiến độ chủ đề
-                    </div>
-                    <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-navy/10">
-                      <div
-                        className={[
-                          "h-full rounded-full transition-all duration-500",
-                          allDone ? "bg-green" : accent.solid,
-                        ].join(" ")}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                    <div className="mt-2 text-xs font-bold text-ink/65">
-                      {doneStages}/{totalStages} chặng đã hoàn thành
-                    </div>
+                    </span>
+                    <span className="text-xs font-bold text-ink">
+                      {doneStages}/{totalStages} chặng
+                    </span>
                   </div>
-
-                  {/* Says out loud what the badge on the photo is for. */}
-                  {badge && (
+                  <div className="mt-2 h-1 w-full overflow-hidden bg-muted">
                     <div
                       className={[
-                        "mt-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold",
-                        allDone ? "bg-green/15 text-green" : "bg-navy/5 text-ink/70",
+                        "h-full transition-all duration-500",
+                        allDone ? "bg-green" : accent.solid,
+                      ].join(" ")}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+
+                  {/* Says out loud what the badge beside the photo is for. */}
+                  {badge && (
+                    <p
+                      className={[
+                        "mt-3 flex items-start gap-2 text-xs leading-snug",
+                        allDone ? "text-green" : "text-muted-foreground",
                       ].join(" ")}
                     >
                       {allDone ? (
                         <>
-                          <Check className="h-4 w-4 shrink-0" strokeWidth={3} aria-hidden />
+                          <Check className="mt-px h-4 w-4 shrink-0" strokeWidth={3} aria-hidden />
                           <span>
                             Em đã sưu tầm được huy hiệu{" "}
                             <span className="font-bold">{badge.name}</span>!
@@ -238,14 +218,14 @@ export function RoadmapList({
                         </>
                       ) : (
                         <>
-                          <Lock className="h-4 w-4 shrink-0" strokeWidth={3} aria-hidden />
+                          <Lock className="mt-px h-4 w-4 shrink-0" strokeWidth={2.5} aria-hidden />
                           <span>
                             Hoàn thành cả {totalStages} chặng để sưu tầm huy hiệu{" "}
                             <span className="font-bold">{badge.name}</span>.
                           </span>
                         </>
                       )}
-                    </div>
+                    </p>
                   )}
                 </div>
               )}
@@ -253,43 +233,44 @@ export function RoadmapList({
           </div>
         </div>
 
+
         {isLocked ? (
           /* Coming-soon panel for a chủ đề that has no content yet */
-          <div className="mt-4 rounded-[1.75rem] border-2 border-dashed border-border bg-card p-8 text-center shadow-card">
+          <div className="mt-6 rounded-lg border border-border bg-card p-8 text-center">
             <div
               className={[
-                "mx-auto grid h-20 w-20 place-items-center rounded-full text-4xl ring-4 ring-white",
-                accent.solid,
+                "mx-auto grid h-16 w-16 place-items-center rounded-full text-3xl",
+                accent.soft,
               ].join(" ")}
             >
               {chuDe.emoji}
             </div>
             <p className="mx-auto mt-4 max-w-sm text-sm text-muted-foreground">
               Các cô đang biên soạn chủ đề này. Em quay lại chủ đề trước để luyện tập trong lúc chờ
-              nhé! ✨
+              nhé!
             </p>
-            <Button variant="bevel" tone="primary" asChild className="mx-auto mt-5">
+            <Button asChild className="mx-auto mt-5">
               <Link to="/hoc-tap/quyen-1">
-                <ArrowLeft className="h-4 w-4" strokeWidth={3} />
+                <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
                 Về bản đồ
               </Link>
             </Button>
           </div>
         ) : (
-          <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
+          <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
             {/* The chặng list — replaces the old node map. */}
-            <div className="overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-card">
-              <div className="flex items-center justify-between border-b border-border/70 px-4 py-3">
-                <h2 className="flex min-w-0 items-center gap-2 font-display text-base font-bold text-ink sm:text-lg">
-                  <span className="shrink-0">📖</span>
-                  <span className="truncate">CHỦ ĐỀ: {titleName}</span>
+            <div className="overflow-hidden rounded-lg border border-border bg-card">
+              <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
+                <h2 className="min-w-0 truncate font-display text-lg font-bold text-ink">
+                  Chủ đề: {titleName}
                 </h2>
-                <span className="text-xs font-bold text-ink/60">
+                <span className="shrink-0 text-xs font-bold text-muted-foreground">
                   {doneStages}/{totalStages} hoàn thành
                 </span>
               </div>
 
-              <ul className="divide-y divide-border/60">
+
+              <ul className="divide-y divide-border">
                 {changTitles.map((title, i) => {
                   const color = STAGE_COLORS[i % STAGE_COLORS.length];
                   const isDone = completedChangs.has(i);
@@ -302,7 +283,7 @@ export function RoadmapList({
                       <span
                         aria-hidden
                         className={[
-                          "absolute inset-y-0 left-0 w-1.5",
+                          "absolute inset-y-0 left-0 w-1",
                           isStageLocked ? "bg-border" : color.bg,
                         ].join(" ")}
                       />
@@ -311,11 +292,11 @@ export function RoadmapList({
                         disabled={isStageLocked}
                         onClick={() => onOpenLesson(i)}
                         className={[
-                          "flex w-full cursor-pointer items-center gap-3 py-3 pl-5 pr-3 text-left transition-colors sm:gap-4 sm:pl-6 sm:pr-4",
+                          "flex w-full cursor-pointer items-center gap-4 py-4 pl-6 pr-4 text-left transition-colors sm:pl-7 sm:pr-5",
                           isStageLocked
                             ? "cursor-not-allowed opacity-60"
-                            : "hover:bg-muted/40 active:bg-muted/60",
-                          isCurrent ? "bg-secondary/10" : "",
+                            : "hover:bg-muted/50",
+                          isCurrent ? "bg-muted/40" : "",
                         ].join(" ")}
                       >
                         <span
@@ -326,7 +307,7 @@ export function RoadmapList({
                         >
                           {i + 1}
                         </span>
-                        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-muted text-2xl ring-1 ring-black/[0.05] sm:h-12 sm:w-12">
+                        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-sm bg-muted text-2xl">
                           {changEmojis[i] ?? "📖"}
                         </span>
 
@@ -338,7 +319,7 @@ export function RoadmapList({
                             {isCurrent && (
                               <span
                                 className={[
-                                  "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold text-white",
+                                  "shrink-0 rounded-sm px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white",
                                   color.bg,
                                 ].join(" ")}
                               >
@@ -347,16 +328,16 @@ export function RoadmapList({
                             )}
                           </span>
                           {prog && !isStageLocked ? (
-                            <span className="mt-1.5 flex items-center gap-2">
-                              <span className="h-1.5 w-24 overflow-hidden rounded-full bg-muted ring-1 ring-black/[0.04] sm:w-36">
+                            <span className="mt-2 flex items-center gap-2">
+                              <span className="h-1 w-24 overflow-hidden bg-muted sm:w-36">
                                 <span
-                                  className={["block h-full rounded-full", color.bg].join(" ")}
+                                  className={["block h-full", color.bg].join(" ")}
                                   style={{
                                     width: `${Math.round((prog.current / prog.total) * 100)}%`,
                                   }}
                                 />
                               </span>
-                              <span className="text-[11px] font-bold text-ink/55">
+                              <span className="text-[11px] font-bold text-muted-foreground">
                                 {prog.current}/{prog.total} bài
                               </span>
                             </span>
@@ -379,7 +360,7 @@ export function RoadmapList({
                         ) : (
                           <span
                             className={[
-                              "hidden shrink-0 rounded-full px-3 py-1.5 font-display text-xs font-bold text-white sm:block",
+                              "hidden shrink-0 rounded-sm px-3 py-1.5 font-display text-xs font-bold uppercase tracking-wide text-white sm:block",
                               color.bg,
                             ].join(" ")}
                           >
@@ -394,54 +375,49 @@ export function RoadmapList({
             </div>
 
             {/* Reward / streak / culture note cards, stacked beside the list on wide screens. */}
-            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 lg:content-start">
-              <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-card">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-secondary/25 text-xl">
+            <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1 lg:content-start">
+              <div className="flex items-start gap-3 rounded-lg border border-border bg-card p-4">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-sm bg-secondary/25 text-xl">
                   🏅
                 </span>
                 <div>
                   <div className="font-display text-sm font-bold text-ink">
                     Nhận con dấu {location.name}
                   </div>
-                  <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
+                  <p className="mt-1 text-xs leading-snug text-muted-foreground">
                     Hoàn thành cả {totalStages} chặng để đoạt được con dấu này nhé!
                   </p>
                 </div>
               </div>
-              <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-card">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-xl">
+              <div className="flex items-start gap-3 rounded-lg border border-border bg-card p-4">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-sm bg-primary/10 text-xl">
                   🔥
                 </span>
                 <div>
                   <div className="font-display text-sm font-bold text-ink">Giữ chuỗi ngày học!</div>
-                  <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
+                  <p className="mt-1 text-xs leading-snug text-muted-foreground">
                     Học một chặng hôm nay để giữ ngọn lửa chuỗi ngày của em.
                   </p>
                 </div>
               </div>
               {!user && (
-                <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-card">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-xl">
+                <div className="flex items-start gap-3 rounded-lg border border-border bg-card p-4">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-sm bg-primary/10 text-xl">
                     👤
                   </span>
                   <div>
                     <div className="font-display text-sm font-bold text-ink">Đăng nhập để lưu tiến độ</div>
-                    <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
+                    <p className="mt-1 text-xs leading-snug text-muted-foreground">
                       Lưu bài học và đua cùng bạn bè nhé!
                     </p>
-                    <Button
-                      variant="bevel"
-                      tone="primary"
-                      size="sm"
-                      className="mt-2"
-                      onClick={() => setAuthOpen(true)}
-                    >
+                    <Button size="sm" className="mt-3" onClick={() => setAuthOpen(true)}>
                       Đăng nhập
                     </Button>
                   </div>
                 </div>
               )}
             </div>
+
           </div>
         )}
       </div>
@@ -464,7 +440,7 @@ export function RoadmapList({
               aria-hidden
               className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/10"
             />
-            <DialogClose className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white/90 text-ink shadow-[0_2px_0_0_rgba(0,0,0,0.15)] ring-1 ring-black/10 transition hover:scale-105">
+            <DialogClose className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white/90 text-ink transition-colors hover:bg-white">
               <X className="h-5 w-5" strokeWidth={2.5} />
               <span className="sr-only">Đóng</span>
             </DialogClose>
@@ -491,7 +467,7 @@ export function RoadmapList({
                   {discovery.facts.map((f) => (
                     <div
                       key={f.label}
-                      className="rounded-xl border border-border bg-muted/40 px-2 py-3 text-center"
+                      className="rounded-sm border border-border bg-muted/40 px-2 py-3 text-center"
                     >
                       <div className="text-lg sm:text-xl">{f.icon}</div>
                       <div className="mt-1 font-display text-sm font-bold leading-tight text-ink">
@@ -540,7 +516,7 @@ export function RoadmapList({
                       ))}
                     </div>
                   ) : (
-                    <div className="relative mt-2.5 overflow-hidden rounded-2xl border-2 border-dashed border-border bg-muted/40">
+                    <div className="relative mt-2.5 overflow-hidden rounded-sm border border-border bg-muted/40">
                       {/* A couple of blurred dummy lines so it reads as text hiding behind the lock. */}
                       <div aria-hidden className="space-y-2.5 p-4 blur-[5px] select-none">
                         <div className="h-2.5 w-full rounded-full bg-navy/15" />
