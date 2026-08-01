@@ -1,218 +1,157 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Lock, Sparkles } from "lucide-react";
+import { BookOpen, CalendarDays, GraduationCap, Lock, Mic, Type } from "lucide-react";
+import type { ReactNode } from "react";
 import quyen1Cover from "@/assets/quyen_1_cover.jpg";
 import quyen2Cover from "@/assets/quyen_2_cover.jpg";
 import aImg from "@/assets/alphabet/a.png";
 import bImg from "@/assets/alphabet/b.png";
 import cImg from "@/assets/alphabet/c.png";
-import { Mascot, type MascotPose } from "@/components/Mascot";
+import { Mascot } from "@/components/Mascot";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { PageBanner } from "@/components/site/PageBanner";
+
+type LearnLink =
+  | "/hoc-tap/quyen-1"
+  | "/hoc-tap/quyen-2"
+  | "/hoc-tap/bang-chu-cai"
+  | "/hoc-tap/luyen-noi";
+
+type Item = {
+  to: LearnLink;
+  category: string;
+  title: string;
+  meta: { icon: typeof BookOpen; text: string }[];
+  cover?: string;
+  tone: string;
+  art?: ReactNode;
+  locked?: boolean;
+};
+
+const items: Item[] = [
+  {
+    to: "/hoc-tap/quyen-1",
+    category: "Lộ trình cơ bản",
+    title: "Quyển 1 — Làm quen tiếng Việt",
+    cover: quyen1Cover,
+    tone: "bg-stage-1-soft",
+    meta: [
+      { icon: GraduationCap, text: "Trình độ: Bắt đầu" },
+      { icon: BookOpen, text: "4 chủ đề · 20 bài học" },
+      { icon: CalendarDays, text: "Thời lượng: 10 tuần" },
+    ],
+  },
+  {
+    to: "/hoc-tap/quyen-2",
+    category: "Lộ trình cơ bản",
+    title: "Quyển 2 — Nâng cao vốn từ",
+    cover: quyen2Cover,
+    tone: "bg-stage-4-soft",
+    locked: true,
+    meta: [
+      { icon: GraduationCap, text: "Trình độ: Nâng cao" },
+      { icon: BookOpen, text: "Đang được biên soạn" },
+      { icon: CalendarDays, text: "Sắp ra mắt" },
+    ],
+  },
+  {
+    to: "/hoc-tap/bang-chu-cai",
+    category: "Khám phá thêm",
+    title: "Bảng chữ cái",
+    tone: "bg-stage-2-soft",
+    art: (
+      <div className="flex items-end gap-2">
+        {[aImg, bImg, cImg].map((src) => (
+          <img key={src} src={src} alt="" className="h-20 w-auto object-contain" />
+        ))}
+      </div>
+    ),
+    meta: [
+      { icon: Type, text: "29 chữ cái tiếng Việt" },
+      { icon: BookOpen, text: "Từ mới kèm hình minh hoạ" },
+      { icon: GraduationCap, text: "Nghe phát âm từng chữ" },
+    ],
+  },
+  {
+    to: "/hoc-tap/luyen-noi",
+    category: "Khám phá thêm",
+    title: "Luyện nói",
+    tone: "bg-stage-3-soft",
+    art: <Mascot pose="listening" decorative className="h-32 translate-y-2" />,
+    meta: [
+      { icon: Mic, text: "Luyện phát âm theo câu" },
+      { icon: BookOpen, text: "Nghe cô đọc mẫu" },
+      { icon: GraduationCap, text: "Nhận sao khích lệ" },
+    ],
+  },
+];
 
 export function HocTapHome() {
   return (
-    <main className="pb-24">
-      <PageBanner
-        title="Em muốn học gì hôm nay? 🌟"
-        subtitle="Chọn một hành trình bên dưới để cùng Trâu con khám phá tiếng Việt nhé!"
-      />
+    <main className="min-h-screen bg-background pb-24">
+      <div className="mx-auto max-w-6xl px-4 pt-10 sm:px-6">
+        <h1 className="font-display text-2xl font-bold text-ink sm:text-3xl">
+          Em muốn học gì hôm nay?
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+          Chọn một hành trình bên dưới để cùng Trâu con khám phá tiếng Việt nhé.
+        </p>
+        <p className="mt-6 text-sm text-muted-foreground">{items.length} chương trình</p>
+        <hr className="mt-4 border-border" />
 
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
-        {/* ── Lộ trình cơ bản ──────────────────────── */}
-        <SectionLabel emoji="🗺️" title="Lộ trình cơ bản" />
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <BookCard
-            cover={quyen1Cover}
-            title="Quyển 1"
-            subtitle="Làm quen tiếng Việt"
-            description="4 chủ đề · 20 bài học cùng Trâu con khám phá quê hương."
-            status="Đang học"
-            to="/hoc-tap/quyen-1"
-          />
-          <BookCard
-            cover={quyen2Cover}
-            title="Quyển 2"
-            subtitle="Nâng cao vốn từ"
-            description="Hành trình tiếp theo đang được biên soạn, sẽ sớm ra mắt các em."
-            status="Sắp ra mắt"
-            locked
-            to="/hoc-tap/quyen-2"
-          />
-        </div>
-
-        {/* ── Khám phá thêm ────────────────────────── */}
-        <div className="mt-10">
-          <SectionLabel emoji="✨" title="Khám phá thêm" />
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <ActivityCard
-              to="/hoc-tap/bang-chu-cai"
-              eyebrow="29 chữ cái"
-              title="Bảng chữ cái"
-              description="Gặp gỡ các bạn thú, nghe phát âm và học từ mới qua từng chữ cái."
-              tone="stage-2"
-              icon={<Sparkles className="h-8 w-8 text-white" strokeWidth={2.5} />}
-              letterImages={[aImg, bImg, cImg]}
-            />
-            <ActivityCard
-              to="/hoc-tap/luyen-noi"
-              eyebrow="Luyện phát âm"
-              title="Luyện nói"
-              description="Nghe cô đọc mẫu, nói theo và nhận sao khích lệ cho từng câu."
-              tone="stage-3"
-              mascotPose="listening"
-            />
-          </div>
+        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((item) => (
+            <ProgramCard key={item.to} item={item} />
+          ))}
         </div>
       </div>
     </main>
   );
 }
 
-function SectionLabel({ emoji, title }: { emoji: string; title: string }) {
+function ProgramCard({ item }: { item: Item }) {
   return (
-    <div className="mb-5 flex items-center gap-3">
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border/60 bg-card text-lg shadow-sm">
-        {emoji}
-      </span>
-      <h2 className="font-display text-xl font-bold text-ink sm:text-2xl">{title}</h2>
-      <div className="h-px flex-1 bg-border" />
-    </div>
-  );
-}
-
-function BookCard({
-  cover,
-  title,
-  subtitle,
-  description,
-  status,
-  locked,
-  to,
-}: {
-  cover: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  status: string;
-  locked?: boolean;
-  to: "/hoc-tap/quyen-1" | "/hoc-tap/quyen-2";
-}) {
-  return (
-    <Link to={to}>
-      <Card interactive className="group flex gap-4 p-5 sm:gap-5 sm:p-6">
-        {/* Book cover as a framed photo */}
-        <div className="shrink-0 overflow-hidden rounded-xl shadow-sm ring-1 ring-border/60">
-          <img
-            src={cover}
-            alt={`Bìa sách ${title}`}
-            className={[
-              "aspect-[900/1270] w-20 object-cover transition-transform duration-300 group-hover:scale-105 sm:w-24",
-              locked ? "opacity-90 grayscale-[0.35]" : "",
-            ].join(" ")}
-          />
-        </div>
-
-        <div className="flex min-w-0 flex-1 flex-col">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <h3 className="whitespace-nowrap font-display text-lg font-bold text-ink">{title}</h3>
-            <Badge variant={locked ? "locked" : "success"}>
-              {locked && <Lock className="mr-1 h-2.5 w-2.5" />}
-              {status}
-            </Badge>
-          </div>
-          <p className="font-display text-sm font-bold text-primary">{subtitle}</p>
-          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground sm:text-sm">
-            {description}
-          </p>
-
-          <div className="mt-auto flex items-end justify-end gap-2 pt-3">
-            <span
-              className={[
-                "inline-flex shrink-0 items-center gap-1 text-sm font-bold",
-                locked ? "text-muted-foreground" : "text-primary",
-              ].join(" ")}
-            >
-              {locked ? "Sắp có" : "Vào học"}
-              {locked ? (
-                <Lock className="h-3.5 w-3.5" />
-              ) : (
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              )}
-            </span>
-          </div>
-        </div>
-      </Card>
-    </Link>
-  );
-}
-
-const ACTIVITY_TONE_BG: Record<string, string> = {
-  "stage-2": "bg-stage-2",
-  "stage-3": "bg-stage-3",
-};
-
-function ActivityCard({
-  to,
-  eyebrow,
-  title,
-  description,
-  tone,
-  icon,
-  letterImages,
-  mascotPose,
-}: {
-  to: "/hoc-tap/bang-chu-cai" | "/hoc-tap/luyen-noi";
-  eyebrow: string;
-  title: string;
-  description: string;
-  tone: "stage-2" | "stage-3";
-  // Exactly one of these fills the tile: a lucide icon, a row of letter art,
-  // or Trâu con in a pose that hints at the activity.
-  icon?: React.ReactNode;
-  letterImages?: string[];
-  mascotPose?: MascotPose;
-}) {
-  return (
-    <Link to={to}>
-      <Card interactive className="group flex gap-4 p-5 sm:gap-5 sm:p-6">
+    <Link to={item.to} className="group block">
+      <Card interactive className="flex h-full flex-col overflow-hidden p-0">
         <div
           className={[
-            "relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl transition-transform duration-300 group-hover:scale-105 sm:h-24 sm:w-24",
-            ACTIVITY_TONE_BG[tone],
+            "flex h-40 items-center justify-center overflow-hidden",
+            item.tone,
           ].join(" ")}
         >
-          {letterImages ? (
-            <div className="flex items-end gap-1">
-              {letterImages.map((src, i) => (
-                <img key={i} src={src} alt="" className="h-10 w-auto object-contain sm:h-12" />
-              ))}
-            </div>
-          ) : mascotPose ? (
-            // Sits flush on the tile's bottom edge so he stands on it rather
-            // than floating in the middle of the square.
-            <Mascot
-              pose={mascotPose}
-              decorative
-              className="h-[4.5rem] translate-y-1 sm:h-[5.5rem]"
+          {item.cover ? (
+            <img
+              src={item.cover}
+              alt={`Bìa ${item.title}`}
+              className={[
+                "h-full w-auto object-contain",
+                item.locked ? "grayscale-[0.35]" : "",
+              ].join(" ")}
             />
           ) : (
-            icon
+            item.art
           )}
         </div>
 
-        <div className="flex min-w-0 flex-1 flex-col">
-          <span className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
-            {eyebrow}
+        <div className="flex flex-1 flex-col gap-1 border-t border-border p-5">
+          <span className="text-xs font-bold uppercase tracking-wide text-primary">
+            {item.category}
           </span>
-          <h3 className="font-display text-lg font-bold text-ink">{title}</h3>
-          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground sm:text-sm">
-            {description}
-          </p>
-          <span className="mt-auto inline-flex items-center gap-1 pt-3 text-sm font-bold text-primary">
-            Bắt đầu
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </span>
+          <h2 className="font-display text-lg font-bold text-ink group-hover:underline">
+            {item.title}
+          </h2>
+          <ul className="mt-3 flex flex-col gap-2">
+            {item.meta.map(({ icon: Icon, text }) => (
+              <li key={text} className="flex items-center gap-2 text-sm text-foreground/80">
+                <Icon className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={2} />
+                <span className="min-w-0">{text}</span>
+              </li>
+            ))}
+            {item.locked && (
+              <li className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                <Lock className="h-4 w-4 shrink-0" strokeWidth={2} />
+                <span>Chưa mở khoá</span>
+              </li>
+            )}
+          </ul>
         </div>
       </Card>
     </Link>
