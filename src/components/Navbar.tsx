@@ -71,8 +71,8 @@ export function Navbar() {
 
   return (
     <>
-      <header className="sticky top-4 z-40 w-full px-4">
-        <nav className="mx-auto flex w-full max-w-6xl items-center gap-4 rounded-full border border-border/60 bg-white/90 px-4 py-2.5 shadow-card backdrop-blur-md sm:px-6">
+      <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background">
+        <nav className="mx-auto flex h-16 w-full max-w-6xl items-center gap-4 px-4 sm:px-6">
           <div className="relative flex w-full items-center gap-4">
             {/* Hamburger — mobile only */}
             <button
