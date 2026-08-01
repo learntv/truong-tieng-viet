@@ -440,7 +440,7 @@ export function RoadmapList({
               aria-hidden
               className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/10"
             />
-            <DialogClose className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white/90 text-ink shadow-[0_2px_0_0_rgba(0,0,0,0.15)] ring-1 ring-black/10 transition hover:scale-105">
+            <DialogClose className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white/90 text-ink transition-colors hover:bg-white">
               <X className="h-5 w-5" strokeWidth={2.5} />
               <span className="sr-only">Đóng</span>
             </DialogClose>
