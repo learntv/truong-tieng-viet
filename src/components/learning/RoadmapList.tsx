@@ -236,39 +236,39 @@ export function RoadmapList({
 
         {isLocked ? (
           /* Coming-soon panel for a chủ đề that has no content yet */
-          <div className="mt-4 rounded-[1.75rem] border-2 border-dashed border-border bg-card p-8 text-center shadow-card">
+          <div className="mt-6 rounded-lg border border-border bg-card p-8 text-center">
             <div
               className={[
-                "mx-auto grid h-20 w-20 place-items-center rounded-full text-4xl ring-4 ring-white",
-                accent.solid,
+                "mx-auto grid h-16 w-16 place-items-center rounded-full text-3xl",
+                accent.soft,
               ].join(" ")}
             >
               {chuDe.emoji}
             </div>
             <p className="mx-auto mt-4 max-w-sm text-sm text-muted-foreground">
               Các cô đang biên soạn chủ đề này. Em quay lại chủ đề trước để luyện tập trong lúc chờ
-              nhé! ✨
+              nhé!
             </p>
-            <Button variant="bevel" tone="primary" asChild className="mx-auto mt-5">
+            <Button asChild className="mx-auto mt-5">
               <Link to="/hoc-tap/quyen-1">
-                <ArrowLeft className="h-4 w-4" strokeWidth={3} />
+                <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
                 Về bản đồ
               </Link>
             </Button>
           </div>
         ) : (
-          <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
+          <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
             {/* The chặng list — replaces the old node map. */}
-            <div className="overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-card">
-              <div className="flex items-center justify-between border-b border-border/70 px-4 py-3">
-                <h2 className="flex min-w-0 items-center gap-2 font-display text-base font-bold text-ink sm:text-lg">
-                  <span className="shrink-0">📖</span>
-                  <span className="truncate">CHỦ ĐỀ: {titleName}</span>
+            <div className="overflow-hidden rounded-lg border border-border bg-card">
+              <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
+                <h2 className="min-w-0 truncate font-display text-lg font-bold text-ink">
+                  Chủ đề: {titleName}
                 </h2>
-                <span className="text-xs font-bold text-ink/60">
+                <span className="shrink-0 text-xs font-bold text-muted-foreground">
                   {doneStages}/{totalStages} hoàn thành
                 </span>
               </div>
+
 
               <ul className="divide-y divide-border/60">
                 {changTitles.map((title, i) => {
