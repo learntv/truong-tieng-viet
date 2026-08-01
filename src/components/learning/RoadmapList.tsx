@@ -270,7 +270,7 @@ export function RoadmapList({
               </div>
 
 
-              <ul className="divide-y divide-border/60">
+              <ul className="divide-y divide-border">
                 {changTitles.map((title, i) => {
                   const color = STAGE_COLORS[i % STAGE_COLORS.length];
                   const isDone = completedChangs.has(i);
@@ -283,7 +283,7 @@ export function RoadmapList({
                       <span
                         aria-hidden
                         className={[
-                          "absolute inset-y-0 left-0 w-1.5",
+                          "absolute inset-y-0 left-0 w-1",
                           isStageLocked ? "bg-border" : color.bg,
                         ].join(" ")}
                       />
@@ -292,11 +292,11 @@ export function RoadmapList({
                         disabled={isStageLocked}
                         onClick={() => onOpenLesson(i)}
                         className={[
-                          "flex w-full cursor-pointer items-center gap-3 py-3 pl-5 pr-3 text-left transition-colors sm:gap-4 sm:pl-6 sm:pr-4",
+                          "flex w-full cursor-pointer items-center gap-4 py-4 pl-6 pr-4 text-left transition-colors sm:pl-7 sm:pr-5",
                           isStageLocked
                             ? "cursor-not-allowed opacity-60"
-                            : "hover:bg-muted/40 active:bg-muted/60",
-                          isCurrent ? "bg-secondary/10" : "",
+                            : "hover:bg-muted/50",
+                          isCurrent ? "bg-muted/40" : "",
                         ].join(" ")}
                       >
                         <span
@@ -307,7 +307,7 @@ export function RoadmapList({
                         >
                           {i + 1}
                         </span>
-                        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-muted text-2xl ring-1 ring-black/[0.05] sm:h-12 sm:w-12">
+                        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-sm bg-muted text-2xl">
                           {changEmojis[i] ?? "📖"}
                         </span>
 
@@ -319,7 +319,7 @@ export function RoadmapList({
                             {isCurrent && (
                               <span
                                 className={[
-                                  "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold text-white",
+                                  "shrink-0 rounded-sm px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white",
                                   color.bg,
                                 ].join(" ")}
                               >
@@ -328,16 +328,16 @@ export function RoadmapList({
                             )}
                           </span>
                           {prog && !isStageLocked ? (
-                            <span className="mt-1.5 flex items-center gap-2">
-                              <span className="h-1.5 w-24 overflow-hidden rounded-full bg-muted ring-1 ring-black/[0.04] sm:w-36">
+                            <span className="mt-2 flex items-center gap-2">
+                              <span className="h-1 w-24 overflow-hidden bg-muted sm:w-36">
                                 <span
-                                  className={["block h-full rounded-full", color.bg].join(" ")}
+                                  className={["block h-full", color.bg].join(" ")}
                                   style={{
                                     width: `${Math.round((prog.current / prog.total) * 100)}%`,
                                   }}
                                 />
                               </span>
-                              <span className="text-[11px] font-bold text-ink/55">
+                              <span className="text-[11px] font-bold text-muted-foreground">
                                 {prog.current}/{prog.total} bài
                               </span>
                             </span>
@@ -360,7 +360,7 @@ export function RoadmapList({
                         ) : (
                           <span
                             className={[
-                              "hidden shrink-0 rounded-full px-3 py-1.5 font-display text-xs font-bold text-white sm:block",
+                              "hidden shrink-0 rounded-sm px-3 py-1.5 font-display text-xs font-bold uppercase tracking-wide text-white sm:block",
                               color.bg,
                             ].join(" ")}
                           >
@@ -375,54 +375,49 @@ export function RoadmapList({
             </div>
 
             {/* Reward / streak / culture note cards, stacked beside the list on wide screens. */}
-            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 lg:content-start">
-              <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-card">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-secondary/25 text-xl">
+            <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1 lg:content-start">
+              <div className="flex items-start gap-3 rounded-lg border border-border bg-card p-4">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-sm bg-secondary/25 text-xl">
                   🏅
                 </span>
                 <div>
                   <div className="font-display text-sm font-bold text-ink">
                     Nhận con dấu {location.name}
                   </div>
-                  <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
+                  <p className="mt-1 text-xs leading-snug text-muted-foreground">
                     Hoàn thành cả {totalStages} chặng để đoạt được con dấu này nhé!
                   </p>
                 </div>
               </div>
-              <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-card">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-xl">
+              <div className="flex items-start gap-3 rounded-lg border border-border bg-card p-4">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-sm bg-primary/10 text-xl">
                   🔥
                 </span>
                 <div>
                   <div className="font-display text-sm font-bold text-ink">Giữ chuỗi ngày học!</div>
-                  <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
+                  <p className="mt-1 text-xs leading-snug text-muted-foreground">
                     Học một chặng hôm nay để giữ ngọn lửa chuỗi ngày của em.
                   </p>
                 </div>
               </div>
               {!user && (
-                <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-card">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-xl">
+                <div className="flex items-start gap-3 rounded-lg border border-border bg-card p-4">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-sm bg-primary/10 text-xl">
                     👤
                   </span>
                   <div>
                     <div className="font-display text-sm font-bold text-ink">Đăng nhập để lưu tiến độ</div>
-                    <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
+                    <p className="mt-1 text-xs leading-snug text-muted-foreground">
                       Lưu bài học và đua cùng bạn bè nhé!
                     </p>
-                    <Button
-                      variant="bevel"
-                      tone="primary"
-                      size="sm"
-                      className="mt-2"
-                      onClick={() => setAuthOpen(true)}
-                    >
+                    <Button size="sm" className="mt-3" onClick={() => setAuthOpen(true)}>
                       Đăng nhập
                     </Button>
                   </div>
                 </div>
               )}
             </div>
+
           </div>
         )}
       </div>
