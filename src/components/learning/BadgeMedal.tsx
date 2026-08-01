@@ -41,7 +41,7 @@ export function BadgeMedal({
       />
       {!earned && (
         <div className="absolute inset-0 grid place-items-center">
-          <div className="grid h-1/3 w-1/3 place-items-center rounded-full bg-navy/70 text-white shadow-sm">
+          <div className="grid h-1/3 w-1/3 place-items-center rounded-full bg-navy/70 text-white">
             <Lock className="h-1/2 w-1/2" strokeWidth={3} aria-hidden />
           </div>
         </div>
