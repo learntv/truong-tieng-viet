@@ -516,7 +516,7 @@ export function RoadmapList({
                       ))}
                     </div>
                   ) : (
-                    <div className="relative mt-2.5 overflow-hidden rounded-2xl border-2 border-dashed border-border bg-muted/40">
+                    <div className="relative mt-2.5 overflow-hidden rounded-sm border border-border bg-muted/40">
                       {/* A couple of blurred dummy lines so it reads as text hiding behind the lock. */}
                       <div aria-hidden className="space-y-2.5 p-4 blur-[5px] select-none">
                         <div className="h-2.5 w-full rounded-full bg-navy/15" />
