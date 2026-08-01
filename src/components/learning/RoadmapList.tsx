@@ -467,7 +467,7 @@ export function RoadmapList({
                   {discovery.facts.map((f) => (
                     <div
                       key={f.label}
-                      className="rounded-xl border border-border bg-muted/40 px-2 py-3 text-center"
+                      className="rounded-sm border border-border bg-muted/40 px-2 py-3 text-center"
                     >
                       <div className="text-lg sm:text-xl">{f.icon}</div>
                       <div className="mt-1 font-display text-sm font-bold leading-tight text-ink">
