@@ -1,21 +1,35 @@
 import { cn } from "@/lib/utils";
 import buffaloIcon from "@/assets/buffalo-icon.png";
+import logoWordmark from "@/assets/logo-wordmark.png";
 
 const SIZES = {
-  sm: { badge: "h-10 w-10", text: "text-sm" },
-  md: { badge: "h-11 w-11", text: "text-base" },
+  sm: { badge: "h-10 w-10", text: "text-sm", wordmark: "h-14" },
+  md: { badge: "h-11 w-11", text: "text-base", wordmark: "h-11" },
 };
 
 export function Logo({
   size = "md",
   light = false,
+  variant = "icon",
   className,
 }: {
   size?: keyof typeof SIZES;
   light?: boolean;
+  variant?: "icon" | "wordmark";
   className?: string;
 }) {
-  const { badge, text } = SIZES[size];
+  const { badge, text, wordmark } = SIZES[size];
+
+  if (variant === "wordmark") {
+    return (
+      <img
+        src={logoWordmark}
+        alt="Trường Tiếng Việt Của Em"
+        className={cn("w-auto object-contain", wordmark, className)}
+      />
+    );
+  }
+
   return (
     <div className={cn("flex shrink-0 items-center gap-2.5", className)}>
       <img

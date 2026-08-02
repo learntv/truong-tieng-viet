@@ -20,6 +20,7 @@ import { Separator } from "@/components/ui/separator";
 interface AuthModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  defaultTab?: "login" | "register";
 }
 
 const emailPasswordSchema = z.object({
@@ -195,7 +196,7 @@ function EmailForm({
   );
 }
 
-export function AuthModal({ open, onOpenChange }: AuthModalProps) {
+export function AuthModal({ open, onOpenChange, defaultTab = "login" }: AuthModalProps) {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
 
@@ -230,7 +231,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
         {forgotPassword ? (
           <ForgotPasswordView onBack={() => setForgotPassword(false)} />
         ) : (
-          <Tabs defaultValue="login" className="mt-1">
+          <Tabs key={defaultTab} defaultValue={defaultTab} className="mt-1">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Đăng nhập</TabsTrigger>
               <TabsTrigger value="register">Đăng ký</TabsTrigger>

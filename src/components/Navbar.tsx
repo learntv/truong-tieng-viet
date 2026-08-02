@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BarChart3, BookOpen, Home, LogOut, Menu, Star, Trophy, User, UserCircle, X } from "lucide-react";
+import { BarChart3, BookOpen, ChevronDown, Flame, Home, LogOut, Menu, Star, Trophy, User, UserCircle, X } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,7 +34,13 @@ export function Navbar() {
   const { user, isLoading, signOut } = useAuth();
   const isStaff = useHasRole("staff");
   const [authOpen, setAuthOpen] = useState(false);
+  const [authTab, setAuthTab] = useState<"login" | "register">("login");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const openAuth = (tab: "login" | "register") => {
+    setAuthTab(tab);
+    setAuthOpen(true);
+  };
 
   const displayName =
     (user?.user_metadata?.full_name as string | undefined) ||
@@ -72,71 +78,58 @@ export function Navbar() {
   return (
     <>
       <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background">
-        <nav className="mx-auto flex h-16 w-full max-w-6xl items-center gap-4 px-4 sm:px-6">
-          <div className="relative flex w-full items-center gap-4">
-            {/* Hamburger — mobile only */}
+        {/* Row 1 — logo, centered regardless of what sits in the side columns */}
+        <div className="mx-auto grid h-20 max-w-6xl grid-cols-3 items-center px-4 sm:px-6">
+          <div className="flex items-center">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-foreground/70 transition-all hover:bg-muted min-[900px]:hidden"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-md text-foreground/70 transition hover:bg-muted min-[900px]:hidden"
               aria-label="Mở menu"
             >
               <Menu className="h-5 w-5" strokeWidth={2.5} />
             </button>
+          </div>
 
-            <Link to="/" className="transition-transform hover:scale-[1.02]">
-              <Logo size="sm" />
-            </Link>
+          <Link
+            to="/"
+            className="col-start-2 flex justify-self-center transition-transform hover:scale-[1.02]"
+          >
+            <Logo size="sm" variant="wordmark" />
+          </Link>
 
-            {/* Desktop nav — centered on the whole bar via absolute positioning, so it stays
-            put regardless of how wide the logo or the auth control on the right are. */}
-            <ul className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-2 min-[900px]:flex">
-              {tabs.map(({ to, label }) => {
-                const isActive = pathname === to || pathname.startsWith(`${to}/`);
+          <div className="col-start-3 flex items-center justify-end gap-2">
+            {isLoading && <div className="h-9 w-9 animate-pulse rounded-full bg-muted sm:w-28" />}
 
-                return (
-                  <li key={to}>
-                    <Link
-                      to={to}
-                      className={[
-                        "whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
-                        isActive
-                          ? "bg-primary text-white"
-                          : "text-foreground/70 hover:bg-muted hover:text-foreground",
-                      ].join(" ")}
-                    >
-                      {label}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-
-            <div className="ml-auto flex shrink-0 items-center gap-2">
-              {isLoading && <div className="h-9 w-9 animate-pulse rounded-full bg-muted sm:w-28" />}
-
-              {!isLoading && !user && (
+            {!isLoading && !user && (
+              <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setAuthOpen(true)}
-                  className="flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90"
+                  onClick={() => openAuth("login")}
+                  className="rounded-md px-4 py-2 text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
                 >
-                  <User className="h-4 w-4" strokeWidth={2.5} />
-                  <span className="hidden sm:inline">Đăng nhập</span>
+                  Đăng nhập
                 </button>
-              )}
+                <button
+                  onClick={() => openAuth("register")}
+                  className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                >
+                  Đăng ký
+                </button>
+              </div>
+            )}
 
-              {!isLoading && user && (
-                <DropdownMenu modal={false}>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      aria-current={onProfile ? "page" : undefined}
-                      className={[
-                        "relative h-9 w-9 overflow-hidden rounded-full bg-primary text-sm font-medium text-white shadow-sm transition-all",
-                        "ring-2 ring-offset-2 ring-offset-white",
-                        onProfile
-                          ? "ring-primary"
-                          : "ring-transparent hover:ring-primary/40",
-                      ].join(" ")}
-                    >
+            {!isLoading && user && (
+              <DropdownMenu modal={false}>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    aria-current={onProfile ? "page" : undefined}
+                    className={[
+                      "flex items-center gap-2.5 rounded-sm border py-2 pl-2 pr-3 transition-all",
+                      onProfile
+                        ? "border-primary bg-primary/5"
+                        : "border-border/60 hover:bg-muted",
+                    ].join(" ")}
+                  >
+                    <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-primary text-base font-medium text-white">
                       {avatarUrl ? (
                         <img
                           src={avatarUrl}
@@ -145,7 +138,7 @@ export function Navbar() {
                           referrerPolicy="no-referrer"
                         />
                       ) : avatarEmoji ? (
-                        <span className="grid h-full w-full place-items-center text-lg">
+                        <span className="grid h-full w-full place-items-center text-xl">
                           {avatarEmoji}
                         </span>
                       ) : (
@@ -153,49 +146,95 @@ export function Navbar() {
                           {avatarLetter}
                         </span>
                       )}
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-52">
-                    <DropdownMenuLabel className="font-medium text-navy truncate">
-                      {displayName}
-                    </DropdownMenuLabel>
-                    {myUsername && (
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/u/$username"
-                          params={{ username: myUsername }}
-                          className="flex cursor-pointer items-center"
-                        >
-                          <UserCircle className="mr-2 h-4 w-4" />
-                          Trang cá nhân
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
-                    {isStaff && (
-                      <DropdownMenuItem asChild>
-                        <Link
-                          to="/dashboard"
-                          className="flex cursor-pointer items-center"
-                        >
-                          <BarChart3 className="mr-2 h-4 w-4" />
-                          Báo cáo
-                        </Link>
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={signOut}
-                      className="cursor-pointer text-destructive focus:text-destructive"
-                    >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Đăng xuất
+                    </span>
+
+                    <span className="hidden flex-col items-start gap-1 sm:flex">
+                      <span className="hidden items-center gap-1.5 min-[900px]:flex">
+                        <span className="flex items-center gap-1 rounded-sm border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-bold text-amber-700">
+                          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-500" strokeWidth={2} />
+                          240
+                        </span>
+                        <span className="flex items-center gap-1 rounded-sm border border-orange-200 bg-orange-50 px-2 py-0.5 text-xs font-bold text-orange-700">
+                          <Flame className="h-3.5 w-3.5 fill-orange-400 text-orange-500" strokeWidth={2} />
+                          12
+                        </span>
+                      </span>
+
+                      <span className="max-w-[16rem] truncate text-sm text-foreground">
+                        Xin chào, <span className="font-bold">{displayName}</span>!
+                      </span>
+                    </span>
+
+                    <ChevronDown className="hidden h-3.5 w-3.5 shrink-0 text-foreground/50 sm:block" strokeWidth={2.5} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-52">
+                  <DropdownMenuLabel className="font-medium text-navy truncate">
+                    {displayName}
+                  </DropdownMenuLabel>
+                  {myUsername && (
+                    <DropdownMenuItem asChild>
+                      <Link
+                        to="/u/$username"
+                        params={{ username: myUsername }}
+                        className="flex cursor-pointer items-center"
+                      >
+                        <UserCircle className="mr-2 h-4 w-4" />
+                        Trang cá nhân
+                      </Link>
                     </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </div>
+                  )}
+                  {isStaff && (
+                    <DropdownMenuItem asChild>
+                      <Link
+                        to="/dashboard"
+                        className="flex cursor-pointer items-center"
+                      >
+                        <BarChart3 className="mr-2 h-4 w-4" />
+                        Báo cáo
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={signOut}
+                    className="cursor-pointer text-destructive focus:text-destructive"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Đăng xuất
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
-        </nav>
+        </div>
+
+        {/* Row 2 — nav links, desktop only (mobile uses the sidebar drawer) */}
+        <div className="hidden border-t border-border/60 min-[900px]:block">
+          <nav aria-label="Global" className="mx-auto max-w-6xl px-4 sm:px-6">
+            <ul className="flex items-center justify-center gap-8 py-3 text-sm">
+              {tabs.map(({ to, label }) => {
+                const isActive = pathname === to || pathname.startsWith(`${to}/`);
+
+                return (
+                  <li key={to}>
+                    <Link
+                      to={to}
+                      className={[
+                        "font-medium transition-colors",
+                        isActive
+                          ? "text-primary"
+                          : "text-foreground/60 hover:text-foreground",
+                      ].join(" ")}
+                    >
+                      {label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+        </div>
       </header>
 
       {/* Mobile sidebar backdrop */}
@@ -216,7 +255,7 @@ export function Navbar() {
         {/* Sidebar header */}
         <div className="flex items-center justify-between border-b px-5 py-4">
           <Link to="/" onClick={closeSidebar}>
-            <Logo size="sm" />
+            <Logo size="sm" variant="wordmark" />
           </Link>
           <button
             onClick={closeSidebar}
@@ -283,21 +322,32 @@ export function Navbar() {
                 </button>
               </div>
             ) : (
-              <button
-                onClick={() => {
-                  setAuthOpen(true);
-                  closeSidebar();
-                }}
-                className="flex w-full items-center gap-3 rounded-2xl bg-primary px-4 py-3 text-sm font-medium text-white shadow-sm transition-all hover:bg-primary/90"
-              >
-                <User className="h-5 w-5 shrink-0" strokeWidth={2.5} />
-                <span>Đăng nhập</span>
-              </button>
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => {
+                    openAuth("register");
+                    closeSidebar();
+                  }}
+                  className="flex w-full items-center justify-center gap-3 rounded-2xl bg-primary px-4 py-3 text-sm font-medium text-white shadow-sm transition-all hover:bg-primary/90"
+                >
+                  <User className="h-5 w-5 shrink-0" strokeWidth={2.5} />
+                  <span>Đăng ký</span>
+                </button>
+                <button
+                  onClick={() => {
+                    openAuth("login");
+                    closeSidebar();
+                  }}
+                  className="flex w-full items-center justify-center rounded-2xl px-4 py-3 text-sm font-medium text-foreground/70 transition-all hover:bg-muted hover:text-foreground"
+                >
+                  <span>Đăng nhập</span>
+                </button>
+              </div>
             ))}
         </div>
       </aside>
 
-      <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
+      <AuthModal open={authOpen} onOpenChange={setAuthOpen} defaultTab={authTab} />
     </>
   );
 }
