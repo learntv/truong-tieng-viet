@@ -314,7 +314,7 @@ export function OverworldMap({
                         side="bottom"
                         sideOffset={10}
                         collisionPadding={16}
-                        className="w-64 overflow-hidden rounded-3xl border-2 border-black/10 bg-card p-0 shadow-[0_6px_0_0_rgba(0,0,0,0.1)]"
+                        className="w-64 overflow-hidden rounded-lg border border-black/10 bg-card p-0 shadow-none"
                       >
                         <div className="relative h-28 w-full">
                           <img
@@ -325,20 +325,25 @@ export function OverworldMap({
                               isOpen ? "" : "saturate-[0.35] brightness-90",
                             ].join(" ")}
                           />
-                          {/* Scrim so the chủ đề badge stays legible over any photo. */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
-                          <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-navy">
-                            {status === "coming-soon" ? "Sắp có" : `Chủ đề ${lm.chuDeIndex + 1}`}
-                          </span>
                           {status === "completed" && (
-                            <span className="absolute right-3 top-3 grid h-6 w-6 place-items-center rounded-full bg-green text-white shadow-sm">
-                              <Check className="h-3.5 w-3.5" strokeWidth={3.5} />
+                            <span className="absolute right-2 top-2 grid h-5 w-5 place-items-center rounded-full bg-green text-white">
+                              <Check className="h-3 w-3" strokeWidth={3.5} />
                             </span>
                           )}
                         </div>
 
-                        <div className="p-4">
-                          <h2 className="font-display text-base font-bold leading-tight text-navy">
+                        <div className="border-t border-black/10 p-4">
+                          {/* Eyebrow sits above the title rather than floating on the photo —
+                              the whole card reads as flat panels stacked, no overlays. */}
+                          <p
+                            className={[
+                              "text-[10px] font-semibold uppercase tracking-[0.12em]",
+                              status === "coming-soon" ? "text-muted-foreground" : accent.text,
+                            ].join(" ")}
+                          >
+                            {status === "coming-soon" ? "Sắp có" : `Chủ đề ${lm.chuDeIndex + 1}`}
+                          </p>
+                          <h2 className="mt-0.5 font-display text-base font-bold leading-tight text-navy">
                             {lm.name}
                           </h2>
                           <p className="mt-1 text-xs leading-snug text-muted-foreground">
@@ -346,12 +351,12 @@ export function OverworldMap({
                           </p>
 
                           {status === "coming-soon" ? (
-                            <p className="mt-3 rounded-xl bg-muted/60 px-3 py-2 text-xs leading-snug text-muted-foreground">
+                            <p className="mt-3 border-t border-black/10 pt-3 text-xs leading-snug text-muted-foreground">
                               Các cô đang biên soạn chủ đề này. Em học các chủ đề trước trong lúc
                               chờ nhé! ✨
                             </p>
                           ) : status === "locked" ? (
-                            <p className="mt-3 rounded-xl bg-muted/60 px-3 py-2 text-xs leading-snug text-muted-foreground">
+                            <p className="mt-3 border-t border-black/10 pt-3 text-xs leading-snug text-muted-foreground">
                               Em hoàn thành chủ đề trước để mở khoá địa danh này nhé! ✨
                             </p>
                           ) : (
@@ -369,15 +374,14 @@ export function OverworldMap({
                                   <span
                                     key={s}
                                     className={[
-                                      "h-1.5 flex-1 rounded-full",
+                                      "h-1.5 flex-1 rounded-sm",
                                       s < stats.done ? accent.solid : "bg-muted",
                                     ].join(" ")}
                                   />
                                 ))}
                               </div>
                               <Button
-                                variant="bevel" tone="primary"
-                                className="mt-4 w-full"
+                                className="mt-4 w-full font-display font-bold shadow-none"
                                 onClick={() => openChuDe(lm.chuDeIndex)}
                               >
                                 Khám phá ngay
