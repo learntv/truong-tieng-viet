@@ -7,7 +7,12 @@ import {
   ChevronRight,
   ExternalLink,
   Headphones,
+  Image as ImageIcon,
+  Link2,
   Loader2,
+  Menu,
+  PenLine,
+  Play,
   X,
 } from "lucide-react";
 import { Link, useCanGoBack, useNavigate, useRouter } from "@tanstack/react-router";
@@ -303,6 +308,207 @@ export function buildSlides(noiDungs: NoiDung[]): Slide[] {
   );
 }
 
+// Khan-style content-item icon: what kind of thing this slide is, at a glance.
+function slideIcon(slide: Slide) {
+  if (slide.bai?.meta?.video_url) return Play;
+  if (slide.bai?.meta?.link) return Link2;
+  if (slide.bai?.hinhs.some((h) => h.url)) return ImageIcon;
+  return PenLine;
+}
+
+function slideLabel(slide: Slide, index: number): string {
+  const title = slide.nd.title?.trim();
+  const base = title || `Trang ${index + 1}`;
+  return slide.baiCount > 1 ? `${base} (${slide.baiIndex + 1}/${slide.baiCount})` : base;
+}
+
+/** Left rail: the chặng's content items, the way Khan lists a lesson's videos/exercises. */
+function LessonSidebar({
+  chuDe,
+  chuDeIndex,
+  chang,
+  changIndex,
+  changCount,
+  slides,
+  slideIndex,
+  furthestIndex,
+  isCompleted,
+  color,
+  prevChang,
+  nextChang,
+  onSelect,
+  onGoChang,
+}: {
+  chuDe: { title: string; emoji: string };
+  chuDeIndex: number;
+  chang: { title: string; emoji: string };
+  changCount: number;
+  changIndex: number;
+  slides: Slide[];
+  slideIndex: number;
+  /** Furthest slide actually reached — everything before it counts as read. */
+  furthestIndex: number;
+  isCompleted: boolean;
+  color: StageColor;
+  prevChang: { id: string } | null;
+  nextChang: { id: string } | null;
+  onSelect: (i: number) => void;
+  onGoChang: (id: string) => void;
+}) {
+  const activeRef = useRef<HTMLButtonElement | null>(null);
+
+  // Keep the current item in view when arriving mid-lesson or jumping with the footer nav.
+  useEffect(() => {
+    activeRef.current?.scrollIntoView({ block: "nearest" });
+  }, [slideIndex]);
+
+  return (
+    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-none border-border bg-card sm:rounded-2xl sm:border sm:shadow-card">
+      {/* Header row: the way back to the map, with the chặng's own progress filling the
+          space beside it. */}
+      <div className="flex shrink-0 items-center gap-3 p-3">
+        <BackToMapButton
+          color={color}
+          topicIndex={chuDeIndex}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-[transform,box-shadow] ease-bounce active:translate-y-[2px]"
+          arrowClassName="h-5 w-5 shrink-0"
+          iconClassName="hidden"
+        />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline justify-between gap-2">
+            <span className="truncate text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+              {isCompleted ? "Đã hoàn thành" : "Tiến độ chặng"}
+            </span>
+            <span className="shrink-0 text-xs font-semibold text-navy">
+              {slideIndex + 1}/{slides.length}
+            </span>
+          </div>
+          <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-muted">
+            <div
+              className={["h-full rounded-full transition-[width] duration-300", color.bg].join(
+                " ",
+              )}
+              style={{
+                width: `${slides.length > 0 ? ((slideIndex + 1) / slides.length) * 100 : 0}%`,
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Breadcrumb + chặng stepper */}
+      <div className="shrink-0 border-b border-border px-3 py-2.5">
+        {/* Quyển › Chủ đề, each crumb its own link. */}
+        <nav
+          aria-label="Đường dẫn"
+          className="flex items-center justify-center gap-1 text-[11px] font-bold uppercase tracking-wide"
+        >
+          <Link
+            to="/hoc-tap/quyen-1"
+            className={["shrink-0 hover:underline", color.text].join(" ")}
+          >
+            Quyển 1
+          </Link>
+          <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground" strokeWidth={3} />
+          <Link
+            to="/hoc-tap/quyen-1/chu-de-{$chuDeIndex}"
+            params={{ chuDeIndex: String(chuDeIndex + 1) }}
+            className={["min-w-0 truncate hover:underline", color.text].join(" ")}
+          >
+            {chuDe.title}
+          </Link>
+        </nav>
+        <div className="mt-1 flex items-center gap-1">
+          <button
+            onClick={() => prevChang && onGoChang(prevChang.id)}
+            disabled={!prevChang}
+            aria-label="Chặng trước"
+            className={[
+              "grid h-7 w-7 shrink-0 place-items-center rounded-full text-navy transition",
+              prevChang ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed opacity-30",
+            ].join(" ")}
+          >
+            <ChevronLeft className="h-4 w-4" strokeWidth={3} />
+          </button>
+          <p className="min-w-0 flex-1 truncate text-center font-display text-sm font-bold text-navy">
+            Chặng {changIndex + 1}/{changCount}: {chang.title}
+          </p>
+          <button
+            onClick={() => nextChang && onGoChang(nextChang.id)}
+            disabled={!nextChang}
+            aria-label="Chặng kế tiếp"
+            className={[
+              "grid h-7 w-7 shrink-0 place-items-center rounded-full text-navy transition",
+              nextChang ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed opacity-30",
+            ].join(" ")}
+          >
+            <ChevronRight className="h-4 w-4" strokeWidth={3} />
+          </button>
+        </div>
+      </div>
+
+      {/* Content items */}
+      <div className="min-h-0 flex-1 overflow-y-auto py-1">
+        {slides.map((s, i) => {
+          const Icon = slideIcon(s);
+          const isActive = i === slideIndex;
+          // Read = behind the furthest point reached, not merely behind the open slide —
+          // paging back must not un-learn the pages already gone through.
+          const isDone = isCompleted || i < furthestIndex;
+          return (
+            <button
+              key={`${s.ndIndex}-${s.baiIndex}`}
+              ref={isActive ? activeRef : undefined}
+              onClick={() => onSelect(i)}
+              className={[
+                "flex w-full cursor-pointer items-center gap-3 border-l-4 px-3 py-2.5 text-left transition",
+                isActive
+                  ? [color.bgSoft, color.border].join(" ")
+                  : "border-transparent hover:bg-muted/60",
+              ].join(" ")}
+            >
+              {/* The item keeps its own kind icon once done — the tick is a small badge
+                  pinned to the tile's corner, not a replacement for it. */}
+              <span className="relative shrink-0">
+                <span
+                  className={[
+                    "grid h-8 w-8 place-items-center rounded-lg border",
+                    isActive
+                      ? [color.bg, color.border, "text-white"].join(" ")
+                      : isDone
+                        ? "border-stage-1-soft bg-stage-1-soft text-stage-1-deep"
+                        : "border-border bg-card text-muted-foreground",
+                  ].join(" ")}
+                >
+                  <Icon className="h-4 w-4" strokeWidth={2.5} />
+                </span>
+                {isDone && (
+                  <span className="absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded-full border border-card bg-stage-1 text-white">
+                    <Check className="h-2.5 w-2.5" strokeWidth={4} />
+                  </span>
+                )}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span
+                  className={[
+                    "block truncate text-sm font-semibold",
+                    isActive ? color.text : "text-navy",
+                  ].join(" ")}
+                >
+                  {slideLabel(s, i)}
+                </span>
+                <span className="block truncate text-[11px] text-muted-foreground">
+                  {isActive ? "Đang học" : isDone ? "Đã học" : "Chưa học"}
+                </span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function LessonPage({ changId }: { changId: string }) {
   const { data, isLoading, error } = useLearningContent();
   const navigate = useNavigate();
@@ -338,12 +544,28 @@ export function LessonPage({ changId }: { changId: string }) {
   const slides = useMemo(() => (found ? buildSlides(found.chang.noiDungs) : []), [found]);
 
   const [slideIndex, setSlideIndex] = useState(0);
+  // High-water mark of how far into the chặng the learner has actually got. Everything
+  // behind it is read; everything from it on is not. Seeded from the saved position on
+  // entry and only ever moves forward, so paging backwards doesn't reset the rail's
+  // "đã học" marks. (The stored progress row keeps a single noidung_index rather than a
+  // per-slide set, so this is the finest resolution available without a schema change.)
+  const [furthestIndex, setFurthestIndex] = useState(0);
   const [fading, setFading] = useState(false);
   const fadeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [showConfetti, setShowConfetti] = useState(false);
   const [showNextPrompt, setShowNextPrompt] = useState(false);
   const [showBadgeCelebration, setShowBadgeCelebration] = useState(false);
+
+  // Content rail: pinned open on desktop (collapsible via the divider handle), and an
+  // overlay drawer on mobile where there's no room for it beside the lesson card.
+  const [railOpen, setRailOpen] = useState(true);
+  const [mobileRailOpen, setMobileRailOpen] = useState(false);
+
+  // Picking an item on mobile closes the drawer, so it never covers the slide it opened.
+  useEffect(() => {
+    setMobileRailOpen(false);
+  }, [slideIndex, changId]);
 
   // Dismiss any lingering "next lesson" prompt / confetti as soon as the lesson changes,
   // regardless of whether data for the new lesson has loaded yet.
@@ -367,11 +589,26 @@ export function LessonPage({ changId }: { changId: string }) {
     initializedChangIdRef.current = changId;
     if (isCompleted) {
       setSlideIndex(0);
+      setFurthestIndex(slides.length - 1);
       return;
     }
     const firstOfStep = slides.findIndex((s) => s.ndIndex === savedNoiDungIndex);
-    setSlideIndex(firstOfStep !== -1 ? firstOfStep : 0);
+    const start = firstOfStep !== -1 ? firstOfStep : 0;
+    setSlideIndex(start);
+    setFurthestIndex(start);
   }, [changId, found, slides, isCompleted, savedNoiDungIndex]);
+
+  // Walk the water mark forward with the learner; never backwards. The changId guard skips
+  // the pass right after a lesson switch, where `slideIndex` is still the previous lesson's
+  // (higher) value and would otherwise carry that reach over into the new chặng.
+  const markedChangIdRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (markedChangIdRef.current !== changId) {
+      markedChangIdRef.current = changId;
+      return;
+    }
+    setFurthestIndex((f) => Math.max(f, slideIndex));
+  }, [slideIndex, changId]);
 
   useEffect(
     () => () => {
@@ -469,6 +706,7 @@ export function LessonPage({ changId }: { changId: string }) {
   const canNext = slideIndex < total - 1;
   const isLastSlide = slideIndex === total - 1;
   const nextChang = changs[changIndex + 1] ?? null;
+  const prevChang = changs[changIndex - 1] ?? null;
   const nextColor = STAGE_COLORS[(changIndex + 1) % STAGE_COLORS.length];
 
   const goTo = (i: number) => {
@@ -526,6 +764,13 @@ export function LessonPage({ changId }: { changId: string }) {
     });
   };
 
+  // Same replace-not-push reasoning as goToNextChang below — the sidebar stepper hops
+  // between chặng of the same chủ đề, so the map must stay exactly one entry back.
+  const goToChang = (id: string) => {
+    setShowNextPrompt(false);
+    navigate({ to: "/hoc-tap/quyen-1/$changId", params: { changId: id }, replace: true });
+  };
+
   const goToNextChang = () => {
     if (!nextChang) return;
     setShowNextPrompt(false);
@@ -542,71 +787,105 @@ export function LessonPage({ changId }: { changId: string }) {
 
   return (
     <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-surface-subtle">
-      {/* Compact cream header bar — back button, breadcrumb, and stage pill on paper. */}
-      <div className="relative z-10 flex shrink-0 items-center gap-2 border-b border-border bg-card/80 px-3 py-2 backdrop-blur-sm sm:px-4">
-        <BackToMapButton
-          color={color}
-          topicIndex={topicIndex}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-[transform,box-shadow] ease-bounce active:translate-y-[2px]"
-          arrowClassName="h-5 w-5 shrink-0"
-          iconClassName="hidden"
-        />
-
-        {/* Breadcrumb: chuDe.title already reads "Chủ đề N: Name", so it stands alone. */}
-        <div
-          className={["min-w-0 flex-1 truncate text-xs font-semibold sm:text-sm", color.text].join(" ")}
-        >
-          {chuDe.title}
-        </div>
-
-        <div
+      {/* No padding on the row itself: any vertical padding here would also shorten the
+          lesson pane, which has to run flush from the strip to the bottom of the window.
+          The breathing room around the rail card lives on the rail alone. */}
+      <div className="relative z-10 mx-auto flex w-full min-h-0 max-w-7xl flex-1 items-stretch gap-0 p-0 lg:gap-3">
+        {/* Left rail: the chặng's content items (desktop, collapsible) */}
+        <aside
           className={[
-            "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white sm:px-3 sm:py-1.5 sm:text-xs",
-            color.bg,
+            "hidden shrink-0 transition-[width] duration-200 lg:block lg:py-4 lg:pl-4",
+            railOpen ? "w-100 xl:w-112" : "w-0 overflow-hidden lg:p-0",
           ].join(" ")}
         >
-          Chặng {changIndex + 1}/{changs.length}
-        </div>
-      </div>
-
-      <div className="relative z-10 mx-auto flex w-full min-h-0 max-w-5xl flex-1 gap-3 p-0 sm:gap-4 sm:p-4">
-        {/* Left: numbered slide pills */}
-        <aside className="hidden w-14 shrink-0 overflow-y-auto sm:flex sm:flex-col sm:items-center">
-          <div className="flex flex-col items-center gap-2 rounded-full border border-border bg-card p-2 shadow-card">
-            {slides.map((s, i) => {
-              const isActive = i === slideIndex;
-              const isDone = isCompleted || i < slideIndex;
-              return (
-                <button
-                  key={`${s.ndIndex}-${s.baiIndex}`}
-                  onClick={() => goTo(i)}
-                  aria-label={`Trang ${i + 1}`}
-                  className={[
-                    "grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-full font-display text-sm font-extrabold transition",
-                    isActive
-                      ? [color.bg, "scale-110 text-white", color.bevel].join(" ")
-                      : isDone
-                        ? "bg-stage-1-soft text-stage-1-deep hover:brightness-95"
-                        : "bg-card text-muted-foreground hover:bg-muted",
-                  ].join(" ")}
-                >
-                  {isDone && !isActive ? <Check className="h-4 w-4" strokeWidth={3} /> : i + 1}
-                </button>
-              );
-            })}
-          </div>
+          <LessonSidebar
+            chuDe={chuDe}
+            chuDeIndex={topicIndex}
+            chang={chang}
+            changIndex={changIndex}
+            changCount={changs.length}
+            slides={slides}
+            slideIndex={slideIndex}
+            furthestIndex={furthestIndex}
+            isCompleted={isCompleted}
+            color={color}
+            prevChang={prevChang}
+            nextChang={nextChang}
+            onSelect={goTo}
+            onGoChang={goToChang}
+          />
         </aside>
 
+        {/* Mobile drawer for the same rail */}
+        {mobileRailOpen && (
+          <div className="fixed inset-0 z-40 lg:hidden">
+            <div
+              className="absolute inset-0 bg-black/40 animate-in fade-in"
+              onClick={() => setMobileRailOpen(false)}
+            />
+            <div className="absolute inset-y-0 left-0 w-[85%] max-w-sm animate-in slide-in-from-left duration-200">
+              <LessonSidebar
+                chuDe={chuDe}
+                chuDeIndex={topicIndex}
+                chang={chang}
+                changIndex={changIndex}
+                changCount={changs.length}
+                slides={slides}
+                slideIndex={slideIndex}
+                furthestIndex={furthestIndex}
+                isCompleted={isCompleted}
+                color={color}
+                prevChang={prevChang}
+                nextChang={nextChang}
+                onSelect={goTo}
+                onGoChang={goToChang}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Main content */}
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-none border border-border bg-card shadow-card sm:rounded-3xl">
-          {/* Card header strip: hosts the bài instruction text (with its audio button) like
-              before, plus the mobile step indicator. */}
-          <div className="flex shrink-0 items-start gap-3 border-b border-border bg-secondary/15 px-3 py-2 sm:px-4">
+        <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-card lg:border-l lg:border-border">
+          {/* Collapse handle: an oval tab riding the lesson panel's own left edge. */}
+          <button
+            onClick={() => setRailOpen((v) => !v)}
+            aria-label={railOpen ? "Ẩn danh sách bài" : "Hiện danh sách bài"}
+            // Flush D-tab: square against the panel's own left edge (no radius, no border
+            // there), rounded only on the side that pokes into the content.
+            className="absolute left-0 top-1/2 z-20 hidden h-11 w-7 -translate-y-1/2 cursor-pointer place-items-center rounded-l-none rounded-r-full border border-l-0 border-border bg-card text-navy shadow-[1px_1px_4px_rgba(0,0,0,0.10)] transition hover:bg-muted lg:grid"
+          >
+            {railOpen ? (
+              <ChevronLeft className="h-4 w-4" strokeWidth={2.5} />
+            ) : (
+              <ChevronRight className="h-4 w-4" strokeWidth={2.5} />
+            )}
+          </button>
+
+          {/* Lesson header strip: slide number, nội dung title, and the bài instruction
+              text with its audio button — plus the rail/map controls while the rail is a
+              drawer, and the mobile step count. */}
+          <div className="flex shrink-0 items-start gap-2 border-b border-border bg-secondary/15 px-3 py-2 sm:gap-3 sm:px-4">
+            <div className="flex shrink-0 items-center gap-1 lg:hidden">
+              <BackToMapButton
+                color={color}
+                topicIndex={topicIndex}
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-[transform,box-shadow] ease-bounce active:translate-y-[2px]"
+                arrowClassName="h-4 w-4 shrink-0"
+                iconClassName="hidden"
+              />
+              <button
+                onClick={() => setMobileRailOpen(true)}
+                aria-label="Danh sách bài"
+                className="grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-full text-navy transition hover:bg-muted"
+              >
+                <Menu className="h-4 w-4" strokeWidth={2.5} />
+              </button>
+            </div>
+
             <span
               className={[
                 "grid h-7 w-7 shrink-0 place-items-center rounded-full font-display text-xs font-extrabold text-white sm:h-8 sm:w-8 sm:text-sm",
                 color.bg,
-                color.bevel,
               ].join(" ")}
             >
               {slideIndex + 1}
@@ -632,12 +911,12 @@ export function LessonPage({ changId }: { changId: string }) {
                 </p>
               ))}
             </div>
-            <span className="shrink-0 text-xs font-semibold text-muted-foreground sm:hidden">
+            <span className="shrink-0 text-xs font-semibold text-muted-foreground lg:hidden">
               {slideIndex + 1}/{total}
             </span>
           </div>
 
-          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-card p-3 sm:overflow-hidden sm:p-4">
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-card p-3 sm:overflow-hidden sm:px-8 sm:py-4">
             <div
               key={`${currentNoiDung?.id}-${currentSlide?.baiIndex}`}
               className={[
@@ -721,74 +1000,62 @@ export function LessonPage({ changId }: { changId: string }) {
             </div>
           </div>
 
-          {/* Bottom nav — three equal thirds spanning the card's full width */}
-          <div className="flex shrink-0 divide-x divide-border/60 border-t border-border/60 bg-card">
+          {/* Action bar — back on the left, the run of dots in the middle, the one
+              primary action (tiếp tục / hoàn thành) on the right. */}
+          <div className="relative flex shrink-0 items-center gap-2 border-t border-border bg-card px-3 py-2.5 sm:gap-4 sm:px-6">
             <button
               onClick={() => goTo(slideIndex - 1)}
               disabled={!canPrev}
+              aria-label="Bài trước"
               className={[
-                "flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-medium text-navy transition",
+                "flex shrink-0 items-center gap-1.5 rounded-none px-2.5 py-2 text-sm font-medium text-navy transition sm:px-3",
                 canPrev ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed opacity-40",
               ].join(" ")}
             >
-              <ChevronLeft className="h-4 w-4" />
-              Bài trước
+              <ChevronLeft className="h-4 w-4" strokeWidth={2.5} />
+              <span className="hidden sm:inline">Bài trước</span>
             </button>
 
-            <div className="relative flex-1">
-              {!isLastSlide && (
-                <div className="pointer-events-none flex h-full items-center justify-center px-2 text-center text-sm font-semibold italic text-navy/60">
-                  Cố lên! Con làm tốt lắm ♥
-                </div>
-              )}
-              {isLastSlide && (
-                <>
-                  {showConfetti && <ConfettiBurst onDone={() => setShowConfetti(false)} />}
-                  <button
-                    onClick={handleComplete}
-                    disabled={isCompleted}
-                    className={[
-                      "relative flex h-full w-full items-center justify-center gap-1.5 overflow-hidden text-sm font-extrabold transition-[transform,border-color] ease-bounce",
-                      isCompleted
-                        ? "cursor-not-allowed bg-stage-1-soft text-stage-1-deep"
-                        : "cursor-pointer border-b-4 border-stage-1-deep bg-stage-1 text-white hover:brightness-110 active:translate-y-1 active:border-b-0",
-                    ].join(" ")}
-                  >
-                    {!isCompleted && (
-                      <span className="pointer-events-none absolute inset-0 animate-shine bg-gradient-to-r from-transparent via-white/50 to-transparent" />
-                    )}
-                    <Check className="h-4 w-4" strokeWidth={3} />
-                    {isCompleted ? "Đã hoàn thành" : "Hoàn thành"}
-                  </button>
-                </>
-              )}
+            <div className="flex min-w-0 flex-1 items-center justify-center">
+              <span className="truncate text-sm font-semibold text-navy">
+                Trang {slideIndex + 1} / {total}
+              </span>
             </div>
 
-            <button
-              onClick={() => goTo(slideIndex + 1)}
-              disabled={!canNext}
-              className={[
-                "flex flex-1 items-center justify-center gap-2 py-3 text-sm font-medium transition",
-                canNext
-                  ? "cursor-pointer text-navy hover:bg-muted"
-                  : "cursor-not-allowed text-muted-foreground opacity-40",
-              ].join(" ")}
-            >
-              Bài kế tiếp
-              <span
+            {isLastSlide ? (
+              <>
+                {showConfetti && <ConfettiBurst onDone={() => setShowConfetti(false)} />}
+                <button
+                  onClick={handleComplete}
+                  disabled={isCompleted}
+                  className={[
+                    "relative flex shrink-0 items-center justify-center gap-1.5 overflow-hidden rounded-none px-5 py-2.5 text-sm font-bold transition-colors sm:px-8",
+                    isCompleted
+                      ? "cursor-not-allowed bg-stage-1-soft text-stage-1-deep"
+                      : "cursor-pointer bg-stage-1 text-white hover:brightness-110",
+                  ].join(" ")}
+                >
+                  {!isCompleted && (
+                    <span className="pointer-events-none absolute inset-0 animate-shine bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+                  )}
+                  <Check className="h-4 w-4" strokeWidth={3} />
+                  {isCompleted ? "Đã hoàn thành" : "Hoàn thành"}
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => goTo(slideIndex + 1)}
+                disabled={!canNext}
                 className={[
-                  "grid h-6 w-6 shrink-0 place-items-center rounded-full",
-                  canNext ? color.bg : "bg-muted-foreground/20",
+                  "flex shrink-0 items-center justify-center gap-1.5 rounded-none px-5 py-2.5 text-sm font-bold text-white transition-colors sm:px-8",
+                  color.bg,
+                  canNext ? "cursor-pointer hover:brightness-110" : "cursor-not-allowed opacity-40",
                 ].join(" ")}
               >
-                <ChevronRight
-                  className={["h-4 w-4", canNext ? "text-white" : "text-muted-foreground"].join(
-                    " ",
-                  )}
-                  strokeWidth={3}
-                />
-              </span>
-            </button>
+                Tiếp tục
+                <ChevronRight className="h-4 w-4" strokeWidth={3} />
+              </button>
+            )}
           </div>
         </div>
       </div>
