@@ -101,20 +101,29 @@ export function Navbar() {
             {isLoading && <div className="h-9 w-9 animate-pulse rounded-full bg-muted sm:w-28" />}
 
             {!isLoading && !user && (
-              <div className="flex items-center gap-2">
+              <>
                 <button
                   onClick={() => openAuth("login")}
-                  className="rounded-md px-4 py-2 text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
+                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-foreground/70 transition hover:bg-muted sm:hidden"
+                  aria-label="Đăng nhập"
                 >
-                  Đăng nhập
+                  <User className="h-5 w-5" strokeWidth={2.5} />
                 </button>
-                <button
-                  onClick={() => openAuth("register")}
-                  className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-                >
-                  Đăng ký
-                </button>
-              </div>
+                <div className="hidden items-center gap-2 sm:flex">
+                  <button
+                    onClick={() => openAuth("login")}
+                    className="rounded-md px-4 py-2 text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
+                  >
+                    Đăng nhập
+                  </button>
+                  <button
+                    onClick={() => openAuth("register")}
+                    className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                  >
+                    Đăng ký
+                  </button>
+                </div>
+              </>
             )}
 
             {!isLoading && user && (
