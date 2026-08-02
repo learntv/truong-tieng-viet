@@ -56,7 +56,7 @@ export function InfoCarousel() {
               <figure
                 key={`${isClone ? "clone" : "orig"}-${i}`}
                 aria-hidden={isClone || undefined}
-                className="relative h-48 w-72 shrink-0 overflow-hidden rounded-2xl border border-border/60 shadow-card sm:h-64 sm:w-[26rem]"
+                className="relative h-48 w-72 shrink-0 overflow-hidden rounded-none border border-border/60 shadow-card sm:h-64 sm:w-[26rem]"
               >
                 <img
                   src={slide.src}

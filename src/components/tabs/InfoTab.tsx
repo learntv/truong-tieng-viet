@@ -124,11 +124,11 @@ const ROWS = [
 
 export function InfoTab() {
   return (
-    <div className="w-full">
+    <div className="w-full px-4 sm:px-6 lg:px-8">
       <InfoHero />
       <InfoCarousel />
 
-      <div id="gioi-thieu" className="mx-auto max-w-6xl scroll-mt-24 px-4 pt-8 pb-16 sm:px-6 sm:pt-12 sm:pb-24">
+      <div id="gioi-thieu" className="mx-auto max-w-6xl scroll-mt-24 pt-8 pb-16 sm:pt-12 sm:pb-24">
         <SectionHeader
           align="center"
           eyebrow="Về dự án"
@@ -180,7 +180,7 @@ export function InfoTab() {
         </div>
       </div>
 
-      <div id="lo-trinh" className="w-full scroll-mt-24 bg-rose-tint px-4 py-16 sm:px-6 sm:py-24">
+      <div id="lo-trinh" className="-mx-4 scroll-mt-24 bg-rose-tint px-4 py-16 sm:-mx-6 sm:px-6 sm:py-24 lg:-mx-8">
         <SectionHeader align="center" title="Lộ trình học thú vị" className="mb-10 sm:mb-12" />
         <InfoStats />
 
@@ -199,7 +199,7 @@ export function InfoTab() {
 
       {/* Lời cảm ơn — full-bleed deep red band with two soft squircle shapes
         bleeding off opposite corners, per the TTVCE-UI red theme. */}
-      <div className="relative overflow-hidden bg-maroon px-4 py-16 sm:px-6 sm:py-24">
+      <div className="relative -mx-4 overflow-hidden bg-maroon px-4 py-16 sm:-mx-6 sm:px-6 sm:py-24 lg:-mx-8">
         <div aria-hidden className="pointer-events-none absolute inset-0">
           <div
             className="absolute inset-0"
@@ -244,7 +244,7 @@ export function InfoTab() {
       </div>
 
       {/* Đồng hành / Call to action — light band after the maroon thank-you. */}
-      <div id="dong-hanh" className="w-full scroll-mt-24 bg-rose-tint px-4 py-16 sm:px-6 sm:py-24">
+      <div id="dong-hanh" className="-mx-4 scroll-mt-24 bg-rose-tint px-4 py-16 sm:-mx-6 sm:px-6 sm:py-24 lg:-mx-8">
         <div className="mx-auto max-w-3xl text-center">
           <h3 className="font-display text-2xl font-bold text-navy sm:text-3xl">
             Chung tay gieo hạt giống cội nguồn cho thế hệ mai sau
