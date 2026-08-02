@@ -322,6 +322,51 @@ function slideLabel(slide: Slide, index: number): string {
   return slide.baiCount > 1 ? `${base} (${slide.baiIndex + 1}/${slide.baiCount})` : base;
 }
 
+/** Back to the map + how far through the chặng the learner is. */
+function ChangProgressHeader({
+  color,
+  chuDeIndex,
+  slideIndex,
+  total,
+  isCompleted,
+  className,
+}: {
+  color: StageColor;
+  chuDeIndex: number;
+  slideIndex: number;
+  total: number;
+  isCompleted: boolean;
+  className: string;
+}) {
+  return (
+    <div className={["shrink-0 items-center gap-3 p-3", className].join(" ")}>
+      <BackToMapButton
+        color={color}
+        topicIndex={chuDeIndex}
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-[transform,box-shadow] ease-bounce active:translate-y-[2px]"
+        arrowClassName="h-5 w-5 shrink-0"
+        iconClassName="hidden"
+      />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="truncate text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+            {isCompleted ? "Đã hoàn thành" : "Tiến độ chặng"}
+          </span>
+          <span className="shrink-0 text-xs font-semibold text-navy">
+            {slideIndex + 1}/{total}
+          </span>
+        </div>
+        <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-muted">
+          <div
+            className={["h-full rounded-full transition-[width] duration-300", color.bg].join(" ")}
+            style={{ width: `${total > 0 ? ((slideIndex + 1) / total) * 100 : 0}%` }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** Left rail: the chặng's content items, the way Khan lists a lesson's videos/exercises. */
 function LessonSidebar({
   chuDe,
@@ -364,37 +409,16 @@ function LessonSidebar({
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-none border-border bg-card sm:rounded-2xl sm:border sm:shadow-card">
-      {/* Header row: the way back to the map, with the chặng's own progress filling the
-          space beside it. */}
-      <div className="flex shrink-0 items-center gap-3 p-3">
-        <BackToMapButton
-          color={color}
-          topicIndex={chuDeIndex}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-[transform,box-shadow] ease-bounce active:translate-y-[2px]"
-          arrowClassName="h-5 w-5 shrink-0"
-          iconClassName="hidden"
-        />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-baseline justify-between gap-2">
-            <span className="truncate text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
-              {isCompleted ? "Đã hoàn thành" : "Tiến độ chặng"}
-            </span>
-            <span className="shrink-0 text-xs font-semibold text-navy">
-              {slideIndex + 1}/{slides.length}
-            </span>
-          </div>
-          <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-muted">
-            <div
-              className={["h-full rounded-full transition-[width] duration-300", color.bg].join(
-                " ",
-              )}
-              style={{
-                width: `${slides.length > 0 ? ((slideIndex + 1) / slides.length) * 100 : 0}%`,
-              }}
-            />
-          </div>
-        </div>
-      </div>
+      {/* Desktop only: on mobile this same bar is pinned at the top of the page, outside
+          the drawer, so the way back and the progress stay visible without opening it. */}
+      <ChangProgressHeader
+        color={color}
+        chuDeIndex={chuDeIndex}
+        slideIndex={slideIndex}
+        total={slides.length}
+        isCompleted={isCompleted}
+        className="hidden lg:flex"
+      />
 
       {/* Breadcrumb + chặng stepper */}
       <div className="shrink-0 border-b border-border px-3 py-2.5">
@@ -787,6 +811,47 @@ export function LessonPage({ changId }: { changId: string }) {
 
   return (
     <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-surface-subtle">
+      {/* Mobile drawer for the rail. It lives at the page root, not inside the two-pane
+          row: the row is its own stacking context (z-10), so a drawer nested in there
+          could never rise above the z-20 progress bar below, however high its own z. */}
+      {mobileRailOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div
+            className="absolute inset-0 bg-black/40 animate-in fade-in"
+            onClick={() => setMobileRailOpen(false)}
+          />
+          <div className="absolute inset-y-0 left-0 w-[85%] max-w-sm animate-in slide-in-from-left duration-200">
+            <LessonSidebar
+              chuDe={chuDe}
+              chuDeIndex={topicIndex}
+              chang={chang}
+              changIndex={changIndex}
+              changCount={changs.length}
+              slides={slides}
+              slideIndex={slideIndex}
+              furthestIndex={furthestIndex}
+              isCompleted={isCompleted}
+              color={color}
+              prevChang={prevChang}
+              nextChang={nextChang}
+              onSelect={goTo}
+              onGoChang={goToChang}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Mobile: the rail is a drawer, so its back button and progress bar are pinned here
+          at the top of the page instead, where they're visible without opening it. */}
+      <ChangProgressHeader
+        color={color}
+        chuDeIndex={topicIndex}
+        slideIndex={slideIndex}
+        total={total}
+        isCompleted={isCompleted}
+        className="z-20 flex border-b border-border bg-card lg:hidden"
+      />
+
       {/* No padding on the row itself: any vertical padding here would also shorten the
           lesson pane, which has to run flush from the strip to the bottom of the window.
           The breathing room around the rail card lives on the rail alone. */}
@@ -816,34 +881,6 @@ export function LessonPage({ changId }: { changId: string }) {
           />
         </aside>
 
-        {/* Mobile drawer for the same rail */}
-        {mobileRailOpen && (
-          <div className="fixed inset-0 z-40 lg:hidden">
-            <div
-              className="absolute inset-0 bg-black/40 animate-in fade-in"
-              onClick={() => setMobileRailOpen(false)}
-            />
-            <div className="absolute inset-y-0 left-0 w-[85%] max-w-sm animate-in slide-in-from-left duration-200">
-              <LessonSidebar
-                chuDe={chuDe}
-                chuDeIndex={topicIndex}
-                chang={chang}
-                changIndex={changIndex}
-                changCount={changs.length}
-                slides={slides}
-                slideIndex={slideIndex}
-                furthestIndex={furthestIndex}
-                isCompleted={isCompleted}
-                color={color}
-                prevChang={prevChang}
-                nextChang={nextChang}
-                onSelect={goTo}
-                onGoChang={goToChang}
-              />
-            </div>
-          </div>
-        )}
-
         {/* Main content */}
         <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-card lg:border-l lg:border-border">
           {/* Collapse handle: an oval tab riding the lesson panel's own left edge. */}
@@ -862,25 +899,16 @@ export function LessonPage({ changId }: { changId: string }) {
           </button>
 
           {/* Lesson header strip: slide number, nội dung title, and the bài instruction
-              text with its audio button — plus the rail/map controls while the rail is a
-              drawer, and the mobile step count. */}
-          <div className="flex shrink-0 items-start gap-2 border-b border-border bg-secondary/15 px-3 py-2 sm:gap-3 sm:px-4">
-            <div className="flex shrink-0 items-center gap-1 lg:hidden">
-              <BackToMapButton
-                color={color}
-                topicIndex={topicIndex}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-[transform,box-shadow] ease-bounce active:translate-y-[2px]"
-                arrowClassName="h-4 w-4 shrink-0"
-                iconClassName="hidden"
-              />
-              <button
-                onClick={() => setMobileRailOpen(true)}
-                aria-label="Danh sách bài"
-                className="grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-full text-navy transition hover:bg-muted"
-              >
-                <Menu className="h-4 w-4" strokeWidth={2.5} />
-              </button>
-            </div>
+              text with its audio button — plus the rail toggle while the rail is a drawer
+              (the way back to the map lives inside that drawer). */}
+          <div className="flex shrink-0 items-center gap-2 border-b border-border bg-secondary/15 px-3 py-2 sm:gap-3 sm:px-4">
+            <button
+              onClick={() => setMobileRailOpen(true)}
+              aria-label="Danh sách bài"
+              className="grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-full text-navy transition hover:bg-muted lg:hidden"
+            >
+              <Menu className="h-4 w-4" strokeWidth={2.5} />
+            </button>
 
             <span
               className={[
@@ -890,30 +918,30 @@ export function LessonPage({ changId }: { changId: string }) {
             >
               {slideIndex + 1}
             </span>
-            <div className="min-w-0 flex-1">
-              {bai?.texts.map((t, i) => (
-                <p
-                  key={i}
-                  className="whitespace-pre-line font-display text-sm font-semibold text-navy sm:text-base"
-                >
-                  {currentNoiDung?.title && i === 0 && (
-                    <span className="mr-1 inline-flex items-center gap-1 align-middle text-sm font-semibold text-stage-2-deep sm:text-base">
-                      {currentNoiDung.title}
-                      <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-70" />
-                    </span>
-                  )}
-                  {t}
-                  {hasSpeakableText && i === bai.texts.length - 1 && (
-                    <span className="ml-2 inline-flex align-middle">
-                      <AudioButton src={manualAudioUrl ?? ttsSrc(joinForSpeech(bai.texts))} />
-                    </span>
-                  )}
-                </p>
-              ))}
+            {/* Text and its audio button are one wrapping flex line, so the button hugs the
+                end of the text instead of being flung to the row's far edge — and when the
+                text takes the full width the button drops flush to the left, not indented. */}
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
+              <div className="min-w-0">
+                {bai?.texts.map((t, i) => (
+                  <p
+                    key={i}
+                    className="whitespace-pre-line font-display text-sm font-semibold text-navy sm:text-base"
+                  >
+                    {currentNoiDung?.title && i === 0 && (
+                      <span className="mr-1 inline-flex items-center gap-1 align-middle text-sm font-semibold text-stage-2-deep sm:text-base">
+                        {currentNoiDung.title}
+                        <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-70" />
+                      </span>
+                    )}
+                    {t}
+                  </p>
+                ))}
+              </div>
+              {hasSpeakableText && (
+                <AudioButton src={manualAudioUrl ?? ttsSrc(joinForSpeech(bai.texts))} />
+              )}
             </div>
-            <span className="shrink-0 text-xs font-semibold text-muted-foreground lg:hidden">
-              {slideIndex + 1}/{total}
-            </span>
           </div>
 
           <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-card p-3 sm:overflow-hidden sm:px-8 sm:py-4">
