@@ -212,12 +212,13 @@ export function Navbar() {
         {/* Row 2 — nav links, desktop only (mobile uses the sidebar drawer) */}
         <div className="hidden border-t border-border/60 min-[900px]:block">
           <nav aria-label="Global" className="mx-auto max-w-6xl px-4 sm:px-6">
-            <ul className="flex items-center justify-center gap-8 py-3 text-sm">
-              {tabs.map(({ to, label }) => {
+            <ul className="flex items-center justify-center py-3 text-sm">
+              {tabs.map(({ to, label }, index) => {
                 const isActive = pathname === to || pathname.startsWith(`${to}/`);
 
                 return (
-                  <li key={to}>
+                  <li key={to} className="flex items-center">
+                    <span className="mx-8 h-4 w-px bg-border" aria-hidden="true" />
                     <Link
                       to={to}
                       className={[
@@ -229,6 +230,9 @@ export function Navbar() {
                     >
                       {label}
                     </Link>
+                    {index === tabs.length - 1 && (
+                      <span className="mx-8 h-4 w-px bg-border" aria-hidden="true" />
+                    )}
                   </li>
                 );
               })}
