@@ -45,7 +45,7 @@ function LinkColumn({
 }) {
   return (
     <div>
-      <h4 className="mb-4 font-display text-sm font-extrabold text-white">{title}</h4>
+      <h4 className="mb-4 font-display text-sm font-bold text-white">{title}</h4>
       <ul className="flex flex-col gap-2.5">
         {links.map(({ label, to }) => (
           <li key={label}>

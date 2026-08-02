@@ -39,7 +39,7 @@ function GoogleButton({ onClick, loading }: { onClick: () => void; loading: bool
       type="button"
       onClick={onClick}
       disabled={loading}
-      className="flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-white px-4 py-2.5 text-sm font-semibold text-foreground shadow-sm transition-all hover:bg-muted disabled:opacity-60"
+      className="flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-white px-4 py-2.5 text-sm font-medium text-foreground shadow-sm transition-all hover:bg-muted disabled:opacity-60"
     >
       {loading ? (
         <Loader2 className="h-4 w-4 animate-spin" />
@@ -222,7 +222,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-display text-center text-xl font-extrabold text-navy">
+          <DialogTitle className="font-display text-center text-xl font-bold text-navy">
             Trường Tiếng Việt Của Em
           </DialogTitle>
         </DialogHeader>

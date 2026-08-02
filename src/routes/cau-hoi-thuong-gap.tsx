@@ -100,7 +100,7 @@ function FAQ() {
               key={q}
               className="group rounded-2xl border border-border bg-card p-5 [&_summary::-webkit-details-marker]:hidden"
             >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-base font-extrabold text-foreground sm:text-lg">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-base font-bold text-foreground sm:text-lg">
                 {q}
                 <span className="shrink-0 text-primary transition-transform group-open:rotate-45">
                   +

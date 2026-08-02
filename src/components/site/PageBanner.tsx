@@ -43,7 +43,7 @@ export function PageBanner({
       <div className="relative mx-auto max-w-6xl text-center">
         {back && <div className="absolute left-0 top-0 z-10">{back}</div>}
         {illustration && <div className="mb-3 flex justify-center">{illustration}</div>}
-        <h1 className="font-display text-3xl font-extrabold text-white sm:text-4xl">{title}</h1>
+        <h1 className="font-display text-3xl font-bold text-white sm:text-4xl">{title}</h1>
         {subtitle && (
           <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-gold-soft/90 sm:text-base">
             {subtitle}

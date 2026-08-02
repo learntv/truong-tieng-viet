@@ -20,7 +20,7 @@ export function SectionHeader({
       {eyebrow && (
         <p
           className={cn(
-            "mb-2 text-xs font-bold uppercase tracking-wider",
+            "mb-2 text-xs font-semibold uppercase tracking-wider",
             light ? "text-white/70" : "text-primary",
           )}
         >
@@ -29,7 +29,7 @@ export function SectionHeader({
       )}
       <h2
         className={cn(
-          "font-display text-3xl font-extrabold sm:text-4xl",
+          "font-display text-3xl font-bold sm:text-4xl",
           light ? "text-white" : "text-navy",
         )}
       >

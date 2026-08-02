@@ -38,10 +38,10 @@ export function InfoStats() {
             className={`px-4 text-center ${i === 1 ? "sm:border-l sm:border-primary/15" : ""}`}
           >
             <div className="flex items-baseline justify-center gap-2">
-              <span className="font-display text-6xl leading-none font-extrabold text-primary sm:text-7xl">
+              <span className="font-display text-6xl leading-none font-bold text-primary sm:text-7xl">
                 {m.value}
               </span>
-              <span className="text-sm font-bold tracking-[0.1em] text-primary/70 uppercase">
+              <span className="text-sm font-semibold tracking-[0.1em] text-primary/70 uppercase">
                 {m.unit}
               </span>
             </div>
@@ -58,7 +58,7 @@ export function InfoStats() {
             key={f.title}
             className={`px-4 text-center ${i === 1 ? "sm:border-l sm:border-primary/15" : ""}`}
           >
-            <div className="font-display text-xl leading-tight font-extrabold text-primary sm:text-2xl">
+            <div className="font-display text-xl leading-tight font-bold text-primary sm:text-2xl">
               {f.title}
             </div>
             <p className="mx-auto mt-1 max-w-xs text-sm leading-relaxed text-muted-foreground">

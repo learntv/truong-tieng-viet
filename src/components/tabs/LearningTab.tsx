@@ -295,7 +295,7 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
                 /* keep card visible until user dismisses */
               }}
             />
-            <p className="font-display text-xl font-extrabold text-navy sm:text-2xl">
+            <p className="font-display text-xl font-bold text-navy sm:text-2xl">
               🎉 Em đã hoàn thành cả lộ trình! Em giỏi lắm!
             </p>
             <Button variant="bevel" tone="stage-4" onClick={dismissCelebration} className="mt-6">

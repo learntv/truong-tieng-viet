@@ -132,7 +132,7 @@ function ProgramCard({ item }: { item: Item }) {
         </div>
 
         <div className="flex flex-1 flex-col gap-1 border-t border-border p-5">
-          <span className="text-xs font-bold uppercase tracking-wide text-primary">
+          <span className="text-xs font-semibold uppercase tracking-wide text-primary">
             {item.category}
           </span>
           <h2 className="font-display text-lg font-bold text-ink group-hover:underline">

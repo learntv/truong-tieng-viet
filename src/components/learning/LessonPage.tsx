@@ -129,7 +129,7 @@ function VideoEmbed({ url }: { url: string }) {
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex shrink-0 items-center gap-1 self-start text-xs font-bold text-primary hover:underline"
+          className="inline-flex shrink-0 items-center gap-1 self-start text-xs font-medium text-primary hover:underline"
         >
           <ExternalLink className="h-3.5 w-3.5" />
           Video không phát được? Mở trên YouTube
@@ -424,7 +424,7 @@ export function LessonPage({ changId }: { changId: string }) {
     return (
       <div className="flex h-dvh w-full flex-col items-center justify-center bg-background px-4 text-center">
         <div className="mb-4 text-6xl">🔍</div>
-        <h1 className="mb-2 font-display text-2xl font-extrabold text-navy">
+        <h1 className="mb-2 font-display text-2xl font-bold text-navy">
           Không tìm thấy bài học
         </h1>
         <p className="mb-6 text-muted-foreground">Chặng học này không tồn tại hoặc đã bị xóa.</p>
@@ -554,14 +554,14 @@ export function LessonPage({ changId }: { changId: string }) {
 
         {/* Breadcrumb: chuDe.title already reads "Chủ đề N: Name", so it stands alone. */}
         <div
-          className={["min-w-0 flex-1 truncate text-xs font-bold sm:text-sm", color.text].join(" ")}
+          className={["min-w-0 flex-1 truncate text-xs font-semibold sm:text-sm", color.text].join(" ")}
         >
           {chuDe.title}
         </div>
 
         <div
           className={[
-            "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-extrabold text-white sm:px-3 sm:py-1.5 sm:text-xs",
+            "shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white sm:px-3 sm:py-1.5 sm:text-xs",
             color.bg,
           ].join(" ")}
         >
@@ -615,10 +615,10 @@ export function LessonPage({ changId }: { changId: string }) {
               {bai?.texts.map((t, i) => (
                 <p
                   key={i}
-                  className="whitespace-pre-line font-display text-sm font-bold text-navy sm:text-base"
+                  className="whitespace-pre-line font-display text-sm font-semibold text-navy sm:text-base"
                 >
                   {currentNoiDung?.title && i === 0 && (
-                    <span className="mr-1 inline-flex items-center gap-1 align-middle text-sm font-bold text-stage-2-deep sm:text-base">
+                    <span className="mr-1 inline-flex items-center gap-1 align-middle text-sm font-semibold text-stage-2-deep sm:text-base">
                       {currentNoiDung.title}
                       <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-70" />
                     </span>
@@ -632,7 +632,7 @@ export function LessonPage({ changId }: { changId: string }) {
                 </p>
               ))}
             </div>
-            <span className="shrink-0 text-xs font-extrabold text-muted-foreground sm:hidden">
+            <span className="shrink-0 text-xs font-semibold text-muted-foreground sm:hidden">
               {slideIndex + 1}/{total}
             </span>
           </div>
@@ -727,7 +727,7 @@ export function LessonPage({ changId }: { changId: string }) {
               onClick={() => goTo(slideIndex - 1)}
               disabled={!canPrev}
               className={[
-                "flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-bold text-navy transition",
+                "flex flex-1 items-center justify-center gap-1.5 py-3 text-sm font-medium text-navy transition",
                 canPrev ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed opacity-40",
               ].join(" ")}
             >
@@ -748,7 +748,7 @@ export function LessonPage({ changId }: { changId: string }) {
                     onClick={handleComplete}
                     disabled={isCompleted}
                     className={[
-                      "relative flex h-full w-full items-center justify-center gap-1.5 overflow-hidden text-sm font-bold transition-[transform,border-color] ease-bounce",
+                      "relative flex h-full w-full items-center justify-center gap-1.5 overflow-hidden text-sm font-extrabold transition-[transform,border-color] ease-bounce",
                       isCompleted
                         ? "cursor-not-allowed bg-stage-1-soft text-stage-1-deep"
                         : "cursor-pointer border-b-4 border-stage-1-deep bg-stage-1 text-white hover:brightness-110 active:translate-y-1 active:border-b-0",
@@ -768,7 +768,7 @@ export function LessonPage({ changId }: { changId: string }) {
               onClick={() => goTo(slideIndex + 1)}
               disabled={!canNext}
               className={[
-                "flex flex-1 items-center justify-center gap-2 py-3 text-sm font-bold transition",
+                "flex flex-1 items-center justify-center gap-2 py-3 text-sm font-medium transition",
                 canNext
                   ? "cursor-pointer text-navy hover:bg-muted"
                   : "cursor-not-allowed text-muted-foreground opacity-40",
@@ -819,10 +819,10 @@ export function LessonPage({ changId }: { changId: string }) {
                 {nextChang.emoji}
               </span>
               <span className="min-w-0">
-                <span className="block text-xs font-extrabold uppercase tracking-wide text-muted-foreground">
+                <span className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Bài kế tiếp
                 </span>
-                <span className="block truncate font-display text-sm font-extrabold text-navy">
+                <span className="block truncate font-display text-sm font-semibold text-navy">
                   {nextChang.title}
                 </span>
               </span>
@@ -839,10 +839,10 @@ export function LessonPage({ changId }: { changId: string }) {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-300">
           <div className="relative w-full max-w-md overflow-hidden rounded-3xl border-2 border-black/10 bg-white p-8 pt-10 text-center shadow-[0_10px_40px_-10px_rgba(0,0,0,0.35)] animate-in zoom-in-95 duration-300">
             <ConfettiBurst onDone={() => { /* keep card visible until claimed */ }} />
-            <p className="font-display text-sm font-extrabold uppercase tracking-wide text-stage-2-deep">
+            <p className="font-display text-sm font-semibold uppercase tracking-wide text-stage-2-deep">
               Chúc mừng!
             </p>
-            <h2 className="mt-1 font-display text-2xl font-extrabold text-navy sm:text-3xl">
+            <h2 className="mt-1 font-display text-2xl font-bold text-navy sm:text-3xl">
               Em đã sưu tầm được huy hiệu mới
             </h2>
             <div className="relative mx-auto mt-6 grid place-items-center">
@@ -857,7 +857,7 @@ export function LessonPage({ changId }: { changId: string }) {
                 </span>
               </div>
             </div>
-            <p className="mt-6 font-display text-lg font-extrabold text-navy">
+            <p className="mt-6 font-display text-lg font-bold text-navy">
               {earnedBadge.name}
             </p>
             <p className="mt-1 text-sm text-muted-foreground">

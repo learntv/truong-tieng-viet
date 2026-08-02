@@ -113,7 +113,7 @@ function KpiCell({
       </div>
       {sub && (
         <div
-          className={`mt-1.5 truncate text-xs font-medium ${
+          className={`mt-1.5 truncate text-xs font-semibold ${
             deltaTone === "up"
               ? "text-emerald-600 dark:text-emerald-400"
               : deltaTone === "down"
@@ -178,7 +178,7 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
           >
             <FlagImg code={hovered.code} size={18} />
             <span>{countryLabel(hovered.code)}</span>
-            <span className="font-bold text-primary">
+            <span className="font-semibold text-primary">
               {hovered.count.toLocaleString("en-US")} học sinh
             </span>
           </div>

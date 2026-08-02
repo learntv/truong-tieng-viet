@@ -30,7 +30,7 @@ export function StatTile({
       >
         <Icon className="h-6 w-6" strokeWidth={2.25} />
       </span>
-      <div className={cn("font-display text-3xl font-extrabold", light ? "text-white" : "text-navy")}>
+      <div className={cn("font-display text-3xl font-bold", light ? "text-white" : "text-navy")}>
         {value}
       </div>
       <p className={cn("text-sm", light ? "text-white/70" : "text-muted-foreground")}>{label}</p>

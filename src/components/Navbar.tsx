@@ -98,7 +98,7 @@ export function Navbar() {
                     <Link
                       to={to}
                       className={[
-                        "whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-bold transition-colors",
+                        "whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
                         isActive
                           ? "bg-primary text-white"
                           : "text-foreground/70 hover:bg-muted hover:text-foreground",
@@ -117,7 +117,7 @@ export function Navbar() {
               {!isLoading && !user && (
                 <button
                   onClick={() => setAuthOpen(true)}
-                  className="flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-bold text-primary-foreground transition-all hover:bg-primary/90"
+                  className="flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90"
                 >
                   <User className="h-4 w-4" strokeWidth={2.5} />
                   <span className="hidden sm:inline">Đăng nhập</span>
@@ -130,7 +130,7 @@ export function Navbar() {
                     <button
                       aria-current={onProfile ? "page" : undefined}
                       className={[
-                        "relative h-9 w-9 overflow-hidden rounded-full bg-primary text-sm font-bold text-white shadow-sm transition-all",
+                        "relative h-9 w-9 overflow-hidden rounded-full bg-primary text-sm font-medium text-white shadow-sm transition-all",
                         "ring-2 ring-offset-2 ring-offset-white",
                         onProfile
                           ? "ring-primary"
@@ -156,7 +156,7 @@ export function Navbar() {
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-52">
-                    <DropdownMenuLabel className="font-bold text-navy truncate">
+                    <DropdownMenuLabel className="font-medium text-navy truncate">
                       {displayName}
                     </DropdownMenuLabel>
                     {myUsername && (
@@ -239,7 +239,7 @@ export function Navbar() {
                     to={to}
                     onClick={closeSidebar}
                     className={[
-                      "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all",
+                      "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all",
                       isActive
                         ? "bg-primary text-white shadow-sm"
                         : "text-foreground/70 hover:bg-muted hover:text-foreground",
@@ -265,7 +265,7 @@ export function Navbar() {
                     to="/u/$username"
                     params={{ username: myUsername }}
                     onClick={closeSidebar}
-                    className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-foreground/70 hover:bg-muted hover:text-foreground transition-all"
+                    className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-foreground/70 hover:bg-muted hover:text-foreground transition-all"
                   >
                     <UserCircle className="h-5 w-5 shrink-0" strokeWidth={2.5} />
                     <span>Trang cá nhân</span>
@@ -276,7 +276,7 @@ export function Navbar() {
                     signOut();
                     closeSidebar();
                   }}
-                  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-destructive hover:bg-destructive/10 transition-all"
+                  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-all"
                 >
                   <LogOut className="h-5 w-5 shrink-0" strokeWidth={2.5} />
                   <span>Đăng xuất</span>
@@ -288,7 +288,7 @@ export function Navbar() {
                   setAuthOpen(true);
                   closeSidebar();
                 }}
-                className="flex w-full items-center gap-3 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-primary/90"
+                className="flex w-full items-center gap-3 rounded-2xl bg-primary px-4 py-3 text-sm font-medium text-white shadow-sm transition-all hover:bg-primary/90"
               >
                 <User className="h-5 w-5 shrink-0" strokeWidth={2.5} />
                 <span>Đăng nhập</span>

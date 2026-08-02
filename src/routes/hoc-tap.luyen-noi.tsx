@@ -79,7 +79,7 @@ function TopicCard({ card }: { card: TopicCardData }) {
       </div>
 
       <div className="px-4 pb-4 pt-1">
-        <p className="font-display text-base font-bold leading-tight text-white drop-shadow-sm">
+        <p className="font-display text-base font-extrabold leading-tight text-white drop-shadow-sm">
           {card.label}
         </p>
         <p className="mt-1 text-xs font-semibold text-white/80">{card.total} câu luyện nói</p>
@@ -90,7 +90,7 @@ function TopicCard({ card }: { card: TopicCardData }) {
             style={{ width: card.total > 0 ? `${(card.perfect / card.total) * 100}%` : "0%" }}
           />
         </div>
-        <div className="mt-2 flex items-center justify-center gap-3 text-xs font-bold">
+        <div className="mt-2 flex items-center justify-center gap-3 text-xs font-semibold">
           <span className="inline-flex items-center gap-1 text-accent-soft">
             <Star className="h-3.5 w-3.5 fill-accent text-accent" />
             {card.perfect} tròn

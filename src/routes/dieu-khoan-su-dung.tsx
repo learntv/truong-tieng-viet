@@ -24,7 +24,7 @@ const LAST_UPDATED = "21 tháng 7, 2026";
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mb-10">
-      <h2 className="mb-3 font-display text-xl font-extrabold text-foreground sm:text-2xl">
+      <h2 className="mb-3 font-display text-xl font-bold text-foreground sm:text-2xl">
         {title}
       </h2>
       <div className="flex flex-col gap-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
@@ -146,7 +146,7 @@ function TermsOfService() {
         <hr className="my-12 border-border" />
 
         {/* English version */}
-        <h2 className="mb-2 font-display text-2xl font-extrabold text-foreground">
+        <h2 className="mb-2 font-display text-2xl font-bold text-foreground">
           Terms of Service (English)
         </h2>
         <p className="mb-8 text-sm text-muted-foreground">Last updated: {LAST_UPDATED}</p>

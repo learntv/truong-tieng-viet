@@ -124,13 +124,13 @@ export function InfoHero() {
       <div className="relative mx-auto flex max-w-3xl flex-1 flex-col justify-center px-4 pb-12 pt-32 text-center sm:px-6 sm:pb-16 sm:pt-36 lg:pt-40">
         {/* self-center keeps the pill shrink-to-fit: as a flex-column child it
           would otherwise stretch to the full container width. */}
-        <span className="self-center rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-primary">
+        <span className="self-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-primary">
           Thông tin dự án
         </span>
         {/* Sized to keep "Trường Tiếng Việt Của Em" on two lines, breaking
           after "Việt" rather than orphaning "Em" onto a third. LCP element —
           no entry animation so the browser paints it immediately. */}
-        <h1 className="mt-5 font-display text-[2rem] font-extrabold leading-[1.12] text-navy sm:text-5xl lg:text-6xl">
+        <h1 className="mt-5 font-display text-[2rem] font-bold leading-[1.12] text-navy sm:text-5xl lg:text-6xl">
           Trường Tiếng Việt Của Em
         </h1>
         <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
@@ -141,7 +141,7 @@ export function InfoHero() {
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link
             to="/hoc-tap"
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-bold text-primary-foreground shadow-card transition-colors hover:bg-primary/90 sm:text-base"
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground shadow-card transition-colors hover:bg-primary/90 sm:text-base"
           >
             Học ngay
             <ArrowRight className="h-5 w-5" />
@@ -155,7 +155,7 @@ export function InfoHero() {
                 .getElementById("lo-trinh")
                 ?.scrollIntoView({ behavior: "smooth", block: "start" });
             }}
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-7 py-3.5 text-sm font-bold text-navy transition-colors hover:border-primary/40 hover:text-primary sm:text-base"
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-7 py-3.5 text-sm font-medium text-navy transition-colors hover:border-primary/40 hover:text-primary sm:text-base"
           >
             <Map className="h-5 w-5" />
             Khám phá lộ trình
@@ -166,7 +166,7 @@ export function InfoHero() {
           that implied a userbase we cannot vouch for. */}
         <p className="mt-7 text-sm font-medium text-muted-foreground">
           Chơi mà học, học mà chơi — cùng{" "}
-          <strong className="font-bold text-primary">Trâu Con</strong> khám phá tiếng Việt mỗi ngày
+          <strong className="font-semibold text-primary">Trâu Con</strong> khám phá tiếng Việt mỗi ngày
         </p>
       </div>
 

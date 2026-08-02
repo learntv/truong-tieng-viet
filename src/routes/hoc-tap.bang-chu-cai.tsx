@@ -128,7 +128,7 @@ function BangChuCaiTab() {
             <Mascot pose="reading" decorative className="h-16 sm:h-20" />
             <div className="min-w-0 flex-1">
               <div className="mb-2 flex items-center justify-between gap-2">
-                <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Đã khám phá
                 </span>
                 <Badge variant="stage-1">
@@ -143,7 +143,7 @@ function BangChuCaiTab() {
             <a
               href={ALPHABET_PDF_URL}
               download
-              className="flex cursor-pointer items-center gap-2 rounded-full bg-stage-1 px-4 py-2 text-sm font-bold text-white shadow-card transition hover:brightness-110 active:translate-y-[1px]"
+              className="flex cursor-pointer items-center gap-2 rounded-full bg-stage-1 px-4 py-2 text-sm font-medium text-white shadow-card transition hover:brightness-110 active:translate-y-[1px]"
             >
               <Download className="h-4 w-4" />
               Tải PDF bảng chữ cái
@@ -201,7 +201,7 @@ function LetterCard({
           alt={`Bạn thú chữ ${letter.letter}`}
           className="h-1/2 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
         />
-        <span className="font-display text-xl font-bold text-ink sm:text-2xl">
+        <span className="font-display text-xl font-extrabold text-ink sm:text-2xl">
           {letter.letter.toUpperCase()}/{letter.letter}
         </span>
       </button>
@@ -270,7 +270,7 @@ function WordRow({ word, color }: { word: AlphabetWord; color: StageColor }) {
       >
         <span className="text-3xl transition-transform group-hover:scale-110">{word.emoji}</span>
         <span className="flex-1">
-          <span className="block font-display text-base font-bold text-ink">{word.vi}</span>
+          <span className="block font-display text-base font-extrabold text-ink">{word.vi}</span>
           <span className="block text-sm text-muted-foreground">{word.en}</span>
         </span>
       </button>

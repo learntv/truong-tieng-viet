@@ -119,7 +119,7 @@ function BangXepHang() {
                         {rankStyle ? (
                           <span className="text-2xl leading-none">{rankStyle.emoji}</span>
                         ) : (
-                          <span className="font-display text-sm font-bold text-muted-foreground">
+                          <span className="font-display text-sm font-semibold text-muted-foreground">
                             {rank}
                           </span>
                         )}
@@ -128,7 +128,7 @@ function BangXepHang() {
                       {/* Avatar */}
                       <div
                         className={[
-                          "h-10 w-10 shrink-0 rounded-full overflow-hidden flex items-center justify-center font-extrabold font-display shadow-sm ring-2 ring-white",
+                          "h-10 w-10 shrink-0 rounded-full overflow-hidden flex items-center justify-center font-semibold font-display shadow-sm ring-2 ring-white",
                           profile.avatar_url || profile.avatar_emoji
                             ? "bg-sky/30"
                             : avatarColor(avatarLetter),
@@ -151,7 +151,7 @@ function BangXepHang() {
                       {/* Name + username */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 min-w-0">
-                          <span className="font-display font-bold text-navy truncate">
+                          <span className="font-display font-semibold text-navy truncate">
                             {profile.display_name}
                           </span>
                           {profile.country && (
@@ -171,7 +171,7 @@ function BangXepHang() {
 
                       {/* Score */}
                       <div className="shrink-0 text-right">
-                        <div className="font-display text-lg font-extrabold text-navy leading-none">
+                        <div className="font-display text-lg font-bold text-navy leading-none">
                           {profile.completed_count}
                         </div>
                         <div className="text-[10px] font-semibold text-muted-foreground leading-tight">

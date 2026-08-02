@@ -39,7 +39,7 @@ export function BadgeCollection({
 
   return (
     <div className="rounded-3xl bg-white ring-1 ring-border shadow-card p-6 mb-6">
-      <h2 className="mb-4 font-display text-lg font-extrabold text-navy">{title}</h2>
+      <h2 className="mb-4 font-display text-lg font-bold text-navy">{title}</h2>
 
       {earnedCount === 0 && <p className="text-sm text-muted-foreground">{emptyHint}</p>}
 
@@ -86,7 +86,7 @@ export function BadgeCollection({
           {zoomed && (
             <div className="flex flex-col items-center text-center">
               <BadgeMedal badge={zoomed} earned={zoomedEarned} size="xl" />
-              <DialogTitle className="mt-4 font-display text-xl font-extrabold text-navy">
+              <DialogTitle className="mt-4 font-display text-xl font-bold text-navy">
                 {zoomed.name}
               </DialogTitle>
               <DialogDescription className="mt-1 text-sm">

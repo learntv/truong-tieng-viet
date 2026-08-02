@@ -25,11 +25,11 @@ export const Route = createFileRoute("/huong-dan-su-dung")({
 function Step({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
   return (
     <section className="mb-8 flex gap-4">
-      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary font-display font-extrabold text-white">
+      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary font-display font-semibold text-white">
         {n}
       </div>
       <div>
-        <h2 className="mb-2 font-display text-lg font-extrabold text-foreground sm:text-xl">
+        <h2 className="mb-2 font-display text-lg font-bold text-foreground sm:text-xl">
           {title}
         </h2>
         <div className="flex flex-col gap-2 text-sm leading-relaxed text-muted-foreground sm:text-base">

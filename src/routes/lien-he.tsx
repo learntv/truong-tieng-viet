@@ -89,13 +89,13 @@ function Contact() {
                 <span className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   {label}
                 </span>
-                <span className="font-display font-extrabold text-foreground">{value}</span>
+                <span className="font-display font-semibold text-foreground">{value}</span>
               </span>
             </a>
           ))}
         </div>
 
-        <h2 className="mb-4 mt-10 font-display text-xl font-extrabold text-foreground">
+        <h2 className="mb-4 mt-10 font-display text-xl font-bold text-foreground">
           Theo dõi chúng tôi
         </h2>
         <div className="flex items-center gap-3">

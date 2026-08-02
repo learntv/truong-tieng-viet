@@ -27,7 +27,7 @@ export function Logo({
       <div className="text-left leading-tight">
         <div
           className={cn(
-            "font-display font-extrabold leading-none",
+            "font-display font-bold leading-none",
             text,
             light ? "text-white" : "text-primary",
           )}
@@ -36,7 +36,7 @@ export function Logo({
         </div>
         <div
           className={cn(
-            "font-display font-extrabold leading-none",
+            "font-display font-bold leading-none",
             text,
             light ? "text-white/85" : "text-navy",
           )}

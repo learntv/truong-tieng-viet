@@ -201,7 +201,7 @@ export function OverworldMap({
               </Link>
 
               {/* Journey progress, kept on the map itself rather than in a header bar. */}
-              <div className="absolute right-3 top-3 z-30 rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-extrabold text-navy shadow-card">
+              <div className="absolute right-3 top-3 z-30 rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-semibold text-navy shadow-card">
                 {doneCount}/{landmarks.length} chủ đề
               </div>
 
@@ -301,7 +301,7 @@ export function OverworldMap({
                               </span>
                             ) : null}
                           </button>
-                          <span className="whitespace-nowrap rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-extrabold text-navy shadow-card">
+                          <span className="whitespace-nowrap rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-semibold text-navy shadow-card">
                             {lm.name}
                           </span>
                         </div>
@@ -327,7 +327,7 @@ export function OverworldMap({
                           />
                           {/* Scrim so the chủ đề badge stays legible over any photo. */}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
-                          <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[0.12em] text-navy">
+                          <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-navy">
                             {status === "coming-soon" ? "Sắp có" : `Chủ đề ${lm.chuDeIndex + 1}`}
                           </span>
                           {status === "completed" && (
@@ -338,7 +338,7 @@ export function OverworldMap({
                         </div>
 
                         <div className="p-4">
-                          <h2 className="font-display text-base font-extrabold leading-tight text-navy">
+                          <h2 className="font-display text-base font-bold leading-tight text-navy">
                             {lm.name}
                           </h2>
                           <p className="mt-1 text-xs leading-snug text-muted-foreground">
@@ -356,7 +356,7 @@ export function OverworldMap({
                             </p>
                           ) : (
                             <>
-                              <div className="mt-3 flex items-center justify-between text-[11px] font-bold text-navy/70">
+                              <div className="mt-3 flex items-center justify-between text-[11px] font-semibold text-navy/70">
                                 <span>
                                   {stats.done}/{stats.total} chặng
                                 </span>

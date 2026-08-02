@@ -198,13 +198,13 @@ export function SpeakingPractice({
     return (
       <div className="mx-auto max-w-lg px-4 py-20 text-center">
         <div className="mb-4 text-6xl">🎤</div>
-        <h1 className="mb-2 font-display text-2xl font-extrabold text-navy">
+        <h1 className="mb-2 font-display text-2xl font-bold text-navy">
           Chủ đề này chưa có câu luyện
         </h1>
         <p className="mb-6 text-muted-foreground">Em chọn chủ đề khác để luyện nói nhé!</p>
         <Link
           to="/hoc-tap/luyen-noi"
-          className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-primary/90"
+          className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/90"
         >
           <ArrowLeft className="h-4 w-4" />
           Chọn chủ đề khác
@@ -258,7 +258,7 @@ export function SpeakingPractice({
           <span className="text-3xl leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
             {emoji}
           </span>
-          <h1 className="font-display text-xl font-extrabold text-white drop-shadow-sm sm:text-2xl">
+          <h1 className="font-display text-xl font-bold text-white drop-shadow-sm sm:text-2xl">
             {title}
           </h1>
         </div>
@@ -274,7 +274,7 @@ export function SpeakingPractice({
               style={{ width: `${((index + 1) / sentences.length) * 100}%` }}
             />
           </div>
-          <p className="mb-5 text-xs font-bold text-muted-foreground">
+          <p className="mb-5 text-xs font-semibold text-muted-foreground">
             Câu {index + 1}/{sentences.length}
           </p>
 
@@ -303,7 +303,7 @@ export function SpeakingPractice({
                     result.words.map((w, i) => (
                       <span
                         key={i}
-                        className="rounded-lg px-1 py-0.5 font-display text-2xl font-extrabold sm:text-3xl"
+                        className="rounded-lg px-1 py-0.5 font-display text-2xl font-bold sm:text-3xl"
                       >
                         {w.matched ? (
                           <span className="text-navy">{w.word}</span>
@@ -328,7 +328,7 @@ export function SpeakingPractice({
                       </span>
                     ))
                   ) : (
-                    <p className="font-display text-2xl font-extrabold leading-snug text-navy sm:text-3xl">
+                    <p className="font-display text-2xl font-bold leading-snug text-navy sm:text-3xl">
                       {sentence?.text}
                     </p>
                   )}
@@ -364,7 +364,7 @@ export function SpeakingPractice({
                   in it yet) so the card doesn't grow/shrink once grading lands. */}
                 <div className="mb-6 flex min-h-[2.25rem] items-center justify-center text-center sm:min-h-[2.5rem]">
                   {tooWrong ? (
-                    <p className="font-display text-base font-extrabold text-amber-500 sm:text-lg">
+                    <p className="font-display text-base font-semibold text-amber-500 sm:text-lg">
                       Cô nghe không rõ, em thử lại nhé! 🌼
                     </p>
                   ) : (
@@ -380,7 +380,7 @@ export function SpeakingPractice({
                                 {i > 0 && " "}
                                 <span
                                   className={[
-                                    "font-display font-extrabold",
+                                    "font-display font-semibold",
                                     w.extra
                                       ? "rounded bg-amber-100 text-amber-700"
                                       : "italic text-navy",
@@ -391,7 +391,7 @@ export function SpeakingPractice({
                               </span>
                             ))
                           ) : (
-                            <span className="font-display font-extrabold italic text-navy">
+                            <span className="font-display font-semibold italic text-navy">
                               {result.transcript}
                             </span>
                           )}
@@ -440,7 +440,7 @@ export function SpeakingPractice({
               </p>
               <button
                 onClick={handleRepeatedAloud}
-                className="mt-3 inline-flex items-center gap-2 rounded-full bg-gradient-primary px-5 py-2.5 font-display text-sm font-extrabold text-white shadow-sm transition hover:scale-105 active:scale-95"
+                className="mt-3 inline-flex items-center gap-2 rounded-full bg-gradient-primary px-5 py-2.5 font-display text-sm font-medium text-white shadow-sm transition hover:scale-105 active:scale-95"
               >
                 <ThumbsUp className="h-4 w-4" strokeWidth={2.5} />
                 Em đã đọc to theo cô!
@@ -452,7 +452,7 @@ export function SpeakingPractice({
                 <div className="flex w-full max-w-md flex-col items-center gap-4">
                   <button
                     onClick={handleSelfAssessDone}
-                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-400 to-green-600 px-5 py-2.5 font-display text-sm font-extrabold text-white shadow-sm transition hover:scale-105 active:scale-95"
+                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-400 to-green-600 px-5 py-2.5 font-display text-sm font-medium text-white shadow-sm transition hover:scale-105 active:scale-95"
                   >
                     😊 Giống rồi!
                   </button>
@@ -478,7 +478,7 @@ export function SpeakingPractice({
               onClick={() => goTo(index - 1)}
               disabled={index === 0}
               className={[
-                "inline-flex items-center gap-1.5 rounded-full border-2 border-black/10 bg-white px-4 py-2.5 text-sm font-bold text-navy shadow-bevel-neutral transition-[transform,box-shadow] ease-bounce active:translate-y-[2px] active:shadow-bevel-neutral-active",
+                "inline-flex items-center gap-1.5 rounded-full border-2 border-black/10 bg-white px-4 py-2.5 text-sm font-extrabold text-navy shadow-bevel-neutral transition-[transform,box-shadow] ease-bounce active:translate-y-[2px] active:shadow-bevel-neutral-active",
                 index > 0 ? "hover:brightness-95" : "cursor-not-allowed opacity-40",
               ].join(" ")}
             >
@@ -490,7 +490,7 @@ export function SpeakingPractice({
               onClick={() => goTo(index + 1)}
               disabled={index >= sentences.length - 1}
               className={[
-                "inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-bold text-white transition-[transform,box-shadow,filter] ease-bounce active:translate-y-[2px]",
+                "inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-extrabold text-white transition-[transform,box-shadow,filter] ease-bounce active:translate-y-[2px]",
                 index < sentences.length - 1
                   ? [color.gradient, color.bevel, color.bevelActive, "hover:brightness-110"].join(
                       " ",

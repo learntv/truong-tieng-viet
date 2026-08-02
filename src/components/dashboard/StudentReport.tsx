@@ -180,7 +180,7 @@ function StudentTable({ students }: { students: StudentRow[] }) {
                 type="button"
                 onClick={() => setFilter(f.key)}
                 className={[
-                  "rounded-full px-3 py-1 text-xs font-semibold transition-colors",
+                  "rounded-full px-3 py-1 text-xs font-medium transition-colors",
                   filter === f.key
                     ? "bg-primary text-white"
                     : "bg-muted text-muted-foreground hover:bg-muted/70",
@@ -227,13 +227,13 @@ function StudentTable({ students }: { students: StudentRow[] }) {
                           ) : s.avatarEmoji ? (
                             s.avatarEmoji
                           ) : (
-                            <span className="font-bold text-primary">
+                            <span className="font-semibold text-primary">
                               {s.displayName[0]?.toUpperCase() ?? "?"}
                             </span>
                           )}
                         </span>
                         <span className="min-w-0">
-                          <span className="block truncate font-medium text-foreground">
+                          <span className="block truncate font-semibold text-foreground">
                             {s.displayName}
                           </span>
                           <span className="block truncate text-xs text-muted-foreground">
@@ -255,7 +255,7 @@ function StudentTable({ students }: { students: StudentRow[] }) {
                     </TableCell>
                     <TableCell className="text-right tabular-nums text-sm">
                       {s.speakingStars > 0 ? (
-                        <span className="font-medium text-foreground">⭐ {s.speakingStars}</span>
+                        <span className="font-semibold text-foreground">⭐ {s.speakingStars}</span>
                       ) : (
                         <span className="text-muted-foreground">—</span>
                       )}
@@ -315,7 +315,7 @@ function StuckPoints({ funnel }: { funnel: ChangFunnelRow[] }) {
         {hardest.map((f) => (
           <div key={f.id} className="flex items-center gap-3">
             <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-medium text-foreground">{f.title}</div>
+              <div className="truncate text-sm font-semibold text-foreground">{f.title}</div>
               {f.chudeTitle && (
                 <div className="truncate text-xs text-muted-foreground">{f.chudeTitle}</div>
               )}

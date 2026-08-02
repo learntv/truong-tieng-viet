@@ -206,7 +206,7 @@ export function RecordButton({
           <Mic className="h-9 w-9" strokeWidth={2.5} />
         )}
       </button>
-      <span className="font-display text-sm font-bold text-navy">
+      <span className="font-display text-sm font-semibold text-navy">
         {isRecording ? "Đang nghe em nói… bấm để xong" : "Em nói nào!"}
       </span>
     </div>

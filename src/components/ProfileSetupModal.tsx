@@ -168,7 +168,7 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
         hideCloseButton
       >
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl font-extrabold text-navy text-center">
+          <DialogTitle className="font-display text-2xl font-bold text-navy text-center">
             Chào mừng! 🎉
           </DialogTitle>
           <p className="text-sm text-muted-foreground text-center mt-1">
@@ -192,7 +192,7 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
             </div>
           ) : (
             <div className="space-y-2">
-              <Label className="font-bold text-navy">Chọn avatar của em</Label>
+              <Label className="font-semibold text-navy">Chọn avatar của em</Label>
               <div className="grid grid-cols-5 gap-1.5">
                 {AVATAR_OPTIONS.map((emoji) => (
                   <button
@@ -215,7 +215,7 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
 
           {/* Name */}
           <div className="space-y-1.5">
-            <Label htmlFor="setup-name" className="font-bold text-navy">
+            <Label htmlFor="setup-name" className="font-semibold text-navy">
               Tên của em
             </Label>
             <Input
@@ -230,12 +230,12 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
 
           {/* Country */}
           <div className="space-y-1.5">
-            <Label className="font-bold text-navy">Em đang ở đâu?</Label>
+            <Label className="font-semibold text-navy">Em đang ở đâu?</Label>
             {!showCountryPicker ? (
               <button
                 type="button"
                 onClick={() => setShowCountryPicker(true)}
-                className="flex w-full items-center justify-between gap-2 rounded-xl border border-border bg-white px-3 py-2.5 text-sm font-semibold text-navy hover:bg-muted transition-colors"
+                className="flex w-full items-center justify-between gap-2 rounded-xl border border-border bg-white px-3 py-2.5 text-sm font-medium text-navy hover:bg-muted transition-colors"
               >
                 <span className="flex items-center gap-2">
                   {detectingCountry ? (
@@ -293,7 +293,7 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
           </div>
 
           <Button
-            className="w-full rounded-xl h-12 font-extrabold text-base"
+            className="w-full rounded-xl h-12 font-medium text-base"
             onClick={handleSave}
             disabled={saving}
           >

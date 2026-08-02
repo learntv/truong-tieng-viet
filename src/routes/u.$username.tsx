@@ -644,7 +644,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
             <div className="relative -mt-16 shrink-0">
               <div
                 className={[
-                  "h-24 w-24 rounded-full shadow-lg ring-4 ring-white overflow-hidden flex items-center justify-center font-bold font-display",
+                  "h-24 w-24 rounded-full shadow-lg ring-4 ring-white overflow-hidden flex items-center justify-center font-semibold font-display",
                   avatarUrl || avatarEmoji ? "bg-sky-100" : avatarColor(avatarLetter),
                 ].join(" ")}
               >
@@ -793,7 +793,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
             </div>
             <div
               className={[
-                "mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold",
+                "mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold",
                 streak.studiedToday
                   ? "bg-stage-1-soft text-stage-1-deep"
                   : "bg-muted text-muted-foreground",
@@ -819,7 +819,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
           {isEmailUser && (
             <Button
               variant="outline"
-              className="w-full justify-start gap-3 rounded-xl h-12 font-bold text-ink border-border hover:bg-muted"
+              className="w-full justify-start gap-3 rounded-xl h-12 font-medium text-ink border-border hover:bg-muted"
               onClick={handleResetPassword}
               disabled={isSendingReset}
             >
@@ -836,7 +836,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
             <AlertDialogTrigger asChild>
               <Button
                 variant="outline"
-                className="h-12 w-full justify-start gap-3 rounded-xl border-stage-4/40 font-bold text-stage-4-deep hover:border-stage-4/60 hover:bg-stage-4-soft"
+                className="h-12 w-full justify-start gap-3 rounded-xl border-stage-4/40 font-medium text-stage-4-deep hover:border-stage-4/60 hover:bg-stage-4-soft"
                 disabled={isRestarting}
               >
                 {isRestarting ? (
@@ -858,12 +858,12 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel className="rounded-xl font-bold">
+                <AlertDialogCancel className="rounded-xl font-medium">
                   Thôi, giữ lại
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleRestartProgress}
-                  className="rounded-xl bg-stage-4 font-bold hover:brightness-95"
+                  className="rounded-xl bg-stage-4 font-medium hover:brightness-95"
                 >
                   Bắt đầu lại
                 </AlertDialogAction>
@@ -873,7 +873,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
 
           <Button
             variant="outline"
-            className="w-full justify-start gap-3 rounded-xl h-12 font-bold text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50"
+            className="w-full justify-start gap-3 rounded-xl h-12 font-medium text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50"
             onClick={signOut}
           >
             <LogOut className="h-4 w-4" />
@@ -881,7 +881,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
           </Button>
 
           <div className="pt-4 mt-2 border-t border-destructive/20">
-            <p className="text-xs font-bold uppercase tracking-wide text-destructive/80 mb-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-destructive/80 mb-2">
               Vùng nguy hiểm
             </p>
             <AlertDialog
@@ -896,7 +896,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
               <AlertDialogTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full justify-start gap-3 rounded-xl h-12 font-bold bg-destructive text-destructive-foreground border-destructive hover:bg-destructive/90 hover:text-destructive-foreground"
+                  className="w-full justify-start gap-3 rounded-xl h-12 font-medium bg-destructive text-destructive-foreground border-destructive hover:bg-destructive/90 hover:text-destructive-foreground"
                 >
                   <Trash2 className="h-4 w-4" />
                   Xóa tài khoản
@@ -910,7 +910,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                   <AlertDialogDescription className="text-base leading-relaxed">
                     Toàn bộ hồ sơ, tiến độ học tập và huy hiệu của em sẽ bị xóa
                     vĩnh viễn và không thể khôi phục. Hãy gõ{" "}
-                    <span className="font-bold text-destructive">XÓA</span> vào ô
+                    <span className="font-semibold text-destructive">XÓA</span> vào ô
                     bên dưới để xác nhận.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
@@ -924,7 +924,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                 <AlertDialogFooter>
                   <AlertDialogCancel
                     disabled={isDeleting}
-                    className="rounded-xl font-bold"
+                    className="rounded-xl font-medium"
                   >
                     Hủy
                   </AlertDialogCancel>
@@ -934,7 +934,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                       handleDeleteAccount();
                     }}
                     disabled={isDeleting || deleteConfirm.trim().toUpperCase() !== "XÓA"}
-                    className="rounded-xl bg-destructive font-bold text-destructive-foreground hover:bg-destructive/90"
+                    className="rounded-xl bg-destructive font-medium text-destructive-foreground hover:bg-destructive/90"
                   >
                     {isDeleting ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -997,7 +997,7 @@ function PublicView({ username }: { username: string }) {
           </p>
           <Link
             to="/"
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-display text-sm font-bold text-white shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active"
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-display text-sm font-extrabold text-white shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active"
           >
             <Home className="h-4 w-4" />
             Về trang chủ
@@ -1031,7 +1031,7 @@ function PublicView({ username }: { username: string }) {
             <div className="-mt-16 shrink-0">
               <div
                 className={[
-                  "h-24 w-24 rounded-full shadow-lg ring-4 ring-white overflow-hidden flex items-center justify-center font-bold font-display",
+                  "h-24 w-24 rounded-full shadow-lg ring-4 ring-white overflow-hidden flex items-center justify-center font-semibold font-display",
                   profile.avatar_url || profile.avatar_emoji
                     ? "bg-sky-100"
                     : avatarColor(avatarLetter),

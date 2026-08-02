@@ -50,7 +50,7 @@ function SpeakingRoute() {
   return (
     <div className="mx-auto max-w-lg px-4 py-20 text-center">
       <div className="mb-4 text-6xl">🔍</div>
-      <h1 className="mb-2 font-display text-2xl font-extrabold text-white">
+      <h1 className="mb-2 font-display text-2xl font-bold text-white">
         Không tìm thấy chủ đề
       </h1>
       <p className="mb-6 text-slate-200">Chủ đề này không tồn tại hoặc đã bị đổi.</p>

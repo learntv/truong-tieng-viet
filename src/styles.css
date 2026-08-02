@@ -66,8 +66,8 @@
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
 
-  --font-display: "Baloo 2", "Nunito", system-ui, sans-serif;
-  --font-sans: "Nunito", system-ui, sans-serif;
+  --font-display: "Arimo", Arial, sans-serif;
+  --font-sans: "Arimo", Arial, sans-serif;
 }
 
 :root {
