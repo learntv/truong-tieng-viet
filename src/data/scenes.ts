@@ -1,23 +1,5 @@
-import halongScene from "@/assets/scenes/halong-scene.jpg";
-import goldenBridgeScene from "@/assets/scenes/golden-bridge-scene.jpg";
-
-// Each chủ đề gets its own backdrop; topics without a dedicated scene yet fall back to Hạ Long.
-export const CHU_DE_SCENES: Record<number, string> = {
-  0: halongScene,
-  1: goldenBridgeScene,
-};
-
-export function sceneForChuDe(chuDeIndex: number): string {
-  return CHU_DE_SCENES[chuDeIndex] ?? halongScene;
-}
-
-export const ALL_SCENES = Array.from(new Set([halongScene, ...Object.values(CHU_DE_SCENES)]));
-
-export { halongScene, goldenBridgeScene };
-
-// Short, kid-friendly history blurb for each map backdrop, shown in the roadmap's
-// "learn about this place" fullscreen overlay. Falls back to the Hạ Long entry, matching
-// the fallback scene above, so every chủ đề always has something to show.
+// Short, kid-friendly history blurb for each place, shown under the chủ đề title. Falls back to
+// the Hạ Long entry, so every chủ đề always has something to show.
 export type LocationInfo = { name: string; blurb: string };
 
 export const CHU_DE_LOCATIONS: Record<number, LocationInfo> = {

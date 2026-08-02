@@ -1,35 +1,20 @@
-import { ArrowLeft, Check, Compass, Info, Lock, X } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, BookOpen, Check, CircleDot, Lock } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import type { ChuDe } from "@/data/topics";
 import { STAGE_COLORS } from "./stageColors";
 import { Button } from "@/components/ui/button";
-import { locationForChuDe, sceneForChuDe } from "@/data/scenes";
-import { QUYEN1_LANDMARKS, type Discovery } from "@/data/overworld";
+import { locationForChuDe } from "@/data/scenes";
+import { QUYEN1_LANDMARKS } from "@/data/overworld";
 import { badgeForChuDe } from "@/data/badges";
 import { BadgeMedal } from "./BadgeMedal";
-import { AuthModal } from "@/components/AuthModal";
-import { useAuth } from "@/hooks/useAuth";
 
-// Per-topic accent so the page gently recolors as the child moves between chủ đề — keyed by
-// ChuDe.accent. `soft`/`text` tint the "về bản đồ" button, `solid` the progress fill.
-const ACCENT: Record<ChuDe["accent"], { text: string; soft: string; solid: string }> = {
-  primary: { text: "text-primary", soft: "bg-primary/10", solid: "bg-primary" },
-  yellow: {
-    text: "text-[oklch(0.58_0.14_70)]",
-    soft: "bg-yellow/20",
-    solid: "bg-[oklch(0.72_0.17_55)]",
-  },
-  pink: { text: "text-pink", soft: "bg-pink/15", solid: "bg-pink" },
-  purple: { text: "text-purple", soft: "bg-purple/15", solid: "bg-purple" },
-  green: { text: "text-green", soft: "bg-green/15", solid: "bg-green" },
+// Per-topic accent, keyed by ChuDe.accent — tints the coming-soon emoji plate.
+const ACCENT_SOFT: Record<ChuDe["accent"], string> = {
+  primary: "bg-primary/10",
+  yellow: "bg-yellow/20",
+  pink: "bg-pink/15",
+  purple: "bg-purple/15",
+  green: "bg-green/15",
 };
 
 function getLessonButtonLabel(
@@ -49,20 +34,10 @@ function getLessonButtonLabel(
  * journey (chủ đề 2 is Hội An, but its backdrop is the golden-bridge painting). Fall back to the
  * scenes entry only for chủ đề the landmark list doesn't cover.
  */
-function placeForChuDe(chuDeIndex: number): {
-  name: string;
-  blurb: string;
-  photo?: string;
-  discovery?: Discovery;
-} {
+function placeForChuDe(chuDeIndex: number): { name: string; blurb: string; photo?: string } {
   const landmark = QUYEN1_LANDMARKS.find((l) => l.chuDeIndex === chuDeIndex);
   if (landmark) {
-    return {
-      name: landmark.name,
-      blurb: landmark.description,
-      photo: landmark.photo,
-      discovery: landmark.discovery,
-    };
+    return { name: landmark.name, blurb: landmark.description, photo: landmark.photo };
   }
   return locationForChuDe(chuDeIndex);
 }
@@ -73,6 +48,7 @@ export function RoadmapList({
   isLocked,
   changTitles,
   changEmojis,
+  changTotals,
   currentChangIndex,
   completedChangs,
   startedChangs,
@@ -84,19 +60,17 @@ export function RoadmapList({
   isLocked: boolean;
   changTitles: string[];
   changEmojis: string[];
+  /** Total bài per chặng, for the card's "N bài học" line. */
+  changTotals: number[];
   currentChangIndex: number;
   completedChangs: Set<number>;
   startedChangs: Set<number>;
   onOpenLesson: (i: number) => void;
   changProgress: Map<number, { current: number; total: number }>;
 }) {
-  const accent = ACCENT[chuDe.accent] ?? ACCENT.primary;
+  const accentSoft = ACCENT_SOFT[chuDe.accent] ?? ACCENT_SOFT.primary;
   const location = placeForChuDe(chuDeIndex);
   const photo = location.photo;
-  const discovery = location.discovery;
-  const [showOverview, setShowOverview] = useState(false);
-  const [authOpen, setAuthOpen] = useState(false);
-  const { user } = useAuth();
   const badge = badgeForChuDe(chuDeIndex);
 
   const totalStages = changTitles.length;
@@ -111,137 +85,102 @@ export function RoadmapList({
     : chuDe.title;
 
   return (
-    <div className="w-full px-4 pt-8 pb-12 sm:px-6">
-      <div className="mx-auto max-w-7xl">
-        {/* Header: flat surface — overline, title, blurb and action on the left, a plain
-            photo block, badge and progress meter on the right. */}
-        <div className="rounded-lg border border-border bg-card p-5 sm:p-6 lg:p-8">
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
-            {/* Left column */}
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-3">
-                {/* Back to the overworld map — the only way to another chủ đề. */}
-                <Link
-                  to="/hoc-tap/quyen-1"
-                  aria-label="Về bản đồ"
-                  className="-ml-1 grid h-9 w-9 shrink-0 place-items-center rounded-full text-ink/70 transition-colors hover:bg-muted hover:text-ink"
-                >
-                  <ArrowLeft className="h-5 w-5" strokeWidth={2.5} />
-                </Link>
-                <span className={["text-xs font-semibold uppercase tracking-[0.12em]", accent.text].join(" ")}>
-                  Địa điểm {chuDeIndex + 1}
-                </span>
-                {isLocked && (
-                  <span className="inline-flex items-center gap-1 rounded-sm bg-muted px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                    <Lock className="h-3 w-3" strokeWidth={2.5} />
-                    Sắp có
-                  </span>
-                )}
-              </div>
+    <div className="w-full">
+      {/* ── Hero band: full-bleed, flat, no card. Breadcrumb, title, one line of blurb and the
+          primary action on the left; a plain photo of the place on the right. ── */}
+      <div className="w-full bg-rose-tint">
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
+          <nav aria-label="breadcrumb" className="text-sm text-muted-foreground">
+            <Link to="/hoc-tap" className="font-semibold text-ink hover:underline">
+              Học tập
+            </Link>
+            <span className="px-1.5">&gt;</span>
+            <Link to="/hoc-tap/quyen-1" className="font-semibold text-ink hover:underline">
+              Quyển 1
+            </Link>
+            <span className="px-1.5">&gt;</span>
+            <span>{location.name}</span>
+          </nav>
 
-              <h1 className="mt-4 flex items-center gap-2 font-display text-3xl font-bold leading-tight text-ink sm:text-4xl">
-                <span className="shrink-0 text-2xl sm:text-3xl">{chuDe.emoji}</span>
-                <span className="min-w-0">{location.name}</span>
+          <div className="mt-8 grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:gap-12">
+            <div className="min-w-0">
+              {isLocked && (
+                <span className="mb-3 inline-flex items-center gap-1 bg-muted px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  <Lock className="h-3 w-3" strokeWidth={2.5} />
+                  Sắp có
+                </span>
+              )}
+
+              <h1 className="font-display text-3xl font-bold leading-tight text-ink sm:text-4xl lg:text-5xl">
+                {location.name}
               </h1>
 
-              <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
                 {location.blurb}
               </p>
 
-              <button
-                type="button"
-                onClick={() => setShowOverview(true)}
-                className="mt-6 inline-flex cursor-pointer items-center gap-2 rounded-sm border border-border bg-card px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-muted"
-              >
-                <Info className="h-4 w-4" strokeWidth={2.5} />
-                Khám phá {location.name}
-              </button>
-            </div>
-
-            {/* Right column: flat photo block, badge, progress meter. */}
-            <div className="min-w-0">
-              <div className="flex items-center gap-5">
-                {photo && (
-                  <div className="min-w-0 flex-1 overflow-hidden rounded-sm border border-border">
-                    <img
-                      src={photo}
-                      alt={location.name}
-                      className="aspect-[4/3] w-full object-cover"
-                    />
-                  </div>
-                )}
-
-                {/* The chủ đề's collectible badge, greyed out with a lock until every chặng is done. */}
-                {badge && (
-                  <div className="shrink-0">
-                    <BadgeMedal badge={badge} earned={allDone} size="md" />
-                  </div>
-                )}
-              </div>
-
-              {/* Progress meter */}
               {!isLocked && (
-                <div className="mt-5 border-t border-border pt-5">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                      Tiến độ chủ đề
-                    </span>
-                    <span className="text-xs font-semibold text-ink">
-                      {doneStages}/{totalStages} chặng
-                    </span>
-                  </div>
-                  <div className="mt-2 h-1 w-full overflow-hidden bg-muted">
-                    <div
-                      className={[
-                        "h-full transition-all duration-500",
-                        allDone ? "bg-green" : accent.solid,
-                      ].join(" ")}
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-
-                  {/* Says out loud what the badge beside the photo is for. */}
-                  {badge && (
-                    <p
-                      className={[
-                        "mt-3 flex items-start gap-2 text-xs leading-snug",
-                        allDone ? "text-green" : "text-muted-foreground",
-                      ].join(" ")}
-                    >
-                      {allDone ? (
-                        <>
-                          <Check className="mt-px h-4 w-4 shrink-0" strokeWidth={3} aria-hidden />
-                          <span>
-                            Em đã sưu tầm được huy hiệu{" "}
-                            <span className="font-semibold">{badge.name}</span>!
-                          </span>
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="mt-px h-4 w-4 shrink-0" strokeWidth={2.5} aria-hidden />
-                          <span>
-                            Hoàn thành cả {totalStages} chặng để sưu tầm huy hiệu{" "}
-                            <span className="font-semibold">{badge.name}</span>.
-                          </span>
-                        </>
-                      )}
-                    </p>
-                  )}
-                </div>
+                <button
+                  type="button"
+                  onClick={() => onOpenLesson(currentChangIndex)}
+                  className="mt-7 cursor-pointer bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:text-base"
+                >
+                  {doneStages === 0 ? "Bắt đầu học" : allDone ? "Ôn tập lại" : "Tiếp tục học"}
+                </button>
               )}
             </div>
+
+            {photo && (
+              <img src={photo} alt={location.name} className="aspect-[16/10] w-full object-cover" />
+            )}
           </div>
         </div>
+      </div>
 
+      {/* ── Stat band: full-bleed colour strip carrying progress and the badge in one line each
+          — replaces the note cards that used to sit beside the list. ── */}
+      {!isLocked && (
+        <div className="w-full bg-teal-deep text-white">
+          {/* Two items only, so they're spread to the band's edges rather than packed into the
+              left half of a grid. */}
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-10 gap-y-5 px-6 py-6 sm:px-10 lg:px-16">
+            <div className="flex items-center gap-3">
+              <BookOpen className="h-6 w-6 shrink-0" strokeWidth={2} aria-hidden />
+              <div className="min-w-0">
+                <div className="text-sm font-semibold sm:text-base">
+                  {doneStages}/{totalStages} chặng đã hoàn thành
+                </div>
+                <div className="mt-1.5 h-1 w-full max-w-48 overflow-hidden bg-white/25">
+                  <div
+                    className="h-full bg-white transition-all duration-500"
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+              </div>
+            </div>
 
+            {badge && (
+              <div className="flex items-center gap-3">
+                <BadgeMedal badge={badge} earned={allDone} size="sm" className="shrink-0" />
+                <div className="min-w-0 text-sm font-semibold sm:text-base">
+                  {allDone
+                    ? `Em đã sưu tầm huy hiệu ${badge.name}!`
+                    : `Huy hiệu ${badge.name} đang chờ em`}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Chặng grid: flat cards, each led by an image from the chặng itself. ── */}
+      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-12">
         {isLocked ? (
-          /* Coming-soon panel for a chủ đề that has no content yet */
-          <div className="mt-6 rounded-lg border border-border bg-card p-8 text-center">
+          <div className="py-10 text-center">
             <div
-              className={[
-                "mx-auto grid h-16 w-16 place-items-center rounded-full text-3xl",
-                accent.soft,
-              ].join(" ")}
+              className={["mx-auto grid h-16 w-16 place-items-center text-3xl", accentSoft].join(
+                " ",
+              )}
             >
               {chuDe.emoji}
             </div>
@@ -257,306 +196,126 @@ export function RoadmapList({
             </Button>
           </div>
         ) : (
-          <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
-            {/* The chặng list — replaces the old node map. */}
-            <div className="overflow-hidden rounded-lg border border-border bg-card">
-              <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
-                <h2 className="min-w-0 truncate font-display text-lg font-bold text-ink">
-                  Chủ đề: {titleName}
-                </h2>
-                <span className="shrink-0 text-xs font-semibold text-muted-foreground">
-                  {doneStages}/{totalStages} hoàn thành
-                </span>
-              </div>
+          <>
+            <h2 className="font-display text-xl font-bold text-ink sm:text-2xl">
+              Chủ đề: {titleName}
+            </h2>
 
-
-              <ul className="divide-y divide-border">
-                {changTitles.map((title, i) => {
-                  const color = STAGE_COLORS[i % STAGE_COLORS.length];
-                  const isDone = completedChangs.has(i);
-                  const isStageLocked = i > 0 && !completedChangs.has(i - 1);
-                  const isCurrent = i === currentChangIndex && !isStageLocked;
-                  const prog = changProgress.get(i);
-                  return (
-                    <li key={i} className="relative">
-                      {/* Left color rail marks the chặng's place in the journey. */}
+            <ul className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {changTitles.map((title, i) => {
+                const color = STAGE_COLORS[i % STAGE_COLORS.length];
+                const isDone = completedChangs.has(i);
+                const isCurrent = i === currentChangIndex;
+                const prog = changProgress.get(i);
+                const total = changTotals[i] ?? prog?.total ?? 0;
+                return (
+                  <li key={i}>
+                    <button
+                      type="button"
+                      onClick={() => onOpenLesson(i)}
+                      className="flex h-full w-full cursor-pointer flex-col overflow-hidden border border-border bg-card text-left transition-colors hover:border-ink/40"
+                    >
+                      {/* Cover: typographic, not photographic — the chặng title set fat on the
+                          stage's soft colour, over an oversized ghost numeral. */}
                       <span
-                        aria-hidden
                         className={[
-                          "absolute inset-y-0 left-0 w-1",
-                          isStageLocked ? "bg-border" : color.bg,
-                        ].join(" ")}
-                      />
-                      <button
-                        type="button"
-                        disabled={isStageLocked}
-                        onClick={() => onOpenLesson(i)}
-                        className={[
-                          "flex w-full cursor-pointer items-center gap-4 py-4 pl-6 pr-4 text-left transition-colors sm:pl-7 sm:pr-5",
-                          isStageLocked
-                            ? "cursor-not-allowed opacity-60"
-                            : "hover:bg-muted/50",
-                          isCurrent ? "bg-muted/40" : "",
+                          "relative flex aspect-[16/9] w-full flex-col justify-end overflow-hidden p-5",
+                          color.bgSoft,
                         ].join(" ")}
                       >
                         <span
+                          aria-hidden
                           className={[
-                            "grid h-8 w-8 shrink-0 place-items-center rounded-full font-display text-sm font-semibold text-white",
-                            isStageLocked ? "bg-muted-foreground/50" : color.bg,
+                            "pointer-events-none absolute -right-3 -top-8 font-display text-[8rem] font-bold leading-none opacity-15",
+                            color.text,
                           ].join(" ")}
                         >
                           {i + 1}
                         </span>
-                        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-sm bg-muted text-2xl">
+
+                        {/* Emoji centred in whatever room the title leaves. */}
+                        <span className="relative grid flex-1 place-items-center text-5xl sm:text-6xl">
                           {changEmojis[i] ?? "📖"}
                         </span>
 
-                        <span className="min-w-0 flex-1">
-                          <span className="flex items-center gap-2">
-                            <span className="truncate font-display text-sm font-semibold text-ink sm:text-base">
-                              {title}
-                            </span>
-                            {isCurrent && (
-                              <span
-                                className={[
-                                  "shrink-0 rounded-sm px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white",
-                                  color.bg,
-                                ].join(" ")}
-                              >
-                                Đang học
-                              </span>
-                            )}
-                          </span>
-                          {prog && !isStageLocked ? (
-                            <span className="mt-2 flex items-center gap-2">
-                              <span className="h-1 w-24 overflow-hidden bg-muted sm:w-36">
-                                <span
-                                  className={["block h-full", color.bg].join(" ")}
-                                  style={{
-                                    width: `${Math.round((prog.current / prog.total) * 100)}%`,
-                                  }}
-                                />
-                              </span>
-                              <span className="text-[11px] font-semibold text-muted-foreground">
-                                {prog.current}/{prog.total} bài
-                              </span>
-                            </span>
-                          ) : (
-                            <span className="mt-0.5 block text-xs text-muted-foreground">
-                              {isStageLocked ? "Xong chặng trước để mở khóa" : "Chưa bắt đầu"}
-                            </span>
-                          )}
+                        <span
+                          className={[
+                            "relative line-clamp-2 font-display text-2xl font-bold leading-[1.15] tracking-tight sm:text-3xl",
+                            color.text,
+                          ].join(" ")}
+                        >
+                          {title}
                         </span>
 
-                        {/* Status: done check, lock, or the call to action. */}
-                        {isDone ? (
-                          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-green text-white">
-                            <Check className="h-5 w-5" strokeWidth={3} />
-                          </span>
-                        ) : isStageLocked ? (
-                          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground">
-                            <Lock className="h-4 w-4" strokeWidth={2.5} />
-                          </span>
-                        ) : (
+                        {isCurrent && (
                           <span
                             className={[
-                              "hidden shrink-0 rounded-sm px-3 py-1.5 font-display text-xs font-semibold uppercase tracking-wide text-white sm:block",
+                              "absolute left-0 top-0 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white",
                               color.bg,
                             ].join(" ")}
                           >
-                            {getLessonButtonLabel(i, completedChangs, startedChangs)}
+                            Đang học
                           </span>
                         )}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
+                        {isDone && (
+                          <span className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-green text-white">
+                            <Check className="h-5 w-5" strokeWidth={3} />
+                          </span>
+                        )}
+                      </span>
 
-            {/* Reward / streak / culture note cards, stacked beside the list on wide screens. */}
-            <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1 lg:content-start">
-              <div className="flex items-start gap-3 rounded-lg border border-border bg-card p-4">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-sm bg-secondary/25 text-xl">
-                  🏅
-                </span>
-                <div>
-                  <div className="font-display text-sm font-semibold text-ink">
-                    Nhận con dấu {location.name}
-                  </div>
-                  <p className="mt-1 text-xs leading-snug text-muted-foreground">
-                    Hoàn thành cả {totalStages} chặng để đoạt được con dấu này nhé!
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 rounded-lg border border-border bg-card p-4">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-sm bg-primary/10 text-xl">
-                  🔥
-                </span>
-                <div>
-                  <div className="font-display text-sm font-semibold text-ink">Giữ chuỗi ngày học!</div>
-                  <p className="mt-1 text-xs leading-snug text-muted-foreground">
-                    Học một chặng hôm nay để giữ ngọn lửa chuỗi ngày của em.
-                  </p>
-                </div>
-              </div>
-              {!user && (
-                <div className="flex items-start gap-3 rounded-lg border border-border bg-card p-4">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-sm bg-primary/10 text-xl">
-                    👤
-                  </span>
-                  <div>
-                    <div className="font-display text-sm font-semibold text-ink">Đăng nhập để lưu tiến độ</div>
-                    <p className="mt-1 text-xs leading-snug text-muted-foreground">
-                      Lưu bài học và đua cùng bạn bè nhé!
-                    </p>
-                    <Button size="sm" className="mt-3" onClick={() => setAuthOpen(true)}>
-                      Đăng nhập
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
+                      <span className="flex flex-1 flex-col p-5">
+                        <span
+                          className={[
+                            "text-xs font-semibold uppercase tracking-wide",
+                            color.text,
+                          ].join(" ")}
+                        >
+                          Chặng {i + 1}
+                        </span>
+                        <span className="mt-3 flex flex-col gap-2 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-2">
+                            <BookOpen className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+                            {total} bài học
+                          </span>
+                          <span className="flex items-center gap-2">
+                            <CircleDot className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+                            {isDone
+                              ? "Đã hoàn thành"
+                              : prog
+                                ? `Đang học: ${prog.current}/${prog.total} bài`
+                                : "Chưa bắt đầu"}
+                          </span>
+                        </span>
 
-          </div>
+                        {prog && !isDone && (
+                          <span className="mt-3 block h-1 w-full overflow-hidden bg-muted">
+                            <span
+                              className={["block h-full", color.bg].join(" ")}
+                              style={{
+                                width: `${Math.round((prog.current / prog.total) * 100)}%`,
+                              }}
+                            />
+                          </span>
+                        )}
+
+                        <span
+                          className={[
+                            "mt-5 inline-block self-start px-4 py-2 font-display text-xs font-semibold uppercase tracking-wide text-white",
+                            color.bg,
+                          ].join(" ")}
+                        >
+                          {getLessonButtonLabel(i, completedChangs, startedChangs)}
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
         )}
       </div>
-
-      {/* "Khám phá <địa điểm>" — a two-part read about the real place. Part 2 stays locked until
-          every chặng is done, so finishing the chủ đề buys the rest of the story. */}
-      <Dialog open={showOverview} onOpenChange={setShowOverview}>
-        <DialogContent
-          hideCloseButton
-          className="max-h-[92vh] w-[calc(100%-1.5rem)] max-w-3xl gap-0 overflow-y-auto border-0 bg-card p-0"
-        >
-          {/* Cover: a photo of the real place, title laid over the bottom of it. */}
-          <div className="relative">
-            <img
-              src={location.photo ?? sceneForChuDe(chuDeIndex)}
-              alt={location.name}
-              className="h-44 w-full object-cover sm:h-60"
-            />
-            <div
-              aria-hidden
-              className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/10"
-            />
-            <DialogClose className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white/90 text-ink transition-colors hover:bg-white">
-              <X className="h-5 w-5" strokeWidth={2.5} />
-              <span className="sr-only">Đóng</span>
-            </DialogClose>
-            <div className="absolute inset-x-4 bottom-4 sm:inset-x-6 sm:bottom-5">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
-                <Compass className="h-3 w-3" strokeWidth={2.75} />
-                Khám phá
-              </span>
-              <DialogTitle className="mt-2 font-display text-2xl font-bold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] sm:text-4xl">
-                {location.name}
-              </DialogTitle>
-            </div>
-          </div>
-
-          <div className="px-4 py-5 sm:px-7 sm:py-6">
-            <DialogDescription className="text-sm leading-relaxed text-muted-foreground">
-              {location.blurb}
-            </DialogDescription>
-
-            {discovery && (
-              <>
-                {/* Postcard stats */}
-                <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
-                  {discovery.facts.map((f) => (
-                    <div
-                      key={f.label}
-                      className="rounded-sm border border-border bg-muted/40 px-2 py-3 text-center"
-                    >
-                      <div className="text-lg sm:text-xl">{f.icon}</div>
-                      <div className="mt-1 font-display text-sm font-semibold leading-tight text-ink">
-                        {f.value}
-                      </div>
-                      <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                        {f.label}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Part 1 — always readable. */}
-                <section className="mt-6">
-                  <h3 className="flex items-center gap-2 font-display text-lg font-bold text-ink">
-                    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary text-[11px] font-semibold text-white">
-                      1
-                    </span>
-                    {discovery.intro.heading}
-                  </h3>
-                  <div className="mt-2.5 space-y-3 text-sm leading-relaxed text-ink/80">
-                    {discovery.intro.paragraphs.map((p) => (
-                      <p key={p.slice(0, 24)}>{p}</p>
-                    ))}
-                  </div>
-                </section>
-
-                {/* Part 2 — the payoff for finishing every chặng. */}
-                <section className="mt-6">
-                  <h3 className="flex items-center gap-2 font-display text-lg font-bold text-ink">
-                    <span
-                      className={[
-                        "grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] font-semibold text-white",
-                        allDone ? "bg-green" : "bg-muted-foreground/50",
-                      ].join(" ")}
-                    >
-                      2
-                    </span>
-                    {allDone ? discovery.deep.heading : "Phần 2 còn khoá"}
-                  </h3>
-
-                  {allDone ? (
-                    <div className="mt-2.5 space-y-3 text-sm leading-relaxed text-ink/80">
-                      {discovery.deep.paragraphs.map((p) => (
-                        <p key={p.slice(0, 24)}>{p}</p>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="relative mt-2.5 overflow-hidden rounded-sm border border-border bg-muted/40">
-                      {/* A couple of blurred dummy lines so it reads as text hiding behind the lock. */}
-                      <div aria-hidden className="space-y-2.5 p-4 blur-[5px] select-none">
-                        <div className="h-2.5 w-full rounded-full bg-navy/15" />
-                        <div className="h-2.5 w-11/12 rounded-full bg-navy/15" />
-                        <div className="h-2.5 w-9/12 rounded-full bg-navy/15" />
-                        <div className="h-2.5 w-full rounded-full bg-navy/15" />
-                        <div className="h-2.5 w-8/12 rounded-full bg-navy/15" />
-                      </div>
-                      <div className="absolute inset-0 grid place-items-center bg-card/70 px-4 text-center backdrop-blur-[2px]">
-                        <div>
-                          <span className="mx-auto grid h-11 w-11 place-items-center rounded-full bg-navy/10 text-ink">
-                            <Lock className="h-5 w-5" strokeWidth={2.5} />
-                          </span>
-                          <p className="mt-2.5 max-w-sm font-display text-sm font-semibold text-ink">
-                            “{discovery.deep.teaser}”
-                          </p>
-                          <p className="mt-1.5 text-xs font-semibold text-muted-foreground">
-                            Học nốt {totalStages - doneStages} chặng nữa để mở khoá phần này.
-                          </p>
-                          <div className="mx-auto mt-3 h-2 w-40 overflow-hidden rounded-full bg-navy/10">
-                            <div
-                              className={["h-full rounded-full", accent.solid].join(" ")}
-                              style={{ width: `${pct}%` }}
-                            />
-                          </div>
-                          <div className="mt-1.5 text-[11px] font-semibold text-ink/55">
-                            {doneStages}/{totalStages} chặng
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </section>
-              </>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <AuthModal open={authOpen} onOpenChange={setAuthOpen} />
     </div>
   );
 }

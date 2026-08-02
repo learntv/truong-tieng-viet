@@ -123,23 +123,20 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
     };
 
     // Prefer the stage the user last opened (saved in sessionStorage by openChang), but only
-    // when it belongs to the chủ đề we're actually on and isn't already completed/locked.
+    // when it belongs to the chủ đề we're actually on and isn't already completed.
     const saved = loadBuffaloPos();
     if (
       saved &&
       saved.chuDeIndex === currentChuDeIndex &&
       saved.changIndex < (data[currentChuDeIndex]?.changs.length ?? 0)
     ) {
-      const savedChangs = data[currentChuDeIndex].changs;
-      const savedChang = savedChangs[saved.changIndex];
+      const savedChang = data[currentChuDeIndex].changs[saved.changIndex];
       const savedProg = activeProgressMap.get(savedChang.id);
-      const prevChangId = saved.changIndex > 0 ? savedChangs[saved.changIndex - 1]?.id : null;
-      const isLocked = prevChangId ? !activeProgressMap.get(prevChangId)?.isCompleted : false;
-      if (!savedProg?.isCompleted && !isLocked) {
+      if (!savedProg?.isCompleted) {
         setStage(saved.changIndex);
         return;
       }
-      // Saved stage is completed or locked — discard stale position
+      // Saved stage is already completed — discard stale position
       try {
         sessionStorage.removeItem(BUFFALO_POS_KEY);
       } catch {
@@ -160,6 +157,7 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
   const changs = useMemo(() => data?.[currentChuDeIndex]?.changs ?? [], [data, currentChuDeIndex]);
   const changTitles = useMemo(() => changs.map((s) => s.title), [changs]);
   const changEmojis = useMemo(() => changs.map((s) => s.emoji), [changs]);
+  const changTotals = useMemo(() => changs.map((ch) => buildSlides(ch.noiDungs).length), [changs]);
 
   const completedByChuDe = useMemo<Record<number, number[]>>(() => {
     if (!data) return {};
@@ -280,6 +278,7 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
           isLocked={isCurrentLocked}
           changTitles={changTitles}
           changEmojis={changEmojis}
+          changTotals={changTotals}
           currentChangIndex={currentChangIndex}
           completedChangs={completedChangs}
           startedChangs={startedChangs}

@@ -41,6 +41,7 @@
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);
   --color-rose-tint: var(--rose-tint);
+  --color-teal-deep: var(--teal-deep);
 
   /* 5-accent stage set — green / sky / violet / amber / rose */
   --color-stage-1: var(--stage-1);
@@ -121,6 +122,10 @@
   --gold: oklch(0.86 0.174 92); /* #ffd400 */
   --gold-soft: oklch(0.96 0.084 97); /* #fff3b0 */
   --rose-tint: oklch(0.968 0.014 29.2); /* #fff2f0 — alternating red-tinted band */
+
+  /* Deep green-teal, the cool counterweight to the red bands — used for the chủ đề stat strip.
+     Dark enough (L 0.38) that white text on it clears AAA. */
+  --teal-deep: oklch(0.38 0.06 185);
 
   --secondary: oklch(0.93 0.02 84); /* soft neutral */
   --secondary-foreground: oklch(0.28 0.045 260);
