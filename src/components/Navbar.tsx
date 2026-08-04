@@ -261,28 +261,28 @@ export function Navbar() {
       {/* Mobile sidebar */}
       <aside
         className={[
-          "fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-white shadow-2xl transition-transform duration-300 ease-in-out min-[900px]:hidden",
+          "fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-background shadow-2xl transition-transform duration-300 ease-in-out min-[900px]:hidden",
           sidebarOpen ? "translate-x-0" : "-translate-x-full",
         ].join(" ")}
       >
         {/* Sidebar header */}
-        <div className="flex items-center justify-between border-b px-5 py-4">
+        <div className="flex items-center justify-between border-b border-border/60 px-5 py-4">
           <Link to="/" onClick={closeSidebar}>
             <Logo size="sm" variant="wordmark" />
           </Link>
           <button
             onClick={closeSidebar}
-            className="grid h-8 w-8 place-items-center rounded-full text-foreground/60 hover:bg-muted"
+            className="grid h-9 w-9 place-items-center rounded-md text-foreground/70 transition hover:bg-muted"
             aria-label="Đóng menu"
           >
-            <X className="h-4 w-4" strokeWidth={2.5} />
+            <X className="h-5 w-5" strokeWidth={2.5} />
           </button>
         </div>
 
         {/* Nav links */}
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           <ul className="flex flex-col gap-1">
-            {tabs.map(({ to, label, Icon }) => {
+            {tabs.map(({ to, label }) => {
               const isActive = pathname === to || pathname.startsWith(`${to}/`);
 
               return (
@@ -291,13 +291,12 @@ export function Navbar() {
                     to={to}
                     onClick={closeSidebar}
                     className={[
-                      "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all",
+                      "flex items-center rounded-md px-4 py-2.5 text-sm font-medium transition-all",
                       isActive
-                        ? "bg-primary text-white shadow-sm"
+                        ? "bg-primary/10 text-primary"
                         : "text-foreground/70 hover:bg-muted hover:text-foreground",
                     ].join(" ")}
                   >
-                    <Icon className="h-5 w-5 shrink-0" strokeWidth={2.5} />
                     <span>{label}</span>
                   </Link>
                 </li>
@@ -307,8 +306,8 @@ export function Navbar() {
         </nav>
 
         {/* Sidebar footer — user actions */}
-        <div className="border-t px-3 py-4">
-          {isLoading && <div className="h-12 animate-pulse rounded-2xl bg-muted" />}
+        <div className="border-t border-border/60 px-3 py-4">
+          {isLoading && <div className="h-12 animate-pulse rounded-md bg-muted" />}
           {!isLoading &&
             (user ? (
               <div className="flex flex-col gap-1">
@@ -317,7 +316,7 @@ export function Navbar() {
                     to="/u/$username"
                     params={{ username: myUsername }}
                     onClick={closeSidebar}
-                    className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-foreground/70 hover:bg-muted hover:text-foreground transition-all"
+                    className="flex items-center gap-3 rounded-md px-4 py-2.5 text-sm font-medium text-foreground/70 hover:bg-muted hover:text-foreground transition-all"
                   >
                     <UserCircle className="h-5 w-5 shrink-0" strokeWidth={2.5} />
                     <span>Trang cá nhân</span>
@@ -328,7 +327,7 @@ export function Navbar() {
                     signOut();
                     closeSidebar();
                   }}
-                  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-all"
+                  className="flex items-center gap-3 rounded-md px-4 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-all"
                 >
                   <LogOut className="h-5 w-5 shrink-0" strokeWidth={2.5} />
                   <span>Đăng xuất</span>
@@ -341,7 +340,7 @@ export function Navbar() {
                     openAuth("register");
                     closeSidebar();
                   }}
-                  className="flex w-full items-center justify-center gap-3 rounded-2xl bg-primary px-4 py-3 text-sm font-medium text-white shadow-sm transition-all hover:bg-primary/90"
+                  className="flex w-full items-center justify-center gap-3 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
                 >
                   <User className="h-5 w-5 shrink-0" strokeWidth={2.5} />
                   <span>Đăng ký</span>
@@ -351,7 +350,7 @@ export function Navbar() {
                     openAuth("login");
                     closeSidebar();
                   }}
-                  className="flex w-full items-center justify-center rounded-2xl px-4 py-3 text-sm font-medium text-foreground/70 transition-all hover:bg-muted hover:text-foreground"
+                  className="flex w-full items-center justify-center rounded-md px-4 py-2.5 text-sm font-medium text-foreground/70 transition-all hover:bg-muted hover:text-foreground"
                 >
                   <span>Đăng nhập</span>
                 </button>

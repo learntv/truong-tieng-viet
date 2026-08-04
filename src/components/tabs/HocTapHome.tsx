@@ -110,7 +110,7 @@ export function HocTapHome() {
 function ProgramCard({ item }: { item: Item }) {
   return (
     <Link to={item.to} className="group block">
-      <Card interactive className="flex h-full flex-col overflow-hidden p-0">
+      <Card interactive className="flex h-full flex-col overflow-hidden rounded-none p-0">
         <div
           className={[
             "flex h-40 items-center justify-center overflow-hidden",
