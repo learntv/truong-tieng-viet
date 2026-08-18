@@ -1,6 +1,9 @@
 {
   "name": "tanstack_start_ts",
   "private": true,
+  "workspaces": [
+    "cms"
+  ],
   "sideEffects": false,
   "type": "module",
   "scripts": {
@@ -9,7 +12,8 @@
     "build:dev": "node scripts/build-with-lock.mjs development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "dev:cms": "bun run --cwd cms dev"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

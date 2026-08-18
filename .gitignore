@@ -38,3 +38,8 @@ scripts/.voice-previews/
 *.sln
 *.sw?
 
+
+# Supabase CLI scratch dir
+supabase/.temp/
+supabase/prod-snapshot/
+supabase/.branches/
