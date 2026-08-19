@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    'speaking-topics': SpeakingTopic;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,6 +79,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    'speaking-topics': SpeakingTopicsSelect<false> | SpeakingTopicsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -163,6 +165,25 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "speaking-topics".
+ */
+export interface SpeakingTopic {
+  _order?: string | null;
+  /**
+   * Mã chủ đề dùng trong URL, ví dụ 'noi-chao-hoi'. Không đổi sau khi tạo — tiến độ học của học sinh gắn với mã này.
+   */
+  id: string;
+  emoji: string;
+  title: string;
+  sentences: {
+    text: string;
+    id?: string | null;
+  }[];
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -192,6 +213,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'speaking-topics';
+        value: string | SpeakingTopic;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -274,6 +299,24 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "speaking-topics_select".
+ */
+export interface SpeakingTopicsSelect<T extends boolean = true> {
+  _order?: T;
+  id?: T;
+  emoji?: T;
+  title?: T;
+  sentences?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
