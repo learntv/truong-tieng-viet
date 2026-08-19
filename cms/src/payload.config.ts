@@ -21,7 +21,15 @@ export default buildConfig({
   },
   collections: [Users, Media, SpeakingTopics],
   // The app (Vite dev server / prod site) fetches public content from this CMS's REST API.
-  cors: ['http://localhost:8080', 'https://truongtiengviet.cvcec.org'],
+  // Browsers enforce this list, so every origin the app is served from has to appear here:
+  // the custom domain, the Vercel project URL it is aliased to, and the local dev server.
+  // Preview deploys get a unique URL per deployment and are deliberately not covered —
+  // point a preview at the local CMS, or add its origin here temporarily.
+  cors: [
+    'http://localhost:8080',
+    'https://truongtiengviet.cvcec.org',
+    'https://truong-tieng-viet.vercel.app',
+  ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
