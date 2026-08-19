@@ -43,3 +43,4 @@ scripts/.voice-previews/
 supabase/.temp/
 supabase/prod-snapshot/
 supabase/.branches/
+package-lock.json
