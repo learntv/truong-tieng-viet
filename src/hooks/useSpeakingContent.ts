@@ -1,5 +1,4 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import type { SpeakingSentence } from "@/lib/speech";
 
 export type SpeakingTopic = {
@@ -9,36 +8,30 @@ export type SpeakingTopic = {
   sentences: SpeakingSentence[];
 };
 
-// Curated speaking-practice topics for /luyen-noi. Lives in speaking_topic/
-// speaking_sentence rather than the chude/chang curriculum tables so it can't
-// collide with curriculum ids in the /luyen-noi/$chuDeId param — sentence and
-// topic ids keep the "noi-" prefix used since the content was hardcoded.
+type CmsSpeakingTopic = {
+  id: string;
+  emoji: string;
+  title: string;
+  sentences: { id: string; text: string }[] | null;
+};
+
+// Curated speaking-practice topics for /luyen-noi, managed in the Payload CMS
+// (cms/ workspace, "speaking-topics" collection) and read over its public REST
+// API. Topic and sentence ids keep the "noi-" prefix used since the content was
+// hardcoded — topic ids are the /luyen-noi/$chuDeId param and sentence ids key
+// user progress, so the CMS preserves them verbatim.
+const CMS_URL: string = import.meta.env.VITE_CMS_URL || process.env.CMS_URL || "";
+
 async function fetchSpeakingContent(): Promise<SpeakingTopic[]> {
-  const [topicsRes, sentencesRes] = await Promise.all([
-    supabase
-      .from("speaking_topic")
-      .select("id, emoji, title, position")
-      .order("position", { ascending: true }),
-    supabase
-      .from("speaking_sentence")
-      .select("id, topic_id, text, position")
-      .order("position", { ascending: true }),
-  ]);
-  if (topicsRes.error) throw topicsRes.error;
-  if (sentencesRes.error) throw sentencesRes.error;
+  const res = await fetch(`${CMS_URL}/api/speaking-topics?sort=_order&pagination=false&depth=0`);
+  if (!res.ok) throw new Error(`CMS speaking-topics request failed: ${res.status}`);
+  const { docs } = (await res.json()) as { docs: CmsSpeakingTopic[] };
 
-  const sentencesByTopic = new Map<string, SpeakingSentence[]>();
-  for (const s of sentencesRes.data ?? []) {
-    const arr = sentencesByTopic.get(s.topic_id) ?? [];
-    arr.push({ id: s.id, text: s.text });
-    sentencesByTopic.set(s.topic_id, arr);
-  }
-
-  return (topicsRes.data ?? []).map((t) => ({
+  return docs.map((t) => ({
     id: t.id,
     emoji: t.emoji,
     title: t.title,
-    sentences: sentencesByTopic.get(t.id) ?? [],
+    sentences: (t.sentences ?? []).map((s) => ({ id: s.id, text: s.text })),
   }));
 }
 
