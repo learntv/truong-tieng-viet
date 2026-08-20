@@ -70,6 +70,7 @@ export interface Config {
     users: User;
     media: Media;
     'speaking-topics': SpeakingTopic;
+    quyen: Quyen;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -80,6 +81,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'speaking-topics': SpeakingTopicsSelect<false> | SpeakingTopicsSelect<true>;
+    quyen: QuyenSelect<false> | QuyenSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -151,6 +153,7 @@ export interface User {
 export interface Media {
   id: number;
   alt: string;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -179,6 +182,70 @@ export interface SpeakingTopic {
     text: string;
     id?: string | null;
   }[];
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quyen".
+ */
+export interface Quyen {
+  id: number;
+  _order?: string | null;
+  /**
+   * Mã cố định của quyển. Không sửa được.
+   */
+  slug: string;
+  /**
+   * Tên quyển cố định. Không sửa được.
+   */
+  title: string;
+  chuDes?:
+    | {
+        title: string;
+        changs?:
+          | {
+              title: string;
+              noiDungs?:
+                | {
+                    title: string;
+                    bais?:
+                      | {
+                          texts?:
+                            | {
+                                text: string;
+                                id?: string | null;
+                              }[]
+                            | null;
+                          meta?: {
+                            audioUrl?: string | null;
+                            videoUrl?: string | null;
+                            link?: string | null;
+                          };
+                          hinhs?:
+                            | {
+                                image: number | Media;
+                                captions?:
+                                  | {
+                                      text: string;
+                                      id?: string | null;
+                                    }[]
+                                  | null;
+                                id?: string | null;
+                              }[]
+                            | null;
+                          id?: string | null;
+                        }[]
+                      | null;
+                    id?: string | null;
+                  }[]
+                | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -217,6 +284,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'speaking-topics';
         value: string | SpeakingTopic;
+      } | null)
+    | ({
+        relationTo: 'quyen';
+        value: number | Quyen;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -288,6 +359,7 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -313,6 +385,65 @@ export interface SpeakingTopicsSelect<T extends boolean = true> {
     | T
     | {
         text?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quyen_select".
+ */
+export interface QuyenSelect<T extends boolean = true> {
+  _order?: T;
+  slug?: T;
+  title?: T;
+  chuDes?:
+    | T
+    | {
+        title?: T;
+        changs?:
+          | T
+          | {
+              title?: T;
+              noiDungs?:
+                | T
+                | {
+                    title?: T;
+                    bais?:
+                      | T
+                      | {
+                          texts?:
+                            | T
+                            | {
+                                text?: T;
+                                id?: T;
+                              };
+                          meta?:
+                            | T
+                            | {
+                                audioUrl?: T;
+                                videoUrl?: T;
+                                link?: T;
+                              };
+                          hinhs?:
+                            | T
+                            | {
+                                image?: T;
+                                captions?:
+                                  | T
+                                  | {
+                                      text?: T;
+                                      id?: T;
+                                    };
+                                id?: T;
+                              };
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+            };
         id?: T;
       };
   updatedAt?: T;
