@@ -224,7 +224,7 @@ export interface ChuDe {
                 | {
                     title?: string | null;
                     meta?: {
-                      audioUrl?: string | null;
+                      audio?: (number | null) | Media;
                       videoUrl?: string | null;
                       link?: string | null;
                     };
@@ -431,7 +431,7 @@ export interface ChuDeSelect<T extends boolean = true> {
                     meta?:
                       | T
                       | {
-                          audioUrl?: T;
+                          audio?: T;
                           videoUrl?: T;
                           link?: T;
                         };

@@ -2,6 +2,7 @@ import * as migration_20260819_082806_initial from './20260819_082806_initial';
 import * as migration_20260821_065040_learning_tree from './20260821_065040_learning_tree';
 import * as migration_20260821_072301_bai_title from './20260821_072301_bai_title';
 import * as migration_20260821_074714_remove_bai_texts from './20260821_074714_remove_bai_texts';
+import * as migration_20260821_082037_bai_audio_upload from './20260821_082037_bai_audio_upload';
 
 export const migrations = [
   {
@@ -22,6 +23,11 @@ export const migrations = [
   {
     up: migration_20260821_074714_remove_bai_texts.up,
     down: migration_20260821_074714_remove_bai_texts.down,
-    name: '20260821_074714_remove_bai_texts'
+    name: '20260821_074714_remove_bai_texts',
+  },
+  {
+    up: migration_20260821_082037_bai_audio_upload.up,
+    down: migration_20260821_082037_bai_audio_upload.down,
+    name: '20260821_082037_bai_audio_upload'
   },
 ];

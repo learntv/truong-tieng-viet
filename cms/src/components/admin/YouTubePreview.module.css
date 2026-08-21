@@ -1,0 +1,14 @@
+/* The embed preview under the video field, sized like a small player rather than a full one. */
+.embed {
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: var(--style-radius-m);
+  margin-top: calc(var(--base) * 0.4);
+  max-width: 28rem;
+  width: 100%;
+}
+
+.warning {
+  color: var(--theme-elevation-500);
+  margin: calc(var(--base) * 0.25) 0 0 0;
+}

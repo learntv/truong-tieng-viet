@@ -119,8 +119,30 @@ export const ChuDe: CollectionConfig = {
                   label: 'Tệp đính kèm',
                   type: 'group',
                   fields: [
-                    { name: 'audioUrl', type: 'text', label: 'Đường dẫn âm thanh' },
-                    { name: 'videoUrl', type: 'text', label: 'Đường dẫn video' },
+                    {
+                      // Uploaded like the hình are, rather than a URL typed by hand. Lands in
+                      // the same media collection, which is R2-backed in production — and that
+                      // collection also holds every image, so the filter keeps this field to
+                      // audio files, both in the picker and on save.
+                      name: 'audio',
+                      type: 'upload',
+                      relationTo: 'media',
+                      label: 'Âm thanh',
+                      filterOptions: { mimeType: { contains: 'audio' } },
+                    },
+                    {
+                      // A YouTube link — the app embeds it. YouTubePreview renders the embed
+                      // under the input so the right video can be confirmed here.
+                      name: 'videoUrl',
+                      type: 'text',
+                      label: 'Video YouTube',
+                      admin: {
+                        placeholder: 'https://www.youtube.com/watch?v=…',
+                        components: {
+                          afterInput: ['@/components/admin/YouTubePreview#YouTubePreview'],
+                        },
+                      },
+                    },
                     { name: 'link', type: 'text', label: 'Liên kết' },
                   ],
                 },
@@ -140,12 +162,14 @@ export const ChuDe: CollectionConfig = {
                     {
                       // Uploaded into the media collection, which is backed by Cloudflare R2
                       // in production (see the s3Storage plugin in payload.config.ts). In dev
-                      // the same upload lands on the local filesystem instead.
+                      // the same upload lands on the local filesystem instead. That collection
+                      // holds audio too, so the filter keeps this field to images.
                       name: 'image',
                       type: 'upload',
                       relationTo: 'media',
                       required: true,
                       label: 'Hình',
+                      filterOptions: { mimeType: { contains: 'image' } },
                     },
                     {
                       // public.hinh.text is a jsonb array of captions. Edited as a cloud of

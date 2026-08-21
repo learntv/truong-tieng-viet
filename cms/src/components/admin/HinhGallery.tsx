@@ -52,6 +52,8 @@ export const HinhGallery: ArrayFieldClientComponent = ({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [ListDrawer, ListDrawerToggler, { closeDrawer }] = useListDrawer({
     collectionSlugs: ['media'],
+    // Media holds audio as well; without this the drawer would offer files the field rejects.
+    filterOptions: { media: { mimeType: { contains: 'image' } } },
   })
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<null | string>(null)
