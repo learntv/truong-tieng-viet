@@ -1,0 +1,25 @@
+/* The framed activity under the Liên kết field, sized like the video preview above it. */
+.preview {
+  margin-top: calc(var(--base) * 0.4);
+  max-width: 28rem;
+}
+
+.embed {
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: var(--style-radius-m);
+  display: block;
+  width: 100%;
+}
+
+.fallback {
+  color: var(--theme-elevation-500);
+  display: inline-block;
+  font-size: 0.9em;
+  margin-top: calc(var(--base) * 0.2);
+}
+
+.warning {
+  color: var(--theme-elevation-500);
+  margin: calc(var(--base) * 0.25) 0 0 0;
+}

@@ -2,6 +2,7 @@ import { ChuDeGrid as ChuDeGrid_80e6105b636695961f9526513d5b51f4 } from '@/compo
 import { NoField as NoField_3d88ff05e251bf75d37c983ed925ec33 } from '@/components/admin/NoField'
 import { AudioPreview as AudioPreview_24dd34507baf1ccf7c8db54c358a7795 } from '@/components/admin/AudioPreview'
 import { YouTubePreview as YouTubePreview_62128ccb8f4500a29b16fcfb62cea729 } from '@/components/admin/YouTubePreview'
+import { LinkPreview as LinkPreview_50a71f4bde0d820b4c14d5644e1168cf } from '@/components/admin/LinkPreview'
 import { TextCloud as TextCloud_10e221ab3b4ac7a4001dde83834382b0 } from '@/components/admin/TextCloud'
 import { HinhGallery as HinhGallery_27f1da4b206ac6135e8441b261f1ca6e } from '@/components/admin/HinhGallery'
 import { BaiRowLabel as BaiRowLabel_89faa7c9e5f0c5ffd69f52f6652f229c } from '@/components/admin/BaiRowLabel'
@@ -16,6 +17,7 @@ export const importMap = {
   "@/components/admin/NoField#NoField": NoField_3d88ff05e251bf75d37c983ed925ec33,
   "@/components/admin/AudioPreview#AudioPreview": AudioPreview_24dd34507baf1ccf7c8db54c358a7795,
   "@/components/admin/YouTubePreview#YouTubePreview": YouTubePreview_62128ccb8f4500a29b16fcfb62cea729,
+  "@/components/admin/LinkPreview#LinkPreview": LinkPreview_50a71f4bde0d820b4c14d5644e1168cf,
   "@/components/admin/TextCloud#TextCloud": TextCloud_10e221ab3b4ac7a4001dde83834382b0,
   "@/components/admin/HinhGallery#HinhGallery": HinhGallery_27f1da4b206ac6135e8441b261f1ca6e,
   "@/components/admin/BaiRowLabel#BaiRowLabel": BaiRowLabel_89faa7c9e5f0c5ffd69f52f6652f229c,

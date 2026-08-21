@@ -38,9 +38,10 @@ export const YouTubePreview: React.FC = () => {
 
 /**
  * The id out of any of the shapes YouTube hands out: a watch link, a share link, an embed URL,
- * a Shorts link, or the bare id itself.
+ * a Shorts link, or the bare id itself. Exported because the Liên kết field previews YouTube
+ * links too — a watch URL refuses to be framed, so it has to become an embed URL there as well.
  */
-function getYouTubeID(url: string): null | string {
+export function getYouTubeID(url: string): null | string {
   const bareID = /^[\w-]{11}$/
   if (bareID.test(url)) return url
 

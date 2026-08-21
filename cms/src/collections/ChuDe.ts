@@ -150,7 +150,19 @@ export const ChuDe: CollectionConfig = {
                         },
                       },
                     },
-                    { name: 'link', type: 'text', label: 'Liên kết' },
+                    {
+                      // Usually a Wordwall exercise; LinkPreview frames it under the input the
+                      // way YouTubePreview does for the video field.
+                      name: 'link',
+                      type: 'text',
+                      label: 'Liên kết',
+                      admin: {
+                        placeholder: 'https://wordwall.net/embed/…',
+                        components: {
+                          afterInput: ['@/components/admin/LinkPreview#LinkPreview'],
+                        },
+                      },
+                    },
                   ],
                 },
                 {
