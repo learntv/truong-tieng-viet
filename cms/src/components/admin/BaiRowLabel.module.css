@@ -9,11 +9,15 @@
   border-radius: var(--style-radius-s);
   color: inherit;
   font: inherit;
+  /* Chromium sizes the box to the text itself; elsewhere the `size` attribute the component
+   * sets is what the width falls back to. Either way the box ends where the name does instead
+   * of running most of the way across the row. */
+  field-sizing: content;
   max-width: 100%;
   padding: 0 calc(var(--base) * 0.15);
   pointer-events: auto;
   position: relative;
-  width: 24rem;
+  width: auto;
   z-index: 1;
 }
 

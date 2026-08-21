@@ -14,6 +14,8 @@ import styles from './BaiRowLabel.module.css'
  * itself to `pointer-events: none`, so the input has to opt back in and sit above the toggle,
  * or clicks would collapse the row instead of landing in the field.
  */
+const PLACEHOLDER = 'Chưa đặt tên'
+
 export const BaiRowLabel: React.FC = () => {
   const { path } = useRowLabel()
   const { setValue, value } = useField<string>({ path: `${path}.title` })
@@ -22,7 +24,11 @@ export const BaiRowLabel: React.FC = () => {
     <input
       className={styles.input}
       onChange={(e) => setValue(e.target.value)}
-      placeholder="Chưa đặt tên"
+      placeholder={PLACEHOLDER}
+      // Widens the box to whatever is in it, so a short name isn't a long empty stripe across
+      // the row. `size` counts characters against an average glyph width — the CSS pairs it
+      // with `field-sizing: content`, which measures the actual text where it's supported.
+      size={Math.max((value ?? '').length, PLACEHOLDER.length) + 1}
       value={value ?? ''}
     />
   )
