@@ -26,6 +26,14 @@ const dirname = path.dirname(filename)
 // R2_PUBLIC_URL is the bucket's public hostname (an r2.dev URL or a custom domain) — without
 // it Payload serves media back through its own /api/media/file route instead of straight
 // from the CDN.
+// Folder every upload lands in, inside the bucket. Without it Payload writes to the bucket
+// root, and this bucket is shared: the TTS cache owns audio/ (src/lib/tts/hash.ts) and the
+// original lesson images the CMS was seeded from still sit under quyen_1/.
+//
+// Applied on read as well as write, so it can't be changed once files exist without moving
+// every object by hand.
+const MEDIA_PREFIX = 'media'
+
 const r2Storage = s3Storage({
   enabled: process.env.NODE_ENV === 'production',
   // The prefix field this plugin adds must exist in the database whether or not the plugin
@@ -34,11 +42,18 @@ const r2Storage = s3Storage({
   alwaysInsertFields: true,
   collections: {
     media: {
+      prefix: MEDIA_PREFIX,
       // Media is world-readable anyway, so let the browser hit the bucket's public hostname
       // directly instead of proxying every image through this Next server.
       disablePayloadAccessControl: true,
+      // `prefix` here is the *document's* prefix field, never the collection prefix above —
+      // the plugin passes only `data.prefix` to this hook. Falling back to MEDIA_PREFIX is
+      // what keeps the URL pointing at the folder the file was actually written to; without
+      // it every upload would be stored under media/ and linked from the bucket root.
+      // The `||` mirrors the plugin's own rule, where a document prefix overrides the
+      // collection one rather than nesting inside it.
       generateFileURL: ({ filename, prefix }) =>
-        [process.env.R2_PUBLIC_URL, prefix, filename].filter(Boolean).join('/'),
+        [process.env.R2_PUBLIC_URL, prefix || MEDIA_PREFIX, filename].filter(Boolean).join('/'),
     },
   },
   bucket: process.env.R2_BUCKET || '',
