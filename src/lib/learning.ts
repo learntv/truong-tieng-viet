@@ -264,13 +264,35 @@ export function chuDeShortTitle(title: string): string {
   return title.replace(/^Chủ đề\s*\d+\s*[:：]\s*/i, "").trim() || title;
 }
 
-export const QUYEN_1_SLUG = "quyen-1";
+// Which quyển exist is a fixed roster, not something the CMS can grow on its own: it mirrors
+// QUYEN_ROSTER in cms/src/collections/Quyen.ts, and "/hoc-tap/quyen-3" stays a redirect back to
+// /hoc-tap until a quyển 3 is added in both places. *Content* is another matter — a quyển with
+// no chủ đề yet is a valid route that renders its map with every landmark still closed.
+export const QUYEN_NUMBERS = [1, 2] as const;
+export type QuyenNumber = (typeof QUYEN_NUMBERS)[number];
 
-// The chủ đề of Quyển 1. Which quyển a chủ đề belongs to is a real relationship in the CMS, so
+/** The URL/CMS slug of a quyển, e.g. 2 → "quyen-2". */
+export function quyenSlugOfNumber(quyenNumber: QuyenNumber): string {
+  return `quyen-${quyenNumber}`;
+}
+
+// The `{$quyenNumber}` route param is a raw string; this is the one place that decides whether
+// it names a real quyển, so the routes can redirect instead of rendering an empty book.
+export function parseQuyenNumber(raw: string | number): QuyenNumber | null {
+  const n = Number(raw);
+  return (QUYEN_NUMBERS as readonly number[]).includes(n) ? (n as QuyenNumber) : null;
+}
+
+// The chủ đề of one quyển. Which quyển a chủ đề belongs to is a real relationship in the CMS, so
 // this is a filter rather than the positional slice it had to be when every chủ đề lived in one
-// flat table: adding a fifth chủ đề to Quyển 1 in the admin panel is enough to make it appear.
-export function quyen1ChuDes(data: ChuDeWithChangs[] | undefined): ChuDeWithChangs[] {
-  return (data ?? []).filter((cd) => cd.quyenSlug === QUYEN_1_SLUG);
+// flat table: adding a fifth chủ đề to Quyển 1 in the admin panel is enough to make it appear,
+// and the first chủ đề given to Quyển 2 turns its first landmark on.
+export function chuDesOfQuyen(
+  data: ChuDeWithChangs[] | undefined,
+  quyenNumber: QuyenNumber,
+): ChuDeWithChangs[] {
+  const slug = quyenSlugOfNumber(quyenNumber);
+  return (data ?? []).filter((cd) => cd.quyenSlug === slug);
 }
 
 // A chủ đề counts as finished only when it has chặng *and* every one of them is complete — an

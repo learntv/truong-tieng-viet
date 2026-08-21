@@ -1,10 +1,11 @@
 import { ArrowLeft, BookOpen, Check, CircleDot, Lock } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import type { ChuDe } from "@/data/topics";
+import type { QuyenNumber } from "@/lib/learning";
 import { STAGE_COLORS } from "./stageColors";
 import { Button } from "@/components/ui/button";
 import { locationForChuDe } from "@/data/scenes";
-import { QUYEN1_LANDMARKS } from "@/data/overworld";
+import { landmarksForQuyen } from "@/data/overworld";
 import { badgeForChuDe } from "@/data/badges";
 import { BadgeMedal } from "./BadgeMedal";
 
@@ -28,14 +29,17 @@ function getLessonButtonLabel(
 }
 
 /**
- * The place this chủ đề is set in. `QUYEN1_LANDMARKS` is the authority on *which* place that is,
- * because it's what the overworld map pins the child clicked to get here — `CHU_DE_LOCATIONS` in
- * scenes.ts only tracks which backdrop *artwork* exists, and its indices don't line up with the
- * journey (chủ đề 2 is Hội An, but its backdrop is the golden-bridge painting). Fall back to the
- * scenes entry only for chủ đề the landmark list doesn't cover.
+ * The place this chủ đề is set in. The quyển's landmark list is the authority on *which* place
+ * that is, because it's what the overworld map pins the child clicked to get here —
+ * `CHU_DE_LOCATIONS` in scenes.ts only tracks which backdrop *artwork* exists, and its indices
+ * don't line up with the journey (chủ đề 2 is Hội An, but its backdrop is the golden-bridge
+ * painting). Fall back to the scenes entry only for chủ đề the landmark list doesn't cover.
  */
-function placeForChuDe(chuDeIndex: number): { name: string; blurb: string; photo?: string } {
-  const landmark = QUYEN1_LANDMARKS.find((l) => l.chuDeIndex === chuDeIndex);
+function placeForChuDe(
+  quyenNumber: QuyenNumber,
+  chuDeIndex: number,
+): { name: string; blurb: string; photo?: string } {
+  const landmark = landmarksForQuyen(quyenNumber).find((l) => l.chuDeIndex === chuDeIndex);
   if (landmark) {
     return { name: landmark.name, blurb: landmark.description, photo: landmark.photo };
   }
@@ -43,6 +47,7 @@ function placeForChuDe(chuDeIndex: number): { name: string; blurb: string; photo
 }
 
 export function RoadmapList({
+  quyenNumber,
   chuDe,
   chuDeIndex,
   isLocked,
@@ -55,6 +60,7 @@ export function RoadmapList({
   onOpenLesson,
   changProgress,
 }: {
+  quyenNumber: QuyenNumber;
   chuDe: ChuDe;
   chuDeIndex: number;
   isLocked: boolean;
@@ -69,9 +75,9 @@ export function RoadmapList({
   changProgress: Map<number, { current: number; total: number }>;
 }) {
   const accentSoft = ACCENT_SOFT[chuDe.accent] ?? ACCENT_SOFT.primary;
-  const location = placeForChuDe(chuDeIndex);
+  const location = placeForChuDe(quyenNumber, chuDeIndex);
   const photo = location.photo;
-  const badge = badgeForChuDe(chuDeIndex);
+  const badge = badgeForChuDe(quyenNumber, chuDeIndex);
 
   const totalStages = changTitles.length;
   const doneStages = Math.min(completedChangs.size, totalStages);
@@ -95,8 +101,12 @@ export function RoadmapList({
               Học tập
             </Link>
             <span className="px-1.5">&gt;</span>
-            <Link to="/hoc-tap/quyen-1" className="font-semibold text-ink hover:underline">
-              Quyển 1
+            <Link
+              to="/hoc-tap/quyen-{$quyenNumber}"
+              params={{ quyenNumber: String(quyenNumber) }}
+              className="font-semibold text-ink hover:underline"
+            >
+              Quyển {quyenNumber}
             </Link>
             <span className="px-1.5">&gt;</span>
             <span>{location.name}</span>
@@ -189,7 +199,10 @@ export function RoadmapList({
               nhé!
             </p>
             <Button asChild className="mx-auto mt-5">
-              <Link to="/hoc-tap/quyen-1">
+              <Link
+                to="/hoc-tap/quyen-{$quyenNumber}"
+                params={{ quyenNumber: String(quyenNumber) }}
+              >
                 <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
                 Về bản đồ
               </Link>

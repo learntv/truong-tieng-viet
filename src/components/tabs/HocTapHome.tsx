@@ -9,14 +9,12 @@ import cImg from "@/assets/alphabet/c.png";
 import { Mascot } from "@/components/Mascot";
 import { Card } from "@/components/ui/card";
 
-type LearnLink =
-  | "/hoc-tap/quyen-1"
-  | "/hoc-tap/quyen-2"
-  | "/hoc-tap/bang-chu-cai"
-  | "/hoc-tap/luyen-noi";
+type LearnLink = "/hoc-tap/quyen-{$quyenNumber}" | "/hoc-tap/bang-chu-cai" | "/hoc-tap/luyen-noi";
 
 type Item = {
   to: LearnLink;
+  /** Route params, for the quyển cards — the two books share one route. */
+  params?: { quyenNumber: string };
   category: string;
   title: string;
   meta: { icon: typeof BookOpen; text: string }[];
@@ -28,7 +26,8 @@ type Item = {
 
 const items: Item[] = [
   {
-    to: "/hoc-tap/quyen-1",
+    to: "/hoc-tap/quyen-{$quyenNumber}",
+    params: { quyenNumber: "1" },
     category: "Lộ trình cơ bản",
     title: "Quyển 1 — Làm quen tiếng Việt",
     cover: quyen1Cover,
@@ -40,16 +39,16 @@ const items: Item[] = [
     ],
   },
   {
-    to: "/hoc-tap/quyen-2",
+    to: "/hoc-tap/quyen-{$quyenNumber}",
+    params: { quyenNumber: "2" },
     category: "Lộ trình cơ bản",
     title: "Quyển 2 — Nâng cao vốn từ",
     cover: quyen2Cover,
     tone: "bg-stage-4-soft",
-    locked: true,
     meta: [
       { icon: GraduationCap, text: "Trình độ: Nâng cao" },
-      { icon: BookOpen, text: "Đang được biên soạn" },
-      { icon: CalendarDays, text: "Sắp ra mắt" },
+      { icon: BookOpen, text: "Nội dung đang được biên soạn" },
+      { icon: CalendarDays, text: "Mở dần từng chủ đề" },
     ],
   },
   {
@@ -99,7 +98,7 @@ export function HocTapHome() {
 
         <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
-            <ProgramCard key={item.to} item={item} />
+            <ProgramCard key={item.to + (item.params?.quyenNumber ?? "")} item={item} />
           ))}
         </div>
       </div>
@@ -109,7 +108,7 @@ export function HocTapHome() {
 
 function ProgramCard({ item }: { item: Item }) {
   return (
-    <Link to={item.to} className="group block">
+    <Link to={item.to} params={item.params} className="group block">
       <Card interactive className="flex h-full flex-col overflow-hidden rounded-none p-0">
         <div
           className={[

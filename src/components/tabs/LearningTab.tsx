@@ -3,10 +3,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import {
+  chuDesOfQuyen,
   learningImagesQueryOptions,
   learningStructureQueryOptions,
-  quyen1ChuDes,
+  type QuyenNumber,
 } from "@/lib/learning";
+import type { ChuDe } from "@/data/topics";
 import { RoadmapList } from "@/components/learning/RoadmapList";
 import { RoadmapSkeleton } from "@/components/learning/RoadmapSkeleton";
 import { buildSlides } from "@/components/learning/LessonPage";
@@ -18,13 +20,18 @@ import { BADGES } from "@/data/badges";
 
 export const BUFFALO_POS_KEY = "vui-hoc-buffalo-pos";
 
-export type BuffaloPos = { chuDeIndex: number; changIndex: number };
+// `quyenNumber` is part of the saved position, not just the chủ đề index: chủ đề are numbered
+// from 1 inside *each* quyển, so a position saved in Quyển 1 would otherwise park the buffalo —
+// and seed the stage — at the same index in Quyển 2. One slot is kept (the child is in one book
+// at a time); a position from another book reads as "nothing saved".
+export type BuffaloPos = { quyenNumber: number; chuDeIndex: number; changIndex: number };
 
-export function loadBuffaloPos(): BuffaloPos | null {
+export function loadBuffaloPos(quyenNumber: QuyenNumber): BuffaloPos | null {
   try {
     const raw = sessionStorage.getItem(BUFFALO_POS_KEY);
     if (!raw) return null;
-    return JSON.parse(raw) as BuffaloPos;
+    const pos = JSON.parse(raw) as BuffaloPos;
+    return pos.quyenNumber === quyenNumber ? pos : null;
   } catch {
     return null;
   }
@@ -38,7 +45,28 @@ function saveBuffaloPos(pos: BuffaloPos) {
   }
 }
 
-export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: number }) {
+// One-time "you finished the whole book" celebration, remembered per quyển — finishing Quyển 1
+// must not swallow the celebration for finishing Quyển 2.
+const celebrationSeenKey = (quyenNumber: QuyenNumber) =>
+  `vui-hoc-celebration-seen:quyen-${quyenNumber}`;
+
+// A quyển the CMS has no chủ đề for yet still has a chủ đề *page* — reached from a closed
+// landmark on the map. It renders the "sắp có" state, which needs an emoji and an accent but
+// no real content.
+const PLACEHOLDER_CHU_DE: ChuDe = {
+  id: "",
+  title: "",
+  emoji: "✏️",
+  accent: "primary",
+};
+
+export function LearningTab({
+  quyenNumber,
+  chuDeIndex: currentChuDeIndex,
+}: {
+  quyenNumber: QuyenNumber;
+  chuDeIndex: number;
+}) {
   const { data: allChuDes, isLoading, error } = useQuery(learningStructureQueryOptions);
   const navigate = useNavigate();
 
@@ -61,9 +89,12 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
     });
   }, []);
 
-  // The roadmap only ever shows Quyển 1's chủ đề; the rest of the `chude` table belongs to
-  // Quyển 2. Narrowing once here keeps every count below (progress, celebration) on-book.
-  const data = useMemo(() => (allChuDes ? quyen1ChuDes(allChuDes) : undefined), [allChuDes]);
+  // The roadmap only ever shows one quyển's chủ đề. Narrowing once here keeps every count below
+  // (progress, celebration) on-book.
+  const data = useMemo(
+    () => (allChuDes ? chuDesOfQuyen(allChuDes, quyenNumber) : undefined),
+    [allChuDes, quyenNumber],
+  );
 
   const queryClient = useQueryClient();
 
@@ -88,7 +119,7 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
   // only when that saved position actually belongs to the topic we're mounting on, otherwise
   // it'd bleed a stage index from a different chủ đề into this one.
   const seedChangIndex = () => {
-    const saved = loadBuffaloPos();
+    const saved = loadBuffaloPos(quyenNumber);
     return saved && saved.chuDeIndex === currentChuDeIndex ? saved.changIndex : 0;
   };
   const [currentChangIndex, setCurrentChangIndex] = useState(seedChangIndex);
@@ -97,7 +128,7 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
   // Restore the stage *within* the current chủ đề once data + progress are ready. The chủ đề
   // itself is pinned by the URL (source of truth), so this never navigates to a *different* chủ
   // đề — refreshing or deep-linking to a chủ đề keeps you exactly there. Cross-chủ-đề "resume
-  // where you left off" is the job of the "/hoc-tap/quyen-1" index redirect, not this effect.
+  // where you left off" is the job of the "/hoc-tap/quyen-N" index redirect, not this effect.
   // Stage priority: last-opened stage (sessionStorage) → first in-progress / incomplete → last.
   const hasRestoredRef = useRef(false);
   useEffect(() => {
@@ -124,7 +155,7 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
 
     // Prefer the stage the user last opened (saved in sessionStorage by openChang), but only
     // when it belongs to the chủ đề we're actually on and isn't already completed.
-    const saved = loadBuffaloPos();
+    const saved = loadBuffaloPos(quyenNumber);
     if (
       saved &&
       saved.chuDeIndex === currentChuDeIndex &&
@@ -145,14 +176,16 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
     }
 
     setStage(firstIncompleteWithin(currentChuDeIndex));
-  }, [data, authIsLoading, isProgressLoading, activeProgressMap, currentChuDeIndex]);
+  }, [data, authIsLoading, isProgressLoading, activeProgressMap, currentChuDeIndex, quyenNumber]);
 
   const chuDes = useMemo(() => (data ?? []).map((d) => d.chuDe), [data]);
 
-  // A chủ đề the book plans for but the DB has no content for yet renders as "coming soon".
+  // A chủ đề the book plans for but the CMS has no content for yet renders as "coming soon" —
+  // including every chủ đề of a quyển that is still empty, which is why the placeholder is used
+  // rather than falling back to `chuDes[0]` (there may not be one).
   const availableCount = chuDes.length;
-  const currentTopic = chuDes[currentChuDeIndex] ?? chuDes[0];
   const isCurrentLocked = currentChuDeIndex >= availableCount;
+  const currentTopic = chuDes[currentChuDeIndex] ?? PLACEHOLDER_CHU_DE;
 
   const changs = useMemo(() => data?.[currentChuDeIndex]?.changs ?? [], [data, currentChuDeIndex]);
   const changTitles = useMemo(() => changs.map((s) => s.title), [changs]);
@@ -214,12 +247,15 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
     if (i < 0 || i >= changs.length) return;
     const chang = changs[i];
     setCurrentChangIndex(i);
-    saveBuffaloPos({ chuDeIndex: currentChuDeIndex, changIndex: i });
-    navigate({ to: "/hoc-tap/quyen-1/$changId", params: { changId: chang.id } });
+    saveBuffaloPos({ quyenNumber, chuDeIndex: currentChuDeIndex, changIndex: i });
+    navigate({
+      to: "/hoc-tap/quyen-{$quyenNumber}/$changId",
+      params: { quyenNumber: String(quyenNumber), changId: chang.id },
+    });
   };
 
   // One-time celebration when the entire roadmap is complete.
-  const CELEBRATION_SEEN_KEY = "vui-hoc-celebration-seen";
+  const CELEBRATION_SEEN_KEY = celebrationSeenKey(quyenNumber);
   const totalStages = useMemo(
     () => (data ?? []).reduce((sum, d) => sum + d.changs.length, 0),
     [data],
@@ -256,7 +292,9 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
     );
   }
 
-  if (error || chuDes.length === 0 || !currentTopic) {
+  // Only a failed fetch is an error. An empty quyển falls through to the roadmap's own "sắp có"
+  // state, the same one a chủ đề without content gets.
+  if (error) {
     return (
       <section className="flex min-h-[60vh] w-full items-center justify-center px-4 text-center text-navy">
         <div>
@@ -273,6 +311,7 @@ export function LearningTab({ chuDeIndex: currentChuDeIndex }: { chuDeIndex: num
     <section className="w-full" id="roadmap-start">
       <div className="relative w-full">
         <RoadmapList
+          quyenNumber={quyenNumber}
           chuDe={currentTopic}
           chuDeIndex={currentChuDeIndex}
           isLocked={isCurrentLocked}

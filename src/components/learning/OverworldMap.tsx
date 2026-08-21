@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Check, HelpCircle, Lock, MapPin, Undo2 } from "lucide-react";
-import type { ChuDeWithChangs } from "@/lib/learning";
+import type { ChuDeWithChangs, QuyenNumber } from "@/lib/learning";
 import { chuDeShortTitle, isChuDeComplete } from "@/lib/learning";
 import type { ChangProgress } from "@/hooks/useUserProgress";
 import type { ChuDe } from "@/data/topics";
-import { QUYEN1_LANDMARKS } from "@/data/overworld";
+import { landmarksForQuyen } from "@/data/overworld";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { ConfettiBurst } from "./ConfettiBurst";
@@ -17,7 +17,10 @@ import cachHocBanner from "@/assets/cach-hoc-3-buoc.png";
 // Number of landmark completions the child has already been congratulated for on this map. Kept
 // in sessionStorage (not local) so the confetti fires once per visit-after-a-win rather than
 // every time they bounce back from a lesson.
-const MAP_CELEBRATED_KEY = "vui-hoc-map-celebrated";
+// Namespaced per quyển: each book has its own map, so landmarks finished in Quyển 1 must not
+// count as already-celebrated for Quyển 2.
+const mapCelebratedKey = (quyenNumber: QuyenNumber) =>
+  `vui-hoc-map-celebrated:quyen-${quyenNumber}`;
 
 // The three-step "how this works" tutorial is a first-visit-only overlay. Once the child taps
 // "Khám phá ngay" it never comes back, so this flag lives in localStorage (survives reloads and
@@ -47,9 +50,11 @@ const ACCENT: Record<ChuDe["accent"], { solid: string; text: string }> = {
 };
 
 export function OverworldMap({
+  quyenNumber,
   chuDes,
   progressMap,
 }: {
+  quyenNumber: QuyenNumber;
   chuDes: ChuDeWithChangs[];
   progressMap: Map<string, ChangProgress>;
 }) {
@@ -85,7 +90,7 @@ export function OverworldMap({
 
   // Every landmark is drawn, including ones whose chủ đề hasn't been written yet — those show
   // as "sắp có" so the child can see the whole journey ahead of them, not a map that grows.
-  const landmarks = QUYEN1_LANDMARKS;
+  const landmarks = landmarksForQuyen(quyenNumber);
 
   // A chủ đề unlocks when the one before it is finished; the first is always open. `current` is
   // the earliest unfinished one — that's where the buffalo waits.
@@ -114,29 +119,29 @@ export function OverworldMap({
   // Park the buffalo at the chủ đề the child was last studying if that one is still open,
   // otherwise at the earliest unfinished landmark.
   const buffaloIndex = useMemo(() => {
-    const saved = loadBuffaloPos();
+    const saved = loadBuffaloPos(quyenNumber);
     if (saved && statuses[saved.chuDeIndex] === "current") return saved.chuDeIndex;
     const current = statuses.indexOf("current");
     return current === -1 ? Math.max(0, chuDes.length - 1) : current;
-  }, [statuses, chuDes.length]);
+  }, [statuses, chuDes.length, quyenNumber]);
 
   // Fire confetti when the child lands back on the map having just finished a landmark.
   useEffect(() => {
     if (doneCount === 0) return;
     let seen = 0;
     try {
-      seen = Number(sessionStorage.getItem(MAP_CELEBRATED_KEY) ?? "0");
+      seen = Number(sessionStorage.getItem(mapCelebratedKey(quyenNumber)) ?? "0");
     } catch {
       /* sessionStorage unavailable */
     }
     if (doneCount <= seen) return;
     setCelebrating(true);
     try {
-      sessionStorage.setItem(MAP_CELEBRATED_KEY, String(doneCount));
+      sessionStorage.setItem(mapCelebratedKey(quyenNumber), String(doneCount));
     } catch {
       /* ignore */
     }
-  }, [doneCount]);
+  }, [doneCount, quyenNumber]);
 
   // Dashed route drawn through the landmarks in order. One path per segment so the stretches
   // already travelled can be tinted gold while the rest stay a faint dashed trail.
@@ -148,8 +153,8 @@ export function OverworldMap({
 
   const openChuDe = (index: number) => {
     navigate({
-      to: "/hoc-tap/quyen-1/chu-de-{$chuDeIndex}",
-      params: { chuDeIndex: String(index + 1) },
+      to: "/hoc-tap/quyen-{$quyenNumber}/chu-de-{$chuDeIndex}",
+      params: { quyenNumber: String(quyenNumber), chuDeIndex: String(index + 1) },
     });
   };
 

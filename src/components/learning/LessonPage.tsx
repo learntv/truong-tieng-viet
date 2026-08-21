@@ -18,7 +18,8 @@ import {
 import { Link, useCanGoBack, useNavigate, useRouter } from "@tanstack/react-router";
 import { useLearningContent } from "@/hooks/useLearningContent";
 import { useSingletonAudio } from "@/hooks/useSingletonAudio";
-import type { Bai, Hinh, NoiDung } from "@/lib/learning";
+import type { Bai, Hinh, NoiDung, QuyenNumber } from "@/lib/learning";
+import { chuDesOfQuyen } from "@/lib/learning";
 import { joinForSpeech, ttsSrc } from "@/lib/tts/text";
 import { STAGE_COLORS } from "./stageColors";
 import { ConfettiBurst } from "./ConfettiBurst";
@@ -37,12 +38,14 @@ type StageColor = (typeof STAGE_COLORS)[number];
 // only sizing/positioning differs between the two, passed in via className.
 function BackToMapButton({
   color,
+  quyenNumber,
   topicIndex,
   className,
   arrowClassName,
   iconClassName,
 }: {
   color: StageColor;
+  quyenNumber: QuyenNumber;
   topicIndex: number;
   className: string;
   arrowClassName: string;
@@ -53,8 +56,8 @@ function BackToMapButton({
 
   return (
     <Link
-      to="/hoc-tap/quyen-1/chu-de-{$chuDeIndex}"
-      params={{ chuDeIndex: String(topicIndex + 1) }}
+      to="/hoc-tap/quyen-{$quyenNumber}/chu-de-{$chuDeIndex}"
+      params={{ quyenNumber: String(quyenNumber), chuDeIndex: String(topicIndex + 1) }}
       // The child almost always arrives here from the map, so the map is already sitting
       // one step back in history. Pop that entry rather than pushing (or replacing with)
       // another chủ đề entry — otherwise the browser's own back button either re-enters
@@ -325,6 +328,7 @@ function slideLabel(slide: Slide, index: number): string {
 /** Back to the map + how far through the chặng the learner is. */
 function ChangProgressHeader({
   color,
+  quyenNumber,
   chuDeIndex,
   slideIndex,
   total,
@@ -332,6 +336,7 @@ function ChangProgressHeader({
   className,
 }: {
   color: StageColor;
+  quyenNumber: QuyenNumber;
   chuDeIndex: number;
   slideIndex: number;
   total: number;
@@ -342,6 +347,7 @@ function ChangProgressHeader({
     <div className={["shrink-0 items-center gap-3 p-3", className].join(" ")}>
       <BackToMapButton
         color={color}
+        quyenNumber={quyenNumber}
         topicIndex={chuDeIndex}
         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-[transform,box-shadow] ease-bounce active:translate-y-[2px]"
         arrowClassName="h-5 w-5 shrink-0"
@@ -370,6 +376,7 @@ function ChangProgressHeader({
 /** Left rail: the chặng's content items, the way Khan lists a lesson's videos/exercises. */
 function LessonSidebar({
   chuDe,
+  quyenNumber,
   chuDeIndex,
   chang,
   changIndex,
@@ -385,6 +392,7 @@ function LessonSidebar({
   onGoChang,
 }: {
   chuDe: { title: string; emoji: string };
+  quyenNumber: QuyenNumber;
   chuDeIndex: number;
   chang: { title: string; emoji: string };
   changCount: number;
@@ -413,6 +421,7 @@ function LessonSidebar({
           the drawer, so the way back and the progress stay visible without opening it. */}
       <ChangProgressHeader
         color={color}
+        quyenNumber={quyenNumber}
         chuDeIndex={chuDeIndex}
         slideIndex={slideIndex}
         total={slides.length}
@@ -428,15 +437,16 @@ function LessonSidebar({
           className="flex items-center justify-center gap-1 text-[11px] font-bold uppercase tracking-wide"
         >
           <Link
-            to="/hoc-tap/quyen-1"
+            to="/hoc-tap/quyen-{$quyenNumber}"
+            params={{ quyenNumber: String(quyenNumber) }}
             className={["shrink-0 hover:underline", color.text].join(" ")}
           >
-            Quyển 1
+            Quyển {quyenNumber}
           </Link>
           <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground" strokeWidth={3} />
           <Link
-            to="/hoc-tap/quyen-1/chu-de-{$chuDeIndex}"
-            params={{ chuDeIndex: String(chuDeIndex + 1) }}
+            to="/hoc-tap/quyen-{$quyenNumber}/chu-de-{$chuDeIndex}"
+            params={{ quyenNumber: String(quyenNumber), chuDeIndex: String(chuDeIndex + 1) }}
             className={["min-w-0 truncate hover:underline", color.text].join(" ")}
           >
             {chuDe.title}
@@ -533,7 +543,13 @@ function LessonSidebar({
   );
 }
 
-export function LessonPage({ changId }: { changId: string }) {
+export function LessonPage({
+  quyenNumber,
+  changId,
+}: {
+  quyenNumber: QuyenNumber;
+  changId: string;
+}) {
   const { data, isLoading, error } = useLearningContent();
   const navigate = useNavigate();
   const {
@@ -544,10 +560,14 @@ export function LessonPage({ changId }: { changId: string }) {
     saveChangPosition,
   } = useLearningProgress();
 
+  // Scoped to this quyển: chủ đề are numbered from 1 inside each book, so `topicIndex` — which
+  // is what the links back to the map are built from — has to be an index within the quyển in
+  // the URL, not into the whole tree.
   const found = useMemo(() => {
     if (!data) return null;
-    for (let topicIndex = 0; topicIndex < data.length; topicIndex++) {
-      const topic = data[topicIndex];
+    const chuDes = chuDesOfQuyen(data, quyenNumber);
+    for (let topicIndex = 0; topicIndex < chuDes.length; topicIndex++) {
+      const topic = chuDes[topicIndex];
       const changIndex = topic.changs.findIndex((c) => c.id === changId);
       if (changIndex !== -1) {
         return {
@@ -560,7 +580,7 @@ export function LessonPage({ changId }: { changId: string }) {
       }
     }
     return null;
-  }, [data, changId]);
+  }, [data, changId, quyenNumber]);
 
   const savedNoiDungIndex = found ? (activeProgressMap.get(found.chang.id)?.noiDungIndex ?? 0) : 0;
   const isCompleted = found ? !!activeProgressMap.get(found.chang.id)?.isCompleted : false;
@@ -690,7 +710,7 @@ export function LessonPage({ changId }: { changId: string }) {
         </h1>
         <p className="mb-6 text-muted-foreground">Chặng học này không tồn tại hoặc đã bị xóa.</p>
         <Button variant="bevel" tone="primary" asChild>
-          <Link to="/hoc-tap/quyen-1">
+          <Link to="/hoc-tap/quyen-{$quyenNumber}" params={{ quyenNumber: String(quyenNumber) }}>
             <ArrowLeft className="h-4 w-4" />
             Quay lại lộ trình
           </Link>
@@ -746,7 +766,7 @@ export function LessonPage({ changId }: { changId: string }) {
       requestAnimationFrame(() => setFading(false));
     }, 160);
   };
-  const earnedBadge = badgeForChuDe(topicIndex);
+  const earnedBadge = badgeForChuDe(quyenNumber, topicIndex);
   const handleComplete = async () => {
     if (isCompleted) return;
     const ok = await markChangComplete(chang.id, currentSlide?.ndIndex ?? 0);
@@ -783,8 +803,8 @@ export function LessonPage({ changId }: { changId: string }) {
       }
     }
     navigate({
-      to: "/hoc-tap/quyen-1/chu-de-{$chuDeIndex}",
-      params: { chuDeIndex: String(topicIndex + 1) },
+      to: "/hoc-tap/quyen-{$quyenNumber}/chu-de-{$chuDeIndex}",
+      params: { quyenNumber: String(quyenNumber), chuDeIndex: String(topicIndex + 1) },
     });
   };
 
@@ -792,7 +812,11 @@ export function LessonPage({ changId }: { changId: string }) {
   // between chặng of the same chủ đề, so the map must stay exactly one entry back.
   const goToChang = (id: string) => {
     setShowNextPrompt(false);
-    navigate({ to: "/hoc-tap/quyen-1/$changId", params: { changId: id }, replace: true });
+    navigate({
+      to: "/hoc-tap/quyen-{$quyenNumber}/$changId",
+      params: { quyenNumber: String(quyenNumber), changId: id },
+      replace: true,
+    });
   };
 
   const goToNextChang = () => {
@@ -803,8 +827,8 @@ export function LessonPage({ changId }: { changId: string }) {
     // current page, and BackToMapButton's router.history.back() (which assumes the map is
     // always exactly one entry back) lands on the previous chặng instead of the map.
     navigate({
-      to: "/hoc-tap/quyen-1/$changId",
-      params: { changId: nextChang.id },
+      to: "/hoc-tap/quyen-{$quyenNumber}/$changId",
+      params: { quyenNumber: String(quyenNumber), changId: nextChang.id },
       replace: true,
     });
   };
@@ -823,6 +847,7 @@ export function LessonPage({ changId }: { changId: string }) {
           <div className="absolute inset-y-0 left-0 w-[85%] max-w-sm animate-in slide-in-from-left duration-200">
             <LessonSidebar
               chuDe={chuDe}
+              quyenNumber={quyenNumber}
               chuDeIndex={topicIndex}
               chang={chang}
               changIndex={changIndex}
@@ -845,6 +870,7 @@ export function LessonPage({ changId }: { changId: string }) {
           at the top of the page instead, where they're visible without opening it. */}
       <ChangProgressHeader
         color={color}
+        quyenNumber={quyenNumber}
         chuDeIndex={topicIndex}
         slideIndex={slideIndex}
         total={total}
@@ -865,6 +891,7 @@ export function LessonPage({ changId }: { changId: string }) {
         >
           <LessonSidebar
             chuDe={chuDe}
+            quyenNumber={quyenNumber}
             chuDeIndex={topicIndex}
             chang={chang}
             changIndex={changIndex}

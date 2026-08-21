@@ -28,10 +28,12 @@ export type Badge = {
    */
   upcoming?: boolean;
   /**
-   * Only for badges that happen to be tied to a chủ đề: which one, so the roadmap page can show
-   * the badge in context and light it up the instant the last chặng is done, without waiting for
-   * the server. Purely a display shortcut — it is not what makes the badge earnable.
+   * Only for badges that happen to be tied to a chủ đề: which quyển and which chủ đề within it,
+   * so the roadmap page can show the badge in context and light it up the instant the last chặng
+   * is done, without waiting for the server. Both are needed because chủ đề are numbered from 1
+   * inside each quyển. Purely a display shortcut — it is not what makes the badge earnable.
    */
+  quyenNumber?: number;
   chuDeIndex?: number;
 };
 
@@ -43,6 +45,7 @@ export const BADGES: Badge[] = [
     name: "Vịnh Hạ Long",
     art: haLongBadge,
     howToEarn: COMPLETE_CHU_DE,
+    quyenNumber: 1,
     chuDeIndex: 0,
   },
   {
@@ -50,6 +53,7 @@ export const BADGES: Badge[] = [
     name: "Phố cổ Hội An",
     art: hoiAnBadge,
     howToEarn: COMPLETE_CHU_DE,
+    quyenNumber: 1,
     chuDeIndex: 1,
   },
   {
@@ -57,6 +61,7 @@ export const BADGES: Badge[] = [
     name: "Toà nhà Landmark 81",
     art: landmark81Badge,
     howToEarn: COMPLETE_CHU_DE,
+    quyenNumber: 1,
     chuDeIndex: 2,
   },
   {
@@ -64,6 +69,7 @@ export const BADGES: Badge[] = [
     name: "Cầu Vàng",
     art: cauVangBadge,
     howToEarn: COMPLETE_CHU_DE,
+    quyenNumber: 1,
     chuDeIndex: 3,
   },
   {
@@ -97,6 +103,8 @@ export const BADGES: Badge[] = [
 ];
 
 /** The badge tied to a chủ đề, if there is one. Used by the roadmap page for local display. */
-export function badgeForChuDe(chuDeIndex: number): Badge | undefined {
-  return BADGES.find((b) => b.chuDeIndex === chuDeIndex && !b.upcoming);
+export function badgeForChuDe(quyenNumber: number, chuDeIndex: number): Badge | undefined {
+  return BADGES.find(
+    (b) => b.quyenNumber === quyenNumber && b.chuDeIndex === chuDeIndex && !b.upcoming,
+  );
 }

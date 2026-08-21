@@ -48,6 +48,16 @@ export type Discovery = {
   deep: { heading: string; teaser: string; paragraphs: string[] };
 };
 
+/**
+ * The landmarks of one quyển. Every quyển draws the same map for now: Quyển 2 reuses Quyển 1's
+ * four places until its own artwork and landmark list exist. Give it its own array here (and
+ * its own backdrop in OverworldMap) when that happens — nothing else needs to change, because
+ * every caller asks through this function rather than reading QUYEN1_LANDMARKS directly.
+ */
+export function landmarksForQuyen(_quyenNumber: number): Landmark[] {
+  return QUYEN1_LANDMARKS;
+}
+
 export const QUYEN1_LANDMARKS: Landmark[] = [
   {
     chuDeIndex: 0,
