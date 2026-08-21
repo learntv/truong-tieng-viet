@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { learningStructureQueryOptions } from "@/lib/learning";
 
 export type CountryCount = { code: string; count: number };
 export type GrowthPoint = { period: string; students: number };
@@ -36,20 +37,23 @@ function bucketByWeek(dates: Date[]): GrowthPoint[] {
 }
 
 export function useDashboardStats() {
+  const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: async () => {
-      const [profilesRes, changRes, badgesRes] = await Promise.all([
+      // "Finished the course" means every chặng, so the denominator has to come from wherever
+      // the lessons live — that is the CMS now, not public.chang. `ensureQueryData` shares the
+      // roadmap's cached copy instead of fetching the tree a second time.
+      const [profilesRes, lessons, badgesRes] = await Promise.all([
         supabase.from("profiles").select("country, completed_count, created_at"),
-        supabase.from("chang").select("id", { count: "exact", head: true }),
+        queryClient.ensureQueryData(learningStructureQueryOptions),
         supabase.from("user_badges").select("badge_slug", { count: "exact", head: true }),
       ]);
       if (profilesRes.error) throw profilesRes.error;
-      if (changRes.error) throw changRes.error;
       if (badgesRes.error) throw badgesRes.error;
 
       const profiles = profilesRes.data ?? [];
-      const totalChang = changRes.count ?? 0;
+      const totalChang = lessons.reduce((n, cd) => n + cd.changs.length, 0);
       const certificatesIssued = badgesRes.count ?? 0;
 
       const totalRegistered = profiles.length;

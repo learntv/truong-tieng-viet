@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { chuDeShortTitle, learningStructureQueryOptions } from "@/lib/learning";
 
 // A student counts as "active" if they have touched anything within this window;
 // past it, a student who started but hasn't finished is flagged for follow-up.
@@ -49,14 +50,6 @@ export type StudentReport = {
   summary: ReportSummary;
 };
 
-// `text` columns hold a localized payload that is either a string or an array of
-// strings; the first entry is the display label (same convention as lib/learning).
-function firstText(text: unknown): string {
-  if (Array.isArray(text) && typeof text[0] === "string") return text[0];
-  if (typeof text === "string") return text;
-  return "";
-}
-
 function titleCase(s: string): string {
   return s.length ? s[0].toUpperCase() + s.slice(1) : s;
 }
@@ -93,8 +86,6 @@ type ProfileRow = {
   avatar_url: string | null;
   created_at: string;
 };
-type ChangRow = { id: string; chude_id: string; position: number; text: unknown };
-type ChudeRow = { id: string; position: number; text: unknown };
 
 function classify(
   completed: number,
@@ -116,26 +107,25 @@ function classify(
  * the staff-gated dashboard.
  */
 export function useStudentReport() {
+  const queryClient = useQueryClient();
   const { data, isLoading, error } = useQuery<StudentReport>({
     queryKey: ["student-report"],
     queryFn: async () => {
-      const [profilesRes, changRes, chudeRes, progress, speaking] = await Promise.all([
+      const [profilesRes, lessons, progress, speaking] = await Promise.all([
         supabase
           .from("profiles")
           .select("id, username, display_name, country, avatar_emoji, avatar_url, created_at"),
-        supabase.from("chang").select("id, chude_id, position, text"),
-        supabase.from("chude").select("id, position, text"),
+        // The chặng roster and its titles come from the CMS (see lib/learning); only the
+        // progress rows still live in Supabase. `ensureQueryData` reuses whatever copy of the
+        // tree the app already has cached.
+        queryClient.ensureQueryData(learningStructureQueryOptions),
         fetchAll<ProgressRow>("user_progress", "user_id, chang_id, completed_at"),
         fetchAll<SpeakingRow>("speaking_progress", "user_id, best_stars, updated_at"),
       ]);
       if (profilesRes.error) throw profilesRes.error;
-      if (changRes.error) throw changRes.error;
-      if (chudeRes.error) throw chudeRes.error;
 
       const profiles = (profilesRes.data ?? []) as ProfileRow[];
-      const changs = (changRes.data ?? []) as ChangRow[];
-      const chudes = (chudeRes.data ?? []) as ChudeRow[];
-      const totalChang = changs.length;
+      const totalChang = lessons.reduce((n, cd) => n + cd.changs.length, 0);
       const now = Date.now();
 
       // --- Per-student aggregation -------------------------------------------------
@@ -195,26 +185,23 @@ export function useStudentReport() {
       students.sort((x, y) => (y.lastActive?.getTime() ?? 0) - (x.lastActive?.getTime() ?? 0));
 
       // --- Funnel, ordered by curriculum sequence ----------------------------------
-      const chudeById = new Map(chudes.map((c) => [c.id, c]));
-      const funnel: ChangFunnelRow[] = changs
-        .map((ch) => {
+      // The CMS returns the tree already in curriculum order, so walking it in place is the
+      // ordering — no position columns to sort by.
+      const funnel: ChangFunnelRow[] = lessons.flatMap((cd) =>
+        cd.changs.map((ch) => {
           const r = reached.get(ch.id) ?? 0;
           const c = completedByChang.get(ch.id) ?? 0;
-          const cd = chudeById.get(ch.chude_id);
           return {
             id: ch.id,
-            title: titleCase(firstText(ch.text)) || ch.id,
-            chudeTitle: cd ? titleCase(firstText(cd.text)) : "",
+            title: titleCase(ch.title) || ch.id,
+            chudeTitle: titleCase(chuDeShortTitle(cd.chuDe.title)),
             reached: r,
             completed: c,
             dropoff: r - c,
             completionPct: r > 0 ? (c / r) * 100 : 0,
-            _chudePos: cd?.position ?? 0,
-            _pos: ch.position,
           };
-        })
-        .sort((a, b) => a._chudePos - b._chudePos || a._pos - b._pos)
-        .map(({ _chudePos, _pos, ...row }) => row);
+        }),
+      );
 
       const withProgress = students.filter((s) => s.startedChang > 0);
       const summary: ReportSummary = {

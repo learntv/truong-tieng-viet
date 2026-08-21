@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Check, HelpCircle, Lock, MapPin, Undo2 } from "lucide-react";
 import type { ChuDeWithChangs } from "@/lib/learning";
-import { isChuDeComplete } from "@/lib/learning";
+import { chuDeShortTitle, isChuDeComplete } from "@/lib/learning";
 import type { ChangProgress } from "@/hooks/useUserProgress";
 import type { ChuDe } from "@/data/topics";
 import { QUYEN1_LANDMARKS } from "@/data/overworld";
@@ -45,10 +45,6 @@ const ACCENT: Record<ChuDe["accent"], { solid: string; text: string }> = {
   purple: { solid: "bg-purple", text: "text-purple" },
   green: { solid: "bg-green", text: "text-green" },
 };
-
-function shortTitle(title: string): string {
-  return title.replace(/^Chủ đề\s*\d+\s*[:：]\s*/i, "").trim() || title;
-}
 
 export function OverworldMap({
   chuDes,
@@ -244,7 +240,7 @@ export function OverworldMap({
                 const accent = (cd && ACCENT[cd.accent]) ?? ACCENT.primary;
                 const stats = changStats[lm.chuDeIndex];
                 // A chủ đề with no content yet has no title of its own — name it after the place.
-                const title = cd ? shortTitle(cd.title) : lm.name;
+                const title = cd ? chuDeShortTitle(cd.title) : lm.name;
                 const label = `Chủ đề ${lm.chuDeIndex + 1}: ${title} — ${
                   status === "completed"
                     ? "đã hoàn thành"

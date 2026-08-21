@@ -5,8 +5,12 @@
 // nhân vật/thẻ hình đó. Hình KHÔNG có trong LESSON_HIGHLIGHTS hiển thị y như cũ.
 //
 // Cách thêm hình mới:
-//   1. Lấy id của hình (cột "id" bảng "hinh" trên Supabase, ví dụ
-//      "quyen_1:chude01.chang03.noidung01.bai01.hinh01").
+//   1. Lấy id của hình, ví dụ "quyen_1:chude01.chang03.noidung01.bai01.hinh01".
+//      Id này được ghép từ VỊ TRÍ của hình trong CMS (xem src/lib/learning.ts):
+//      quyển → chủ đề thứ mấy → chặng thứ mấy → nội dung → bài → hình, mỗi cấp
+//      đánh số từ 01. Đếm trên trang admin của chủ đề là ra.
+//      LƯU Ý: chèn/xoá/kéo đổi thứ tự một hình sẽ làm đổi id của những hình sau
+//      nó, nên phải sửa lại khóa ở đây cho khớp.
 //   2. Thêm một khóa mới vào LESSON_HIGHLIGHTS với id đó.
 //   3. Khai báo các vùng gợi ý:
 //      - Thẻ xếp đều dạng lưới (2×3, 3×2, ...) → dùng makeGridTargets cho gọn.
