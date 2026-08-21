@@ -20,12 +20,8 @@ const dirname = path.dirname(filename)
 // off so `bun run dev` needs no R2 credentials and writes files to disk under cms/media —
 // which is also why it can't be left on everywhere: with the plugin enabled Payload sets
 // `disableLocalStorage`, and a dev machine would then need real bucket access to show images.
-//
-// R2 speaks the S3 API, so the s3Storage adapter drives it. Two R2 specifics: the region is
-// always 'auto', and the endpoint is the account-scoped R2 URL rather than an AWS host.
-// R2_PUBLIC_URL is the bucket's public hostname (an r2.dev URL or a custom domain) — without
-// it Payload serves media back through its own /api/media/file route instead of straight
-// from the CDN.
+const R2_ENABLED = process.env.NODE_ENV === 'production'
+
 // Folder every upload lands in, inside the bucket. Without it Payload writes to the bucket
 // root, and this bucket is shared: the TTS cache owns audio/ (src/lib/tts/hash.ts) and the
 // original lesson images the CMS was seeded from still sit under quyen_1/.
@@ -34,8 +30,48 @@ const dirname = path.dirname(filename)
 // every object by hand.
 const MEDIA_PREFIX = 'media'
 
+// The app half of the repo talks to this same bucket (src/lib/tts/r2.server.ts), so the CMS
+// reads the same variable names instead of keeping a second set of its own. It used to want
+// R2_ENDPOINT and R2_PUBLIC_URL where the app had R2_ACCOUNT_ID and R2_PUBLIC_BASE_URL, and
+// both halves of that mismatch failed badly: a missing endpoint left the AWS SDK to invent
+// `<bucket>.s3.auto.amazonaws.com` and every upload died on DNS, while a missing public URL
+// didn't fail at all — uploads succeeded and quietly stored a hostless URL.
+//
+// So: one set of names, no endpoint to configure (R2's S3 endpoint is always derivable from
+// the account id), and a hard failure at startup naming whatever is absent.
+function requireR2Env() {
+  const missing = (
+    ['R2_ACCOUNT_ID', 'R2_ACCESS_KEY_ID', 'R2_SECRET_ACCESS_KEY', 'R2_BUCKET', 'R2_PUBLIC_BASE_URL'] as const
+  ).filter((name) => !process.env[name])
+
+  if (missing.length > 0) {
+    throw new Error(
+      `Media uploads are enabled (NODE_ENV=production) but these R2 variables are unset: ` +
+        `${missing.join(', ')}. Set them on the CMS deployment, or run with NODE_ENV unset to ` +
+        `store uploads on local disk instead.`,
+    )
+  }
+
+  return {
+    bucket: process.env.R2_BUCKET!,
+    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+    // Public hostname the bucket is served from — an r2.dev URL or a custom domain.
+    publicBaseUrl: process.env.R2_PUBLIC_BASE_URL!.replace(/\/+$/, ''),
+    // R2's S3-compatible endpoint is account-scoped and fixed. R2_ENDPOINT stays as an escape
+    // hatch for the jurisdiction-specific hosts (`<id>.eu.r2.cloudflarestorage.com`), which
+    // this project doesn't use.
+    endpoint:
+      process.env.R2_ENDPOINT || `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  }
+}
+
+// Read once, at import: a misconfigured deployment should refuse to boot rather than fail on
+// the first upload an editor attempts.
+const r2 = R2_ENABLED ? requireR2Env() : null
+
 const r2Storage = s3Storage({
-  enabled: process.env.NODE_ENV === 'production',
+  enabled: R2_ENABLED,
   // The prefix field this plugin adds must exist in the database whether or not the plugin
   // is switched on: migrations are generated locally (plugin off) and applied to production
   // (plugin on), so without this the two schemas drift apart.
@@ -53,16 +89,19 @@ const r2Storage = s3Storage({
       // The `||` mirrors the plugin's own rule, where a document prefix overrides the
       // collection one rather than nesting inside it.
       generateFileURL: ({ filename, prefix }) =>
-        [process.env.R2_PUBLIC_URL, prefix || MEDIA_PREFIX, filename].filter(Boolean).join('/'),
+        [r2?.publicBaseUrl, prefix || MEDIA_PREFIX, filename].filter(Boolean).join('/'),
     },
   },
-  bucket: process.env.R2_BUCKET || '',
+  // Empty when the plugin is disabled: `enabled: false` means none of this is ever read, and
+  // `requireR2Env` has already thrown if it should have been.
+  bucket: r2?.bucket ?? '',
   config: {
+    // R2 has no regions; 'auto' is the literal value its S3 API expects.
     region: 'auto',
-    endpoint: process.env.R2_ENDPOINT || '',
+    endpoint: r2?.endpoint ?? '',
     credentials: {
-      accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
-      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+      accessKeyId: r2?.accessKeyId ?? '',
+      secretAccessKey: r2?.secretAccessKey ?? '',
     },
   },
 })
