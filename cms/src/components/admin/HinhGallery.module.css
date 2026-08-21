@@ -1,0 +1,113 @@
+/*
+ * The hình gallery: one full-width row per image, the picker on its own line and the chú thích
+ * on the next. Built on Payload's admin theme variables.
+ */
+.gallery {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--base) * 0.4);
+  list-style: none;
+  margin: 0 0 calc(var(--base) * 0.6) 0;
+  padding: 0;
+}
+
+.card {
+  align-items: flex-start;
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: var(--style-radius-m);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--base) * 0.4);
+  padding: calc(var(--base) * 0.5) calc(var(--base) * 1.6) calc(var(--base) * 0.5)
+    calc(var(--base) * 0.5);
+  position: relative;
+}
+
+/*
+ * Full width on purpose: the 20rem cap this had while captions sat beside it squeezed the empty
+ * upload field until "Chọn từ thư viện" broke across two lines. The nowrap keeps those buttons
+ * on one line whatever the row's width turns out to be.
+ */
+.cardMedia {
+  width: 100%;
+}
+
+.cardMedia button {
+  white-space: nowrap;
+}
+
+.cardCaptions {
+  width: 100%;
+}
+
+/*
+ * The field's own "Hình" label repeats the gallery's, once per row. The gallery label above
+ * already names them.
+ */
+.cardMedia :global(.field-label) {
+  display: none;
+}
+
+/* Pinned to the right end of the row, clear of the fields. */
+.remove {
+  align-items: center;
+  background-color: var(--theme-elevation-0);
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: 999px;
+  color: var(--theme-elevation-600);
+  cursor: pointer;
+  display: flex;
+  padding: calc(var(--base) * 0.1);
+  position: absolute;
+  right: calc(var(--base) * 0.4);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.remove:hover {
+  background-color: var(--theme-elevation-100);
+  color: var(--theme-elevation-800);
+}
+
+.remove svg {
+  height: 0.9rem;
+  width: 0.9rem;
+}
+
+/* The two ways in: upload from disk, or pick something already in the media library. */
+.actions {
+  align-items: center;
+  display: flex;
+  gap: calc(var(--base) * 0.6);
+}
+
+.chooseExisting {
+  background: none;
+  border: none;
+  color: var(--theme-elevation-600);
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.chooseExisting:hover {
+  color: var(--theme-elevation-1000);
+}
+
+/* The picker is opened by the button; the input itself is never shown. */
+.fileInput {
+  display: none;
+}
+
+.error {
+  color: var(--theme-error-500);
+  margin: 0 0 calc(var(--base) * 0.5) 0;
+}
+
+/* Keeps a tall image from stretching its card out of the grid. */
+.card :global(.thumbnail) img {
+  max-height: 12rem;
+  object-fit: contain;
+}

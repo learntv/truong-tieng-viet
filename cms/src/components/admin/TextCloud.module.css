@@ -1,0 +1,84 @@
+/*
+ * The câu chữ cloud: chips that wrap, with a trailing box to type the next one. Built on
+ * Payload's admin theme variables so it matches the rest of the panel.
+ */
+.cloud {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--base) * 0.25);
+}
+
+.chip {
+  align-items: center;
+  background-color: var(--theme-elevation-50);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  display: inline-flex;
+  gap: calc(var(--base) * 0.15);
+  padding: calc(var(--base) * 0.15) calc(var(--base) * 0.4);
+}
+
+.chip:focus-within {
+  background-color: var(--theme-input-bg);
+  border-color: var(--theme-elevation-400);
+}
+
+/* The chip is the visible surface; its input brings no chrome of its own. */
+.chipInput {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  min-width: 0;
+  padding: 0;
+}
+
+.chipInput:focus {
+  outline: none;
+}
+
+.chipRemove {
+  align-items: center;
+  background: none;
+  border: none;
+  border-radius: 999px;
+  color: var(--theme-elevation-500);
+  cursor: pointer;
+  display: flex;
+  opacity: 0;
+  padding: 0;
+}
+
+.chip:hover .chipRemove,
+.chip:focus-within .chipRemove {
+  opacity: 1;
+}
+
+.chipRemove:hover {
+  color: var(--theme-elevation-800);
+}
+
+.chipRemove svg {
+  height: 0.85rem;
+  width: 0.85rem;
+}
+
+.draft {
+  background: none;
+  border: none;
+  border-bottom: 1px solid transparent;
+  color: inherit;
+  font: inherit;
+  min-width: 8rem;
+  padding: calc(var(--base) * 0.15) 0;
+}
+
+.draft:focus {
+  border-bottom-color: var(--theme-elevation-400);
+  outline: none;
+}
+
+.draft::placeholder {
+  color: var(--theme-elevation-400);
+}

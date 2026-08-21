@@ -71,6 +71,7 @@ export interface Config {
     media: Media;
     'speaking-topics': SpeakingTopic;
     quyen: Quyen;
+    'chu-de': ChuDe;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -82,6 +83,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     'speaking-topics': SpeakingTopicsSelect<false> | SpeakingTopicsSelect<true>;
     quyen: QuyenSelect<false> | QuyenSelect<true>;
+    'chu-de': ChuDeSelect<false> | ChuDeSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -200,37 +202,38 @@ export interface Quyen {
    * Tên quyển cố định. Không sửa được.
    */
   title: string;
-  chuDes?:
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "chu-de".
+ */
+export interface ChuDe {
+  id: number;
+  _order?: string | null;
+  title: string;
+  quyen: number | Quyen;
+  changs?:
     | {
         title: string;
-        changs?:
+        noiDungs?:
           | {
               title: string;
-              noiDungs?:
+              bais?:
                 | {
-                    title: string;
-                    bais?:
+                    title?: string | null;
+                    meta?: {
+                      audioUrl?: string | null;
+                      videoUrl?: string | null;
+                      link?: string | null;
+                    };
+                    hinhs?:
                       | {
-                          texts?:
+                          image: number | Media;
+                          captions?:
                             | {
                                 text: string;
-                                id?: string | null;
-                              }[]
-                            | null;
-                          meta?: {
-                            audioUrl?: string | null;
-                            videoUrl?: string | null;
-                            link?: string | null;
-                          };
-                          hinhs?:
-                            | {
-                                image: number | Media;
-                                captions?:
-                                  | {
-                                      text: string;
-                                      id?: string | null;
-                                    }[]
-                                  | null;
                                 id?: string | null;
                               }[]
                             | null;
@@ -288,6 +291,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'quyen';
         value: number | Quyen;
+      } | null)
+    | ({
+        relationTo: 'chu-de';
+        value: number | ChuDe;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -398,44 +405,44 @@ export interface QuyenSelect<T extends boolean = true> {
   _order?: T;
   slug?: T;
   title?: T;
-  chuDes?:
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "chu-de_select".
+ */
+export interface ChuDeSelect<T extends boolean = true> {
+  _order?: T;
+  title?: T;
+  quyen?: T;
+  changs?:
     | T
     | {
         title?: T;
-        changs?:
+        noiDungs?:
           | T
           | {
               title?: T;
-              noiDungs?:
+              bais?:
                 | T
                 | {
                     title?: T;
-                    bais?:
+                    meta?:
                       | T
                       | {
-                          texts?:
+                          audioUrl?: T;
+                          videoUrl?: T;
+                          link?: T;
+                        };
+                    hinhs?:
+                      | T
+                      | {
+                          image?: T;
+                          captions?:
                             | T
                             | {
                                 text?: T;
-                                id?: T;
-                              };
-                          meta?:
-                            | T
-                            | {
-                                audioUrl?: T;
-                                videoUrl?: T;
-                                link?: T;
-                              };
-                          hinhs?:
-                            | T
-                            | {
-                                image?: T;
-                                captions?:
-                                  | T
-                                  | {
-                                      text?: T;
-                                      id?: T;
-                                    };
                                 id?: T;
                               };
                           id?: T;

@@ -1,0 +1,32 @@
+/*
+ * The rename input sitting in a bài's row header. It has to escape two things Payload's
+ * collapsible does to its header: `pointer-events: none` on the wrapper, and a full-size toggle
+ * button stacked behind it.
+ */
+.input {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--style-radius-s);
+  color: inherit;
+  font: inherit;
+  max-width: 100%;
+  padding: 0 calc(var(--base) * 0.15);
+  pointer-events: auto;
+  position: relative;
+  width: 24rem;
+  z-index: 1;
+}
+
+.input:hover {
+  border-color: var(--theme-elevation-200);
+}
+
+.input:focus {
+  background-color: var(--theme-input-bg);
+  border-color: var(--theme-elevation-400);
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--theme-elevation-400);
+}

@@ -1,0 +1,128 @@
+/*
+ * Styled with Payload's admin theme variables (--theme-elevation-*, --base) so the tabs match
+ * the rest of the panel.
+ */
+.tabBar {
+  align-items: center;
+  border-bottom: 1px solid var(--theme-elevation-150);
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--base) * 0.25);
+  margin-bottom: calc(var(--base) * 0.75);
+  padding-bottom: calc(var(--base) * 0.25);
+}
+
+.tab {
+  align-items: center;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--style-radius-s) var(--style-radius-s) 0 0;
+  color: var(--theme-elevation-600);
+  cursor: pointer;
+  display: flex;
+  font-size: 0.9rem;
+  gap: calc(var(--base) * 0.25);
+  /* Keeps a long chặng name from stretching the bar into one tab per line. */
+  max-width: 16rem;
+  overflow: hidden;
+  padding: calc(var(--base) * 0.35) calc(var(--base) * 0.6);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  background-color: var(--theme-elevation-50);
+  color: var(--theme-elevation-800);
+}
+
+.tabActive {
+  background-color: var(--theme-elevation-50);
+  border-color: var(--theme-elevation-150);
+  border-bottom-color: transparent;
+  color: var(--theme-elevation-1000);
+  font-weight: 600;
+  margin-bottom: calc(var(--base) * -0.25 - 1px);
+  padding-bottom: calc(var(--base) * 0.35 + 1px);
+}
+
+.tabError {
+  color: var(--theme-error-500);
+}
+
+/* The whole pill is the target for switching tabs; the name inside it is a bare button. */
+.tabSelect {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  max-width: 14rem;
+  overflow: hidden;
+  padding: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Closes the tab, the way a browser tab closes: dim until the pill is hovered or active. */
+.tabDelete {
+  align-items: center;
+  background: none;
+  border: none;
+  border-radius: var(--style-radius-s);
+  color: var(--theme-elevation-500);
+  cursor: pointer;
+  display: flex;
+  opacity: 0;
+  padding: 0;
+}
+
+.tab:hover .tabDelete,
+.tabActive .tabDelete {
+  opacity: 1;
+}
+
+.tabDelete:hover {
+  background-color: var(--theme-elevation-150);
+  color: var(--theme-elevation-800);
+}
+
+.tabDelete svg {
+  height: 1rem;
+  width: 1rem;
+}
+
+/*
+ * The active tab is renamed in place: the input carries the tab's own type styling and shows no
+ * chrome of its own, so the pill reads as a label until it's focused.
+ */
+.tabInput {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  min-width: 0;
+  padding: 0;
+}
+
+.tabInput:focus {
+  outline: none;
+}
+
+.tabInput::placeholder {
+  color: var(--theme-elevation-400);
+  font-weight: 400;
+}
+
+.addTab {
+  margin-left: calc(var(--base) * 0.25);
+}
+
+.empty {
+  color: var(--theme-elevation-500);
+  margin: 0;
+}
+
+.panel {
+  position: relative;
+}
+

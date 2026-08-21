@@ -1,0 +1,88 @@
+/*
+ * Section headings for the nội dung rows. The goal is one clear break between sections — a
+ * caption, a title, a rule — instead of a second set of box chrome inside the chặng tab.
+ * Built on Payload's admin theme variables so it matches the rest of the panel.
+ */
+.empty {
+  color: var(--theme-elevation-500);
+  margin: 0 0 calc(var(--base) * 0.5) 0;
+}
+
+.section {
+  margin-bottom: calc(var(--base) * 1.25);
+}
+
+/* The title carries the section on its own; the actions sit to its right. */
+.sectionHeader {
+  align-items: center;
+  display: flex;
+  gap: calc(var(--base) * 0.4);
+  padding-bottom: calc(var(--base) * 0.35);
+}
+
+.sectionActions {
+  display: flex;
+  flex-shrink: 0;
+  gap: calc(var(--base) * 0.1);
+  margin-left: auto;
+}
+
+/* Payload's only vertical chevron points down, so the "move up" button reuses it flipped. */
+.moveUp svg {
+  transform: rotate(180deg);
+}
+
+/*
+ * The title reads as the section's heading rather than as a form field: no label, and no input
+ * chrome until it's hovered or focused. Its placeholder is what an unnamed section shows.
+ */
+.sectionTitle {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.sectionTitle :global(.field-label) {
+  display: none;
+}
+
+.sectionTitle :global(.field-type) {
+  margin: 0;
+}
+
+.sectionTitle input {
+  background-color: transparent;
+  border-color: transparent;
+  font-size: 1.15rem;
+  font-weight: 600;
+  padding-left: 0;
+}
+
+.sectionTitle input:hover {
+  border-color: var(--theme-elevation-150);
+}
+
+.sectionTitle input:focus {
+  background-color: var(--theme-input-bg);
+  border-color: var(--theme-elevation-400);
+  padding-left: calc(var(--base) * 0.4);
+}
+
+/*
+ * The bài sit inset from their section heading, so a phần is visibly the wider thing that
+ * contains them. Their array field's own header — the "Bài" title and its Collapse All / Show
+ * All / row-actions menu — is hidden: the section heading above already says what this list is,
+ * and two stacked headers were the bulk of the clutter.
+ */
+.sectionBody {
+  padding-left: calc(var(--base) * 0.85);
+  padding-top: calc(var(--base) * 0.4);
+}
+
+/*
+ * Child combinators all the way down on purpose: only the bài array's own header goes away.
+ * The arrays nested inside a bài — câu chữ, hình, chú thích — keep theirs, since nothing else
+ * names them.
+ */
+.sectionBody > :global(.render-fields) > :global(.array-field) > :global(.array-field__header) {
+  display: none;
+}

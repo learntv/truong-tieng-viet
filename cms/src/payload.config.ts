@@ -1,4 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { vi } from '@payloadcms/translations/languages/vi'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
 import path from 'path'
@@ -10,6 +11,7 @@ import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { SpeakingTopics } from './collections/SpeakingTopics'
 import { Quyen, QUYEN_ROSTER } from './collections/Quyen'
+import { ChuDe } from './collections/ChuDe'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -53,11 +55,14 @@ const r2Storage = s3Storage({
 export default buildConfig({
   admin: {
     user: Users.slug,
+    // Pin the admin panel to the light palette instead of following the OS setting,
+    // so every editor sees the same white background.
+    theme: 'light',
     importMap: {
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, SpeakingTopics, Quyen],
+  collections: [Users, Media, SpeakingTopics, Quyen, ChuDe],
   // The app (Vite dev server / prod site) fetches public content from this CMS's REST API.
   // Browsers enforce this list, so every origin the app is served from has to appear here:
   // the custom domain, the Vercel project URL it is aliased to, and the local dev server.
@@ -83,6 +88,13 @@ export default buildConfig({
       await payload.create({ collection: 'quyen', data: quyen })
       payload.logger.info(`created quyển ${quyen.slug}`)
     }
+  },
+  // Every label in this config is Vietnamese; leaving the admin chrome on its English default
+  // meant a form that read "Add Bài" and "Collapse All" next to "Thêm phần". Only Vietnamese is
+  // offered, so the panel can't fall back to English from a browser's Accept-Language header.
+  i18n: {
+    fallbackLanguage: 'vi',
+    supportedLanguages: { vi },
   },
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
