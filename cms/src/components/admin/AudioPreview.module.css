@@ -1,0 +1,7 @@
+/* The player under the audio field, kept to the width of the upload card above it. */
+.player {
+  display: block;
+  margin-top: calc(var(--base) * 0.4);
+  max-width: 28rem;
+  width: 100%;
+}

@@ -129,6 +129,13 @@ export const ChuDe: CollectionConfig = {
                       relationTo: 'media',
                       label: 'Âm thanh',
                       filterOptions: { mimeType: { contains: 'audio' } },
+                      // The upload card names the file but can't play it; AudioPreview puts a
+                      // player under it so the recording can be checked here.
+                      admin: {
+                        components: {
+                          afterInput: ['@/components/admin/AudioPreview#AudioPreview'],
+                        },
+                      },
                     },
                     {
                       // A YouTube link — the app embeds it. YouTubePreview renders the embed
