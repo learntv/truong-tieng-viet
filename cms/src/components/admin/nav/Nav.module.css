@@ -1,0 +1,89 @@
+/*
+ * The deep-blue sidebar. This is the structural move that stops the panel reading
+ * as stock Payload the moment it loads — everything else in the theme is a repaint.
+ */
+.nav {
+  background: var(--ttv-blue-900);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: calc(var(--base) * 0.5);
+  height: 100vh;
+  left: 0;
+  overflow-y: auto;
+  padding: calc(var(--base) * 0.75) calc(var(--base) * 0.6);
+  position: sticky;
+  top: 0;
+  /* Above `.template-default__wrap`, which sits in the same 0-width grid track
+     until nav-open lands — without this the main content paints over the nav. */
+  z-index: var(--z-nav);
+  /*
+   * Payload's own DefaultNav gives itself this same fixed width so it isn't at the
+   * mercy of the grid track it sits in — `.template-default`'s first column is 0
+   * wide until the nav-open state lands, which only happens above the 1440px
+   * breakpoint on a first visit with no stored preference. --nav-width is a
+   * structural sizing variable Payload defines globally (not a colour token), so
+   * reaching for it here isn't reopening the "internal classes" no-go — it is
+   * giving this component the same escape hatch Payload's own nav already uses.
+   */
+  width: var(--nav-width);
+}
+
+.header {
+  align-items: center;
+  border-bottom: 1px solid rgb(255 255 255 / 15%);
+  display: flex;
+  gap: calc(var(--base) * 0.4);
+  padding-bottom: calc(var(--base) * 0.6);
+}
+
+.school {
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.groupLabel {
+  color: var(--ttv-blue-300);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin: calc(var(--base) * 0.5) calc(var(--base) * 0.3) calc(var(--base) * 0.2);
+  text-transform: uppercase;
+}
+
+.item {
+  border-radius: var(--style-radius-s);
+  color: #d6e6f5;
+  display: block;
+  padding: calc(var(--base) * 0.3) calc(var(--base) * 0.4);
+  text-decoration: none;
+}
+
+.item:hover,
+.item:focus-visible {
+  background: var(--ttv-blue-700);
+  color: #ffffff;
+}
+
+/* Disabled items are rendered as text, not links — there is nowhere to go yet. */
+.itemDisabled {
+  color: var(--ttv-blue-300);
+  cursor: default;
+  display: flex;
+  gap: calc(var(--base) * 0.3);
+  justify-content: space-between;
+  padding: calc(var(--base) * 0.3) calc(var(--base) * 0.4);
+}
+
+.note {
+  font-size: 0.7rem;
+  font-style: italic;
+}
