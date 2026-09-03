@@ -142,3 +142,26 @@ a:not(.btn):not([class*='nav']) {
 .pill-selector__pill--selected {
   background-color: var(--ttv-blue-50);
 }
+
+/*
+ * Reserve the nav's grid column on desktop.
+ *
+ * Our replacement Nav renders outside Payload's own NavWrapper, so it never
+ * receives the `--nav-open` class that would otherwise switch
+ * `.template-default`'s grid from `0 auto` to `var(--nav-width) auto`. Left alone,
+ * the sidebar's fixed width (see Nav.module.css) just overflows a zero-width
+ * column and overlays the first 275px of `.template-default__wrap` — invisible on
+ * the dashboard, which centres its own content, but real on every full-width page:
+ * collection lists, document edit views.
+ *
+ * The design calls for a persistent desktop sidebar, so the column is always
+ * reserved above the breakpoint rather than toggled open/closed. Payload sets
+ * `--nav-width: 100vw` below 768px, so this stays guarded to desktop widths —
+ * this project is desktop-only, and an unconditional rule would give a phone a
+ * full-viewport sidebar.
+ */
+@media (min-width: 769px) {
+  .template-default {
+    grid-template-columns: var(--nav-width) auto;
+  }
+}
