@@ -65,3 +65,35 @@ test.describe('Sidebar', () => {
     await expect(page).toHaveURL(adminURL('/collections/chu-de'))
   })
 })
+
+test.describe('Dashboard', () => {
+  test.beforeAll(async () => {
+    await seedTestUser()
+  })
+
+  test.afterAll(async () => {
+    await cleanupTestUser()
+  })
+
+  test('greets the teacher and offers the three destinations', async ({ page }) => {
+    await login({ page, user: testUser })
+
+    // Not scoped to a landmark: "Mở quyển 1" appears nowhere else in the panel, and
+    // scoping to `main` would break the moment Payload's own template renders one too.
+    // seedUser creates dev@payloadcms.com with no display name, so the greeting falls
+    // back to the local part.
+    await expect(page.getByText(/^Chào dev/)).toBeVisible()
+
+    await expect(page.getByRole('link', { name: 'Mở quyển 1' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Mở quyển 2' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Mở luyện nói' })).toBeVisible()
+  })
+
+  test('opens a quyển from its card', async ({ page }) => {
+    await login({ page, user: testUser })
+
+    await page.getByRole('link', { name: 'Mở quyển 1' }).click()
+
+    await expect(page).toHaveURL(/\/admin\/collections\/quyen\/[^/]+$/)
+  })
+})

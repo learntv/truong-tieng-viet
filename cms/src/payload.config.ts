@@ -119,6 +119,9 @@ export default buildConfig({
         Logo: '@/components/admin/brand/Logo#Logo',
       },
       Nav: '@/components/admin/nav/Nav#Nav',
+      views: {
+        dashboard: { Component: '@/components/admin/dashboard/Dashboard#Dashboard' },
+      },
     },
     // A teacher may have eight tabs open; the suffix is what makes this one findable.
     meta: {
