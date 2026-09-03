@@ -13,18 +13,32 @@ test.describe('Admin theme', () => {
 
     const tokens = await page.evaluate(() => {
       const root = getComputedStyle(document.documentElement)
+
+      // Resolve custom properties through the browser to their canonical rgb form.
+      // Minified stylesheets may rewrite hex literals (e.g. #ffffff → #fff), so the
+      // test compares resolved colours, not token text — its job is to detect a
+      // reverted skin, not to police the minifier.
+      const resolve = (token) => {
+        const probe = document.createElement('span')
+        probe.style.color = root.getPropertyValue(token).trim()
+        document.body.appendChild(probe)
+        const resolved = getComputedStyle(probe).color
+        probe.remove()
+        return resolved
+      }
+
       return {
-        blue500: root.getPropertyValue('--ttv-blue-500').trim(),
-        amber700: root.getPropertyValue('--ttv-amber-700').trim(),
-        base0: root.getPropertyValue('--color-base-0').trim(),
+        blue500: resolve('--ttv-blue-500'),
+        amber700: resolve('--ttv-amber-700'),
+        base0: resolve('--color-base-0'),
         fontFamily: getComputedStyle(document.body).fontFamily,
         rootFontSize: root.fontSize,
       }
     })
 
-    expect(tokens.blue500).toBe('#006cb4')
-    expect(tokens.amber700).toBe('#8c5500')
-    expect(tokens.base0).toBe('#ffffff')
+    expect(tokens.blue500).toBe('rgb(0, 108, 180)')
+    expect(tokens.amber700).toBe('rgb(140, 85, 0)')
+    expect(tokens.base0).toBe('rgb(255, 255, 255)')
     expect(tokens.rootFontSize).toBe('15px')
 
     expect(tokens.fontFamily).toContain('Arimo')
