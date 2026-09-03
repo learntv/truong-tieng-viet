@@ -428,7 +428,7 @@ Reviewable as text. Wording is final unless changed here.
 |---|---|
 | No chủ đề in a quyển | `Quyển này chưa có chủ đề nào. Bấm "Thêm chủ đề" để tạo cái đầu tiên.` |
 | No chặng | `Chủ đề này chưa có chặng nào. Bấm "Thêm chặng" để bắt đầu.` |
-| No bài in a nội dung | `Phần này chưa có bài nào.` |
+| No phần in a chặng | `Chặng này chưa có phần nào. Bấm “Thêm phần” để bắt đầu.` |
 | No hình in a bài | `Bài này chưa có hình. Bấm "Thêm hình" để tải ảnh lên.` |
 | Delete chặng | `Xoá chặng "{tên}" và {n} bài bên trong? Không khôi phục được.` |
 | Delete chủ đề | `Xoá chủ đề "{tên}" và toàn bộ chặng, bài, hình bên trong? Không khôi phục được.` |
