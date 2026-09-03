@@ -10,6 +10,10 @@ import type { CollectionConfig } from 'payload'
 // orphans existing progress, so don't.
 export const SpeakingTopics: CollectionConfig = {
   slug: 'speaking-topics',
+  labels: {
+    singular: 'Chủ đề luyện nói',
+    plural: 'Luyện nói',
+  },
   access: {
     read: () => true,
   },

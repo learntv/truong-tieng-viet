@@ -80,7 +80,7 @@ export const NoiDungSections: ArrayFieldClientComponent = ({
   return (
     <div className="field-type">
       {rows.length === 0 && (
-        <p className={styles.empty}>Chưa có phần nào. Bấm “Thêm phần” để tạo cái đầu tiên.</p>
+        <p className={styles.empty}>Chặng này chưa có phần nào. Bấm “Thêm phần” để bắt đầu.</p>
       )}
 
       {rows.map((row, index) => {

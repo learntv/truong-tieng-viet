@@ -125,6 +125,10 @@ export const HinhGallery: ArrayFieldClientComponent = ({
 
       {error && <p className={styles.error}>{error}</p>}
 
+      {rows.length === 0 && (
+        <p className={styles.empty}>Bài này chưa có hình. Bấm “Thêm hình” để tải ảnh lên.</p>
+      )}
+
       {rows.length > 0 && (
         <ul className={styles.gallery}>
           {rows.map((row, index) => (

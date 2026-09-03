@@ -108,7 +108,7 @@ export const ChangTabs: ArrayFieldClientComponent = ({
   const { name, fields, maxRows } = field
   const schemaPath = schemaPathFromProps ?? name
 
-  const { addFieldRow, removeFieldRow } = useForm()
+  const { addFieldRow, getDataByPath, removeFieldRow } = useForm()
   const submitted = useFormSubmitted()
   const { disabled, errorPaths, path, rows = [] } = useField({
     hasRows: true,
@@ -134,14 +134,36 @@ export const ChangTabs: ArrayFieldClientComponent = ({
   }, [addFieldRow, path, rows.length, schemaPath])
 
   // A chặng holds its whole nội dung → bài → hình subtree, so losing one to a stray click costs
-  // a lot more than losing an ordinary array row.
+  // a lot more than losing an ordinary array row. Naming the chặng and counting the bài is what
+  // makes this a real warning rather than a speed bump — "toàn bộ nội dung bên trong" is true
+  // but tells an editor nothing about how much she is about to lose.
+  //
+  // `rows` carries row metadata rather than values, so the numbers come from form state.
   const removeRow = useCallback(
     (rowIndex: number) => {
-      if (!window.confirm('Xoá chặng này và toàn bộ nội dung bên trong?')) return
+      const chang = getDataByPath<{
+        noiDungs?: { bais?: unknown[] }[]
+        title?: string
+      }>(`${path}.${rowIndex}`)
+
+      const baiCount = (chang?.noiDungs ?? []).reduce(
+        (total, noiDung) => total + (noiDung?.bais?.length ?? 0),
+        0,
+      )
+      const name = chang?.title?.trim() || UNTITLED
+
+      if (
+        !window.confirm(
+          `Xoá chặng “${name}” và ${baiCount} bài bên trong? Không khôi phục được.`,
+        )
+      ) {
+        return
+      }
+
       removeFieldRow({ path, rowIndex })
       setActiveIndex(Math.max(0, Math.min(rowIndex, rows.length - 2)))
     },
-    [path, removeFieldRow, rows.length],
+    [getDataByPath, path, removeFieldRow, rows.length],
   )
 
   const errorCountFor = (rowIndex: number) =>
@@ -181,7 +203,7 @@ export const ChangTabs: ArrayFieldClientComponent = ({
       </div>
 
       {rows.length === 0 && (
-        <p className={styles.empty}>Chưa có chặng nào. Bấm “Thêm chặng” để tạo cái đầu tiên.</p>
+        <p className={styles.empty}>Chủ đề này chưa có chặng nào. Bấm “Thêm chặng” để bắt đầu.</p>
       )}
 
       {activeRow && (

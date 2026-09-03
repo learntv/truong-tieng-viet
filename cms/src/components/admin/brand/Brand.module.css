@@ -1,0 +1,39 @@
+/* Login screen wordmark. Payload sizes this slot loosely, so cap it here. */
+.wordmark {
+  height: auto;
+  max-width: 18rem;
+  width: 100%;
+}
+
+/* Nav header buffalo. The RGBA asset, so it is safe on the blue sidebar. */
+.icon {
+  height: calc(var(--base) * 1.4);
+  width: calc(var(--base) * 1.4);
+}
+
+.beforeLogin {
+  align-items: center;
+  display: flex;
+  gap: calc(var(--base) * 0.75);
+  margin-bottom: calc(var(--base) * 1.25);
+  text-align: left;
+}
+
+/* Palette PNG with light edge pixels — kept on this pale ground, never on blue. */
+.mascot {
+  flex-shrink: 0;
+  height: calc(var(--base) * 3);
+  width: auto;
+}
+
+.copy {
+  color: var(--color-base-600);
+  margin: 0;
+}
+
+.school {
+  color: var(--color-base-800);
+  display: block;
+  font-weight: 700;
+  margin-bottom: calc(var(--base) * 0.15);
+}
