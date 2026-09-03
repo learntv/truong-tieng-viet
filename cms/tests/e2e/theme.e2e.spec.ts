@@ -18,7 +18,7 @@ test.describe('Admin theme', () => {
       // Minified stylesheets may rewrite hex literals (e.g. #ffffff → #fff), so the
       // test compares resolved colours, not token text — its job is to detect a
       // reverted skin, not to police the minifier.
-      const resolve = (token) => {
+      const resolve = (token: string) => {
         const probe = document.createElement('span')
         probe.style.color = root.getPropertyValue(token).trim()
         document.body.appendChild(probe)
