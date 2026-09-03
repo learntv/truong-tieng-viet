@@ -175,8 +175,20 @@ site happens to use it too.
 
 ### Density
 
-`--base-body-size` 13 → 15, and `--style-radius-s/m/l` softened one step.
+Body text goes 13px → 15px, and `--style-radius-s/m/l` are softened one step.
 Desktop-only means the extra pixels can go to larger targets and roomier rows.
+
+The mechanism is not the `--base-body-size` variable. Payload's root font size
+comes from the Sass constant `$baseline-body-size: 13px`, compiled into the
+`%body` placeholder; the `--base-body-size` CSS variable only feeds `--base`,
+the spacing unit, via `calc((var(--base-px) / var(--base-body-size)) * 1rem)`.
+So the change is `html { font-size: 15px }` in `custom.scss`, plus
+`--base-px: 22` and `--base-body-size: 15` to keep `--base` at a deliberate
+22px rather than letting it drift to 23px as a side effect of the larger root.
+
+Typography is bound through `RootLayout`'s `htmlProps`, which accepts a
+`className` — that is what carries `next/font`'s generated CSS variable onto
+`<html>`, since `RootLayout` renders the `<html>` element itself.
 
 ## 2. Identity
 
