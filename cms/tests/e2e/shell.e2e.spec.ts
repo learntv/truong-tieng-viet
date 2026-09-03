@@ -97,3 +97,49 @@ test.describe('Dashboard', () => {
     await expect(page).toHaveURL(/\/admin\/collections\/quyen\/[^/]+$/)
   })
 })
+
+test.describe('Editor vocabulary', () => {
+  test.beforeAll(async () => {
+    await seedTestUser()
+  })
+
+  test.afterAll(async () => {
+    await cleanupTestUser()
+  })
+
+  test('an empty quyển names the next action, not the absence', async ({ page }) => {
+    await login({ page, user: testUser })
+
+    await page.getByRole('navigation').getByRole('link', { name: 'Quyển 2' }).click()
+
+    const empty = page.getByText('Bấm “Thêm chủ đề” để tạo cái đầu tiên.')
+    const grid = page.getByRole('link', { name: /^Chủ đề|Chưa đặt tên/ })
+
+    // Quyển 2 may or may not have content depending on the database; assert the
+    // empty state only when it is genuinely empty.
+    if ((await grid.count()) === 0) {
+      await expect(empty).toBeVisible()
+    }
+  })
+
+  test('deleting a chặng says what is lost', async ({ page }) => {
+    await login({ page, user: testUser })
+
+    const dialogs: string[] = []
+    page.on('dialog', async (dialog) => {
+      dialogs.push(dialog.message())
+      await dialog.dismiss()
+    })
+
+    await page.goto(adminURL('/collections/chu-de'))
+    const firstRow = page.locator('table tbody tr td a').first()
+    if ((await firstRow.count()) === 0) test.skip(true, 'no chủ đề in this database')
+    await firstRow.click()
+
+    const closeTab = page.locator('[class*="tabDelete"]').first()
+    if ((await closeTab.count()) === 0) test.skip(true, 'no chặng in this chủ đề')
+    await closeTab.click()
+
+    expect(dialogs[0]).toMatch(/^Xoá chặng .* Không khôi phục được\.$/)
+  })
+})

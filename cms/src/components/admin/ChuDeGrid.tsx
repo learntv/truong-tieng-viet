@@ -54,7 +54,7 @@ export const ChuDeGrid: React.FC = () => {
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
       .then((data: { docs?: ChuDeSummary[] }) => setDocs(data.docs ?? []))
       .catch((err: Error) => {
-        if (err.name !== 'AbortError') setError('Không tải được danh sách chủ đề.')
+        if (err.name !== 'AbortError') setError('Không tải được. Cô thử tải lại trang giúp nhé.')
       })
 
     return () => controller.abort()
@@ -79,7 +79,7 @@ export const ChuDeGrid: React.FC = () => {
       const { doc } = (await res.json()) as { doc: ChuDeSummary }
       router.push(`${adminRoute}/collections/chu-de/${doc.id}`)
     } catch {
-      setError('Không tạo được chủ đề mới.')
+      setError('Không tạo được chủ đề mới. Cô thử lại giúp nhé.')
       setCreating(false)
     }
   }, [adminRoute, apiBase, quyenID, router])
@@ -107,7 +107,9 @@ export const ChuDeGrid: React.FC = () => {
       {docs === null && <p className={styles.message}>Đang tải…</p>}
 
       {docs?.length === 0 && (
-        <p className={styles.message}>Chưa có chủ đề nào. Bấm “Thêm chủ đề” để tạo cái đầu tiên.</p>
+        <p className={styles.message}>
+          Quyển này chưa có chủ đề nào. Bấm “Thêm chủ đề” để tạo cái đầu tiên.
+        </p>
       )}
 
       {docs && docs.length > 0 && (

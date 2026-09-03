@@ -79,9 +79,7 @@ export const NoiDungSections: ArrayFieldClientComponent = ({
 
   return (
     <div className="field-type">
-      {rows.length === 0 && (
-        <p className={styles.empty}>Chưa có phần nào. Bấm “Thêm phần” để tạo cái đầu tiên.</p>
-      )}
+      {rows.length === 0 && <p className={styles.empty}>Phần này chưa có bài nào.</p>}
 
       {rows.map((row, index) => {
         const errorCount = errorCountFor(index)
