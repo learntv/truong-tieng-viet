@@ -7,6 +7,15 @@ import { defineConfig, devices } from '@playwright/test'
 import 'dotenv/config'
 
 /**
+ * The CMS dev server's port. CMS_PORT lets a suite run against a non-default port (for
+ * example, to avoid colliding with a dev server already running for another checkout of
+ * this repo); CMS_TEST_URL below is the outermost override and takes precedence over
+ * this when a suite runs against a fully separate, already-deployed instance.
+ */
+const PORT = process.env.CMS_PORT ?? '3001'
+const BASE_URL = process.env.CMS_TEST_URL ?? `http://localhost:${PORT}`
+
+/**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
@@ -21,7 +30,7 @@ export default defineConfig({
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    baseURL: process.env.CMS_TEST_URL ?? 'http://localhost:3001',
+    baseURL: BASE_URL,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -35,6 +44,6 @@ export default defineConfig({
   webServer: {
     command: 'bun run dev',
     reuseExistingServer: true,
-    url: 'http://localhost:3001',
+    url: BASE_URL,
   },
 })
