@@ -112,6 +112,19 @@ export default buildConfig({
     // Pin the admin panel to the light palette instead of following the OS setting,
     // so every editor sees the same white background.
     theme: 'light',
+    components: {
+      beforeLogin: ['@/components/admin/brand/BeforeLogin#BeforeLogin'],
+      graphics: {
+        Icon: '@/components/admin/brand/Icon#Icon',
+        Logo: '@/components/admin/brand/Logo#Logo',
+      },
+    },
+    // A teacher may have eight tabs open; the suffix is what makes this one findable.
+    meta: {
+      icons: [{ type: 'image/png', rel: 'icon', url: '/brand/buffalo-icon.png' }],
+      openGraph: { images: [{ url: '/brand/buffalo-icon.png' }] },
+      titleSuffix: '· Trường Tiếng Việt Của Em',
+    },
     importMap: {
       baseDir: path.resolve(dirname),
     },

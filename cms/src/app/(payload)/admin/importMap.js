@@ -8,6 +8,9 @@ import { HinhGallery as HinhGallery_27f1da4b206ac6135e8441b261f1ca6e } from '@/c
 import { BaiRowLabel as BaiRowLabel_89faa7c9e5f0c5ffd69f52f6652f229c } from '@/components/admin/BaiRowLabel'
 import { NoiDungSections as NoiDungSections_30fb8289653ef183e92205dc52e01cc5 } from '@/components/admin/NoiDungSections'
 import { ChangTabs as ChangTabs_4522037acc2b0699712fbae87bdc5228 } from '@/components/admin/ChangTabs'
+import { Icon as Icon_d724e3c9fa2fc7ba502c18e1e0541534 } from '@/components/admin/brand/Icon'
+import { Logo as Logo_f5b90b1f137d54d2b96fee0d0c4d5b67 } from '@/components/admin/brand/Logo'
+import { BeforeLogin as BeforeLogin_921c43c034e14324aa0b3bab5945e134 } from '@/components/admin/brand/BeforeLogin'
 import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
@@ -23,6 +26,9 @@ export const importMap = {
   "@/components/admin/BaiRowLabel#BaiRowLabel": BaiRowLabel_89faa7c9e5f0c5ffd69f52f6652f229c,
   "@/components/admin/NoiDungSections#NoiDungSections": NoiDungSections_30fb8289653ef183e92205dc52e01cc5,
   "@/components/admin/ChangTabs#ChangTabs": ChangTabs_4522037acc2b0699712fbae87bdc5228,
+  "@/components/admin/brand/Icon#Icon": Icon_d724e3c9fa2fc7ba502c18e1e0541534,
+  "@/components/admin/brand/Logo#Logo": Logo_f5b90b1f137d54d2b96fee0d0c4d5b67,
+  "@/components/admin/brand/BeforeLogin#BeforeLogin": BeforeLogin_921c43c034e14324aa0b3bab5945e134,
   "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }
