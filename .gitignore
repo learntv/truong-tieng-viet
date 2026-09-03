@@ -44,3 +44,6 @@ supabase/.temp/
 supabase/prod-snapshot/
 supabase/.branches/
 package-lock.json
+
+# Brainstorming mockups (superpowers visual companion)
+.superpowers/
