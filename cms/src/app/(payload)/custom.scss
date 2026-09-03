@@ -23,9 +23,10 @@
   --ttv-blue-700: #004479; /*  9.99:1 — nav active item */
   --ttv-blue-600: #005899; /*  7.35:1 — hover/pressed on primary */
   --ttv-blue-500: #006cb4; /*  5.52:1 — THE brand step; AA both directions */
-  --ttv-blue-300: #64a4e0; /*  2.65:1 — borders on blue grounds only, never text */
+  --ttv-blue-300: #64a4e0; /*  5.15:1 on blue-900 as text — never text on white, where it's 2.65:1 */
   --ttv-blue-100: #d4ebff; /*  selected rows, active chips, drop targets */
   --ttv-blue-50: #eef8ff; /*   hover wash, panel tints */
+  --ttv-blue-ink: #d6e6f5; /* 10.71:1 on blue-900 — body text on the nav's blue ground */
 
   /* ── Warm accent: "needs your attention" ───────────────────────────────────
      amber-400 is 2.04:1 on white and can never carry text there. Attention text

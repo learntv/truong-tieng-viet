@@ -1,6 +1,12 @@
 /*
  * The deep-blue sidebar. This is the structural move that stops the panel reading
  * as stock Payload the moment it loads — everything else in the theme is a repaint.
+ *
+ * Two literals below are deliberately not tokens: `#ffffff` is plain white, used
+ * for the active item and the school name, and `rgb(255 255 255 / 15%)` is a
+ * translucent hairline divider rather than a palette colour — giving either one a
+ * token name would imply it is reusable elsewhere, when it is specific to this
+ * one rule.
  */
 .nav {
   background: var(--ttv-blue-900);
@@ -61,7 +67,7 @@
 
 .item {
   border-radius: var(--style-radius-s);
-  color: #d6e6f5;
+  color: var(--ttv-blue-ink);
   display: block;
   padding: calc(var(--base) * 0.3) calc(var(--base) * 0.4);
   text-decoration: none;
