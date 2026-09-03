@@ -30,8 +30,13 @@ test.describe('Admin Panel', () => {
   test('can navigate to list view', async () => {
     await page.goto(adminURL('/collections/users'))
     await expect(page).toHaveURL(adminURL('/collections/users'))
-    const listViewArtifact = page.locator('h1', { hasText: 'Users' }).first()
+    const listViewArtifact = page.locator('h1', { hasText: 'Người dùng' }).first()
     await expect(listViewArtifact).toBeVisible()
+  })
+
+  test('a user has a display name field', async () => {
+    await page.goto(adminURL('/collections/users/create'))
+    await expect(page.locator('#field-name')).toBeVisible()
   })
 
   test('can navigate to edit view', async () => {

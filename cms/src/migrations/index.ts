@@ -3,6 +3,7 @@ import * as migration_20260821_065040_learning_tree from './20260821_065040_lear
 import * as migration_20260821_072301_bai_title from './20260821_072301_bai_title';
 import * as migration_20260821_074714_remove_bai_texts from './20260821_074714_remove_bai_texts';
 import * as migration_20260821_082037_bai_audio_upload from './20260821_082037_bai_audio_upload';
+import * as migration_20260903_100255_users_name from './20260903_100255_users_name';
 
 export const migrations = [
   {
@@ -28,6 +29,11 @@ export const migrations = [
   {
     up: migration_20260821_082037_bai_audio_upload.up,
     down: migration_20260821_082037_bai_audio_upload.down,
-    name: '20260821_082037_bai_audio_upload'
+    name: '20260821_082037_bai_audio_upload',
+  },
+  {
+    up: migration_20260903_100255_users_name.up,
+    down: migration_20260903_100255_users_name.down,
+    name: '20260903_100255_users_name'
   },
 ];
