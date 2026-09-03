@@ -24,8 +24,15 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /*
+   * These e2e tests share one database and one seeded admin user
+   * (dev@payloadcms.com, from tests/helpers/seedUser.ts). Playwright runs separate
+   * spec files on separate workers by default, so parallel workers race on
+   * seedTestUser/cleanupTestUser — one file's cleanup deletes the account another
+   * file is still logged in as. The suite is small enough that serialising it
+   * costs little next to the flakiness it removes.
+   */
+  workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
