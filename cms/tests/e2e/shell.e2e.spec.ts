@@ -110,7 +110,7 @@ test.describe('Editor vocabulary', () => {
   test('an empty quyển names the next action, not the absence', async ({ page }) => {
     await login({ page, user: testUser })
 
-    await page.getByRole('navigation').getByRole('link', { name: 'Quyển 2' }).click()
+    await page.getByRole('navigation').first().getByRole('link', { name: 'Quyển 2' }).click()
     await expect(page).toHaveURL(/\/admin\/collections\/quyen\/[^/]+$/)
 
     // ChuDeGrid fetches its cards after mount; wait for that fetch to settle (the "Đang tải…"
@@ -133,12 +133,12 @@ test.describe('Editor vocabulary', () => {
   })
 
   test('deleting a chặng says what is lost', async ({ page }) => {
-    // Walking every chủ đề in search of a clickable chặng tab (see below) is a legitimately
+    // Walking every chủ đề in search of one with a chặng tab (see below) is a legitimately
     // slower operation than this suite's other tests — each candidate gets its own real,
     // possibly-retried click, and this dev server's per-navigation "pulling schema" round trip
     // can itself take several seconds — so this test alone gets more headroom than the 30s
     // default. This is a per-test allowance, not a change to playwright.config.ts.
-    test.setTimeout(180_000)
+    test.setTimeout(60_000)
 
     await login({ page, user: testUser })
 
@@ -163,14 +163,11 @@ test.describe('Editor vocabulary', () => {
 
     // Walk the chủ đề list until a chặng tab turns up whose delete button can actually be
     // clicked — the delete-confirmation wording this test exists to check only shows up once
-    // that click lands, and not every chủ đề necessarily has a chặng at all. The sidebar nav
-    // renders as a fixed overlay geometrically on top of the left ~275px of every page, and the
-    // tab bar starts close enough to that edge that its first tab (and any tab that wraps to the
-    // start of a new row) can land underneath it and be unclickable — real, but unrelated to
-    // what this test checks — so each tab gets its own short, independent attempt rather than
-    // trusting a single one to be reachable. Re-`goto`ing the list on every attempt (rather than
-    // `goBack`) costs a page load each time, but is the reliable option: this dev server's
-    // client-side back-navigation was observed to occasionally hang well past a normal load.
+    // that click lands, and not every chủ đề necessarily has a chặng at all, so a chủ đề with
+    // no chặng tabs is simply skipped in favour of the next one. Re-`goto`ing the list on every
+    // attempt (rather than `goBack`) costs a page load each time, but is the reliable option:
+    // this dev server's client-side back-navigation was observed to occasionally hang well past
+    // a normal load.
     for (let i = 0; i < rowCount && !clicked; i++) {
       if (i > 0) {
         await page.goto(adminURL('/collections/chu-de'))

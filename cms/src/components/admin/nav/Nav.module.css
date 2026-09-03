@@ -35,6 +35,24 @@
   width: var(--nav-width);
 }
 
+/*
+ * Payload widens `--nav-width` to 100vw below its own 768px breakpoint, expecting its
+ * `nav-open`/closed state (toggled by the hamburger) to slide that full-viewport panel on
+ * and off screen. Our nav renders outside Payload's NavWrapper, so it never receives that
+ * state — sticky positioning would leave a full-viewport blue rectangle permanently painted
+ * over the page with no way to dismiss it. Below 768px we drop out of the overlay role
+ * entirely and let the nav flow above the content instead. The project is desktop-only, so
+ * this only needs to be usable, not polished.
+ */
+@media (max-width: 768px) {
+  .nav {
+    height: auto;
+    position: static;
+    width: 100%;
+    z-index: auto;
+  }
+}
+
 .header {
   align-items: center;
   border-bottom: 1px solid rgb(255 255 255 / 15%);

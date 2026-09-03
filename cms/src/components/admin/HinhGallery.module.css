@@ -3,7 +3,7 @@
  * on the next. Built on Payload's admin theme variables.
  */
 .empty {
-  color: var(--theme-elevation-500);
+  color: var(--theme-elevation-600);
   margin: 0 0 calc(var(--base) * 0.5) 0;
 }
 

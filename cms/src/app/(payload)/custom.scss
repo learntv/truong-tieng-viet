@@ -124,7 +124,16 @@ html {
   --hover-color: #ffffff;
 }
 
-a:not(.btn):not([class*='nav']) {
+/*
+ * This rule is unlayered, so on raw specificity alone it would beat every CSS-module class
+ * (`.cardButton`, `.item`, …) which all resolve to (0,1,0) — an author rule with no layer
+ * always wins that fight regardless of source order. Wrapping the selector in `:where()`
+ * zeroes its specificity to (0,0,0), so it still beats Payload's own layered defaults (the
+ * reason this rule exists) but loses to any of our components that want to set their own
+ * link colour. `[class*='nav']` is Payload's own `nav__link` escape hatch — case-sensitive,
+ * so it does not (and should not) match our CSS-module names like `Nav-module__…__item`.
+ */
+:where(a:not(.btn):not([class*='nav'])) {
   color: var(--ttv-blue-500);
 }
 
