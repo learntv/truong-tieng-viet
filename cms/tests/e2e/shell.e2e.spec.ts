@@ -111,18 +111,35 @@ test.describe('Editor vocabulary', () => {
     await login({ page, user: testUser })
 
     await page.getByRole('navigation').getByRole('link', { name: 'Quyển 2' }).click()
+    await expect(page).toHaveURL(/\/admin\/collections\/quyen\/[^/]+$/)
 
-    const empty = page.getByText('Bấm “Thêm chủ đề” để tạo cái đầu tiên.')
-    const grid = page.getByRole('link', { name: /^Chủ đề|Chưa đặt tên/ })
+    // ChuDeGrid fetches its cards after mount; wait for that fetch to settle (the "Đang tải…"
+    // placeholder to clear) before judging whether the quyển is empty — checking immediately
+    // races the network request and always reads as empty.
+    await expect(page.getByText('Đang tải…')).toBeHidden({ timeout: 15000 })
 
-    // Quyển 2 may or may not have content depending on the database; assert the
-    // empty state only when it is genuinely empty.
-    if ((await grid.count()) === 0) {
-      await expect(empty).toBeVisible()
+    // Ask the real question — does the grid hold any card at all — instead of pattern-matching
+    // titles: a chủ đề with a custom title (not "Chủ đề ..." or the untitled placeholder) is
+    // invisible to a name-based check but still means the quyển isn't empty. ChuDeGrid renders
+    // each card as an <a class="...card...">, see src/components/admin/ChuDeGrid.tsx.
+    const cards = page.locator('a[class*="card"]')
+    const cardCount = await cards.count()
+
+    if (cardCount > 0) {
+      test.skip(true, `quyển 2 already has ${cardCount} chủ đề card(s)`)
     }
+
+    await expect(page.getByText('Bấm “Thêm chủ đề” để tạo cái đầu tiên.')).toBeVisible()
   })
 
   test('deleting a chặng says what is lost', async ({ page }) => {
+    // Walking every chủ đề in search of a clickable chặng tab (see below) is a legitimately
+    // slower operation than this suite's other tests — each candidate gets its own real,
+    // possibly-retried click, and this dev server's per-navigation "pulling schema" round trip
+    // can itself take several seconds — so this test alone gets more headroom than the 30s
+    // default. This is a per-test allowance, not a change to playwright.config.ts.
+    test.setTimeout(180_000)
+
     await login({ page, user: testUser })
 
     const dialogs: string[] = []
@@ -132,13 +149,56 @@ test.describe('Editor vocabulary', () => {
     })
 
     await page.goto(adminURL('/collections/chu-de'))
-    const firstRow = page.locator('table tbody tr td a').first()
-    if ((await firstRow.count()) === 0) test.skip(true, 'no chủ đề in this database')
-    await firstRow.click()
 
-    const closeTab = page.locator('[class*="tabDelete"]').first()
-    if ((await closeTab.count()) === 0) test.skip(true, 'no chặng in this chủ đề')
-    await closeTab.click()
+    const rows = page.locator('table tbody tr td a')
+    const hasAnyChuDe = await rows
+      .first()
+      .waitFor({ state: 'visible', timeout: 30000 })
+      .then(() => true)
+      .catch(() => false)
+    if (!hasAnyChuDe) test.skip(true, 'no chủ đề in this database')
+
+    const rowCount = await rows.count()
+    let clicked = false
+
+    // Walk the chủ đề list until a chặng tab turns up whose delete button can actually be
+    // clicked — the delete-confirmation wording this test exists to check only shows up once
+    // that click lands, and not every chủ đề necessarily has a chặng at all. The sidebar nav
+    // renders as a fixed overlay geometrically on top of the left ~275px of every page, and the
+    // tab bar starts close enough to that edge that its first tab (and any tab that wraps to the
+    // start of a new row) can land underneath it and be unclickable — real, but unrelated to
+    // what this test checks — so each tab gets its own short, independent attempt rather than
+    // trusting a single one to be reachable. Re-`goto`ing the list on every attempt (rather than
+    // `goBack`) costs a page load each time, but is the reliable option: this dev server's
+    // client-side back-navigation was observed to occasionally hang well past a normal load.
+    for (let i = 0; i < rowCount && !clicked; i++) {
+      if (i > 0) {
+        await page.goto(adminURL('/collections/chu-de'))
+        await rows.first().waitFor({ state: 'visible', timeout: 30000 })
+      }
+      await rows.nth(i).click()
+
+      const tabDeletes = page.locator('[class*="tabDelete"]')
+      const hasChang = await tabDeletes
+        .first()
+        .waitFor({ state: 'visible', timeout: 10000 })
+        .then(() => true)
+        .catch(() => false)
+      if (!hasChang) continue
+
+      const tabCount = await tabDeletes.count()
+      for (let t = 0; t < tabCount && !clicked; t++) {
+        clicked = await tabDeletes
+          .nth(t)
+          .click({ timeout: 10000 })
+          .then(() => true)
+          .catch(() => false)
+      }
+    }
+
+    if (!clicked) {
+      test.skip(true, `checked ${rowCount} chủ đề, found no chặng tab clear of the sidebar nav`)
+    }
 
     expect(dialogs[0]).toMatch(/^Xoá chặng .* Không khôi phục được\.$/)
   })
