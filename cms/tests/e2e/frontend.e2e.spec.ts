@@ -1,5 +1,7 @@
 import { test, expect, Page } from '@playwright/test'
 
+import { serverURL } from '../helpers/serverURL'
+
 test.describe('Frontend', () => {
   let page: Page
 
@@ -9,7 +11,7 @@ test.describe('Frontend', () => {
   })
 
   test('can go on homepage', async ({ page }) => {
-    await page.goto('http://localhost:3000')
+    await page.goto(serverURL)
 
     await expect(page).toHaveTitle(/Payload Blank Template/)
 

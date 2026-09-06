@@ -1,0 +1,30 @@
+.mark,
+.icon {
+  align-items: center;
+  display: inline-flex;
+  gap: calc(var(--base) * 0.4);
+}
+
+.buffalo {
+  flex-shrink: 0;
+  height: calc(var(--base) * 1.6);
+  object-fit: contain;
+  width: auto;
+}
+
+/*
+ * Two short lines rather than one long one: "Trường Tiếng Việt Của Em" set on a single line
+ * would be the widest thing in the bar and push the navigation off-centre.
+ */
+.wordmark {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.line {
+  color: var(--ttv-blue-800);
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+}

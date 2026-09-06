@@ -1,0 +1,236 @@
+/*
+ * The flat bài rows. Built on the panel's tokens, so the list is repainted by custom.scss like
+ * everything else.
+ *
+ * The shape the reference asks for: a number, a picture, the name and what the bài holds, and
+ * the row's own controls sitting outside its editable fields.
+ */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--base) * 0.2);
+  list-style: none;
+  margin: 0 0 calc(var(--base) * 0.5);
+  padding: 0;
+}
+
+.row {
+  align-items: center;
+  background-color: var(--color-base-0);
+  border: 1px solid var(--color-base-150);
+  border-radius: var(--style-radius-m);
+  display: flex;
+  gap: calc(var(--base) * 0.5);
+  /* Tall enough for the picture slot; the row never collapses to the height of its text. */
+  min-height: calc(var(--base) * 2.6);
+  padding: calc(var(--base) * 0.25) calc(var(--base) * 0.4);
+}
+
+.row:hover {
+  border-color: var(--color-base-300);
+}
+
+/*
+ * A bài that holds nothing. Amber, and on the left edge as a bar — a different hue and a
+ * different shape from the blue tint a selected row carries, so "needs attention" is never
+ * read as "chosen".
+ */
+.rowEmpty {
+  background-color: var(--ttv-amber-100);
+  border-color: var(--ttv-amber-400);
+  border-left: calc(var(--base) * 0.2) solid var(--ttv-amber-400);
+}
+
+/* Position within the nội dung. Follows the row when the order changes, because it is the
+ * render index rather than anything stored. */
+.number {
+  color: var(--color-base-600);
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  min-width: 1.6rem;
+  text-align: right;
+}
+
+.picture {
+  align-items: center;
+  background-color: var(--color-base-100);
+  border: 1px solid var(--color-base-200);
+  border-radius: var(--style-radius-s);
+  display: flex;
+  flex-shrink: 0;
+  height: calc(var(--base) * 2.1);
+  justify-content: center;
+  overflow: hidden;
+  padding: 0;
+  width: calc(var(--base) * 2.8);
+}
+
+.pictureImg {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+/* Loading, or a file that could not be fetched. The row still renders everything else. */
+.pictureBroken {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--color-base-100),
+    var(--color-base-100) 4px,
+    var(--color-base-150) 4px,
+    var(--color-base-150) 8px
+  );
+  height: 100%;
+  width: 100%;
+}
+
+.pictureAdd {
+  background-color: var(--ttv-blue-50);
+  border-style: dashed;
+  color: var(--ttv-blue-600);
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.pictureAdd:hover {
+  background-color: var(--ttv-blue-100);
+  border-color: var(--ttv-blue-500);
+}
+
+.body {
+  align-items: center;
+  display: flex;
+  flex-grow: 1;
+  flex-wrap: wrap;
+  gap: calc(var(--base) * 0.3);
+  min-width: 0;
+}
+
+/*
+ * The name, edited in place. No input chrome until hovered or focused, so the row reads as a
+ * list entry rather than as a form — but typing in it is what renames the bài, and nothing
+ * about the row moves while you do.
+ */
+.name {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--style-radius-s);
+  color: var(--color-base-800);
+  flex-grow: 1;
+  font: inherit;
+  font-weight: 500;
+  /* Chromium sizes the box to its text; elsewhere the `size` attribute is the fallback. */
+  field-sizing: content;
+  max-width: 100%;
+  min-width: 0;
+  padding: calc(var(--base) * 0.15) calc(var(--base) * 0.2);
+}
+
+.name:hover {
+  border-color: var(--color-base-200);
+}
+
+.name:focus {
+  background-color: var(--color-base-0);
+  border-color: var(--ttv-blue-500);
+  outline: none;
+}
+
+.name::placeholder {
+  color: var(--color-base-400);
+  font-weight: 400;
+}
+
+.marks {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  gap: calc(var(--base) * 0.2);
+}
+
+/* One per attachment that is set. base-600 rather than base-500: these are glyphs read as
+ * text, and base-500 is below 4.5:1. */
+.mark {
+  align-items: center;
+  color: var(--color-base-600);
+  display: inline-flex;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+/* Amber ink on the amber ground, 6.15:1 — never the badge fill as text. */
+.emptyMark {
+  background-color: var(--color-base-0);
+  border: 1px solid var(--ttv-amber-400);
+  border-radius: var(--style-radius-s);
+  color: var(--ttv-amber-700);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0 calc(var(--base) * 0.2);
+  white-space: nowrap;
+}
+
+.actions {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  gap: calc(var(--base) * 0.05);
+  margin-left: auto;
+}
+
+.detail {
+  background: none;
+  border: none;
+  border-radius: var(--style-radius-s);
+  color: var(--ttv-blue-600);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+  padding: calc(var(--base) * 0.15) calc(var(--base) * 0.3);
+  white-space: nowrap;
+}
+
+.detail:hover {
+  background-color: var(--ttv-blue-50);
+  color: var(--ttv-blue-800);
+}
+
+/* Payload's only vertical chevron points down, so "move up" reuses it flipped. */
+.moveUp svg {
+  transform: rotate(180deg);
+}
+
+.duplicate {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.fileInput {
+  display: none;
+}
+
+.add {
+  margin-top: calc(var(--base) * 0.15);
+}
+
+.empty {
+  color: var(--color-base-600);
+  margin: 0 0 calc(var(--base) * 0.5);
+}
+
+.error {
+  color: var(--theme-error-500);
+  margin: 0 0 calc(var(--base) * 0.5);
+}
+
+.srOnly {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}

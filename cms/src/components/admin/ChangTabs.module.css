@@ -126,3 +126,20 @@
   position: relative;
 }
 
+
+/*
+ * The empty-bài count on a tab. Amber, so it reads as "needs your attention" rather than as
+ * the error count beside it — and base-900 ink on the amber fill (8.06:1), never white.
+ */
+.emptyCount {
+  background-color: var(--ttv-amber-400);
+  border-radius: 999px;
+  color: var(--color-base-900);
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.5;
+  min-width: 1.5em;
+  padding: 0 0.4em;
+  text-align: center;
+}

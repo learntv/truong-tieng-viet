@@ -1,0 +1,353 @@
+/*
+ * The admin panel's design language, in one file.
+ *
+ * `app/(payload)/layout.tsx` imports this *after* `@payloadcms/next/css`. Payload's compiled
+ * stylesheet opens with `@layer payload-default, payload;` and puts every rule inside that
+ * layer, so an unlayered declaration here outranks any layered one whatever its specificity.
+ * Nothing below needs `!important`, and Payload's own SCSS is never forked or vendored — a
+ * framework upgrade is an upgrade, not a merge.
+ *
+ * The corollary bites in the other direction: an unlayered rule also outranks our own CSS
+ * modules, which resolve to (0,1,0). So any broad element selector in this file is wrapped in
+ * `:where()` to zero its specificity — it still beats Payload's layered defaults, and still
+ * loses to a component that styles the same thing itself.
+ */
+
+/* ---------------------------------------------------------------------------
+ * Tokens
+ *
+ * Payload aliases every light-theme `--theme-elevation-*` off `--color-base-*`, and the panel
+ * is pinned to `theme: 'light'` in payload.config.ts, so redefining the ramp here repaints
+ * surfaces, borders, dividers and secondary text on every screen — including the ones this
+ * project has written no components for and never will (the media list, the account page).
+ *
+ * The ramp holds hue 250 across brand and neutrals so the panel reads as one temperature.
+ * Chroma at each step sits just inside the sRGB gamut boundary for that lightness: a more
+ * saturated blue at these lightnesses cannot be displayed, and the stated OKLCH and the
+ * stated hex would stop agreeing. Each hex below is the sRGB rendering of the OKLCH beside it.
+ *
+ * The CMS keeps its own blue rather than the public site's red. The red is what students and
+ * families see; this is an internal tool a teacher sits in for hours, and a glance at the
+ * screen should say which of the two products you are looking at.
+ * ------------------------------------------------------------------------ */
+
+:root {
+  /* Neutrals — oklch(L 0.004…0.014 250). Payload's own lightness progression is kept, so the
+   * relative relationships its components rely on survive the substitution. */
+  --color-base-0: #ffffff; /* oklch(1 0 0) — cards, inputs */
+  --color-base-50: #f6f9fb; /* oklch(0.98 0.004 250) — page ground */
+  --color-base-100: #edf0f4; /* oklch(0.955 0.006 250) — section tints */
+  --color-base-150: #e2e7eb; /* oklch(0.925 0.008 250) — hairlines */
+  --color-base-200: #d6dbe1; /* oklch(0.89 0.009 250) — borders */
+  --color-base-250: #c7cdd3;
+  --color-base-300: #b9bec5; /* oklch(0.80 0.011 250) — strong borders */
+  --color-base-350: #a8afb5;
+  --color-base-400: #999fa6; /* oklch(0.70 0.013 250) — disabled ink, placeholders */
+  --color-base-450: #899097;
+  /* 3.95:1 on white. Icons and rules only — NOT A TEXT COLOUR. */
+  --color-base-500: #7a8188; /* oklch(0.60 0.014 250) */
+  --color-base-550: #6c727a;
+  --color-base-600: #5d646b; /* oklch(0.50 0.014 250) — secondary text, 6.00:1 on white */
+  --color-base-650: #53595f;
+  --color-base-700: #484e54; /* oklch(0.42 0.013 250) — body text, 8.42:1 on white */
+  --color-base-750: #3c4247;
+  --color-base-800: #31363b; /* oklch(0.33 0.011 250) — headings, 12.20:1 on white */
+  --color-base-850: #262b2f;
+  --color-base-900: #1c2023; /* oklch(0.24 0.009 250) — maximum ink, 16.40:1 on white */
+  --color-base-950: #07090c;
+  --color-base-1000: #000000;
+
+  /* The brand ramp. Payload aliases `--theme-success-*` and `--color-blue-*` off these, and
+   * uses them for the focus ring ($focus-box-shadow) and text selection, which is exactly
+   * where the design wants the brand step — so the ramp is substituted rather than a parallel
+   * set of tokens being introduced that framework components would never read. */
+  --color-blue-50: #eff6fe; /* oklch(0.97 0.013 250) — hover wash, panel tints */
+  --color-blue-100: #d2e7fe; /* oklch(0.92 0.038 250) — selected rows, active chips */
+  --color-blue-150: #b6d8fc;
+  --color-blue-200: #99c9fc;
+  --color-blue-250: #81b9f3;
+  /* 2.46:1 on white. Borders on blue grounds only — NEVER TEXT. */
+  --color-blue-300: #6aaaea; /* oklch(0.72 0.115 250) */
+  --color-blue-350: #569add;
+  --color-blue-400: #428ad0;
+  --color-blue-450: #2e7bc2;
+  --color-blue-500: #146bb4; /* oklch(0.52 0.138 250) — BRAND STEP, 5.54:1 on white */
+  --color-blue-550: #1366ab;
+  --color-blue-600: #1260a2; /* oklch(0.48 0.127 250) — links on tinted grounds, 6.52:1 */
+  --color-blue-650: #0f5a99;
+  --color-blue-700: #0d5590; /* oklch(0.44 0.117 250) — hover on primary, 7.72:1 */
+  --color-blue-750: #0c4c82;
+  --color-blue-800: #0a4475; /* oklch(0.38 0.100 250) — pressed states, 10.02:1 */
+  --color-blue-850: #093963;
+  --color-blue-900: #082f52;
+  --color-blue-950: #062541;
+
+  /* Payload's success ramp is its blue, and it is what paints focus rings and selection. */
+  --color-success-50: var(--color-blue-50);
+  --color-success-100: var(--color-blue-100);
+  --color-success-150: var(--color-blue-150);
+  --color-success-200: var(--color-blue-200);
+  --color-success-250: var(--color-blue-250);
+  --color-success-300: var(--color-blue-300);
+  --color-success-350: var(--color-blue-350);
+  --color-success-400: var(--color-blue-400);
+  --color-success-450: var(--color-blue-450);
+  --color-success-500: var(--color-blue-500);
+  --color-success-550: var(--color-blue-550);
+  --color-success-600: var(--color-blue-600);
+  --color-success-650: var(--color-blue-650);
+  --color-success-700: var(--color-blue-700);
+  --color-success-750: var(--color-blue-750);
+  --color-success-800: var(--color-blue-800);
+  --color-success-850: var(--color-blue-850);
+  --color-success-900: var(--color-blue-900);
+  --color-success-950: var(--color-blue-950);
+
+  /* Named aliases for the steps this project's own components reach for. The ramp above is
+   * what repaints the framework; these are what a CSS module writes. */
+  --ttv-blue-800: var(--color-blue-800);
+  --ttv-blue-700: var(--color-blue-700);
+  --ttv-blue-600: var(--color-blue-600);
+  --ttv-blue-500: var(--color-blue-500);
+  --ttv-blue-300: var(--color-blue-300);
+  --ttv-blue-100: var(--color-blue-100);
+  --ttv-blue-50: var(--color-blue-50);
+
+  /* Attention. A separate hue from the brand so a bài that holds nothing never reads as
+   * merely *selected*. Amber-400 and amber-100 carry base-900 ink (8.06:1 and 13.70:1) and
+   * never white; amber-700 is the one that is safe as text on a light ground. */
+  --ttv-amber-700: #8c5500; /* oklch(0.50 0.115 70) — "Chưa có gì" text, 6.15:1 on white */
+  /* 2.04:1 on white. Badge fill and left border — NEVER TEXT ON WHITE. */
+  --ttv-amber-400: #efa831; /* oklch(0.78 0.15 75) */
+  --ttv-amber-100: #ffe8be; /* oklch(0.94 0.06 80) — empty-row ground */
+
+  /*
+   * The page ground, separated from the card surface. `scss/app.scss` declares
+   * `--theme-bg: var(--theme-elevation-0)` and both `.template-default` and
+   * `.template-default__wrap` paint it, so redefining this one variable moves the ground
+   * without touching a single white card.
+   */
+  --theme-bg: var(--color-base-50);
+
+  /* Inputs stay on the card's own white, not on the ground. */
+  --theme-input-bg: var(--color-base-0);
+
+  --theme-text: var(--color-base-700);
+
+  /*
+   * Arimo, self-hosted by `next/font/google` in layout.tsx, which puts this variable on the
+   * <html> element. The fallback stack deliberately does NOT name Arial: Payload's default
+   * stack does, and asking for an absent Arial is what makes a browser synthesise bold from a
+   * substitute face that drops precomposed Vietnamese marks. `system-ui` is always present.
+   */
+  --font-body: var(--ttv-font-arimo), system-ui, sans-serif;
+
+  /*
+   * Density. `$baseline-body-size: 13px` is a Sass constant compiled into `%body`, which
+   * `html` extends — so the root size is set below, on `html`, not through a variable.
+   * `--base-px` / `--base-body-size` are a separate mechanism: they only feed the spacing
+   * unit, `--base: calc((var(--base-px) / var(--base-body-size)) * 1rem)`. Pinning
+   * base-body-size to the new root size keeps `--base` at exactly 20px instead of letting it
+   * drift to 23px as a side effect of the type getting bigger.
+   */
+  --base-px: 20;
+  --base-body-size: 15;
+
+  /* The card: one value each, so the treatment is stated once and applied by name below. */
+  --ttv-card-max-width: 74rem;
+  --ttv-card-radius: 10px;
+  --ttv-card-shadow: 0 1px 2px rgb(28 32 35 / 6%), 0 8px 24px -12px rgb(28 32 35 / 14%);
+}
+
+/*
+ * A panel a teacher reads all day. `%body` sets `font-size: 13px` on `html` from inside
+ * Payload's layer, so this unlayered declaration is what wins.
+ */
+html {
+  font-size: 15px;
+}
+
+/* ---------------------------------------------------------------------------
+ * The handful of overrides the ramp cannot deliver on its own
+ * ------------------------------------------------------------------------ */
+
+/*
+ * Payload paints its primary button with `--theme-elevation-800` rather than a brand token, so
+ * substituting the ramp turns it dark grey-blue, not brand blue. The button reads four custom
+ * properties of its own; setting those is enough, and leaves its layout, focus and disabled
+ * handling untouched.
+ */
+.btn--style-primary {
+  --color: var(--color-base-0);
+  --bg-color: var(--ttv-blue-500);
+  --hover-bg: var(--ttv-blue-700);
+  --hover-color: var(--color-base-0);
+}
+
+/*
+ * Links. Payload sets `a { color: currentColor }` so that its own chrome — nav entries, list
+ * rows, breadcrumbs, cards — inherits whatever colour surrounds it, and that is right; only
+ * plain links in content should be brand-coloured. `:not([class])` is what draws that line,
+ * and the whole thing sits in `:where()` so it stays at (0,0,0): it beats Payload's layered
+ * rule and loses to any CSS module that colours its own links.
+ */
+:where(a:not([class])) {
+  color: var(--ttv-blue-600);
+}
+
+:where(a:not([class]):hover) {
+  color: var(--ttv-blue-800);
+}
+
+/*
+ * Selection. Payload's own rule pairs `--color-success-250` with a variable that does not
+ * exist (`--theme-base-800`), so the ink falls back to inherited colour. Stated explicitly
+ * here: brand-tinted ground, maximum ink, 12.97:1. `::selection` cannot be wrapped in
+ * `:where()` — a pseudo-element is not a valid argument — but at (0,0,1) unlayered it already
+ * loses to any CSS module class and beats Payload's layered default.
+ */
+::selection {
+  background: var(--ttv-blue-100);
+  color: var(--color-base-900);
+}
+
+::-moz-selection {
+  background: var(--ttv-blue-100);
+  color: var(--color-base-900);
+}
+
+/* ---------------------------------------------------------------------------
+ * The shell
+ *
+ * A short list of Payload class names, and the place a framework upgrade would most plausibly
+ * break this design. It is guarded by e2e assertions on the observable results — no sidebar,
+ * one top bar, a card narrower than the viewport — so a rename fails a test rather than
+ * quietly un-styling the panel.
+ * ------------------------------------------------------------------------ */
+
+/*
+ * The hamburger that would open the sidebar. `admin.components.Nav` renders nothing visible, so
+ * there is nothing for it to open; without this it sits over the top-right of every screen.
+ */
+.template-default__nav-toggler-wrapper {
+  display: none;
+}
+
+/*
+ * The nav column, pinned shut.
+ *
+ * `.template-default` is a two-column grid: the nav, then the view. It is `0 auto` while the
+ * nav is closed — but Payload's default preference is *open* (`navPrefs?.open ?? true`), which
+ * switches the first column to `--nav-width`, 275px. Nothing renders in it any more, so that
+ * would be 275px of nothing at the left of every screen with the view squeezed into what is
+ * left. Both states are pinned to zero here.
+ *
+ * `EmptyNav` still renders an element to occupy the column — see the note there for what
+ * happens when it does not.
+ */
+.template-default,
+.template-default--nav-open {
+  /*
+   * `0 1fr`, not Payload's `0 auto`. An `auto` track sizes to its content, and the view's
+   * wrapper carries `min-width: 100%` — a percentage against an indefinite track, which
+   * resolves to nothing and collapses the column. `1fr` makes the remaining width definite,
+   * which is what "the nav is gone, give the view everything" actually means.
+   */
+  grid-template-columns: 0 1fr;
+}
+
+/*
+ * The placeholder that holds the nav's grid cell. Emphatically not `display: none`: that would
+ * take it out of the grid altogether, and the view — the only item left — would be placed back
+ * in the first column and rendered at its width. Zero-width and clipped instead.
+ */
+.ttv-no-nav {
+  overflow: hidden;
+  width: 0;
+}
+
+/*
+ * `.template-default__wrap` already paints `--theme-bg`, which the token block moved off white
+ * — so it is the ground with no change beyond the variable. The card goes on the view's own
+ * container instead, for two reasons: Payload sets
+ * `.template-default .template-default__wrap { min-width: 100% }`, which fights a max width,
+ * and `__wrap` also carries the nav overlay pseudo-element.
+ */
+.document-fields,
+.collection-list,
+.dashboard {
+  background-color: var(--color-base-0);
+  border: 1px solid var(--color-base-150);
+  border-radius: var(--ttv-card-radius);
+  box-shadow: var(--ttv-card-shadow);
+  margin: 0 auto calc(var(--base) * 1.5);
+  max-width: var(--ttv-card-max-width);
+}
+
+/*
+ * The document view's main column must be allowed to be narrower than its content.
+ *
+ * `.document-fields` is a flex row — main column, then a sticky sidebar — and Payload gives
+ * the main column `width: 66.66%`. A flex item's default `min-width: auto` lets its content
+ * override that, and a bài row is wide by construction: a number, a picture slot, a name and
+ * five controls, several of which cannot shrink. The main column then grows past its share and
+ * runs under the sidebar, which is `position: sticky` and paints over it — silently swallowing
+ * clicks on the row controls at the right-hand end of every row.
+ */
+.document-fields__main {
+  min-width: 0;
+}
+
+/*
+ * A wide table scrolls inside the card rather than pushing the page sideways.
+ *
+ * Deliberately only here. `overflow` on `.document-fields` would make it the containing block
+ * for `position: sticky`, and its sidebar column is sticky — clipping it there lifts the
+ * sidebar out of place and lays it over the main column, where it silently swallows clicks on
+ * the bài rows' own controls.
+ */
+.collection-list {
+  overflow-x: auto;
+}
+
+/*
+ * `.document-fields` is `display: flex` (main column + sidebar column) and `.collection-list`
+ * carries the table; both need their own padding back, since the card's edge is now a real
+ * boundary rather than the viewport's.
+ */
+.collection-list,
+.dashboard {
+  padding: calc(var(--base) * 1.25) var(--gutter-h);
+}
+
+/*
+ * The document controls — the sticky bar with Save on it — sit outside `.document-fields`, so
+ * without this they would span the ground while the fields below sat in a narrower card. Same
+ * width and the same centring, so the two read as one column.
+ */
+.doc-controls {
+  margin: 0 auto;
+  max-width: var(--ttv-card-max-width);
+}
+
+/*
+ * Payload's `AppHeader` renders inside `.template-default__wrap`, above the view, and already
+ * carries the StepNav breadcrumbs — "Quyển 1 › Chào hỏi". Keeping it means the trail stays
+ * correct on every view Payload adds, for free; it just needs to line up with the card and
+ * stop being a second header bar.
+ */
+.app-header {
+  margin: 0 auto;
+  max-width: var(--ttv-card-max-width);
+}
+
+.app-header__content {
+  padding: 0;
+}
+
+/*
+ * Its account control goes: the top bar now carries one, and two on a page is worse than none.
+ */
+.app-header__account {
+  display: none;
+}
