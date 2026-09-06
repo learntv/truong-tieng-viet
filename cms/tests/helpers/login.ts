@@ -1,6 +1,8 @@
 import type { Page } from '@playwright/test'
 import { expect } from '@playwright/test'
 
+import { serverURL as defaultServerURL } from './serverURL'
+
 export interface LoginOptions {
   page: Page
   serverURL?: string
@@ -15,7 +17,7 @@ export interface LoginOptions {
  */
 export async function login({
   page,
-  serverURL = 'http://localhost:3000',
+  serverURL = defaultServerURL,
   user,
 }: LoginOptions): Promise<void> {
   await page.goto(`${serverURL}/admin/login`)
@@ -26,6 +28,9 @@ export async function login({
 
   await page.waitForURL(`${serverURL}/admin`)
 
-  const dashboardArtifact = page.locator('span[title="Dashboard"]')
-  await expect(dashboardArtifact).toBeVisible()
+  // Not the dashboard's heading: the panel is configured Vietnamese-only, so it reads "Bảng
+  // điều khiển", and this used to look for an English "Dashboard" that has not been rendered
+  // since the i18n config landed. The shell wrapper is the stable thing to wait for — it is
+  // what every authenticated admin view is rendered inside.
+  await expect(page.locator('.template-default')).toBeVisible()
 }

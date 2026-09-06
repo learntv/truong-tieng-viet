@@ -115,6 +115,26 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    components: {
+      // The top bar. `header` is the only slot rendered outside the nav grid and above every
+      // view, which is where a full-width bar belongs — see components/admin/shell/TopBar.tsx.
+      header: ['@/components/admin/shell/TopBar#TopBar'],
+      // And the sidebar it replaces, rendered as nothing. Not `admin.hidden` on the
+      // collections: that removes their routes as well as their listings, and every chủ đề
+      // lives at /admin/collections/chu-de/:id.
+      Nav: '@/components/admin/shell/EmptyNav#EmptyNav',
+      beforeLogin: ['@/components/admin/shell/BeforeLogin#BeforeLogin'],
+      graphics: {
+        Icon: '@/components/admin/shell/SchoolIcon#SchoolIcon',
+        Logo: '@/components/admin/shell/SchoolLogo#SchoolLogo',
+      },
+    },
+    // So a teacher with a dozen tabs open can find this one by its icon, and read the school's
+    // name at the end of the tab title.
+    meta: {
+      icons: [{ rel: 'icon', type: 'image/png', url: '/brand/favicon-32.png' }],
+      titleSuffix: '— Trường Tiếng Việt Của Em',
+    },
   },
   collections: [Users, Media, SpeakingTopics, Quyen, ChuDe],
   // The app (Vite dev server / prod site) fetches public content from this CMS's REST API.

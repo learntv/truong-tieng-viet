@@ -57,3 +57,20 @@
   display: block;
   font-weight: 600;
 }
+
+/*
+ * How many bài in this chủ đề hold nothing. Amber, a different hue from anything that means
+ * "selected", and base-900 ink on the amber fill (8.06:1) — the fill is never used as text.
+ * Absent entirely when the count is zero: a rare marker only earns its keep if seeing one
+ * means something.
+ */
+.emptyCount {
+  background-color: var(--ttv-amber-400);
+  border-radius: var(--style-radius-s);
+  color: var(--color-base-900);
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-top: calc(var(--base) * 0.3);
+  padding: 0 calc(var(--base) * 0.25);
+}

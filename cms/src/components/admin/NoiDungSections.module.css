@@ -15,8 +15,12 @@
 /* The title carries the section on its own; the actions sit to its right. */
 .sectionHeader {
   align-items: center;
+  /* A rule under the heading: what follows it is now a list of bordered rows rather than a
+   * boxed sub-form, so the section needs its own break to still read as a divider. */
+  border-bottom: 1px solid var(--color-base-150);
   display: flex;
   gap: calc(var(--base) * 0.4);
+  margin-bottom: calc(var(--base) * 0.35);
   padding-bottom: calc(var(--base) * 0.35);
 }
 
@@ -68,21 +72,15 @@
 }
 
 /*
- * The bài sit inset from their section heading, so a phần is visibly the wider thing that
- * contains them. Their array field's own header — the "Bài" title and its Collapse All / Show
- * All / row-actions menu — is hidden: the section heading above already says what this list is,
- * and two stacked headers were the bulk of the clutter.
+ * The bài sit slightly inset from their section heading, so a phần is visibly the wider thing
+ * that contains them — but only slightly: a bài row is a full-width bordered row now rather
+ * than a nested array, and a deep inset would just narrow the list against the card's width.
+ *
+ * There is no array header to hide any more either. `BaiList` replaces the whole `bais` field,
+ * so the "Bài" title and its Collapse All / Show All menu — which used to be the bulk of the
+ * clutter here — are simply never rendered.
  */
 .sectionBody {
-  padding-left: calc(var(--base) * 0.85);
+  padding-left: calc(var(--base) * 0.35);
   padding-top: calc(var(--base) * 0.4);
-}
-
-/*
- * Child combinators all the way down on purpose: only the bài array's own header goes away.
- * The arrays nested inside a bài — câu chữ, hình, chú thích — keep theirs, since nothing else
- * names them.
- */
-.sectionBody > :global(.render-fields) > :global(.array-field) > :global(.array-field__header) {
-  display: none;
 }

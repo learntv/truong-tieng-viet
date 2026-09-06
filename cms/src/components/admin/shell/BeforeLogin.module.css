@@ -1,0 +1,5 @@
+.blurb {
+  color: var(--color-base-600);
+  margin: 0 0 var(--base);
+  text-align: center;
+}

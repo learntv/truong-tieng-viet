@@ -15,6 +15,9 @@ type ChuDeSummary = {
   title?: null | string
 }
 
+/** Stable empty reference, so "no quyển yet" does not make a new object every render. */
+const EMPTY_COUNTS: Record<string, number> = {}
+
 /**
  * The `chuDes` UI field on the quyển edit page: this quyển's chủ đề as a grid of cards, each
  * linking to its own document. Replaces the nested-array accordion the tree used to render as.
@@ -29,17 +32,26 @@ export const ChuDeGrid: React.FC = () => {
   } = useConfig()
   const router = useRouter()
 
-  const [docs, setDocs] = useState<ChuDeSummary[] | null>(null)
+  const [fetchedDocs, setFetchedDocs] = useState<ChuDeSummary[] | null>(null)
+  // How many bài hold nothing, by chủ đề id. Only the chủ đề that have some appear — a card
+  // with none shows no count rather than a zero.
+  const [fetchedCounts, setFetchedCounts] = useState<Record<string, number>>({})
+
+  /*
+   * Both are derived rather than reset inside their effects. An unsaved quyển has no id and so
+   * nothing to list, and writing that emptiness into state from an effect only schedules a
+   * second render to undo the first — which is also what `react-hooks/set-state-in-effect`
+   * objects to.
+   */
+  const docs = quyenID ? fetchedDocs : []
+  const emptyCounts = quyenID ? fetchedCounts : EMPTY_COUNTS
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState<null | string>(null)
 
   const apiBase = `${serverURL || ''}${apiRoute}/chu-de`
 
   useEffect(() => {
-    if (!quyenID) {
-      setDocs([])
-      return
-    }
+    if (!quyenID) return
 
     const controller = new AbortController()
     const query = new URLSearchParams({
@@ -52,10 +64,35 @@ export const ChuDeGrid: React.FC = () => {
 
     fetch(`${apiBase}?${query}`, { credentials: 'include', signal: controller.signal })
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
-      .then((data: { docs?: ChuDeSummary[] }) => setDocs(data.docs ?? []))
+      .then((data: { docs?: ChuDeSummary[] }) => setFetchedDocs(data.docs ?? []))
       .catch((err: Error) => {
         if (err.name !== 'AbortError') setError('Không tải được danh sách chủ đề.')
       })
+
+    return () => controller.abort()
+  }, [apiBase, quyenID])
+
+  /*
+   * The counts, as one request beside the list request above — and deliberately not as a
+   * deeper `select` on it. The tree is walked on the server, next to the database, and only
+   * the numbers cross the wire; asking for the fields needed to judge emptiness would pull
+   * most of the quyển's content down to display four numbers.
+   *
+   * Failure is silent: the cards are still the way into every chủ đề, and losing the counts
+   * is not worth an error banner over them.
+   */
+  useEffect(() => {
+    if (!quyenID) return
+
+    const controller = new AbortController()
+
+    fetch(`${apiBase}/empty-bai-counts?quyen=${encodeURIComponent(String(quyenID))}`, {
+      credentials: 'include',
+      signal: controller.signal,
+    })
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(String(res.status)))))
+      .then((counts: Record<string, number>) => setFetchedCounts(counts ?? {}))
+      .catch(() => {})
 
     return () => controller.abort()
   }, [apiBase, quyenID])
@@ -116,6 +153,14 @@ export const ChuDeGrid: React.FC = () => {
             <li key={doc.id}>
               <Link className={styles.card} href={`${adminRoute}/collections/chu-de/${doc.id}`}>
                 <span className={styles.cardTitle}>{doc.title || 'Chưa đặt tên'}</span>
+                {emptyCounts[String(doc.id)] > 0 && (
+                  <span
+                    className={styles.emptyCount}
+                    title={`${emptyCounts[String(doc.id)]} bài chưa có gì`}
+                  >
+                    {emptyCounts[String(doc.id)]} bài chưa có gì
+                  </span>
+                )}
               </Link>
             </li>
           ))}

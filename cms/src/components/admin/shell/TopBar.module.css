@@ -1,0 +1,103 @@
+/*
+ * The top bar. Painted from the panel's tokens, so it follows the ramp in custom.scss like
+ * everything else.
+ *
+ * It sits above `.template-default`, which is the grid holding the (empty) nav column and the
+ * views, so it spans the viewport regardless of what any view does.
+ */
+.bar {
+  align-items: center;
+  background-color: var(--color-base-0);
+  border-bottom: 1px solid var(--color-base-150);
+  display: flex;
+  gap: var(--base);
+  /* Above the sticky document controls, which set --z-status. */
+  position: relative;
+  z-index: var(--z-status);
+  padding: calc(var(--base) * 0.4) var(--gutter-h);
+}
+
+.brand {
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.brand:hover,
+.brand:focus-visible {
+  text-decoration: none;
+}
+
+/*
+ * The entries. `min-width: 0` plus scrolling rather than wrapping: the bar is one row high on
+ * every screen, and a roster long enough to overflow should scroll instead of pushing the
+ * account control onto a second line.
+ */
+.nav {
+  display: flex;
+  flex-grow: 1;
+  gap: calc(var(--base) * 0.15);
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.nav::-webkit-scrollbar {
+  display: none;
+}
+
+.link {
+  border-radius: var(--style-radius-m);
+  color: var(--color-base-700);
+  font-weight: 500;
+  padding: calc(var(--base) * 0.3) calc(var(--base) * 0.5);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.link:hover,
+.link:focus-visible {
+  background-color: var(--ttv-blue-50);
+  color: var(--ttv-blue-700);
+  text-decoration: none;
+}
+
+/*
+ * The current entry. A tinted chip plus a weight change, not colour alone — the tint against
+ * white is 1.26:1, which is a shape you can see but not a distinction you could rely on.
+ */
+.linkCurrent,
+.linkCurrent:hover {
+  background-color: var(--ttv-blue-100);
+  color: var(--ttv-blue-800);
+  font-weight: 700;
+}
+
+.account {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  gap: calc(var(--base) * 0.5);
+}
+
+/* Who you are signed in as. Secondary text, 6.00:1 on white. */
+.email {
+  color: var(--color-base-600);
+  font-size: 0.85rem;
+  max-width: 16rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.accountLink {
+  color: var(--ttv-blue-600);
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.accountLink:hover,
+.accountLink:focus-visible {
+  color: var(--ttv-blue-800);
+  text-decoration: underline;
+}

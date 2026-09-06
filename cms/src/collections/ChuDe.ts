@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
+import { emptyBaiCounts } from '@/endpoints/emptyBaiCounts'
+
 // A chủ đề (topic) and everything under it:
 //
 //   chủ đề → chặng → nội dung → bài → hình
@@ -26,6 +28,11 @@ export const ChuDe: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'quyen'],
   },
+  // How many bài hold nothing, per chủ đề, for one quyển — read by the grid on the quyển page.
+  // A custom endpoint rather than a deeper REST `select`: the grid asks for `title` alone so
+  // that opening a quyển never pulls the chặng → nội dung → bài → hình tree down the wire, and
+  // requesting the fields needed to judge emptiness would undo exactly that.
+  endpoints: [emptyBaiCounts],
   // Drag-to-reorder, both in this collection's list view and in the grid on the quyển page,
   // which sorts by the same hidden _order fractional index.
   orderable: true,
@@ -92,10 +99,13 @@ export const ChuDe: CollectionConfig = {
               label: 'Bài',
               type: 'array',
               labels: { singular: 'Bài', plural: 'Bài' },
+              // A flat numbered list of always-open rows rather than a stack of
+              // collapsibles: 173 bài across Quyển 1 share 75 distinct titles, so a row has
+              // to show what its bài holds — its first hình and which attachments are set —
+              // or two bài cannot be told apart without opening both. See BaiList.tsx.
               admin: {
-                initCollapsed: true,
                 components: {
-                  RowLabel: '@/components/admin/BaiRowLabel#BaiRowLabel',
+                  Field: '@/components/admin/BaiList#BaiList',
                 },
               },
               fields: [
@@ -103,15 +113,13 @@ export const ChuDe: CollectionConfig = {
                   // Optional — an unnamed bài says so instead of showing a number. public.bai
                   // has no matching column, so this is CMS-side only until the app's table
                   // grows one.
+                  //
+                  // Rendered by BaiList as the row's rename input, and left out of the detail
+                  // drawer; the component chooses what it renders, so the field needs no
+                  // placeholder component to stay out of the way.
                   name: 'title',
                   type: 'text',
                   label: 'Tên bài',
-                  // Edited on the row header, so the field itself renders nothing here.
-                  admin: {
-                    components: {
-                      Field: '@/components/admin/NoField#NoField',
-                    },
-                  },
                 },
                 {
                   // public.bai.meta — optional media attached to the bài.

@@ -8,6 +8,7 @@ import {
   RenderFields,
   useField,
   useForm,
+  useFormFields,
   ShimmerEffect,
   useFormSubmitted,
   useTranslation,
@@ -15,7 +16,10 @@ import {
 } from '@payloadcms/ui'
 import React, { useCallback, useMemo, useState } from 'react'
 
+import { countEmptyBaiPerChang } from '@/lib/baiFormState'
+
 import styles from './ChangTabs.module.css'
+import { RowMediaProvider } from './RowMedia'
 
 // Shown on a tab whose chặng hasn't been named yet. Deliberately not a number: nothing in this
 // editor labels rows by position, so a name is the only thing that identifies one.
@@ -25,6 +29,8 @@ const UNTITLED = 'Chưa đặt tên'
 const MIN_INPUT_SIZE = 12
 
 type TabProps = {
+  /** How many bài anywhere inside this chặng hold nothing. Zero means show nothing. */
+  readonly emptyCount: number
   readonly errorCount: number
   readonly isActive: boolean
   readonly onDelete: () => void
@@ -38,6 +44,7 @@ type TabProps = {
  * input bound straight to that row's `title` in form state, so what you type is the tab's name.
  */
 const ChangTab: React.FC<TabProps> = ({
+  emptyCount,
   errorCount,
   isActive,
   onDelete,
@@ -69,6 +76,18 @@ const ChangTab: React.FC<TabProps> = ({
         <button className={styles.tabSelect} onClick={onSelect} type="button">
           {title || UNTITLED}
         </button>
+      )}
+
+      {/*
+        * How many bài in this chặng hold nothing. A chặng with none shows no count rather
+        * than a zero — a rare marker is only worth having if it means something when it is
+        * there. Counted from live form state, so it clears the moment the last empty bài is
+        * filled, before the document is saved.
+        */}
+      {emptyCount > 0 && (
+        <span className={styles.emptyCount} title={`${emptyCount} bài chưa có gì`}>
+          {emptyCount}
+        </span>
       )}
 
       {errorCount > 0 && <ErrorPill count={errorCount} i18n={i18n} />}
@@ -115,6 +134,17 @@ export const ChangTabs: ArrayFieldClientComponent = ({
     potentiallyStalePath: pathFromProps,
   })
 
+  // One pass over form state for the whole array rather than one per tab: this selector
+  // re-runs on every keystroke anywhere in the document. Joined to a string so React can skip
+  // the re-render unless a count actually moved.
+  const emptyCountsKey = useFormFields(([fields]) =>
+    countEmptyBaiPerChang(fields, path, rows.length).join(','),
+  )
+  const emptyCounts = useMemo(
+    () => emptyCountsKey.split(',').map((count) => Number(count) || 0),
+    [emptyCountsKey],
+  )
+
   const [selectedIndex, setActiveIndex] = useState(0)
   // Rows can shrink underneath the selection — a delete, or the document reloading with fewer
   // chặng than were there before — so the selection is clamped rather than trusted.
@@ -154,6 +184,7 @@ export const ChangTabs: ArrayFieldClientComponent = ({
       <div className={styles.tabBar} role="tablist">
         {rows.map((row, index) => (
           <ChangTab
+            emptyCount={emptyCounts[index] ?? 0}
             errorCount={errorCountFor(index)}
             isActive={index === activeIndex}
             key={row.id}
@@ -185,27 +216,36 @@ export const ChangTabs: ArrayFieldClientComponent = ({
       )}
 
       {activeRow && (
-        <div className={styles.panel} key={activeRow.id} role="tabpanel">
-          {/*
-           * A row added a moment ago has no server-rendered field components yet, and without
-           * this the panel would fall back to Payload's stock array UI for nội dung until they
-           * arrive — the wrong editor, flashed for an instant.
-           */}
-          {activeRow.isLoading ? (
-            <ShimmerEffect height="8rem" />
-          ) : (
-            <RenderFields
-              fields={panelFields}
-              forceRender
-              margins="small"
-              parentIndexPath=""
-              parentPath={`${path}.${activeIndex}`}
-              parentSchemaPath={schemaPath}
-              permissions={permissions === true ? permissions : (permissions?.fields ?? {})}
-              readOnly={isReadOnly}
-            />
-          )}
-        </div>
+        /*
+         * One media request for the whole chặng, not one per bài row. The provider collects
+         * every hình id under this chặng from form state and resolves them in a single
+         * `GET /api/media?where[id][in]=…`; the rows read the URL back out of its context.
+         * Scoping is free because only the active panel is mounted — switching tab remounts
+         * the provider against the new prefix.
+         */
+        <RowMediaProvider pathPrefix={`${path}.${activeIndex}`}>
+          <div className={styles.panel} key={activeRow.id} role="tabpanel">
+            {/*
+             * A row added a moment ago has no server-rendered field components yet, and without
+             * this the panel would fall back to Payload's stock array UI for nội dung until they
+             * arrive — the wrong editor, flashed for an instant.
+             */}
+            {activeRow.isLoading ? (
+              <ShimmerEffect height="8rem" />
+            ) : (
+              <RenderFields
+                fields={panelFields}
+                forceRender
+                margins="small"
+                parentIndexPath=""
+                parentPath={`${path}.${activeIndex}`}
+                parentSchemaPath={schemaPath}
+                permissions={permissions === true ? permissions : (permissions?.fields ?? {})}
+                readOnly={isReadOnly}
+              />
+            )}
+          </div>
+        </RowMediaProvider>
       )}
     </div>
   )

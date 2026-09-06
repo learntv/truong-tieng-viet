@@ -12,6 +12,11 @@ const nextConfig: NextConfig = {
       {
         pathname: '/api/media/file/**',
       },
+      {
+        // The school's mark, served from cms/public/brand/. `localPatterns` is an allow-list:
+        // with only the media route on it, `next/image` refuses any other local path outright.
+        pathname: '/brand/**',
+      },
     ],
   },
   webpack: (webpackConfig) => {
