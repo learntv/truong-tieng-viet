@@ -1,6 +1,8 @@
 import type { Block } from 'payload'
 
-import { FixedToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
+import { BlocksFeature, FixedToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
+
+import { VocabularyCard } from './VocabularyCard'
 
 // Văn bản tự do — free-form rich text, because lesson slides vary the most between lessons
 // (numbered task lists mixing reading rows, sentences and instructions) and pinning them to a
@@ -13,7 +15,11 @@ export const FreeText: Block = {
       name: 'content',
       type: 'richText',
       editor: lexicalEditor({
-        features: ({ defaultFeatures }) => [...defaultFeatures, FixedToolbarFeature()],
+        features: ({ defaultFeatures }) => [
+          ...defaultFeatures,
+          FixedToolbarFeature(),
+          BlocksFeature({ blocks: [VocabularyCard] }),
+        ],
       }),
       label: 'Nội dung',
     },
