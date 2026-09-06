@@ -33,7 +33,7 @@ export const TopBar: React.FC<ServerProps> = async ({ payload, user }) => {
 
       <nav aria-label="Điều hướng chính" className={styles.nav}>
         {entries.map((entry) => (
-          <TopBarLink href={`${adminRoute}${entry.href}`} key={entry.href}>
+          <TopBarLink exact={entry.href === ''} href={`${adminRoute}${entry.href}`} key={entry.href}>
             {entry.label}
           </TopBarLink>
         ))}

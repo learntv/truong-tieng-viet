@@ -12,14 +12,15 @@ import styles from './TopBar.module.css'
  * A client component only because "which entry am I on" needs the live pathname; the entries
  * themselves are resolved on the server. Matching is by prefix so that a quyển's entry stays
  * marked while an editor is inside it, and exact for the dashboard, which is a prefix of
- * everything.
+ * everything — `exact` opts an entry out of the prefix match for that reason.
  */
 export const TopBarLink: React.FC<{
   readonly children: React.ReactNode
+  readonly exact?: boolean
   readonly href: string
-}> = ({ children, href }) => {
+}> = ({ children, exact = false, href }) => {
   const pathname = usePathname() ?? ''
-  const isCurrent = pathname === href || pathname.startsWith(`${href}/`)
+  const isCurrent = pathname === href || (!exact && pathname.startsWith(`${href}/`))
 
   return (
     <Link
