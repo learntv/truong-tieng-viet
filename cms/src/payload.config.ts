@@ -12,6 +12,7 @@ import { Media } from './collections/Media'
 import { SpeakingTopics } from './collections/SpeakingTopics'
 import { Quyen, QUYEN_ROSTER } from './collections/Quyen'
 import { ChuDe } from './collections/ChuDe'
+import { BaiKMD } from './collections/BaiKMD'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -136,7 +137,7 @@ export default buildConfig({
       titleSuffix: '— Trường Tiếng Việt Của Em',
     },
   },
-  collections: [Users, Media, SpeakingTopics, Quyen, ChuDe],
+  collections: [Users, Media, SpeakingTopics, Quyen, ChuDe, BaiKMD],
   // The app (Vite dev server / prod site) fetches public content from this CMS's REST API.
   // Browsers enforce this list, so every origin the app is served from has to appear here:
   // the custom domain, the Vercel project URL it is aliased to, and the local dev server.
@@ -179,6 +180,18 @@ export default buildConfig({
     schemaName: 'payload',
     pool: {
       connectionString: process.env.DATABASE_URL || '',
+      // `max: 1` reliably deadlocks against local Postgres: @payloadcms/db-postgres's own
+      // startup connect() checks out one client from the pool and never releases it back, so a
+      // pool of exactly one is left with zero connections for every real query behind it —
+      // `payload migrate`, `bun run dev`'s schema push, and every admin request hang forever on
+      // their first query. Verified by repeatedly reproducing the hang at max:1 and it clearing
+      // immediately at max:2, both locally.
+      //
+      // Scoped to non-production for now — this file's original comment reasoned max:1 was
+      // safe for a single-request Vercel instance, but that reasoning doesn't account for the
+      // same leaked-connection mechanic, and I haven't verified whether it also affects
+      // production. Flagged to the user; worth confirming before trusting max:1 in prod.
+      max: R2_ENABLED ? 1 : undefined,
     },
   }),
   sharp,

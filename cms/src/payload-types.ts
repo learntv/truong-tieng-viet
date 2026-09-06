@@ -72,6 +72,7 @@ export interface Config {
     'speaking-topics': SpeakingTopic;
     quyen: Quyen;
     'chu-de': ChuDe;
+    'bai-kmd': BaiKmd;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +85,7 @@ export interface Config {
     'speaking-topics': SpeakingTopicsSelect<false> | SpeakingTopicsSelect<true>;
     quyen: QuyenSelect<false> | QuyenSelect<true>;
     'chu-de': ChuDeSelect<false> | ChuDeSelect<true>;
+    'bai-kmd': BaiKmdSelect<false> | BaiKmdSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -254,6 +256,43 @@ export interface ChuDe {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bai-kmd".
+ */
+export interface BaiKmd {
+  id: number;
+  _order?: string | null;
+  title: string;
+  /**
+   * Âm hoặc vần bài học dạy, mỗi âm/vần một mục.
+   */
+  amVan?: string[] | null;
+  blocks?:
+    | {
+        content?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'worksheet';
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -295,6 +334,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'chu-de';
         value: number | ChuDe;
+      } | null)
+    | ({
+        relationTo: 'bai-kmd';
+        value: number | BaiKmd;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -452,6 +495,28 @@ export interface ChuDeSelect<T extends boolean = true> {
               id?: T;
             };
         id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "bai-kmd_select".
+ */
+export interface BaiKmdSelect<T extends boolean = true> {
+  _order?: T;
+  title?: T;
+  amVan?: T;
+  blocks?:
+    | T
+    | {
+        worksheet?:
+          | T
+          | {
+              content?: T;
+              id?: T;
+              blockName?: T;
+            };
       };
   updatedAt?: T;
   createdAt?: T;

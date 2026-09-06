@@ -273,7 +273,6 @@ html {
  * `.template-default .template-default__wrap { min-width: 100% }`, which fights a max width,
  * and `__wrap` also carries the nav overlay pseudo-element.
  */
-.document-fields,
 .collection-list,
 .dashboard {
   background-color: var(--color-base-0);
@@ -282,6 +281,44 @@ html {
   box-shadow: var(--ttv-card-shadow);
   margin: 0 auto calc(var(--base) * 1.5);
   max-width: var(--ttv-card-max-width);
+}
+
+/*
+ * The document edit view's card is three separate DOM siblings, not one wrapper — Payload
+ * renders the title (`.doc-header`), the sticky save bar (`.doc-controls`) and the fields
+ * (`.document-fields`) as three elements in a row, each spanning the page on its own by
+ * default. Bordering and backgrounding all three, with radius only at the very top and very
+ * bottom, makes them read as one continuous card with two internal hairlines (Payload's own
+ * `.doc-header` and `.doc-controls` divider pseudo-elements) instead of three floating blocks.
+ * No box-shadow here, unlike the single-element card above: a shadow on each of the three
+ * segments would visibly seam at the two internal joins.
+ */
+.doc-header,
+.doc-controls,
+.document-fields {
+  background-color: var(--color-base-0);
+  border-left: 1px solid var(--color-base-150);
+  border-right: 1px solid var(--color-base-150);
+  margin-left: auto;
+  margin-right: auto;
+  max-width: var(--ttv-card-max-width);
+}
+
+.doc-header {
+  border-top: 1px solid var(--color-base-150);
+  border-top-left-radius: var(--ttv-card-radius);
+  border-top-right-radius: var(--ttv-card-radius);
+  /* Without this the title row's own edge (e.g. the "Chỉnh sửa" button) touches the card's new
+   * top border — Payload only ever gave `.doc-header` a `margin-top`, which sat fine against
+   * the bare page ground but reads as a card with no headroom now that the border is real. */
+  padding-top: calc(var(--base) * 1.25);
+}
+
+.document-fields {
+  border-bottom: 1px solid var(--color-base-150);
+  border-bottom-left-radius: var(--ttv-card-radius);
+  border-bottom-right-radius: var(--ttv-card-radius);
+  margin-bottom: calc(var(--base) * 1.5);
 }
 
 /*
@@ -318,16 +355,6 @@ html {
 .collection-list,
 .dashboard {
   padding: calc(var(--base) * 1.25) var(--gutter-h);
-}
-
-/*
- * The document controls — the sticky bar with Save on it — sit outside `.document-fields`, so
- * without this they would span the ground while the fields below sat in a narrower card. Same
- * width and the same centring, so the two read as one column.
- */
-.doc-controls {
-  margin: 0 auto;
-  max-width: var(--ttv-card-max-width);
 }
 
 /*
