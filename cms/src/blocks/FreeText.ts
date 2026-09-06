@@ -1,18 +1,21 @@
 import type { Block } from 'payload'
 
-// Phiếu luyện đọc & bài tập — free-form rich text, because worksheet slides vary the most
-// between lessons (numbered task lists mixing reading rows, sentences and instructions) and
-// pinning them to a schema would fight the editor rather than help (see design.md).
-export const Worksheet: Block = {
-  slug: 'worksheet',
-  labels: { singular: 'Phiếu bài tập', plural: 'Phiếu bài tập' },
+import { FixedToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
+
+// Văn bản tự do — free-form rich text, because lesson slides vary the most between lessons
+// (numbered task lists mixing reading rows, sentences and instructions) and pinning them to a
+// schema would fight the editor rather than help (see design.md).
+export const FreeText: Block = {
+  slug: 'freeText',
+  labels: { singular: 'Văn bản tự do', plural: 'Văn bản tự do' },
   fields: [
-    { name: 'content', type: 'richText', label: 'Nội dung' },
     {
-      name: 'preview',
-      type: 'ui',
-      label: 'Xem trước',
-      admin: { components: { Field: '@/components/admin/kmd/WorksheetPreview#WorksheetPreview' } },
+      name: 'content',
+      type: 'richText',
+      editor: lexicalEditor({
+        features: ({ defaultFeatures }) => [...defaultFeatures, FixedToolbarFeature()],
+      }),
+      label: 'Nội dung',
     },
   ],
 }
