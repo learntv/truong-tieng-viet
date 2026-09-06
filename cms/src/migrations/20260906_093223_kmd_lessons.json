@@ -1269,8 +1269,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "payload.bai_kmd_blocks_worksheet": {
-      "name": "bai_kmd_blocks_worksheet",
+    "payload.bai_kmd_blocks_free_text": {
+      "name": "bai_kmd_blocks_free_text",
       "schema": "payload",
       "columns": {
         "_order": {
@@ -1311,8 +1311,8 @@
         }
       },
       "indexes": {
-        "bai_kmd_blocks_worksheet_order_idx": {
-          "name": "bai_kmd_blocks_worksheet_order_idx",
+        "bai_kmd_blocks_free_text_order_idx": {
+          "name": "bai_kmd_blocks_free_text_order_idx",
           "columns": [
             {
               "expression": "_order",
@@ -1326,8 +1326,8 @@
           "method": "btree",
           "with": {}
         },
-        "bai_kmd_blocks_worksheet_parent_id_idx": {
-          "name": "bai_kmd_blocks_worksheet_parent_id_idx",
+        "bai_kmd_blocks_free_text_parent_id_idx": {
+          "name": "bai_kmd_blocks_free_text_parent_id_idx",
           "columns": [
             {
               "expression": "_parent_id",
@@ -1341,8 +1341,8 @@
           "method": "btree",
           "with": {}
         },
-        "bai_kmd_blocks_worksheet_path_idx": {
-          "name": "bai_kmd_blocks_worksheet_path_idx",
+        "bai_kmd_blocks_free_text_path_idx": {
+          "name": "bai_kmd_blocks_free_text_path_idx",
           "columns": [
             {
               "expression": "_path",
@@ -1358,9 +1358,9 @@
         }
       },
       "foreignKeys": {
-        "bai_kmd_blocks_worksheet_parent_id_fk": {
-          "name": "bai_kmd_blocks_worksheet_parent_id_fk",
-          "tableFrom": "bai_kmd_blocks_worksheet",
+        "bai_kmd_blocks_free_text_parent_id_fk": {
+          "name": "bai_kmd_blocks_free_text_parent_id_fk",
+          "tableFrom": "bai_kmd_blocks_free_text",
           "tableTo": "bai_kmd",
           "schemaTo": "payload",
           "columnsFrom": [
@@ -2304,6 +2304,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "9cb0473b-c8dc-49eb-adab-542c88a9b2bf",
+  "id": "8159772f-dea1-4626-814b-6873b3d797be",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

@@ -285,7 +285,7 @@ export interface BaiKmd {
         } | null;
         id?: string | null;
         blockName?: string | null;
-        blockType: 'worksheet';
+        blockType: 'freeText';
       }[]
     | null;
   updatedAt: string;
@@ -510,7 +510,7 @@ export interface BaiKmdSelect<T extends boolean = true> {
   blocks?:
     | T
     | {
-        worksheet?:
+        freeText?:
           | T
           | {
               content?: T;

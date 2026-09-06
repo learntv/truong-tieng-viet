@@ -143,6 +143,18 @@
   --font-body: var(--ttv-font-arimo), system-ui, sans-serif;
 
   /*
+   * Payload's own default is `'Georgia', 'Bitstream Charter', 'Charis SIL', Utopia,
+   * 'URW Bookman L', serif` — the rich-text editor's ContentEditable is the one place in the
+   * panel that reads this variable. None of those faces are installed here, and the Linux
+   * fallback serif face breaks precomposed Vietnamese marks apart into a base letter plus a
+   * spacing diacritic (ắ → ă + ´), the same failure `--font-body` above was fixed for. Reusing
+   * Arimo here rather than sourcing a second serif webfont keeps the editor's typed text legible
+   * and correct; it costs the serif look Payload intended, which nothing else in this panel's
+   * design uses anyway.
+   */
+  --font-serif: var(--ttv-font-arimo), system-ui, sans-serif;
+
+  /*
    * Density. `$baseline-body-size: 13px` is a Sass constant compiled into `%body`, which
    * `html` extends — so the root size is set below, on `html`, not through a variable.
    * `--base-px` / `--base-body-size` are a separate mechanism: they only feed the spacing

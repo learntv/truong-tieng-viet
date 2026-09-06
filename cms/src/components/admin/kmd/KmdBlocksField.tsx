@@ -8,6 +8,8 @@ import {
   FieldDescription,
   FieldLabel,
   Pill,
+  Popup,
+  PopupList,
   RenderFields,
   useConfig,
   useField,
@@ -92,7 +94,6 @@ export const KmdBlocksField: BlocksFieldClientComponent = (props) => {
   )
 
   const [rawActiveIndex, setActiveIndex] = useState(0)
-  const [pickerOpen, setPickerOpen] = useState(false)
 
   // Clamped at read time, not via an effect: a row removal or reorder can leave the previously
   // selected index out of bounds for one render, and this way that render is already correct.
@@ -103,7 +104,6 @@ export const KmdBlocksField: BlocksFieldClientComponent = (props) => {
       const rowIndex = rows.length
       addFieldRow({ blockType, path, rowIndex, schemaPath: resolvedSchemaPath })
       setActiveIndex(rowIndex)
-      setPickerOpen(false)
     },
     [addFieldRow, path, resolvedSchemaPath, rows.length],
   )
@@ -197,22 +197,27 @@ export const KmdBlocksField: BlocksFieldClientComponent = (props) => {
 
           {!readOnly && (
             <div className={styles.addWrap}>
-              <button
-                className={styles.addButton}
-                onClick={() => setPickerOpen((open) => !open)}
-                type="button"
-              >
-                + Thêm mục
-              </button>
-              {pickerOpen && (
-                <div className={styles.picker}>
-                  {clientBlocks.map((block) => (
-                    <button key={block.slug} onClick={() => addBlock(block.slug)} type="button">
-                      {getTranslation(block.labels?.singular ?? block.slug, i18n)}
-                    </button>
-                  ))}
-                </div>
-              )}
+              <Popup
+                button={<span className={styles.addButton}>+ Thêm mục</span>}
+                buttonType="custom"
+                horizontalAlign="left"
+                render={({ close }) => (
+                  <PopupList.ButtonGroup>
+                    {clientBlocks.map((block) => (
+                      <PopupList.Button
+                        key={block.slug}
+                        onClick={() => {
+                          addBlock(block.slug)
+                          close()
+                        }}
+                      >
+                        {getTranslation(block.labels?.singular ?? block.slug, i18n)}
+                      </PopupList.Button>
+                    ))}
+                  </PopupList.ButtonGroup>
+                )}
+                size="small"
+              />
             </div>
           )}
         </div>
