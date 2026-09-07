@@ -13,6 +13,7 @@ import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8c
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { VocabularyCardBlock as VocabularyCardBlock_2e9f31f9256fe6cd36bc9678fb19e932 } from '@/components/admin/blocks/VocabularyCardBlock'
 import { SyllableChainBlock as SyllableChainBlock_24b9780cdb8c353b05e7f0b056f51325 } from '@/components/admin/blocks/SyllableChainBlock'
+import { ColumnsFeatureClient as ColumnsFeatureClient_a99f4bfd8642aa9e8a44a3b97369d9f7 } from '@/features/columns/client'
 import { FixedToolbarFeatureClient as FixedToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
@@ -60,6 +61,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#BlocksFeatureClient": BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@/components/admin/blocks/VocabularyCardBlock#VocabularyCardBlock": VocabularyCardBlock_2e9f31f9256fe6cd36bc9678fb19e932,
   "@/components/admin/blocks/SyllableChainBlock#SyllableChainBlock": SyllableChainBlock_24b9780cdb8c353b05e7f0b056f51325,
+  "@/features/columns/client#ColumnsFeatureClient": ColumnsFeatureClient_a99f4bfd8642aa9e8a44a3b97369d9f7,
   "@payloadcms/richtext-lexical/client#FixedToolbarFeatureClient": FixedToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,

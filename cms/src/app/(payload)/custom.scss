@@ -390,3 +390,218 @@ html {
 .app-header__account {
   display: none;
 }
+
+/* ---------------------------------------------------------------------------
+ * Multi-column layout in the lesson editor
+ *
+ * The nodes and the interaction live in src/features/columns; this is everything those files
+ * render. It is here rather than in a CSS module because half of it styles DOM that Lexical
+ * builds itself, in `ColumnsNode.createDOM` — nodes hand back plain elements with plain class
+ * names, and a module's hashed names can't reach them.
+ *
+ * These selectors are all classes, so the `:where()` rule at the top of this file doesn't
+ * apply: they need real specificity to sit above Payload's layered editor defaults.
+ * ------------------------------------------------------------------------ */
+
+.kmd-columns {
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+  margin: 0.75rem 0;
+}
+
+/*
+ * `flex: 1 1 0` — equal thirds, not "as wide as the content wants". The row is a layout an
+ * editor chose, so a column with one word in it holds its width instead of collapsing, and the
+ * shape on screen while writing is the shape the lesson will have.
+ *
+ * `min-width: 0` is what stops a long unbroken word (or a wide vocabulary card) from forcing
+ * its column past its share and squeezing the others; without it flex items refuse to shrink
+ * below their content's intrinsic width.
+ */
+.kmd-column {
+  flex: 1 1 0;
+  min-width: 0;
+  /* The column's own gutter, mirroring the editor's 3rem one: this is where the drag handle for
+   * a block inside the column is drawn (BlockHandlesPlugin.tsx positions it relative to the
+   * block's left edge, so the space has to exist or the handle would sit on top of the text). */
+  padding: 0.35rem 0.5rem 0.35rem 1.625rem;
+  /* A hairline, not a filled panel. The column boundary has to be visible — an editor placing
+   * content into a layout needs to see where the layout is — but a column is a container for
+   * lesson content, not a card in its own right, and tinting it would make it read as one. */
+  border: 1px dashed var(--theme-elevation-150);
+  border-radius: 4px;
+}
+
+/*
+ * Media shrinks to its column.
+ *
+ * Payload sizes an upload by pinning it — `min-width: 450px` for a landscape image, `min-height:
+ * 450px` for a portrait one — which is a sensible way to stop images being tiny on a full-width
+ * page and exactly the wrong thing in a column a third that wide: a floor, not a ceiling, so the
+ * image keeps its 450px and spills over its column instead of fitting inside it.
+ *
+ * Releasing the floor is the whole fix — Payload's 450px *ceiling* is left in place, so an image
+ * in a wide one-column row is still the size it would be outside a row. The column only ever
+ * makes an image smaller than the editor would otherwise draw it, never larger.
+ */
+.kmd-column .LexicalEditorTheme__upload {
+  max-width: 100%;
+}
+
+.kmd-column .LexicalEditorTheme__upload img,
+.kmd-column .LexicalEditorTheme__upload svg {
+  min-width: 0;
+  min-height: 0;
+  max-width: 100%;
+  height: auto;
+}
+
+/* The same ceiling for anything else that carries its own intrinsic width — a vocabulary card's
+ * picture, a pasted image — so no single element can widen the column past its share. */
+.kmd-column img,
+.kmd-column video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Nothing inside a column needs a top margin on its first block or a bottom on its last — the
+ * column's own padding already spaces it, and doubling up makes the columns of a row start at
+ * visibly different heights. */
+.kmd-column > *:first-child {
+  margin-top: 0;
+}
+
+.kmd-column > *:last-child {
+  margin-bottom: 0;
+}
+
+/* ---- the block handles (drag / add) ------------------------------------- */
+
+/*
+ * Positioned by transform from `left: 0; top: 0`, the same convention Payload's own handles
+ * use, so both live in the editor's coordinate space and neither needs a containing block of
+ * its own.
+ */
+.kmd-block-handle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  opacity: 0;
+  will-change: transform;
+  transition: background-color 0.1s ease;
+}
+
+.kmd-block-handle:hover {
+  background: var(--theme-elevation-100);
+}
+
+.kmd-block-handle > span {
+  width: 100%;
+  height: 100%;
+  opacity: 0.35;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: opacity 0.1s ease;
+}
+
+.kmd-block-handle:hover > span {
+  opacity: 1;
+}
+
+.kmd-block-handle--drag {
+  cursor: grab;
+}
+
+.kmd-block-handle--drag:active {
+  cursor: grabbing;
+}
+
+.kmd-block-handle--drag > span {
+  background-image: url('data:image/svg+xml,<svg width="18" height="24" viewBox="0 0 18 24" fill="%2331363b" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="8" r="1"/><circle cx="11" cy="8" r="1"/><circle cx="7" cy="12" r="1"/><circle cx="11" cy="12" r="1"/><circle cx="7" cy="16" r="1"/><circle cx="11" cy="16" r="1"/></svg>');
+}
+
+.kmd-block-handle--add {
+  cursor: pointer;
+}
+
+.kmd-block-handle--add > span {
+  background-image: url('data:image/svg+xml,<svg width="18" height="24" viewBox="0 0 18 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5,12h8" stroke="%2331363b"/><path d="M9,16V8" stroke="%2331363b"/></svg>');
+}
+
+/*
+ * The insertion line. It spans the *container's* content width, not the dragged block's — which
+ * is the whole signal: a line the width of one column says the block lands in that column, a
+ * line the width of the page says it lands on the page, and the difference is readable at a
+ * glance without reading anything.
+ */
+.kmd-drop-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--theme-success-500);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* ---- the row's own control ---------------------------------------------- */
+
+.kmd-columns-toolbar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: 6px;
+  background: var(--theme-elevation-0);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
+  opacity: 0;
+  will-change: transform;
+}
+
+.kmd-columns-toolbar__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--theme-elevation-500);
+  cursor: pointer;
+}
+
+.kmd-columns-toolbar__button:hover {
+  background: var(--theme-elevation-100);
+  color: var(--theme-elevation-800);
+}
+
+.kmd-columns-toolbar__button[aria-pressed='true'] {
+  background: var(--theme-success-100);
+  color: var(--theme-success-600);
+}
+
+.kmd-columns-toolbar__divider {
+  width: 1px;
+  height: 14px;
+  margin: 0 2px;
+  background: var(--theme-elevation-150);
+}
