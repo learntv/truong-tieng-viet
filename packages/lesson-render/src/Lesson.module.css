@@ -109,11 +109,19 @@
 
 /* The real content, shrunk with a transform rather than redrawn — see the component for why.
  * `width` is the inverse of the `scale` below (1 / 0.22), so the box the transform leaves behind
- * is exactly as wide as `.railThumb`, and cropping only ever happens on height. */
+ * is exactly as wide as `.railThumb`, and cropping only ever happens on height.
+ *
+ * Centred vertically, the way the slide centres its own content: taken out of flow, its top put
+ * at the thumbnail's middle, then pulled back up by half its own painted height. With
+ * `transform-origin: top left` the translate is scaled along with everything else, so
+ * `translateY(-50%)` moves it by half of 0.22 × height — exactly half of what is drawn. */
 .railThumbScale {
+  position: absolute;
+  top: 50%;
+  left: 0;
   width: 454%;
   padding: 0.6rem 0.75rem;
-  transform: scale(0.22);
+  transform: scale(0.22) translateY(-50%);
   transform-origin: top left;
 }
 
