@@ -1,0 +1,41 @@
+/*
+ * The public site's design tokens, as far as the lesson preview needs them.
+ *
+ * Values copied from the app's own `src/styles.css` (the repo root, not this package) and resolved
+ * to the same oklch literals rather than imported: the two halves of the repo are separate builds
+ * and this page has to look like the site without depending on its stylesheet. Same reasoning as
+ * features/text-color/palette.ts, which carries the same palette for the same reason — if the site
+ * retunes a token, this file is the one place to follow it.
+ */
+
+:root {
+  --ttv-page: oklch(0.99 0.0068 67.7); /* #fffbf7 — the site's warm off-white ground */
+  --ttv-surface: oklch(1 0 0); /* cards */
+  --ttv-ink: oklch(0.28 0.045 260); /* deep navy body ink */
+  --ttv-ink-muted: oklch(0.52 0.02 260);
+  --ttv-border: oklch(0.9 0.008 250);
+  /* One step darker than `--ttv-border`, for the boxes in a tạo tiếng chain: a hairline that
+   * disappears at the size those are drawn. Not a site token — the site has no equivalent yet. */
+  --ttv-border-strong: oklch(0.84 0.01 250);
+  --ttv-primary: oklch(0.52 0.213 29.2); /* #cc0000 — the step that clears 4.5:1 on white */
+  --ttv-primary-deep: oklch(0.42 0.176 29.2); /* #a30000 */
+  --ttv-primary-soft: oklch(0.968 0.014 29.2); /* #fff2f0 */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--ttv-page);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  color: var(--ttv-ink);
+  /* Arimo, loaded in layout.tsx. No literal Arial in the stack: with Arial absent a browser
+   * synthesises bold from a substitute face, and the substitute drops precomposed Vietnamese
+   * marks (ệ, ẫ, ỡ) — which in a phonics lesson is the whole content. */
+  font-family: var(--ttv-font-arimo), system-ui, sans-serif;
+}

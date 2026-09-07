@@ -2,6 +2,13 @@
 .card {
   align-items: flex-start;
   background: color-mix(in srgb, #e8590c 10%, var(--theme-elevation-0));
+  /* Centred in the column rather than stretched across it: these blocks are diagrams and cards
+     with a natural width, and a card pinned to the left edge of a wide section reads as the start
+     of a row that never arrives. Mirrored in the preview (components/preview) so the editor and
+     the rendered lesson place them identically. */
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
   border: 1px solid var(--theme-elevation-100);
   border-radius: var(--style-radius-l);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
@@ -150,10 +157,25 @@
   width: 100%;
 }
 
+/* The picture at its own proportions, the way the card renders it on the page
+   (components/preview/lessonContent.module.css) — not Payload's square crop. Its thumbnail is a
+   fixed-ratio box with the <img> absolutely positioned inside under `object-fit: cover`, so a
+   portrait photo loses its top and bottom and reads as a short strip. Putting the image back in
+   the flow lets the box take the image's own height instead. */
 .card :global(.vocabulary-card-field--image .thumbnail--size-small) {
-  aspect-ratio: 1;
-  max-height: none;
   width: 100%;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+}
+
+.card :global(.vocabulary-card-field--image .thumbnail--size-small > img) {
+  position: relative;
+  inset: auto;
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
 }
 
 .card :global(.vocabulary-card-field--image .upload-relationship-details__details) {

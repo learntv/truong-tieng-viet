@@ -1,0 +1,38 @@
+/* The one piece of chrome on the preview: a bar saying what this page is. Sticky, because the
+ * moment it scrolls away is the moment someone mistakes the preview for the live site. */
+.banner {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1.25rem;
+  border-bottom: 1px solid var(--ttv-border);
+  background: var(--ttv-primary-soft);
+  color: var(--ttv-ink-muted);
+  font-size: 0.9rem;
+}
+
+.badge {
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: var(--ttv-primary);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.note {
+  min-width: 0;
+}
+
+.back {
+  margin-left: auto;
+  color: var(--ttv-primary-deep);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}

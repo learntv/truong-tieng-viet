@@ -1,5 +1,27 @@
 import type { Block } from 'payload'
 
+/**
+ * The six Vietnamese tones, in the order they are taught.
+ *
+ * `label` is what the editor picks from — the tone's name with its mark in brackets, which is how
+ * the select has to read when the mark alone is a bare combining character. `display` is what a
+ * reader sees in the rendered chain (see components/preview), where the box is a step in
+ * "âm đầu + vần + dấu thanh → tiếng" and wants the phrase a teacher would say out loud.
+ *
+ * Exported so the preview cannot drift from the stored values: these six strings are the closed
+ * set the `dauThanh` field validates against.
+ */
+export const TONES = [
+  { display: 'thanh ngang', label: 'Ngang', value: 'ngang' },
+  { display: 'dấu huyền', label: 'Huyền ( ` )', value: 'huyen' },
+  { display: 'dấu sắc', label: 'Sắc ( ́ )', value: 'sac' },
+  { display: 'dấu hỏi', label: 'Hỏi ( ̉ )', value: 'hoi' },
+  { display: 'dấu ngã', label: 'Ngã ( ~ )', value: 'nga' },
+  { display: 'dấu nặng', label: 'Nặng ( . )', value: 'nang' },
+] as const
+
+export type ToneValue = (typeof TONES)[number]['value']
+
 // One "âm đầu + vần + dấu thanh → tiếng" chain — a single row, not a repeatable list. An editor
 // wanting a second chain (e.g. another example under the same "Hãy tạo tiếng có âm d" prompt)
 // drops in another SyllableChain block rather than adding a row to this one; the prompt itself
@@ -39,17 +61,9 @@ export const SyllableChain: Block = {
       label: 'Dấu thanh',
       required: true,
       defaultValue: 'ngang',
-      // The six Vietnamese tones — a fixed, closed set (unlike amDau/van/tieng, whose actual
-      // syllables can't be enumerated), so a select is correct here where free text was a guess
-      // everywhere else in the chain.
-      options: [
-        { label: 'Ngang', value: 'ngang' },
-        { label: 'Huyền ( ` )', value: 'huyen' },
-        { label: 'Sắc ( ́ )', value: 'sac' },
-        { label: 'Hỏi ( ̉ )', value: 'hoi' },
-        { label: 'Ngã ( ~ )', value: 'nga' },
-        { label: 'Nặng ( . )', value: 'nang' },
-      ],
+      // A closed set, unlike amDau/van/tieng, whose actual syllables can't be enumerated — so a
+      // select is correct here where free text was a guess everywhere else in the chain.
+      options: TONES.map(({ label, value }) => ({ label, value })),
       admin: {
         // Always has a value (required + defaultValue), so the clear (×) button react-select
         // shows by default would only ever produce an invalid empty state — off entirely.

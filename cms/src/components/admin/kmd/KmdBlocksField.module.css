@@ -167,3 +167,29 @@
   color: var(--theme-elevation-400);
   font-style: italic;
 }
+
+/* "Xem trước", at the far end of the section header — a link out of the panel, so it sits apart
+   from the pill and counter that describe the section rather than beside them. */
+.previewLink {
+  margin-left: auto;
+  padding: 0.15rem 0.6rem;
+  border: 1px solid var(--theme-elevation-200);
+  border-radius: 4px;
+  color: var(--theme-elevation-700);
+  font-size: 0.8rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.previewLink:hover {
+  border-color: var(--theme-elevation-400);
+  background: var(--theme-elevation-50);
+}
+
+/* Unsaved lessons have no id to preview; the control stays visible and explains itself in its
+   tooltip rather than vanishing, so it does not look like the button moved. */
+.previewLink[data-disabled] {
+  border-style: dashed;
+  color: var(--theme-elevation-400);
+  cursor: not-allowed;
+}

@@ -12,6 +12,7 @@ import {
   PopupList,
   RenderFields,
   useConfig,
+  useDocumentInfo,
   useField,
   useForm,
   useTranslation,
@@ -30,6 +31,39 @@ const RailThumbPlaceholder: React.FC = () => (
     <path d="M3 16l5-4 4 3 3-2.5 6 4.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
   </svg>
 )
+
+/**
+ * Opens the lesson as a reader sees it (see app/(preview)/xem-truoc/bai-kmd/[id]), scrolled to the
+ * section being edited — the ids on the preview's cards are the same "Mục n" numbering as the rail.
+ *
+ * It links to the *saved* lesson, which is why an unsaved one gets a disabled control saying so
+ * rather than a link to a document id that does not exist yet. Payload also puts its own preview
+ * button in the save bar (`admin.preview` in collections/BaiKMD.ts); this one is here because it
+ * is where the sections are edited, and because it can point at the section in hand.
+ */
+const PreviewLink: React.FC<{ sectionNumber: number }> = ({ sectionNumber }) => {
+  const { id } = useDocumentInfo()
+
+  if (!id) {
+    return (
+      <span className={styles.previewLink} data-disabled title="Lưu bài học trước khi xem trước.">
+        Xem trước
+      </span>
+    )
+  }
+
+  return (
+    <a
+      className={styles.previewLink}
+      href={`/xem-truoc/bai-kmd/${id}#muc-${sectionNumber}`}
+      rel="noreferrer"
+      target="_blank"
+      title="Mở bản xem trước của bài học (nội dung đã lưu) trong tab mới."
+    >
+      Xem trước
+    </a>
+  )
+}
 
 const getBlockPermissions = (permissions: unknown, blockType: string): unknown => {
   if (permissions === true || permissions == null) return true
@@ -232,6 +266,7 @@ export const KmdBlocksField: BlocksFieldClientComponent = (props) => {
                 <span className={styles.editorHeaderIndex}>
                   Mục {activeIndex + 1} / {rows.length}
                 </span>
+                <PreviewLink sectionNumber={activeIndex + 1} />
               </div>
               <RenderFields
                 fields={activeBlock.fields}

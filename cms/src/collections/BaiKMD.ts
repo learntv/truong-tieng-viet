@@ -20,6 +20,11 @@ export const BaiKMD: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'amVan'],
+    // The external-link button in the save bar. It opens the same page as the "Xem trước" control
+    // in the section header (KmdBlocksField.tsx) — this one is Payload's own, in the place a
+    // Payload user looks for it. Relative because the preview is served by this same app; there is
+    // no student-facing lesson page to point at yet (see app/(preview)).
+    preview: (doc) => (doc?.id ? `/xem-truoc/bai-kmd/${doc.id}` : null),
   },
   // Drag-to-reorder in the list view; display order lives in the hidden _order
   // fractional-index field. Replaces a hand-entered "Số bài" number, which duplicated what
