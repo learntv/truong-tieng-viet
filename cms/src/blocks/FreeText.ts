@@ -3,7 +3,10 @@ import type { Block } from 'payload'
 import { BlocksFeature, FixedToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 
 import { ColumnsFeature } from '@/features/columns'
+import { JsonViewFeature } from '@/features/json-view'
+import { TextColorFeature } from '@/features/text-color'
 
+import { SyllableBlend } from './SyllableBlend'
 import { SyllableChain } from './SyllableChain'
 import { VocabularyCard } from './VocabularyCard'
 
@@ -31,7 +34,9 @@ export const FreeText: Block = {
           ...defaultFeatures,
           FixedToolbarFeature(),
           ColumnsFeature(),
-          BlocksFeature({ blocks: [VocabularyCard, SyllableChain] }),
+          TextColorFeature(),
+          JsonViewFeature(),
+          BlocksFeature({ blocks: [VocabularyCard, SyllableChain, SyllableBlend] }),
         ],
       }),
       label: 'Nội dung',

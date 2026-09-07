@@ -13,6 +13,9 @@ import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8c
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { VocabularyCardBlock as VocabularyCardBlock_2e9f31f9256fe6cd36bc9678fb19e932 } from '@/components/admin/blocks/VocabularyCardBlock'
 import { SyllableChainBlock as SyllableChainBlock_24b9780cdb8c353b05e7f0b056f51325 } from '@/components/admin/blocks/SyllableChainBlock'
+import { SyllableBlendBlock as SyllableBlendBlock_17a5d558227e4b7fa0b8e5adfd36e3c6 } from '@/components/admin/blocks/SyllableBlendBlock'
+import { JsonViewFeatureClient as JsonViewFeatureClient_11485349990b1300462e7296f41cee61 } from '@/features/json-view/client'
+import { TextColorFeatureClient as TextColorFeatureClient_972efb1e70e22b3d1ff96876419cda0c } from '@/features/text-color/client'
 import { ColumnsFeatureClient as ColumnsFeatureClient_a99f4bfd8642aa9e8a44a3b97369d9f7 } from '@/features/columns/client'
 import { FixedToolbarFeatureClient as FixedToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
@@ -61,6 +64,9 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#BlocksFeatureClient": BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@/components/admin/blocks/VocabularyCardBlock#VocabularyCardBlock": VocabularyCardBlock_2e9f31f9256fe6cd36bc9678fb19e932,
   "@/components/admin/blocks/SyllableChainBlock#SyllableChainBlock": SyllableChainBlock_24b9780cdb8c353b05e7f0b056f51325,
+  "@/components/admin/blocks/SyllableBlendBlock#SyllableBlendBlock": SyllableBlendBlock_17a5d558227e4b7fa0b8e5adfd36e3c6,
+  "@/features/json-view/client#JsonViewFeatureClient": JsonViewFeatureClient_11485349990b1300462e7296f41cee61,
+  "@/features/text-color/client#TextColorFeatureClient": TextColorFeatureClient_972efb1e70e22b3d1ff96876419cda0c,
   "@/features/columns/client#ColumnsFeatureClient": ColumnsFeatureClient_a99f4bfd8642aa9e8a44a3b97369d9f7,
   "@payloadcms/richtext-lexical/client#FixedToolbarFeatureClient": FixedToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
