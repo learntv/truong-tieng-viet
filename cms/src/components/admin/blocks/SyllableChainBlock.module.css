@@ -1,0 +1,108 @@
+/* The chain-drill shell — same flat, soft language as VocabularyCardBlock so the two block
+   types read as one family inside a FreeText section. */
+.card {
+  background: color-mix(in srgb, #e8590c 10%, var(--theme-elevation-0));
+  /* Centred in the column rather than stretched across it: these blocks are diagrams and cards
+     with a natural width, and a card pinned to the left edge of a wide section reads as the start
+     of a row that never arrives. Mirrored in the preview (components/preview) so the editor and
+     the rendered lesson place them identically. */
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  border: 1px solid var(--theme-elevation-100);
+  border-radius: var(--style-radius-l);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: calc(var(--base) * 0.8);
+  padding-right: calc(var(--base) * 1.6);
+  position: relative;
+}
+
+.remove {
+  position: absolute;
+  right: calc(var(--base) * 0.3);
+  top: calc(var(--base) * 0.3);
+}
+
+/* The chain itself — one row of boxes joined by arrows: âm đầu → vần → dấu thanh → tiếng. Each
+   cell is `display: contents` so only its bare `<input>`/select control participates in the flex
+   row, with no label and no field wrapper box around it. Arrows are real `<span>`s rendered
+   between fields in SyllableChainBlock.tsx, not `::after` content — generated content on a
+   `display: contents` ancestor is unreliable across browsers for flex-wrap purposes and was
+   landing on its own line instead of inline between boxes. */
+.chain {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--base) * 0.3);
+}
+
+.arrow {
+  color: var(--theme-elevation-400);
+  font-size: 1.1rem;
+}
+
+.chain :global(.syllable-chain-cell),
+.chain :global(.syllable-chain-cell .field-type__wrap) {
+  display: contents;
+}
+
+.chain :global(.syllable-chain-cell .field-label) {
+  display: none;
+}
+
+.chain :global(.syllable-chain-cell--amDau input),
+.chain :global(.syllable-chain-cell--van input),
+.chain :global(.syllable-chain-cell--tieng input) {
+  background: var(--theme-elevation-0);
+  border: 2px solid var(--theme-elevation-300);
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  height: 2.4rem;
+  padding: 0;
+  text-align: center;
+  width: 3rem;
+}
+
+.chain :global(.syllable-chain-cell--tieng input) {
+  border-color: var(--theme-warning-600);
+  border-radius: 14px;
+  width: 4rem;
+}
+
+/* dauThanh is a select (see SyllableChain.ts — a closed set of six tones, not free text), so it
+   renders as react-select rather than a bare `<input>` — restyled into a box of its own instead
+   of reusing the plain-input rule above. */
+.chain :global(.syllable-chain-cell--dauThanh .rs__control) {
+  background: var(--theme-elevation-0);
+  border: 2px solid var(--theme-elevation-300);
+  border-radius: 8px;
+  cursor: pointer;
+  min-height: 2.4rem;
+  min-width: 5rem;
+}
+
+.chain :global(.syllable-chain-cell--dauThanh .rs__value-container) {
+  justify-content: center;
+  padding: 0 calc(var(--base) * 0.2);
+}
+
+.chain :global(.syllable-chain-cell--dauThanh .rs__single-value) {
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.chain :global(.syllable-chain-cell--dauThanh .rs__indicator-separator) {
+  display: none;
+}
+
+.chain :global(.syllable-chain-cell--dauThanh .rs__indicator) {
+  padding: 0 calc(var(--base) * 0.2);
+}
+
+.chain :global(.syllable-chain-cell--dauThanh .rs__input-container) {
+  margin: 0;
+  padding: 0;
+}

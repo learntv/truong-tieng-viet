@@ -1,0 +1,23 @@
+/*
+ * The preview route's own font and body rules. The design tokens (:root) moved to
+ * packages/lesson-render/src/tokens.css, imported by layout.tsx, so the CMS preview and the
+ * public lesson page share one copy.
+ */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--ttv-page);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  color: var(--ttv-ink);
+  /* Arimo, loaded in layout.tsx. No literal Arial in the stack: with Arial absent a browser
+   * synthesises bold from a substitute face, and the substitute drops precomposed Vietnamese
+   * marks (ệ, ẫ, ỡ) — which in a phonics lesson is the whole content. */
+  font-family: var(--ttv-font-arimo), system-ui, sans-serif;
+}

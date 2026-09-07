@@ -1,0 +1,274 @@
+/*
+ * The lesson's own content, as a reader sees it: the rich text, the column rows, and the three
+ * lesson blocks (see lessonConverters.tsx for what maps onto what).
+ *
+ * Element selectors are unhashed in a CSS module, so the ordinary tags the converters emit are
+ * styled directly here — there is no class to hang on a <p> that Payload's own converter renders.
+ */
+
+.content {
+  color: var(--ttv-ink);
+  font-size: 1.15rem;
+  line-height: 1.7;
+}
+
+.content > * + * {
+  margin-top: 0.9em;
+}
+
+.content p {
+  margin: 0;
+}
+
+.content h1,
+.content h2,
+.content h3,
+.content h4 {
+  margin: 0;
+  color: var(--ttv-ink);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.content h1 {
+  font-size: 1.9rem;
+}
+
+.content h2 {
+  font-size: 1.55rem;
+}
+
+.content h3 {
+  font-size: 1.3rem;
+}
+
+.content h4 {
+  font-size: 1.15rem;
+}
+
+.content ol,
+.content ul {
+  margin: 0;
+  padding-left: 1.4em;
+}
+
+.content li {
+  margin-top: 0.35em;
+}
+
+/* A checklist ("dặn dò" — the things to do at home) converts to `ul.list-check` whose items carry
+ * a real checkbox input, so the bullet column is given back to the box instead. */
+.content ul[class~='list-check'] {
+  padding-left: 0;
+}
+
+.content li[class~='list-item-checkbox'] {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.content li[class~='list-item-checkbox'] input {
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--ttv-primary);
+}
+
+.content li[class~='list-item-checkbox'] br {
+  display: none;
+}
+
+.content a {
+  color: var(--ttv-primary);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.content blockquote {
+  margin: 0;
+  padding-left: 1em;
+  border-left: 4px solid var(--ttv-primary-soft);
+  color: var(--ttv-ink-muted);
+}
+
+.content hr {
+  height: 1px;
+  margin: 1.4em 0;
+  border: none;
+  background: var(--ttv-border);
+}
+
+.content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+/* --- columns (features/columns) ----------------------------------------- */
+
+/* `flex: 1 1 0` on every column, so a row divides itself evenly by how many it holds and needs no
+ * stored column count — the same rule the editor lays them out with. They stack on a phone: two
+ * reading rows side by side at 380px wide are two unreadable reading rows. */
+.columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.column {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.column > * + * {
+  margin-top: 0.9em;
+}
+
+/* --- thẻ từ vựng -------------------------------------------------------- */
+
+.vocabularyCard {
+  display: flex;
+  align-items: flex-start;
+  /* Centred, matching the editor (components/admin/blocks/*): the block is a diagram of its own
+     width, not a paragraph that fills the measure. */
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--ttv-border);
+  border-radius: 16px;
+  background: var(--ttv-surface);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 5%);
+}
+
+.vocabularyImage {
+  flex: 0 0 auto;
+  width: 8rem;
+  height: auto;
+  border-radius: 12px;
+}
+
+.vocabularyText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.vocabularyWord {
+  color: var(--ttv-ink);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.vocabularyMeaning {
+  color: var(--ttv-ink-muted);
+  font-size: 1.05rem;
+}
+
+.vocabularyExample {
+  color: var(--ttv-ink-muted);
+  font-size: 1.05rem;
+  font-style: italic;
+}
+
+/* --- tạo tiếng ---------------------------------------------------------- */
+
+.chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  /* Centred, matching the editor (components/admin/blocks/*): the block is a diagram of its own
+     width, not a paragraph that fills the measure. */
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  gap: 0.5rem;
+}
+
+.chainCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3.5rem;
+  min-height: 3.25rem;
+  padding: 0 0.6rem;
+  border: 2px solid var(--ttv-border-strong);
+  border-radius: 12px;
+  background: var(--ttv-surface);
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+/* The tone step draws its mark (see ToneMarkIcon.tsx) rather than showing its spoken name, tight
+ * enough on padding that the icon fills the cell the way the other cells' text does. Muted
+ * colour only, to keep it a beat quieter than the syllable pieces either side of it. */
+.chainTone {
+  padding: 0 0.35rem;
+  color: var(--ttv-ink-muted);
+}
+
+.chainToneIcon {
+  width: 2.1rem;
+  height: 2.1rem;
+}
+
+/* The tiếng the chain arrives at, in the brand red and a rounder box — the one cell a child is
+ * meant to land on. */
+.chainResult {
+  border-color: var(--ttv-primary);
+  border-radius: 999px;
+  color: var(--ttv-primary);
+}
+
+.chainArrow {
+  color: var(--ttv-ink-muted);
+  font-size: 1.5rem;
+}
+
+/* --- đánh vần ----------------------------------------------------------- */
+
+/* The two greens are the diagram's own colours, carried over literally from the editor
+ * (SyllableBlendBlock.module.css) rather than mapped onto site tokens: the contrast between the
+ * parts and the wide box under them is what says "these pieces make that one". */
+.blend {
+  display: flex;
+  flex-direction: column;
+  /* Centred, matching the editor (components/admin/blocks/*): the block is a diagram of its own
+     width, not a paragraph that fills the measure. A stated width rather than `fit-content`,
+     unlike the other two — the parts are boxes that divide the row between them, and sizing the
+     row to its letters would leave them barely wider than the letters. */
+  width: min(26rem, 100%);
+  margin-inline: auto;
+  gap: 0.5rem;
+}
+
+.blendParts {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.blendPart,
+.blendResult {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 4.5rem;
+  padding: 0.4rem;
+  border-radius: 8px;
+  background: #ddf1d8;
+  font-size: 2.1rem;
+  line-height: 1.2;
+}
+
+.blendPart {
+  flex: 1;
+  min-width: 0;
+}
+
+.blendResult {
+  background: #a9dba9;
+  letter-spacing: 0.06em;
+}

@@ -1,0 +1,107 @@
+'use client'
+
+import {
+  createClientFeature,
+  slashMenuBasicGroupWithItems,
+  toolbarAddDropdownGroupWithItems,
+} from '@payloadcms/richtext-lexical/client'
+import React from 'react'
+
+import type { ColumnCount } from '../nodes/ColumnsNode'
+
+import { COLUMN_COUNTS, ColumnNode, ColumnsNode } from '../nodes/ColumnsNode'
+import { BlockHandlesPlugin } from './BlockHandlesPlugin'
+import { ColumnsPlugin } from './ColumnsPlugin'
+import { ColumnsToolbarPlugin } from './ColumnsToolbarPlugin'
+import { INSERT_COLUMNS_COMMAND } from './commands'
+
+// Drawn to the same spec as Payload's own lexical icons, which is what it sits beside in the
+// insert menus: a 20×20 box with the artwork inset to 4→16, hairline strokes at the SVG default
+// width of 1, and the `icon` class — that class is what the menus size (20px) and colour
+// (elevation-600) their icons with, and without it this one rendered both heavier and darker than
+// every neighbour.
+const ICON_INSET = 4
+const ICON_SPAN = 12
+const ICON_GAP = 2
+
+const ColumnsIcon: React.FC<{ count: ColumnCount }> = ({ count }) => (
+  <svg
+    aria-hidden="true"
+    className="icon kmd-columns-icon"
+    height="20"
+    viewBox="0 0 20 20"
+    width="20"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    {Array.from({ length: count }, (_, index) => {
+      const width = (ICON_SPAN - ICON_GAP * (count - 1)) / count
+      return (
+        <rect
+          fill="none"
+          height={ICON_SPAN}
+          key={index}
+          rx="1"
+          stroke="currentColor"
+          width={width}
+          x={ICON_INSET + index * (width + ICON_GAP)}
+          y={ICON_INSET}
+        />
+      )
+    })}
+  </svg>
+)
+
+// The 1-column row isn't offered as an insertion — a row you'd have to widen before it did
+// anything is a worse starting point than either of the ones below, and the floating control can
+// take an existing row down to one column when that is genuinely what's wanted.
+const INSERTABLE_COUNTS = COLUMN_COUNTS.filter((count) => count > 1)
+
+const label = (count: ColumnCount): string => `Bố cục ${count} cột`
+
+/**
+ * Multi-column layout for the KMD lesson editor.
+ *
+ * The columns are real Lexical `ElementNode`s in the *same* editor as the surrounding text, not
+ * nested editors inside a block. That is the decision everything else follows from: one editor
+ * means one selection, one history stack, one toolbar and one set of drag handles, so a heading
+ * or a vocabulary card behaves identically whether it sits in a column or on the page. Nested
+ * editors would each own their own of all of those, and dragging a block from one column to
+ * another — the thing this feature exists for — would be impossible rather than merely fiddly.
+ */
+export const ColumnsFeatureClient = createClientFeature({
+  nodes: [ColumnsNode, ColumnNode],
+  plugins: [
+    { Component: ColumnsPlugin, position: 'normal' },
+    { Component: ColumnsToolbarPlugin, position: 'floatingAnchorElem' },
+    { Component: BlockHandlesPlugin, position: 'floatingAnchorElem' },
+  ],
+  slashMenu: {
+    groups: [
+      slashMenuBasicGroupWithItems(
+        INSERTABLE_COUNTS.map((count) => ({
+          Icon: () => <ColumnsIcon count={count} />,
+          key: `columns-${count}`,
+          keywords: ['cot', 'cột', 'columns', 'layout', 'bo cuc', 'bố cục', `${count}`],
+          label: label(count),
+          onSelect: ({ editor }) => {
+            editor.dispatchCommand(INSERT_COLUMNS_COMMAND, count)
+          },
+        })),
+      ),
+    ],
+  },
+  toolbarFixed: {
+    groups: [
+      toolbarAddDropdownGroupWithItems(
+        INSERTABLE_COUNTS.map((count) => ({
+          ChildComponent: () => <ColumnsIcon count={count} />,
+          key: `columns-${count}`,
+          label: label(count),
+          onSelect: ({ editor }) => {
+            editor.dispatchCommand(INSERT_COLUMNS_COMMAND, count)
+          },
+        })),
+      ),
+    ],
+  },
+})

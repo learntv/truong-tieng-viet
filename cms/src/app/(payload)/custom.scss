@@ -143,6 +143,18 @@
   --font-body: var(--ttv-font-arimo), system-ui, sans-serif;
 
   /*
+   * Payload's own default is `'Georgia', 'Bitstream Charter', 'Charis SIL', Utopia,
+   * 'URW Bookman L', serif` — the rich-text editor's ContentEditable is the one place in the
+   * panel that reads this variable. None of those faces are installed here, and the Linux
+   * fallback serif face breaks precomposed Vietnamese marks apart into a base letter plus a
+   * spacing diacritic (ắ → ă + ´), the same failure `--font-body` above was fixed for. Reusing
+   * Arimo here rather than sourcing a second serif webfont keeps the editor's typed text legible
+   * and correct; it costs the serif look Payload intended, which nothing else in this panel's
+   * design uses anyway.
+   */
+  --font-serif: var(--ttv-font-arimo), system-ui, sans-serif;
+
+  /*
    * Density. `$baseline-body-size: 13px` is a Sass constant compiled into `%body`, which
    * `html` extends — so the root size is set below, on `html`, not through a variable.
    * `--base-px` / `--base-body-size` are a separate mechanism: they only feed the spacing
@@ -273,7 +285,6 @@ html {
  * `.template-default .template-default__wrap { min-width: 100% }`, which fights a max width,
  * and `__wrap` also carries the nav overlay pseudo-element.
  */
-.document-fields,
 .collection-list,
 .dashboard {
   background-color: var(--color-base-0);
@@ -282,6 +293,44 @@ html {
   box-shadow: var(--ttv-card-shadow);
   margin: 0 auto calc(var(--base) * 1.5);
   max-width: var(--ttv-card-max-width);
+}
+
+/*
+ * The document edit view's card is three separate DOM siblings, not one wrapper — Payload
+ * renders the title (`.doc-header`), the sticky save bar (`.doc-controls`) and the fields
+ * (`.document-fields`) as three elements in a row, each spanning the page on its own by
+ * default. Bordering and backgrounding all three, with radius only at the very top and very
+ * bottom, makes them read as one continuous card with two internal hairlines (Payload's own
+ * `.doc-header` and `.doc-controls` divider pseudo-elements) instead of three floating blocks.
+ * No box-shadow here, unlike the single-element card above: a shadow on each of the three
+ * segments would visibly seam at the two internal joins.
+ */
+.doc-header,
+.doc-controls,
+.document-fields {
+  background-color: var(--color-base-0);
+  border-left: 1px solid var(--color-base-150);
+  border-right: 1px solid var(--color-base-150);
+  margin-left: auto;
+  margin-right: auto;
+  max-width: var(--ttv-card-max-width);
+}
+
+.doc-header {
+  border-top: 1px solid var(--color-base-150);
+  border-top-left-radius: var(--ttv-card-radius);
+  border-top-right-radius: var(--ttv-card-radius);
+  /* Without this the title row's own edge (e.g. the "Chỉnh sửa" button) touches the card's new
+   * top border — Payload only ever gave `.doc-header` a `margin-top`, which sat fine against
+   * the bare page ground but reads as a card with no headroom now that the border is real. */
+  padding-top: calc(var(--base) * 1.25);
+}
+
+.document-fields {
+  border-bottom: 1px solid var(--color-base-150);
+  border-bottom-left-radius: var(--ttv-card-radius);
+  border-bottom-right-radius: var(--ttv-card-radius);
+  margin-bottom: calc(var(--base) * 1.5);
 }
 
 /*
@@ -321,16 +370,6 @@ html {
 }
 
 /*
- * The document controls — the sticky bar with Save on it — sit outside `.document-fields`, so
- * without this they would span the ground while the fields below sat in a narrower card. Same
- * width and the same centring, so the two read as one column.
- */
-.doc-controls {
-  margin: 0 auto;
-  max-width: var(--ttv-card-max-width);
-}
-
-/*
  * Payload's `AppHeader` renders inside `.template-default__wrap`, above the view, and already
  * carries the StepNav breadcrumbs — "Quyển 1 › Chào hỏi". Keeping it means the trail stays
  * correct on every view Payload adds, for free; it just needs to line up with the card and
@@ -350,4 +389,618 @@ html {
  */
 .app-header__account {
   display: none;
+}
+
+/* ---------------------------------------------------------------------------
+ * Multi-column layout in the lesson editor
+ *
+ * The nodes and the interaction live in src/features/columns; this is everything those files
+ * render. It is here rather than in a CSS module because half of it styles DOM that Lexical
+ * builds itself, in `ColumnsNode.createDOM` — nodes hand back plain elements with plain class
+ * names, and a module's hashed names can't reach them.
+ *
+ * These selectors are all classes, so the `:where()` rule at the top of this file doesn't
+ * apply: they need real specificity to sit above Payload's layered editor defaults.
+ * ------------------------------------------------------------------------ */
+
+.kmd-columns {
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+  margin: 0.75rem 0;
+}
+
+/*
+ * `flex: 1 1 0` — equal thirds, not "as wide as the content wants". The row is a layout an
+ * editor chose, so a column with one word in it holds its width instead of collapsing, and the
+ * shape on screen while writing is the shape the lesson will have.
+ *
+ * `min-width: 0` is what stops a long unbroken word (or a wide vocabulary card) from forcing
+ * its column past its share and squeezing the others; without it flex items refuse to shrink
+ * below their content's intrinsic width.
+ */
+.kmd-column {
+  flex: 1 1 0;
+  min-width: 0;
+  /* The column's own gutter, mirroring the editor's 3rem one: this is where the drag handle for
+   * a block inside the column is drawn (BlockHandlesPlugin.tsx positions it relative to the
+   * block's left edge, so the space has to exist or the handle would sit on top of the text). */
+  padding: 0.35rem 0.5rem 0.35rem 1.625rem;
+  /* A hairline, not a filled panel. The column boundary has to be visible — an editor placing
+   * content into a layout needs to see where the layout is — but a column is a container for
+   * lesson content, not a card in its own right, and tinting it would make it read as one. */
+  border: 1px dashed var(--theme-elevation-150);
+  border-radius: 4px;
+}
+
+/*
+ * Media shrinks to its column.
+ *
+ * Payload sizes an upload by pinning it — `min-width: 450px` for a landscape image, `min-height:
+ * 450px` for a portrait one — which is a sensible way to stop images being tiny on a full-width
+ * page and exactly the wrong thing in a column a third that wide: a floor, not a ceiling, so the
+ * image keeps its 450px and spills over its column instead of fitting inside it.
+ *
+ * Releasing the floor is the whole fix — Payload's 450px *ceiling* is left in place, so an image
+ * in a wide one-column row is still the size it would be outside a row. The column only ever
+ * makes an image smaller than the editor would otherwise draw it, never larger.
+ */
+.kmd-column .LexicalEditorTheme__upload {
+  max-width: 100%;
+}
+
+.kmd-column .LexicalEditorTheme__upload img,
+.kmd-column .LexicalEditorTheme__upload svg {
+  min-width: 0;
+  min-height: 0;
+  max-width: 100%;
+  height: auto;
+}
+
+/* The same ceiling for anything else that carries its own intrinsic width — a vocabulary card's
+ * picture, a pasted image — so no single element can widen the column past its share. */
+.kmd-column img,
+.kmd-column video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Nothing inside a column needs a top margin on its first block or a bottom on its last — the
+ * column's own padding already spaces it, and doubling up makes the columns of a row start at
+ * visibly different heights. */
+.kmd-column > *:first-child {
+  margin-top: 0;
+}
+
+.kmd-column > *:last-child {
+  margin-bottom: 0;
+}
+
+/* ---- the block handles (drag / add) ------------------------------------- */
+
+/*
+ * Positioned by transform from `left: 0; top: 0`, the same convention Payload's own handles
+ * use, so both live in the editor's coordinate space and neither needs a containing block of
+ * its own.
+ */
+.kmd-block-handle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  opacity: 0;
+  will-change: transform;
+  transition: background-color 0.1s ease;
+}
+
+.kmd-block-handle:hover {
+  background: var(--theme-elevation-100);
+}
+
+.kmd-block-handle > span {
+  width: 100%;
+  height: 100%;
+  opacity: 0.35;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: opacity 0.1s ease;
+}
+
+.kmd-block-handle:hover > span {
+  opacity: 1;
+}
+
+.kmd-block-handle--drag {
+  cursor: grab;
+}
+
+.kmd-block-handle--drag:active {
+  cursor: grabbing;
+}
+
+.kmd-block-handle--drag > span {
+  background-image: url('data:image/svg+xml,<svg width="18" height="24" viewBox="0 0 18 24" fill="%2331363b" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="8" r="1"/><circle cx="11" cy="8" r="1"/><circle cx="7" cy="12" r="1"/><circle cx="11" cy="12" r="1"/><circle cx="7" cy="16" r="1"/><circle cx="11" cy="16" r="1"/></svg>');
+}
+
+.kmd-block-handle--add {
+  cursor: pointer;
+}
+
+.kmd-block-handle--add > span {
+  background-image: url('data:image/svg+xml,<svg width="18" height="24" viewBox="0 0 18 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5,12h8" stroke="%2331363b"/><path d="M9,16V8" stroke="%2331363b"/></svg>');
+}
+
+/*
+ * The insertion line. It spans the *container's* content width, not the dragged block's — which
+ * is the whole signal: a line the width of one column says the block lands in that column, a
+ * line the width of the page says it lands on the page, and the difference is readable at a
+ * glance without reading anything.
+ */
+.kmd-drop-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--theme-success-500);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* ---- the row's own control ---------------------------------------------- */
+
+.kmd-columns-toolbar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: 6px;
+  background: var(--theme-elevation-0);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 8%);
+  opacity: 0;
+  will-change: transform;
+}
+
+.kmd-columns-toolbar__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--theme-elevation-500);
+  cursor: pointer;
+}
+
+.kmd-columns-toolbar__button:hover {
+  background: var(--theme-elevation-100);
+  color: var(--theme-elevation-800);
+}
+
+.kmd-columns-toolbar__button[aria-pressed='true'] {
+  background: var(--theme-success-100);
+  color: var(--theme-success-600);
+}
+
+.kmd-columns-toolbar__divider {
+  width: 1px;
+  height: 14px;
+  margin: 0 2px;
+  background: var(--theme-elevation-150);
+}
+
+/* ---------------------------------------------------------------------------
+ * Text colour picker (features/text-color)
+ *
+ * The trigger reuses Payload's own `.toolbar-popup__button` so it sits at the same size and picks
+ * up the same hover treatment as every neighbouring toolbar button; only the colour bar under the
+ * glyph and the popover below are ours.
+ * ------------------------------------------------------------------------ */
+
+.kmd-color-picker {
+  position: relative;
+  display: inline-flex;
+}
+
+.kmd-color-picker__trigger {
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Transparent by default rather than hidden, so the glyph never shifts between a selection that
+ * has a colour and one that doesn't. */
+.kmd-color-picker__bar {
+  width: 16px;
+  height: 3px;
+  border-radius: 1px;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--theme-elevation-150);
+}
+
+.kmd-color-picker__popup {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 10;
+  width: max-content;
+  padding: 6px;
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: 6px;
+  background: var(--theme-elevation-0);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 12%);
+}
+
+.kmd-color-picker__swatches {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+
+.kmd-color-picker__swatch {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--theme-elevation-200);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.kmd-color-picker__swatch:hover {
+  border-color: var(--theme-elevation-400);
+}
+
+/* A ring rather than a tick: the swatch is 22px of the colour itself, and a mark drawn on top
+ * would be invisible on whichever half of the palette shares its lightness. */
+.kmd-color-picker__swatch[aria-pressed='true'] {
+  border-color: var(--theme-elevation-0);
+  box-shadow: 0 0 0 2px var(--theme-success-500);
+}
+
+.kmd-color-picker__clear {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 4px 6px;
+  border: none;
+  border-radius: 4px;
+  background: var(--theme-elevation-50);
+  color: var(--theme-elevation-700);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.kmd-color-picker__clear:hover {
+  background: var(--theme-elevation-100);
+}
+
+/* ---------------------------------------------------------------------------
+ * JSON viewer (features/json-view)
+ * ------------------------------------------------------------------------ */
+
+.kmd-json-view__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: rgb(0 0 0 / 35%);
+}
+
+.kmd-json-view__panel {
+  display: flex;
+  flex-direction: column;
+  width: min(56rem, 100%);
+  max-height: 80vh;
+  border-radius: 8px;
+  background: var(--theme-elevation-0);
+  box-shadow: 0 12px 40px rgb(0 0 0 / 25%);
+}
+
+.kmd-json-view__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--theme-elevation-150);
+}
+
+.kmd-json-view__actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.kmd-json-view__action {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--theme-elevation-200);
+  border-radius: 4px;
+  background: var(--theme-elevation-50);
+  color: var(--theme-elevation-700);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.kmd-json-view__action:hover {
+  background: var(--theme-elevation-100);
+}
+
+.kmd-json-view__code {
+  margin: 0;
+  padding: 1rem;
+  overflow: auto;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  tab-size: 2;
+  white-space: pre;
+}
+
+/* ---------------------------------------------------------------------------
+ * Block previews in the insert menus (features/kmd-blocks)
+ *
+ * The fixed toolbar's blocks dropdown and the slash menu both render our lesson blocks as a
+ * miniature of the block (see features/kmd-blocks/client/previews.tsx) with the name underneath,
+ * instead of the same block glyph three times over. Payload sizes both menus for a 20px icon on a
+ * 30px row, so each rule here is scoped with `:has(.kmd-block-preview)`: only the menus and rows
+ * that actually contain a preview grow, and every other entry — headings, lists, columns — keeps
+ * the row height it has always had.
+ * ------------------------------------------------------------------------ */
+
+/* Payload's dropdowns sit on the same white as the editor under them and carry only a hairline
+ * shadow, which a menu of coloured previews reads straight through. A real border and a deeper
+ * shadow lift this one off the page. Height is capped because the previews make a tall menu and
+ * StickyDropdownPlugin anchors it to the viewport, which — unlike the page-anchored original —
+ * has a bottom edge to run off. */
+.toolbar-popup__dropdown-items:has(.kmd-block-preview) {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: none;
+  width: 15rem;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 6px;
+  border: 1px solid var(--theme-elevation-150);
+  box-shadow:
+    0 10px 28px rgb(0 0 0 / 18%),
+    0 2px 6px rgb(0 0 0 / 10%);
+}
+
+/* Each entry is its own card — preview and name inside one frame — so a menu of three different
+ * diagrams reads as three things to choose between rather than one continuous picture. The card
+ * carries the border; the preview inside it does not (see `.kmd-block-preview`), or every entry
+ * would be drawn twice over. */
+.toolbar-popup__dropdown-item:has(.kmd-block-preview),
+.slash-menu-popup__item:has(.kmd-block-preview) {
+  height: auto;
+  padding: 6px;
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: 8px;
+  background: var(--theme-elevation-0);
+  transition:
+    border-color 0.15s cubic-bezier(0, 0.2, 0.2, 1),
+    box-shadow 0.15s cubic-bezier(0, 0.2, 0.2, 1);
+}
+
+/* Hover only, deliberately not `:focus-visible`: Payload focuses the first item as soon as the
+ * dropdown opens (it is where keyboard nav starts), and that item already gets the accessibility
+ * outline from `.btn:focus-visible`. Painting this on top of it too made the top card look like
+ * it had a heavier border than its neighbours. */
+.toolbar-popup__dropdown-item:has(.kmd-block-preview):hover,
+.slash-menu-popup__item:has(.kmd-block-preview):hover,
+.slash-menu-popup__item--selected:has(.kmd-block-preview) {
+  border-color: var(--theme-elevation-400);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 10%);
+}
+
+/* Payload's own hover/selected fill would tint the card and the preview inside it; the border and
+ * lift above carry that state instead. */
+.toolbar-popup__dropdown-item:has(.kmd-block-preview).active,
+.slash-menu-popup__item--selected:has(.kmd-block-preview) {
+  background: var(--theme-elevation-0);
+}
+
+/* The icon is the preview, so it leads and the label sits under it — `column-reverse` because
+ * Payload renders the label before the icon in the DOM. */
+.toolbar-popup__dropdown-item:has(.kmd-block-preview) .btn__content {
+  flex-direction: column-reverse;
+  align-items: stretch;
+  gap: 4px;
+  width: 100%;
+}
+
+.toolbar-popup__dropdown-item .btn__icon:has(.kmd-block-preview) {
+  display: block;
+  width: 100%;
+  height: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  box-shadow: none;
+}
+
+.toolbar-popup__dropdown-item:has(.kmd-block-preview) .btn__label,
+.toolbar-popup__dropdown-item:has(.kmd-block-preview) .text {
+  display: block;
+  color: var(--theme-elevation-600);
+  font-size: 0.7rem;
+  text-align: left;
+}
+
+.slash-menu-popup:has(.kmd-block-preview) {
+  width: 15rem;
+}
+
+/* The group is the slash menu's own wrapper around its items; it lays the cards out here the way
+ * the dropdown's items container does above. Scoped so the heading and list groups in the same
+ * menu keep their plain rows. */
+.slash-menu-popup__group:has(.kmd-block-preview) {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 6px 8px;
+}
+
+.slash-menu-popup__item:has(.kmd-block-preview) {
+  flex-direction: column-reverse;
+  align-items: stretch;
+  gap: 4px;
+}
+
+.slash-menu-popup__item:has(.kmd-block-preview) .slash-menu-popup__item-text {
+  margin-left: 0;
+  color: var(--theme-elevation-600);
+  font-size: 0.7rem;
+}
+
+/* --- the previews themselves ------------------------------------------- */
+
+/* Colours are the literal ones the blocks are drawn in (SyllableBlendBlock.module.css and
+ * friends), not theme variables — a preview whose greens drift from the diagram it inserts is
+ * worse than no preview. */
+.kmd-block-preview {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 5px;
+  border-radius: 4px;
+  background: var(--theme-elevation-0);
+  color: #1c293f;
+  font-family: var(--font-body);
+  line-height: 1.2;
+  cursor: inherit;
+}
+
+.kmd-block-preview--chain,
+.kmd-block-preview--vocab {
+  background: color-mix(in srgb, #e8590c 10%, #fff);
+}
+
+.kmd-block-preview--chain {
+  gap: 3px;
+  justify-content: center;
+}
+
+.kmd-block-preview__cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  padding: 0 3px;
+  border: 1.5px solid var(--theme-elevation-300);
+  border-radius: 5px;
+  background: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.kmd-block-preview__cell--tone {
+  font-size: 0.6rem;
+}
+
+.kmd-block-preview__cell--result {
+  border-color: var(--theme-warning-600);
+  border-radius: 9px;
+}
+
+.kmd-block-preview__arrow {
+  color: var(--theme-elevation-400);
+  font-size: 0.7rem;
+}
+
+/* The đánh vần diagram keeps its neutral shell for the same reason the block does: its own two
+ * greens are the content, and a tint behind them would only muddy it. */
+.kmd-block-preview--blend {
+  flex-direction: column;
+  gap: 3px;
+}
+
+.kmd-block-preview__parts {
+  display: flex;
+  gap: 3px;
+  width: 100%;
+}
+
+.kmd-block-preview__part,
+.kmd-block-preview__blendResult {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.4rem;
+  border-radius: 3px;
+  background: #ddf1d8;
+  font-size: 0.85rem;
+}
+
+.kmd-block-preview__part {
+  flex: 1;
+}
+
+.kmd-block-preview__part--accent {
+  color: #cc0000;
+}
+
+.kmd-block-preview__blendResult {
+  width: 100%;
+  background: #a9dba9;
+  letter-spacing: 0.1em;
+}
+
+.kmd-block-preview--vocab {
+  gap: 6px;
+}
+
+.kmd-block-preview__thumb {
+  flex: 0 0 auto;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 1px dashed var(--theme-elevation-250);
+  border-radius: 4px;
+  background: var(--theme-elevation-50);
+}
+
+.kmd-block-preview__lines {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.kmd-block-preview__word {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.kmd-block-preview__meaning,
+.kmd-block-preview__example {
+  overflow: hidden;
+  color: rgba(28, 41, 63, 0.55);
+  font-size: 0.6rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.kmd-block-preview__example {
+  font-style: italic;
 }

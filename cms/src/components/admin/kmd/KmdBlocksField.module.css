@@ -1,0 +1,195 @@
+.layout {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+/* Narrower than before, and the rail item below is shorter too (see .railThumb) — this rail's
+   job is picking a section, not previewing it, so it only needs enough room for that. Both
+   changes are in service of the same thing: less of the panel spent on the rail, more on
+   .editor, where the actual work happens. */
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 160px;
+  flex-shrink: 0;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 0.25rem;
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: 4px;
+  background: var(--theme-elevation-50);
+}
+
+.railItem {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  background: var(--theme-bg);
+  overflow: hidden;
+}
+
+.railItem[data-active='true'] {
+  border-color: var(--theme-success-500, #2563eb);
+}
+
+.railItemButton {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.railThumb {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  border-bottom: 1px solid var(--theme-elevation-150);
+  background: var(--theme-elevation-0);
+}
+
+.railThumbIcon {
+  width: 24px;
+  height: 24px;
+  color: var(--theme-elevation-250);
+}
+
+.railMeta {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem;
+  font-size: 0.75rem;
+}
+
+.railIndex {
+  font-weight: 700;
+  color: var(--theme-elevation-400);
+}
+
+.railLabel {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.railControls {
+  display: flex;
+  gap: 0.2rem;
+  padding: 0 0.4rem 0.3rem;
+}
+
+.railControls button {
+  border: 1px solid var(--theme-elevation-150);
+  background: var(--theme-bg);
+  border-radius: 3px;
+  font-size: 0.7rem;
+  line-height: 1.4;
+  cursor: pointer;
+  padding: 0.1rem 0.35rem;
+}
+
+.railControls button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.addWrap {
+  margin-top: 0.25rem;
+}
+
+.addButton {
+  display: block;
+  width: 100%;
+  padding: 0.4rem;
+  border: 1px dashed var(--theme-elevation-250);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.editor {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--theme-elevation-200);
+  border-radius: 6px;
+  padding: 1rem;
+  background: var(--theme-elevation-100);
+}
+
+.editorHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.editorHeaderIndex {
+  font-size: 0.85rem;
+  color: var(--theme-elevation-400);
+}
+
+/* The rich-text field's own wrap has no background by default, so its typing area reads as
+   flush with `.editor`'s panel background. Give it a distinct, input-like surface instead. */
+.editor :global(.rich-text-lexical__wrap) {
+  border: 1px solid var(--theme-elevation-200);
+  border-radius: 4px;
+  background: var(--theme-input-bg);
+  padding: 0 1rem 1rem;
+}
+
+.editor :global(.fixed-toolbar) {
+  background: var(--theme-input-bg);
+  border-top: none;
+  border-right: none;
+  border-left: none;
+  border-radius: 4px 4px 0 0;
+  margin: 0 -1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--theme-elevation-400);
+  font-style: italic;
+}
+
+/* "Xem trước", at the far end of the section header — a link out of the panel, so it sits apart
+   from the pill and counter that describe the section rather than beside them. */
+.previewLink {
+  margin-left: auto;
+  padding: 0.15rem 0.6rem;
+  border: 1px solid var(--theme-elevation-200);
+  border-radius: 4px;
+  color: var(--theme-elevation-700);
+  font-size: 0.8rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.previewLink:hover {
+  border-color: var(--theme-elevation-400);
+  background: var(--theme-elevation-50);
+}
+
+/* Unsaved lessons have no id to preview; the control stays visible and explains itself in its
+   tooltip rather than vanishing, so it does not look like the button moved. */
+.previewLink[data-disabled] {
+  border-style: dashed;
+  color: var(--theme-elevation-400);
+  cursor: not-allowed;
+}

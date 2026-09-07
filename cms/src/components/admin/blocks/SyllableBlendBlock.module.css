@@ -1,0 +1,206 @@
+/* The đánh vần diagram. The card itself stays neutral — unlike VocabularyCardBlock and
+   SyllableChainBlock, which tint their shell to tell the block types apart, this block's own
+   content is two shades of green, and a third tint behind them would only muddy it. */
+.card {
+  background: var(--theme-elevation-0);
+  /* Centred in the column rather than stretched across it: these blocks are diagrams and cards
+     with a natural width, and a card pinned to the left edge of a wide section reads as the start
+     of a row that never arrives. Mirrored in the preview (components/preview) so the editor and
+     the rendered lesson place them identically. */
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  border: 1px solid var(--theme-elevation-100);
+  border-radius: var(--style-radius-l);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: calc(var(--base) * 0.8);
+  padding-right: calc(var(--base) * 1.6);
+  position: relative;
+}
+
+.blockRemove {
+  position: absolute;
+  right: calc(var(--base) * 0.3);
+  top: calc(var(--base) * 0.3);
+}
+
+.diagram {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--base) * 0.3);
+  /* A definite width, because the card around it is `fit-content` and has to get its own width
+     from somewhere: a bare `max-width` would let the diagram collapse to the width of its letters,
+     and a `min(22rem, 100%)` is circular — while the card is being sized the percentage has no
+     containing block to resolve against, so the diagram claims the whole line and the card stops
+     being centrable. The cap lives in `max-width`, which is ignored during that intrinsic pass and
+     applies once the card's width is settled. */
+  width: 22rem;
+  max-width: 100%;
+}
+
+.parts {
+  display: flex;
+  gap: calc(var(--base) * 0.3);
+}
+
+/* Both rows use the same green, the wide box a step darker — the contrast is what says "these
+   pieces make that one". Literal hex rather than theme variables: these are the diagram's own
+   colours, and they have to survive being rendered outside this admin panel. */
+.part,
+.result {
+  align-items: center;
+  background: #ddf1d8;
+  border: none;
+  border-radius: 4px;
+  display: flex;
+  font-family: var(--font-body);
+  font-size: 1.9rem;
+  justify-content: center;
+  line-height: 1.2;
+  min-height: 4.2rem;
+  padding: calc(var(--base) * 0.2);
+  position: relative;
+}
+
+.part {
+  flex: 1;
+  min-width: 0;
+}
+
+.partInput {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  min-width: 0;
+  outline: none;
+  padding: 0;
+  text-align: center;
+  width: 100%;
+}
+
+.partInput::placeholder {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+/* The controls are hidden until the cell is pointed at or focused: at rest the block should look
+   like the diagram it will print as, not like a row of form fields. */
+.partActions {
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  position: absolute;
+  right: 3px;
+  top: 3px;
+  transition: opacity 0.12s ease;
+}
+
+.part:hover .partActions,
+.part:focus-within .partActions {
+  opacity: 1;
+}
+
+.colorDot {
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 50%;
+  cursor: pointer;
+  height: 12px;
+  padding: 0;
+  width: 12px;
+}
+
+.remove {
+  background: none;
+  border: none;
+  color: rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0 2px;
+}
+
+.remove:hover {
+  color: var(--theme-error-500);
+}
+
+.picker {
+  background: var(--theme-elevation-0);
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 12%);
+  left: 50%;
+  padding: 6px;
+  position: absolute;
+  top: calc(100% + 4px);
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.swatches {
+  display: grid;
+  gap: 4px;
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.swatch {
+  border: 1px solid var(--theme-elevation-200);
+  border-radius: 4px;
+  cursor: pointer;
+  height: 20px;
+  padding: 0;
+  width: 20px;
+}
+
+.swatch[aria-pressed='true'] {
+  border-color: var(--theme-elevation-0);
+  box-shadow: 0 0 0 2px var(--theme-success-500);
+}
+
+.result {
+  background: #a9dba9;
+  cursor: text;
+  gap: 0.35em;
+  text-align: center;
+  width: 100%;
+}
+
+/* Overrides the flex/centring `.result` sets for the display state — an `<input>` lays its own
+   text out, and `display: flex` on one renders unpredictably across browsers. */
+.resultInput {
+  color: inherit;
+  display: block;
+  text-align: center;
+  width: 100%;
+}
+
+.resultInput:focus {
+  outline: none;
+}
+
+.resultInput::placeholder {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+.resultPlaceholder {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+/* Same height and shape as a part cell so the row stays even whether or not it is showing. */
+.add {
+  align-items: center;
+  background: var(--theme-elevation-50);
+  border: 1px dashed var(--theme-elevation-250);
+  border-radius: 4px;
+  color: var(--theme-elevation-450);
+  cursor: pointer;
+  display: flex;
+  flex: 0 0 2.2rem;
+  font-size: 1.2rem;
+  justify-content: center;
+  min-height: 4.2rem;
+}
+
+.add:hover {
+  background: var(--theme-elevation-100);
+  color: var(--theme-elevation-700);
+}
