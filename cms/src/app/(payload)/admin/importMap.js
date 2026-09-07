@@ -10,7 +10,7 @@ import { ChangTabs as ChangTabs_4522037acc2b0699712fbae87bdc5228 } from '@/compo
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
-import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { KmdBlocksFeatureClient as KmdBlocksFeatureClient_85985b427e8e295250d2aea3eae7a12c } from '@/features/kmd-blocks/client'
 import { VocabularyCardBlock as VocabularyCardBlock_2e9f31f9256fe6cd36bc9678fb19e932 } from '@/components/admin/blocks/VocabularyCardBlock'
 import { SyllableChainBlock as SyllableChainBlock_24b9780cdb8c353b05e7f0b056f51325 } from '@/components/admin/blocks/SyllableChainBlock'
 import { SyllableBlendBlock as SyllableBlendBlock_17a5d558227e4b7fa0b8e5adfd36e3c6 } from '@/components/admin/blocks/SyllableBlendBlock'
@@ -61,7 +61,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
-  "@payloadcms/richtext-lexical/client#BlocksFeatureClient": BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "@/features/kmd-blocks/client#KmdBlocksFeatureClient": KmdBlocksFeatureClient_85985b427e8e295250d2aea3eae7a12c,
   "@/components/admin/blocks/VocabularyCardBlock#VocabularyCardBlock": VocabularyCardBlock_2e9f31f9256fe6cd36bc9678fb19e932,
   "@/components/admin/blocks/SyllableChainBlock#SyllableChainBlock": SyllableChainBlock_24b9780cdb8c353b05e7f0b056f51325,
   "@/components/admin/blocks/SyllableBlendBlock#SyllableBlendBlock": SyllableBlendBlock_17a5d558227e4b7fa0b8e5adfd36e3c6,

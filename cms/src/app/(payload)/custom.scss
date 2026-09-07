@@ -753,3 +753,254 @@ html {
   tab-size: 2;
   white-space: pre;
 }
+
+/* ---------------------------------------------------------------------------
+ * Block previews in the insert menus (features/kmd-blocks)
+ *
+ * The fixed toolbar's blocks dropdown and the slash menu both render our lesson blocks as a
+ * miniature of the block (see features/kmd-blocks/client/previews.tsx) with the name underneath,
+ * instead of the same block glyph three times over. Payload sizes both menus for a 20px icon on a
+ * 30px row, so each rule here is scoped with `:has(.kmd-block-preview)`: only the menus and rows
+ * that actually contain a preview grow, and every other entry — headings, lists, columns — keeps
+ * the row height it has always had.
+ * ------------------------------------------------------------------------ */
+
+/* Payload's dropdowns sit on the same white as the editor under them and carry only a hairline
+ * shadow, which a menu of coloured previews reads straight through. A real border and a deeper
+ * shadow lift this one off the page. Height is capped because the previews make a tall menu and
+ * StickyDropdownPlugin anchors it to the viewport, which — unlike the page-anchored original —
+ * has a bottom edge to run off. */
+.toolbar-popup__dropdown-items:has(.kmd-block-preview) {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: none;
+  width: 15rem;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 6px;
+  border: 1px solid var(--theme-elevation-150);
+  box-shadow:
+    0 10px 28px rgb(0 0 0 / 18%),
+    0 2px 6px rgb(0 0 0 / 10%);
+}
+
+/* Each entry is its own card — preview and name inside one frame — so a menu of three different
+ * diagrams reads as three things to choose between rather than one continuous picture. The card
+ * carries the border; the preview inside it does not (see `.kmd-block-preview`), or every entry
+ * would be drawn twice over. */
+.toolbar-popup__dropdown-item:has(.kmd-block-preview),
+.slash-menu-popup__item:has(.kmd-block-preview) {
+  height: auto;
+  padding: 6px;
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: 8px;
+  background: var(--theme-elevation-0);
+  transition:
+    border-color 0.15s cubic-bezier(0, 0.2, 0.2, 1),
+    box-shadow 0.15s cubic-bezier(0, 0.2, 0.2, 1);
+}
+
+/* Hover only, deliberately not `:focus-visible`: Payload focuses the first item as soon as the
+ * dropdown opens (it is where keyboard nav starts), and that item already gets the accessibility
+ * outline from `.btn:focus-visible`. Painting this on top of it too made the top card look like
+ * it had a heavier border than its neighbours. */
+.toolbar-popup__dropdown-item:has(.kmd-block-preview):hover,
+.slash-menu-popup__item:has(.kmd-block-preview):hover,
+.slash-menu-popup__item--selected:has(.kmd-block-preview) {
+  border-color: var(--theme-elevation-400);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 10%);
+}
+
+/* Payload's own hover/selected fill would tint the card and the preview inside it; the border and
+ * lift above carry that state instead. */
+.toolbar-popup__dropdown-item:has(.kmd-block-preview).active,
+.slash-menu-popup__item--selected:has(.kmd-block-preview) {
+  background: var(--theme-elevation-0);
+}
+
+/* The icon is the preview, so it leads and the label sits under it — `column-reverse` because
+ * Payload renders the label before the icon in the DOM. */
+.toolbar-popup__dropdown-item:has(.kmd-block-preview) .btn__content {
+  flex-direction: column-reverse;
+  align-items: stretch;
+  gap: 4px;
+  width: 100%;
+}
+
+.toolbar-popup__dropdown-item .btn__icon:has(.kmd-block-preview) {
+  display: block;
+  width: 100%;
+  height: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  box-shadow: none;
+}
+
+.toolbar-popup__dropdown-item:has(.kmd-block-preview) .btn__label,
+.toolbar-popup__dropdown-item:has(.kmd-block-preview) .text {
+  display: block;
+  color: var(--theme-elevation-600);
+  font-size: 0.7rem;
+  text-align: left;
+}
+
+.slash-menu-popup:has(.kmd-block-preview) {
+  width: 15rem;
+}
+
+/* The group is the slash menu's own wrapper around its items; it lays the cards out here the way
+ * the dropdown's items container does above. Scoped so the heading and list groups in the same
+ * menu keep their plain rows. */
+.slash-menu-popup__group:has(.kmd-block-preview) {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 6px 8px;
+}
+
+.slash-menu-popup__item:has(.kmd-block-preview) {
+  flex-direction: column-reverse;
+  align-items: stretch;
+  gap: 4px;
+}
+
+.slash-menu-popup__item:has(.kmd-block-preview) .slash-menu-popup__item-text {
+  margin-left: 0;
+  color: var(--theme-elevation-600);
+  font-size: 0.7rem;
+}
+
+/* --- the previews themselves ------------------------------------------- */
+
+/* Colours are the literal ones the blocks are drawn in (SyllableBlendBlock.module.css and
+ * friends), not theme variables — a preview whose greens drift from the diagram it inserts is
+ * worse than no preview. */
+.kmd-block-preview {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 5px;
+  border-radius: 4px;
+  background: var(--theme-elevation-0);
+  color: #1c293f;
+  font-family: var(--font-body);
+  line-height: 1.2;
+  cursor: inherit;
+}
+
+.kmd-block-preview--chain,
+.kmd-block-preview--vocab {
+  background: color-mix(in srgb, #e8590c 10%, #fff);
+}
+
+.kmd-block-preview--chain {
+  gap: 3px;
+  justify-content: center;
+}
+
+.kmd-block-preview__cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  padding: 0 3px;
+  border: 1.5px solid var(--theme-elevation-300);
+  border-radius: 5px;
+  background: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.kmd-block-preview__cell--tone {
+  font-size: 0.6rem;
+}
+
+.kmd-block-preview__cell--result {
+  border-color: var(--theme-warning-600);
+  border-radius: 9px;
+}
+
+.kmd-block-preview__arrow {
+  color: var(--theme-elevation-400);
+  font-size: 0.7rem;
+}
+
+/* The đánh vần diagram keeps its neutral shell for the same reason the block does: its own two
+ * greens are the content, and a tint behind them would only muddy it. */
+.kmd-block-preview--blend {
+  flex-direction: column;
+  gap: 3px;
+}
+
+.kmd-block-preview__parts {
+  display: flex;
+  gap: 3px;
+  width: 100%;
+}
+
+.kmd-block-preview__part,
+.kmd-block-preview__blendResult {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.4rem;
+  border-radius: 3px;
+  background: #ddf1d8;
+  font-size: 0.85rem;
+}
+
+.kmd-block-preview__part {
+  flex: 1;
+}
+
+.kmd-block-preview__part--accent {
+  color: #cc0000;
+}
+
+.kmd-block-preview__blendResult {
+  width: 100%;
+  background: #a9dba9;
+  letter-spacing: 0.1em;
+}
+
+.kmd-block-preview--vocab {
+  gap: 6px;
+}
+
+.kmd-block-preview__thumb {
+  flex: 0 0 auto;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 1px dashed var(--theme-elevation-250);
+  border-radius: 4px;
+  background: var(--theme-elevation-50);
+}
+
+.kmd-block-preview__lines {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.kmd-block-preview__word {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.kmd-block-preview__meaning,
+.kmd-block-preview__example {
+  overflow: hidden;
+  color: rgba(28, 41, 63, 0.55);
+  font-size: 0.6rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.kmd-block-preview__example {
+  font-style: italic;
+}

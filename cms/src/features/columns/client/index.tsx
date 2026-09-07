@@ -15,29 +15,36 @@ import { ColumnsPlugin } from './ColumnsPlugin'
 import { ColumnsToolbarPlugin } from './ColumnsToolbarPlugin'
 import { INSERT_COLUMNS_COMMAND } from './commands'
 
+// Drawn to the same spec as Payload's own lexical icons, which is what it sits beside in the
+// insert menus: a 20×20 box with the artwork inset to 4→16, hairline strokes at the SVG default
+// width of 1, and the `icon` class — that class is what the menus size (20px) and colour
+// (elevation-600) their icons with, and without it this one rendered both heavier and darker than
+// every neighbour.
+const ICON_INSET = 4
+const ICON_SPAN = 12
+const ICON_GAP = 2
+
 const ColumnsIcon: React.FC<{ count: ColumnCount }> = ({ count }) => (
   <svg
     aria-hidden="true"
-    className="kmd-columns-icon"
+    className="icon kmd-columns-icon"
     height="20"
     viewBox="0 0 20 20"
     width="20"
     xmlns="http://www.w3.org/2000/svg"
   >
     {Array.from({ length: count }, (_, index) => {
-      const gap = 2
-      const width = (16 - gap * (count - 1)) / count
+      const width = (ICON_SPAN - ICON_GAP * (count - 1)) / count
       return (
         <rect
           fill="none"
-          height="14"
+          height={ICON_SPAN}
           key={index}
-          rx="1.5"
+          rx="1"
           stroke="currentColor"
-          strokeWidth="1.4"
           width={width}
-          x={2 + index * (width + gap)}
-          y="3"
+          x={ICON_INSET + index * (width + ICON_GAP)}
+          y={ICON_INSET}
         />
       )
     })}
