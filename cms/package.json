@@ -23,6 +23,7 @@
     "@payloadcms/db-postgres": "3.88.0",
     "@payloadcms/next": "3.88.0",
     "@payloadcms/richtext-lexical": "3.88.0",
+    "@ttv/lesson-render": "workspace:*",
     "@payloadcms/storage-s3": "3.88.0",
     "@payloadcms/translations": "3.88.0",
     "@payloadcms/ui": "3.88.0",

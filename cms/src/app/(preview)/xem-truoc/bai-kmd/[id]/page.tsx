@@ -1,11 +1,10 @@
 import type { Metadata } from 'next'
 
 import config from '@payload-config'
+import { Lesson } from '@ttv/lesson-render'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import React, { cache } from 'react'
-
-import { LessonPreview } from '@/components/preview/LessonPreview'
 
 import styles from './page.module.css'
 
@@ -66,7 +65,7 @@ const LessonPreviewPage = async ({ params }: Args) => {
           Mở trong trình soạn thảo
         </a>
       </div>
-      <LessonPreview lesson={lesson} />
+      <Lesson lesson={lesson} />
     </>
   )
 }

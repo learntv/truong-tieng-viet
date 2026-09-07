@@ -1,3 +1,5 @@
+import { PRIMARY_DEEP_HEX, PRIMARY_HEX, PRIMARY_SOFT_HEX } from '@ttv/lesson-render/tokens'
+
 /**
  * The colours a lesson author can pick from.
  *
@@ -10,6 +12,10 @@
  * The values are the public site's own tokens (src/styles.css), resolved to sRGB. Text colours are
  * the steps that clear 4.5:1 on white; highlights are the soft tints, which are light enough that
  * ordinary body ink stays readable on top of them.
+ *
+ * The three that are also `@ttv/lesson-render` tokens (the reds) come from there instead of being
+ * transcribed a second time — see that package's `tokens.ts`. The rest have no site-token
+ * equivalent and stay literal here.
  */
 
 export type Swatch = {
@@ -22,8 +28,8 @@ export type Swatch = {
 export const TEXT_COLORS: Swatch[] = [
   { label: 'Đen', value: '#1c293f' },
   { label: 'Xám', value: '#626975' },
-  { label: 'Đỏ', value: '#cc0000' },
-  { label: 'Đỏ đậm', value: '#a30000' },
+  { label: 'Đỏ', value: PRIMARY_HEX },
+  { label: 'Đỏ đậm', value: PRIMARY_DEEP_HEX },
   { label: 'Cam', value: '#8e3d00' },
   { label: 'Xanh lá', value: '#267b4c' },
   { label: 'Xanh dương', value: '#287aa3' },
@@ -37,6 +43,6 @@ export const HIGHLIGHT_COLORS: Swatch[] = [
   { label: 'Xanh lá nhạt', value: '#d7f4e0' },
   { label: 'Xanh dương nhạt', value: '#d9effd' },
   { label: 'Tím nhạt', value: '#eee6ff' },
-  { label: 'Hồng nhạt', value: '#fff2f0' },
+  { label: 'Hồng nhạt', value: PRIMARY_SOFT_HEX },
   { label: 'Xám nhạt', value: '#eff2f6' },
 ]

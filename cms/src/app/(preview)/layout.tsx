@@ -1,3 +1,5 @@
+import '@ttv/lesson-render/tokens.css'
+
 import { Arimo } from 'next/font/google'
 import React from 'react'
 

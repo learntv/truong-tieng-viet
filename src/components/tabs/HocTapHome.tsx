@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { BookOpen, CalendarDays, GraduationCap, Lock, Mic, Type } from "lucide-react";
+import { BookOpen, CalendarDays, GraduationCap, Lock, Mic, PenLine, Type } from "lucide-react";
 import type { ReactNode } from "react";
 import quyen1Cover from "@/assets/quyen_1_cover.jpg";
 import quyen2Cover from "@/assets/quyen_2_cover.jpg";
@@ -9,7 +9,11 @@ import cImg from "@/assets/alphabet/c.png";
 import { Mascot } from "@/components/Mascot";
 import { Card } from "@/components/ui/card";
 
-type LearnLink = "/hoc-tap/quyen-{$quyenNumber}" | "/hoc-tap/bang-chu-cai" | "/hoc-tap/luyen-noi";
+type LearnLink =
+  | "/hoc-tap/quyen-{$quyenNumber}"
+  | "/hoc-tap/bang-chu-cai"
+  | "/hoc-tap/luyen-noi"
+  | "/hoc-tap/khai-minh-duc";
 
 type Item = {
   to: LearnLink;
@@ -79,6 +83,18 @@ const items: Item[] = [
       { icon: Mic, text: "Luyện phát âm theo câu" },
       { icon: BookOpen, text: "Nghe cô đọc mẫu" },
       { icon: GraduationCap, text: "Nhận sao khích lệ" },
+    ],
+  },
+  {
+    to: "/hoc-tap/khai-minh-duc",
+    category: "Khám phá thêm",
+    title: "Khai Minh Đức",
+    tone: "bg-stage-5-soft",
+    art: <Mascot pose="reading" decorative className="h-32 translate-y-2" />,
+    meta: [
+      { icon: PenLine, text: "Luyện đánh vần âm, vần" },
+      { icon: BookOpen, text: "Từng bài học riêng" },
+      { icon: GraduationCap, text: "Theo chương trình KMD" },
     ],
   },
 ];

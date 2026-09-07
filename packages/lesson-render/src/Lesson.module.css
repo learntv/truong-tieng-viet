@@ -1,0 +1,241 @@
+/* The lesson page's own furniture — everything outside a slide's content, which
+ * lessonContent.module.css owns. */
+
+.lesson {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 5rem;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.title {
+  margin: 0;
+  color: var(--ttv-ink);
+  font-size: clamp(1.9rem, 4vw, 2.6rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* The âm/vần a lesson teaches, as chips under the title — the one piece of the document's own
+ * metadata that belongs on the page, since it is what the lesson is about. */
+.amVan {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.amVanItem {
+  padding: 0.25rem 0.85rem;
+  border-radius: 999px;
+  background: var(--ttv-primary-soft);
+  color: var(--ttv-primary-deep);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+/* --- the slide deck ------------------------------------------------------ */
+
+/* Rail on the left, one slide on the right — the same powerpoint-style split the lesson editor
+ * composes in (KmdBlocksField.tsx). Stacks on a narrow screen: the rail becomes a horizontal strip
+ * of numbers above the slide instead of a sidebar beside it. */
+.deck {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+@media (max-width: 48rem) {
+  .deck {
+    flex-direction: column;
+  }
+}
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 0.4rem;
+  width: 12rem;
+  max-height: calc(100vh - 10rem);
+  overflow-y: auto;
+  padding: 0.5rem;
+  border: 1px solid var(--ttv-border);
+  border-radius: 16px;
+  background: var(--ttv-surface);
+}
+
+@media (max-width: 48rem) {
+  .rail {
+    flex-direction: row;
+    width: 100%;
+    max-height: none;
+    overflow-x: auto;
+  }
+}
+
+.railItem {
+  flex-shrink: 0;
+  padding: 0.4rem;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.railItem:hover {
+  background: var(--ttv-primary-soft);
+}
+
+.railItem[data-active="true"] {
+  border-color: var(--ttv-primary);
+  background: var(--ttv-primary-soft);
+}
+
+/* The slide's own card look, in miniature — so the rail reads as a strip of tiny slides, the way
+ * a real slide sorter does, rather than a menu of labels. */
+.railThumb {
+  position: relative;
+  height: 4.5rem;
+  overflow: hidden;
+  border: 1px solid var(--ttv-border);
+  border-radius: 10px;
+  background: var(--ttv-page);
+}
+
+/* The real content, shrunk with a transform rather than redrawn — see the component for why.
+ * `width` is the inverse of the `scale` below (1 / 0.22), so the box the transform leaves behind
+ * is exactly as wide as `.railThumb`, and cropping only ever happens on height. */
+.railThumbScale {
+  width: 454%;
+  padding: 0.6rem 0.75rem;
+  transform: scale(0.22);
+  transform-origin: top left;
+}
+
+.railIndex {
+  position: absolute;
+  top: 0.3rem;
+  left: 0.3rem;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 999px;
+  background: var(--ttv-border);
+  color: var(--ttv-ink-muted);
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.railItem[data-active="true"] .railIndex {
+  background: var(--ttv-primary);
+  color: var(--ttv-surface);
+}
+
+@media (max-width: 48rem) {
+  .railItem {
+    width: 6rem;
+  }
+
+  .railThumb {
+    height: 3.4rem;
+  }
+}
+
+.slideArea {
+  flex: 1;
+  min-width: 0;
+}
+
+/* The arrows flank the slide directly rather than sitting in a bar above it — the slide is the
+ * thing being turned, so the controls that turn it sit against its edges. */
+.slideRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+@media (max-width: 34rem) {
+  .slideRow {
+    gap: 0.5rem;
+  }
+}
+
+.slideNavButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border: 1px solid var(--ttv-border);
+  border-radius: 999px;
+  background: var(--ttv-surface);
+  color: var(--ttv-primary);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.slideNavButton:hover:not(:disabled) {
+  background: var(--ttv-primary-soft);
+}
+
+.slideNavButton:disabled {
+  border-color: var(--ttv-border);
+  color: var(--ttv-ink-muted);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.slideCounter {
+  display: block;
+  margin-top: 0.75rem;
+  color: var(--ttv-ink-muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* The slide itself: one section's content, the same card treatment every section used to have
+ * when they were all shown at once. A fixed height — every slide the same size regardless of how
+ * much it holds — with its own scrollbar for a section that runs long, so paging through a lesson
+ * doesn't reflow the arrows or the rail around it.
+ *
+ * A flex column centering its child vertically: a short section (a single vocabulary card, one
+ * line of text) sits in the middle of the slide instead of stranded at the top, while a section
+ * long enough to fill the box scrolls normally. */
+.slide {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  height: 32rem;
+  overflow-y: auto;
+  padding: 1.75rem 2rem;
+  border: 1px solid var(--ttv-border);
+  border-radius: 20px;
+  background: var(--ttv-surface);
+  box-shadow: 0 2px 14px rgb(0 0 0 / 5%);
+}
+
+@media (max-width: 34rem) {
+  .slide {
+    height: 24rem;
+    padding: 1.25rem 1.5rem;
+  }
+}
+
+.empty {
+  margin: 0;
+  padding: 3rem 0;
+  color: var(--ttv-ink-muted);
+  text-align: center;
+}

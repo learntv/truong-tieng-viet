@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { KMD_BLOCKS } from '@/blocks'
+import { deriveSlug } from '@/lib/slug'
 
 // One document per Khai Minh Đức (KMD) bài — the phonics curriculum's own lesson shape,
 // independent of the quyển → chủ đề → chặng → nội dung → bài tree (see ChuDe.ts / Quyen.ts).
@@ -20,11 +21,20 @@ export const BaiKMD: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'amVan'],
-    // The external-link button in the save bar. It opens the same page as the "Xem trước" control
-    // in the section header (KmdBlocksField.tsx) — this one is Payload's own, in the place a
-    // Payload user looks for it. Relative because the preview is served by this same app; there is
-    // no student-facing lesson page to point at yet (see app/(preview)).
-    preview: (doc) => (doc?.id ? `/xem-truoc/bai-kmd/${doc.id}` : null),
+    // The external-link button in the save bar. Same destination as the "Xem trước" control in
+    // the section header (KmdBlocksField.tsx) — this one is Payload's own, in the place a
+    // Payload user looks for it.
+    //
+    // SITE_URL is the site's own origin, unset locally where the two apps share no domain, so
+    // the button falls back to the internal preview route rather than ever building a broken
+    // link.
+    preview: (doc) => {
+      const siteUrl = process.env.SITE_URL?.replace(/\/+$/, '')
+      if (typeof doc?.slug === 'string' && siteUrl) {
+        return `${siteUrl}/hoc-tap/khai-minh-duc/${doc.slug}`
+      }
+      return doc?.id ? `/xem-truoc/bai-kmd/${doc.id}` : null
+    },
   },
   // Drag-to-reorder in the list view; display order lives in the hidden _order
   // fractional-index field. Replaces a hand-entered "Số bài" number, which duplicated what
@@ -38,6 +48,33 @@ export const BaiKMD: CollectionConfig = {
       required: true,
       label: 'Tên bài',
       admin: { placeholder: 'VD: ONG – ÔNG – UNG – ƯNG' },
+    },
+    {
+      // The lesson's public address — the URL segment at /hoc-tap/khai-minh-duc/<slug>. Derived
+      // from the title when left blank, and never re-derived once set (even if the title later
+      // changes): the slug is a shared, bookmarkable address, not a display of the current title.
+      // See openspec/changes/display-kmd-lessons/design.md — "Slug: derived on write, never
+      // re-derived".
+      name: 'slug',
+      type: 'text',
+      required: true,
+      unique: true,
+      index: true,
+      label: 'Đường dẫn',
+      admin: {
+        description:
+          'Địa chỉ công khai của bài học (vd: ong-ong-ung-ung). Để trống để tự tạo từ tên bài. Đổi tên bài không làm đổi đường dẫn.',
+        placeholder: 'Để trống để tự tạo từ tên bài',
+      },
+      hooks: {
+        beforeValidate: [
+          ({ value, siblingData }) => {
+            if (typeof value === 'string' && value.trim().length > 0) return value
+            const title = typeof siblingData?.title === 'string' ? siblingData.title : ''
+            return deriveSlug(title)
+          },
+        ],
+      },
     },
     {
       // Not a `select`: the full inventory of âm/vần across 50+ lessons isn't known up front,

@@ -1,26 +1,17 @@
 import type { Block } from 'payload'
 
-/**
- * The six Vietnamese tones, in the order they are taught.
- *
- * `label` is what the editor picks from — the tone's name with its mark in brackets, which is how
- * the select has to read when the mark alone is a bare combining character. `display` is what a
- * reader sees in the rendered chain (see components/preview), where the box is a step in
- * "âm đầu + vần + dấu thanh → tiếng" and wants the phrase a teacher would say out loud.
- *
- * Exported so the preview cannot drift from the stored values: these six strings are the closed
- * set the `dauThanh` field validates against.
- */
-export const TONES = [
-  { display: 'thanh ngang', label: 'Ngang', value: 'ngang' },
-  { display: 'dấu huyền', label: 'Huyền ( ` )', value: 'huyen' },
-  { display: 'dấu sắc', label: 'Sắc ( ́ )', value: 'sac' },
-  { display: 'dấu hỏi', label: 'Hỏi ( ̉ )', value: 'hoi' },
-  { display: 'dấu ngã', label: 'Ngã ( ~ )', value: 'nga' },
-  { display: 'dấu nặng', label: 'Nặng ( . )', value: 'nang' },
-] as const
+import { TONES } from '@ttv/lesson-render/tones'
 
-export type ToneValue = (typeof TONES)[number]['value']
+// TONES now lives in the shared package (packages/lesson-render/src/tones.ts) so the rendered
+// chain cannot drift from this select's stored values — see that file's own comment. Re-exported
+// here so nothing outside this file has to know it moved.
+//
+// Imported from the package's `./tones` subpath rather than its main entry: the main entry also
+// exports `Lesson`, which pulls in `RichText` and CSS modules — fine for a bundler, but this file
+// is also loaded by `payload generate:types`, which runs under plain Node/tsx and cannot resolve
+// a `.css` import.
+export { TONES }
+export type { ToneValue } from '@ttv/lesson-render/tones'
 
 // One "âm đầu + vần + dấu thanh → tiếng" chain — a single row, not a repeatable list. An editor
 // wanting a second chain (e.g. another example under the same "Hãy tạo tiếng có âm d" prompt)

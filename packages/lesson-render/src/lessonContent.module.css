@@ -202,12 +202,17 @@
   font-weight: 700;
 }
 
-/* The tone is a name rather than a syllable ("dấu nặng"), so it is set smaller and lighter — it
- * is an instruction inside the chain, not one of the pieces being read. */
+/* The tone step draws its mark (see ToneMarkIcon.tsx) rather than showing its spoken name, tight
+ * enough on padding that the icon fills the cell the way the other cells' text does. Muted
+ * colour only, to keep it a beat quieter than the syllable pieces either side of it. */
 .chainTone {
+  padding: 0 0.35rem;
   color: var(--ttv-ink-muted);
-  font-size: 1.05rem;
-  font-weight: 500;
+}
+
+.chainToneIcon {
+  width: 2.1rem;
+  height: 2.1rem;
 }
 
 /* The tiếng the chain arrives at, in the brand red and a rounder box — the one cell a child is
