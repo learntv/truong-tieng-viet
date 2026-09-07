@@ -1,11 +1,7 @@
-/* The flashcard shell — soft warm surface standing apart from the plain field list around it. */
+/* The flashcard shell — soft flat surface standing apart from the plain field list around it. */
 .card {
   align-items: flex-start;
-  background: linear-gradient(
-    165deg,
-    var(--theme-warning-100),
-    var(--theme-elevation-0) 70%
-  );
+  background: color-mix(in srgb, #e8590c 10%, var(--theme-elevation-0));
   border: 1px solid var(--theme-elevation-100);
   border-radius: var(--style-radius-l);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);

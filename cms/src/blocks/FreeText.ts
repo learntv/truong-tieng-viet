@@ -2,6 +2,7 @@ import type { Block } from 'payload'
 
 import { BlocksFeature, FixedToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 
+import { SyllableChain } from './SyllableChain'
 import { VocabularyCard } from './VocabularyCard'
 
 // Văn bản tự do — free-form rich text, because lesson slides vary the most between lessons
@@ -18,7 +19,7 @@ export const FreeText: Block = {
         features: ({ defaultFeatures }) => [
           ...defaultFeatures,
           FixedToolbarFeature(),
-          BlocksFeature({ blocks: [VocabularyCard] }),
+          BlocksFeature({ blocks: [VocabularyCard, SyllableChain] }),
         ],
       }),
       label: 'Nội dung',

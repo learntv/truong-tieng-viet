@@ -1,14 +1,18 @@
 .layout {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
   align-items: flex-start;
 }
 
+/* Narrower than before, and the rail item below is shorter too (see .railThumb) — this rail's
+   job is picking a section, not previewing it, so it only needs enough room for that. Both
+   changes are in service of the same thing: less of the panel spent on the rail, more on
+   .editor, where the actual work happens. */
 .rail {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  width: 220px;
+  gap: 0.4rem;
+  width: 160px;
   flex-shrink: 0;
   max-height: 70vh;
   overflow-y: auto;
@@ -48,14 +52,14 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  height: 140px;
+  height: 56px;
   border-bottom: 1px solid var(--theme-elevation-150);
   background: var(--theme-elevation-0);
 }
 
 .railThumbIcon {
-  width: 40px;
-  height: 40px;
+  width: 24px;
+  height: 24px;
   color: var(--theme-elevation-250);
 }
 
@@ -63,9 +67,9 @@
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem;
-  font-size: 0.8rem;
+  gap: 0.35rem;
+  padding: 0.4rem;
+  font-size: 0.75rem;
 }
 
 .railIndex {
@@ -82,8 +86,8 @@
 
 .railControls {
   display: flex;
-  gap: 0.25rem;
-  padding: 0 0.5rem 0.35rem;
+  gap: 0.2rem;
+  padding: 0 0.4rem 0.3rem;
 }
 
 .railControls button {
@@ -108,11 +112,11 @@
 .addButton {
   display: block;
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.4rem;
   border: 1px dashed var(--theme-elevation-250);
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   text-align: center;
 }
 
@@ -121,7 +125,7 @@
   min-width: 0;
   border: 1px solid var(--theme-elevation-200);
   border-radius: 6px;
-  padding: 1.25rem;
+  padding: 1rem;
   background: var(--theme-elevation-100);
 }
 
