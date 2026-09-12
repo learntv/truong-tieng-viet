@@ -17,7 +17,8 @@ const SLIDES = [
     alt: "Công viên chữ cái: các chữ cái tiếng Việt vui chơi bên chùa, ruộng lúa và rồng giấy",
   },
   { src: kidsAoDai, alt: "Trẻ em Việt Nam trong tà áo dài cùng đọc sách Tiếng Việt" },
-  { src: heroStudents, alt: "Học sinh Trường Tiếng Việt Của Em trong giờ học" },];
+  { src: heroStudents, alt: "Học sinh Trường Tiếng Việt Của Em trong giờ học" },
+];
 
 /**
  * Auto-scrolling picture strip under the hero.
@@ -41,11 +42,11 @@ export function InfoCarousel() {
       <div className="relative">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-background to-transparent sm:w-24"
+          className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-box-white-deep to-transparent sm:w-24"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-background to-transparent sm:w-24"
+          className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-box-white-deep to-transparent sm:w-24"
         />
 
         <div className="flex w-max animate-marquee gap-4 sm:gap-5">

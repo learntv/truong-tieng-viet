@@ -19,7 +19,7 @@ export function PageBanner({
   back?: React.ReactNode;
 }) {
   return (
-    <div className="relative -mt-[4.5rem] overflow-hidden bg-gradient-to-br from-primary via-maroon to-maroon-deep px-4 pb-12 pt-32 sm:px-6 sm:pb-16 sm:pt-36">
+    <div className="relative -mt-[4.5rem] overflow-hidden bg-gradient-to-br from-primary via-indigo to-indigo-deep px-4 pb-12 pt-32 sm:px-6 sm:pb-16 sm:pt-36">
       {/* Soft radial washes rather than hard-edged blobs: each fades to fully
         transparent, so the band reads as light falling across it instead of
         two shapes sitting on top of it. */}

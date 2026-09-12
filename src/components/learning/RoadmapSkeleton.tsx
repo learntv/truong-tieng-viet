@@ -18,7 +18,7 @@ export function RoadmapSkeleton() {
   return (
     <div className="w-full">
       {/* Hero band */}
-      <div className="w-full bg-rose-tint">
+      <div className="w-full bg-sky-tint">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
           <Bar className="h-4 w-56" />
 

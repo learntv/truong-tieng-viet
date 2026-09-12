@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
  * overlay unmounts so it never blocks pointer events afterwards. Shown on every
  * visit — a deliberate "open the curtain" ceremony for the launch.
  *
- * The velvet look is pure CSS: a base maroon gradient plus a repeating vertical
+ * The velvet look is pure CSS: a base indigo gradient plus a repeating vertical
  * gradient for the fabric folds, and a gold gradient valance/hem so the reveal
  * reads as a stage curtain rather than two sliding blocks.
  */

@@ -1,5 +1,18 @@
 import { useState } from "react";
-import { BarChart3, BookOpen, ChevronDown, Flame, Home, LogOut, Menu, Star, Trophy, User, UserCircle, X } from "lucide-react";
+import {
+  BarChart3,
+  BookOpen,
+  ChevronDown,
+  Flame,
+  Home,
+  LogOut,
+  Menu,
+  Star,
+  Trophy,
+  User,
+  UserCircle,
+  X,
+} from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -77,34 +90,52 @@ export function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background">
-        {/* Row 1 — logo, centered regardless of what sits in the side columns */}
-        <div className="mx-auto grid h-20 max-w-6xl grid-cols-3 items-center px-4 sm:px-6">
-          <div className="flex items-center">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-md text-foreground/70 transition hover:bg-muted min-[900px]:hidden"
-              aria-label="Mở menu"
-            >
-              <Menu className="h-5 w-5" strokeWidth={2.5} />
-            </button>
-          </div>
-
-          <Link
-            to="/"
-            className="col-start-2 flex justify-self-center transition-transform hover:scale-[1.02]"
-          >
-            <Logo size="sm" variant="wordmark" />
+      {/* One flat green bar — a shaded step of the same meadow the footer sits
+        on, so the page opens and closes on one colour. No border: the bar meets
+        the sky directly, the way the grass does at the other end. */}
+      <header className="sticky top-0 z-40 w-full bg-nav-green">
+        <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:h-[4.5rem] sm:px-6">
+          <Link to="/" className="shrink-0 transition-transform hover:scale-[1.03]">
+            <Logo size="sm" variant="wordmark" className="art-outline-white" />
           </Link>
 
-          <div className="col-start-3 flex items-center justify-end gap-2">
-            {isLoading && <div className="h-9 w-9 animate-pulse rounded-full bg-muted sm:w-28" />}
+          <div className="flex flex-1 items-center justify-end gap-1">
+            {/* Desktop links — hairline white rules between them, as in the
+              reference. Each rule belongs to the item that follows it, and the
+              last item adds a trailing one so the row is bracketed. */}
+            <nav aria-label="Global" className="hidden items-center min-[900px]:flex">
+              {tabs.map(({ to, label }, index) => {
+                const isActive = to === "/" ? pathname === "/" : pathname.startsWith(to);
+
+                return (
+                  <span key={to} className="flex items-center">
+                    <span className="mx-4 h-5 w-px bg-white/40" aria-hidden="true" />
+                    <Link
+                      to={to}
+                      className={[
+                        "font-display text-sm font-bold transition-colors",
+                        isActive ? "text-gold" : "text-white hover:text-gold-soft",
+                      ].join(" ")}
+                    >
+                      {label}
+                    </Link>
+                    {index === tabs.length - 1 && (
+                      <span className="mx-4 h-5 w-px bg-white/40" aria-hidden="true" />
+                    )}
+                  </span>
+                );
+              })}
+            </nav>
+
+            {isLoading && (
+              <div className="h-9 w-9 animate-pulse rounded-full bg-white/30 sm:w-28" />
+            )}
 
             {!isLoading && !user && (
               <>
                 <button
                   onClick={() => openAuth("login")}
-                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-foreground/70 transition hover:bg-muted sm:hidden"
+                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-white transition hover:bg-white/20 sm:hidden"
                   aria-label="Đăng nhập"
                 >
                   <User className="h-5 w-5" strokeWidth={2.5} />
@@ -112,15 +143,9 @@ export function Navbar() {
                 <div className="hidden items-center gap-2 sm:flex">
                   <button
                     onClick={() => openAuth("login")}
-                    className="rounded-md px-4 py-2 text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
+                    className="font-display text-sm font-bold text-white transition-colors hover:text-gold-soft"
                   >
                     Đăng nhập
-                  </button>
-                  <button
-                    onClick={() => openAuth("register")}
-                    className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-                  >
-                    Đăng ký
                   </button>
                 </div>
               </>
@@ -132,13 +157,11 @@ export function Navbar() {
                   <button
                     aria-current={onProfile ? "page" : undefined}
                     className={[
-                      "flex items-center gap-2.5 rounded-sm border py-2 pl-2 pr-3 transition-all",
-                      onProfile
-                        ? "border-primary bg-primary/5"
-                        : "border-border/60 hover:bg-muted",
+                      "flex items-center gap-2.5 rounded-full border-[3px] py-1 pl-1 pr-3 transition-all",
+                      onProfile ? "border-gold bg-white/25" : "border-white/70 hover:bg-white/20",
                     ].join(" ")}
                   >
-                    <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-primary text-base font-medium text-white">
+                    <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-primary text-sm font-medium text-white">
                       {avatarUrl ? (
                         <img
                           src={avatarUrl}
@@ -147,7 +170,7 @@ export function Navbar() {
                           referrerPolicy="no-referrer"
                         />
                       ) : avatarEmoji ? (
-                        <span className="grid h-full w-full place-items-center text-xl">
+                        <span className="grid h-full w-full place-items-center text-lg">
                           {avatarEmoji}
                         </span>
                       ) : (
@@ -157,24 +180,30 @@ export function Navbar() {
                       )}
                     </span>
 
-                    <span className="hidden flex-col items-start gap-1 sm:flex">
-                      <span className="hidden items-center gap-1.5 min-[900px]:flex">
-                        <span className="flex items-center gap-1 rounded-sm border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-bold text-amber-700">
-                          <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-500" strokeWidth={2} />
-                          240
-                        </span>
-                        <span className="flex items-center gap-1 rounded-sm border border-orange-200 bg-orange-50 px-2 py-0.5 text-xs font-bold text-orange-700">
-                          <Flame className="h-3.5 w-3.5 fill-orange-400 text-orange-500" strokeWidth={2} />
-                          12
-                        </span>
+                    <span className="hidden items-center gap-1.5 sm:flex">
+                      <span className="hidden items-center gap-1 rounded-full bg-white px-2 py-0.5 text-xs font-bold text-amber-700 min-[900px]:flex">
+                        <Star
+                          className="h-3.5 w-3.5 fill-amber-400 text-amber-500"
+                          strokeWidth={2}
+                        />
+                        240
                       </span>
-
-                      <span className="max-w-[16rem] truncate text-sm text-foreground">
-                        Xin chào, <span className="font-bold">{displayName}</span>!
+                      <span className="hidden items-center gap-1 rounded-full bg-white px-2 py-0.5 text-xs font-bold text-orange-700 min-[900px]:flex">
+                        <Flame
+                          className="h-3.5 w-3.5 fill-orange-400 text-orange-500"
+                          strokeWidth={2}
+                        />
+                        12
+                      </span>
+                      <span className="max-w-[10rem] truncate font-display text-sm font-bold text-white">
+                        {displayName}
                       </span>
                     </span>
 
-                    <ChevronDown className="hidden h-3.5 w-3.5 shrink-0 text-foreground/50 sm:block" strokeWidth={2.5} />
+                    <ChevronDown
+                      className="hidden h-3.5 w-3.5 shrink-0 text-white sm:block"
+                      strokeWidth={3}
+                    />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52">
@@ -195,10 +224,7 @@ export function Navbar() {
                   )}
                   {isStaff && (
                     <DropdownMenuItem asChild>
-                      <Link
-                        to="/dashboard"
-                        className="flex cursor-pointer items-center"
-                      >
+                      <Link to="/dashboard" className="flex cursor-pointer items-center">
                         <BarChart3 className="mr-2 h-4 w-4" />
                         Báo cáo
                       </Link>
@@ -215,75 +241,53 @@ export function Navbar() {
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
+
+            {/* The burger stays at every width, as in the reference: on desktop
+              it opens the same drawer as a shortcut to the full link set. */}
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="ml-1 grid h-10 w-10 shrink-0 place-items-center rounded-lg text-white transition hover:bg-white/20"
+              aria-label="Mở menu"
+            >
+              <Menu className="h-5 w-5" strokeWidth={3} />
+            </button>
           </div>
-        </div>
-
-        {/* Row 2 — nav links, desktop only (mobile uses the sidebar drawer) */}
-        <div className="hidden border-t border-border/60 min-[900px]:block">
-          <nav aria-label="Global" className="mx-auto max-w-6xl px-4 sm:px-6">
-            <ul className="flex items-center justify-center py-3 text-sm">
-              {tabs.map(({ to, label }, index) => {
-                const isActive = pathname === to || pathname.startsWith(`${to}/`);
-
-                return (
-                  <li key={to} className="flex items-center">
-                    <span className="mx-8 h-4 w-px bg-border" aria-hidden="true" />
-                    <Link
-                      to={to}
-                      className={[
-                        "font-medium transition-colors",
-                        isActive
-                          ? "text-primary"
-                          : "text-foreground/60 hover:text-foreground",
-                      ].join(" ")}
-                    >
-                      {label}
-                    </Link>
-                    {index === tabs.length - 1 && (
-                      <span className="mx-8 h-4 w-px bg-border" aria-hidden="true" />
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
         </div>
       </header>
 
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm min-[900px]:hidden"
-          onClick={closeSidebar}
-        />
+        <div className="fixed inset-0 z-50 bg-sky-ink/40 backdrop-blur-sm" onClick={closeSidebar} />
       )}
 
-      {/* Mobile sidebar */}
+      {/* Sidebar drawer */}
       <aside
         className={[
-          "fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-background shadow-2xl transition-transform duration-300 ease-in-out min-[900px]:hidden",
+          // Near-white, not --box-ice: the box tones are saturated now, and the
+          // drawer is a nav surface that should stay quiet behind its pills.
+          "fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-box-white-deep shadow-2xl transition-transform duration-300 ease-in-out",
           sidebarOpen ? "translate-x-0" : "-translate-x-full",
         ].join(" ")}
       >
         {/* Sidebar header */}
-        <div className="flex items-center justify-between border-b border-border/60 px-5 py-4">
+        <div className="flex items-center justify-between bg-nav-green px-5 py-4">
           <Link to="/" onClick={closeSidebar}>
-            <Logo size="sm" variant="wordmark" />
+            <Logo size="sm" variant="wordmark" className="art-outline-white" />
           </Link>
           <button
             onClick={closeSidebar}
-            className="grid h-9 w-9 place-items-center rounded-md text-foreground/70 transition hover:bg-muted"
+            className="grid h-9 w-9 place-items-center rounded-lg text-white transition hover:bg-white/20"
             aria-label="Đóng menu"
           >
-            <X className="h-5 w-5" strokeWidth={2.5} />
+            <X className="h-5 w-5" strokeWidth={3} />
           </button>
         </div>
 
         {/* Nav links */}
         <nav className="flex-1 overflow-y-auto px-3 py-4">
-          <ul className="flex flex-col gap-1">
-            {tabs.map(({ to, label }) => {
-              const isActive = pathname === to || pathname.startsWith(`${to}/`);
+          <ul className="flex flex-col gap-2">
+            {tabs.map(({ to, label, Icon }) => {
+              const isActive = to === "/" ? pathname === "/" : pathname.startsWith(to);
 
               return (
                 <li key={to}>
@@ -291,12 +295,13 @@ export function Navbar() {
                     to={to}
                     onClick={closeSidebar}
                     className={[
-                      "flex items-center rounded-md px-4 py-2.5 text-sm font-medium transition-all",
+                      "flex items-center gap-3 rounded-2xl border-[3px] border-white px-4 py-2.5 font-display text-sm font-bold transition-all",
                       isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-foreground/70 hover:bg-muted hover:text-foreground",
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-white/70 text-sky-ink hover:bg-white",
                     ].join(" ")}
                   >
+                    <Icon className="h-5 w-5 shrink-0" strokeWidth={2.5} />
                     <span>{label}</span>
                   </Link>
                 </li>
@@ -306,17 +311,17 @@ export function Navbar() {
         </nav>
 
         {/* Sidebar footer — user actions */}
-        <div className="border-t border-border/60 px-3 py-4">
-          {isLoading && <div className="h-12 animate-pulse rounded-md bg-muted" />}
+        <div className="px-3 py-4">
+          {isLoading && <div className="h-12 animate-pulse rounded-2xl bg-white/60" />}
           {!isLoading &&
             (user ? (
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-2">
                 {myUsername && (
                   <Link
                     to="/u/$username"
                     params={{ username: myUsername }}
                     onClick={closeSidebar}
-                    className="flex items-center gap-3 rounded-md px-4 py-2.5 text-sm font-medium text-foreground/70 hover:bg-muted hover:text-foreground transition-all"
+                    className="flex items-center gap-3 rounded-2xl border-[3px] border-white bg-white/70 px-4 py-2.5 font-display text-sm font-bold text-sky-ink transition-all hover:bg-white"
                   >
                     <UserCircle className="h-5 w-5 shrink-0" strokeWidth={2.5} />
                     <span>Trang cá nhân</span>
@@ -327,7 +332,7 @@ export function Navbar() {
                     signOut();
                     closeSidebar();
                   }}
-                  className="flex items-center gap-3 rounded-md px-4 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-all"
+                  className="flex items-center gap-3 rounded-2xl border-[3px] border-white bg-white/70 px-4 py-2.5 font-display text-sm font-bold text-destructive transition-all hover:bg-white"
                 >
                   <LogOut className="h-5 w-5 shrink-0" strokeWidth={2.5} />
                   <span>Đăng xuất</span>
@@ -340,7 +345,7 @@ export function Navbar() {
                     openAuth("register");
                     closeSidebar();
                   }}
-                  className="flex w-full items-center justify-center gap-3 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                  className="flex w-full items-center justify-center gap-3 rounded-2xl border-[3px] border-white bg-primary px-4 py-2.5 font-display text-sm font-bold text-primary-foreground transition-colors hover:bg-primary-glow"
                 >
                   <User className="h-5 w-5 shrink-0" strokeWidth={2.5} />
                   <span>Đăng ký</span>
@@ -350,7 +355,7 @@ export function Navbar() {
                     openAuth("login");
                     closeSidebar();
                   }}
-                  className="flex w-full items-center justify-center rounded-md px-4 py-2.5 text-sm font-medium text-foreground/70 transition-all hover:bg-muted hover:text-foreground"
+                  className="flex w-full items-center justify-center rounded-2xl border-[3px] border-white bg-white/70 px-4 py-2.5 font-display text-sm font-bold text-sky-ink transition-all hover:bg-white"
                 >
                   <span>Đăng nhập</span>
                 </button>

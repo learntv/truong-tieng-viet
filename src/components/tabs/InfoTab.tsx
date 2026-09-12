@@ -11,7 +11,7 @@ import { SectionHeader } from "@/components/ui/section-header";
 
 /**
  * The content is not four equal facts: the Bộ Ngoại giao sponsorship is the
- * trust signal and leads on a full-width maroon card; the rest drop to a plain
+ * trust signal and leads on a full-width indigo card; the rest drop to a plain
  * bordered trio with red line-icons. No tints, no decorative symbol artwork.
  */
 const LEAD = {
@@ -138,7 +138,7 @@ export function InfoTab() {
         />
 
         <div className="mx-auto max-w-5xl">
-          <div className="relative overflow-hidden rounded-2xl bg-maroon px-6 py-8 sm:px-10 sm:py-10">
+          <div className="relative overflow-hidden rounded-2xl bg-indigo px-6 py-8 sm:px-10 sm:py-10">
             <div
               aria-hidden
               className="pointer-events-none absolute inset-0"
@@ -180,7 +180,7 @@ export function InfoTab() {
         </div>
       </div>
 
-      <div id="lo-trinh" className="-mx-4 scroll-mt-24 bg-rose-tint px-4 py-16 sm:-mx-6 sm:px-6 sm:py-24 lg:-mx-8">
+      <div id="lo-trinh" className="-mx-4 scroll-mt-24 bg-sky-tint px-4 py-16 sm:-mx-6 sm:px-6 sm:py-24 lg:-mx-8">
         <SectionHeader align="center" title="Lộ trình học thú vị" className="mb-10 sm:mb-12" />
         <InfoStats />
 
@@ -199,7 +199,7 @@ export function InfoTab() {
 
       {/* Lời cảm ơn — full-bleed deep red band with two soft squircle shapes
         bleeding off opposite corners, per the TTVCE-UI red theme. */}
-      <div className="relative -mx-4 overflow-hidden bg-maroon px-4 py-16 sm:-mx-6 sm:px-6 sm:py-24 lg:-mx-8">
+      <div className="relative -mx-4 overflow-hidden bg-indigo px-4 py-16 sm:-mx-6 sm:px-6 sm:py-24 lg:-mx-8">
         <div aria-hidden className="pointer-events-none absolute inset-0">
           <div
             className="absolute inset-0"
@@ -243,8 +243,8 @@ export function InfoTab() {
         </div>
       </div>
 
-      {/* Đồng hành / Call to action — light band after the maroon thank-you. */}
-      <div id="dong-hanh" className="-mx-4 scroll-mt-24 bg-rose-tint px-4 py-16 sm:-mx-6 sm:px-6 sm:py-24 lg:-mx-8">
+      {/* Đồng hành / Call to action — light band after the indigo thank-you. */}
+      <div id="dong-hanh" className="-mx-4 scroll-mt-24 bg-sky-tint px-4 py-16 sm:-mx-6 sm:px-6 sm:py-24 lg:-mx-8">
         <div className="mx-auto max-w-3xl text-center">
           <h3 className="font-display text-2xl font-bold text-navy sm:text-3xl">
             Chung tay gieo hạt giống cội nguồn cho thế hệ mai sau

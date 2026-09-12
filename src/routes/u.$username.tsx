@@ -632,7 +632,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
           {/* Red cover strip, same gradient and squircle motif as PageBanner.
             The avatar below overlaps it, so the card reads as a profile header
             without any of its edit controls needing to work on red. */}
-          <div className="relative h-28 overflow-hidden bg-gradient-to-br from-primary via-maroon to-maroon-deep">
+          <div className="relative h-28 overflow-hidden bg-gradient-to-br from-primary via-indigo to-indigo-deep">
             <div aria-hidden className="pointer-events-none absolute inset-0">
               <div className="absolute -right-16 -top-20 h-56 w-56 rotate-[20deg] rounded-[30%] bg-primary-glow/40 blur-[2px]" />
               <div className="absolute -bottom-24 -left-16 h-44 w-44 rotate-[20deg] rounded-[30%] bg-gold/20 blur-[2px]" />
@@ -1019,7 +1019,7 @@ function PublicView({ username }: { username: string }) {
         {/* Hero card */}
         <div className="relative mb-6 overflow-hidden rounded-3xl border border-border bg-card shadow-card ring-1 ring-black/[0.02]">
           {/* Red cover strip — matches the owner's own profile header. */}
-          <div className="relative h-28 overflow-hidden bg-gradient-to-br from-primary via-maroon to-maroon-deep">
+          <div className="relative h-28 overflow-hidden bg-gradient-to-br from-primary via-indigo to-indigo-deep">
             <div aria-hidden className="pointer-events-none absolute inset-0">
               <div className="absolute -right-16 -top-20 h-56 w-56 rotate-[20deg] rounded-[30%] bg-primary-glow/40 blur-[2px]" />
               <div className="absolute -bottom-24 -left-16 h-44 w-44 rotate-[20deg] rounded-[30%] bg-gold/20 blur-[2px]" />

@@ -94,7 +94,7 @@ export function RoadmapList({
     <div className="w-full">
       {/* ── Hero band: full-bleed, flat, no card. Breadcrumb, title, one line of blurb and the
           primary action on the left; a plain photo of the place on the right. ── */}
-      <div className="w-full bg-rose-tint">
+      <div className="w-full bg-sky-tint">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
           <nav aria-label="breadcrumb" className="text-sm text-muted-foreground">
             <Link to="/hoc-tap" className="font-semibold text-ink hover:underline">
