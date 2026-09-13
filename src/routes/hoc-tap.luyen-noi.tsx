@@ -148,7 +148,7 @@ function TopicPicker() {
             </div>
           )}
           {speakingContentError != null && !speakingContentLoading && (
-            <p className="py-8 text-center text-sm font-semibold text-white/80">
+            <p className="py-8 text-center text-sm font-semibold text-muted-foreground">
               Chưa tải được chủ đề luyện nói — em thử lại sau nhé!
             </p>
           )}

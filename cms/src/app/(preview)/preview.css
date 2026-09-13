@@ -8,8 +8,19 @@
   box-sizing: border-box;
 }
 
+/* The site's blue sky, which is what a lesson is read on there — strongest
+ * under the top of the page and holding that blue all the way down, same ramp
+ * as the app's own `bg-sky-page`. The preview has no sky backdrop component of
+ * its own, so it paints the ground here: a lesson's furniture is drawn for blue
+ * (white type, white-framed boxes) and would be unreadable on the old cream. */
 html {
-  background: var(--ttv-page);
+  min-height: 100%;
+  background: linear-gradient(
+    180deg,
+    var(--ttv-sky-top) 0%,
+    var(--ttv-sky-mid) 38%,
+    var(--ttv-sky-mid) 100%
+  );
   -webkit-font-smoothing: antialiased;
 }
 

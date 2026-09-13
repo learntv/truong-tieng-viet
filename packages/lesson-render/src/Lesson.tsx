@@ -166,10 +166,6 @@ export const Lesson: React.FC<{ lesson: LessonDoc }> = ({ lesson }) => {
                 <ArrowIcon direction="right" />
               </button>
             </div>
-
-            <span className={styles.slideCounter}>
-              Mục {activeIndex + 1} / {sections.length}
-            </span>
           </div>
         </div>
       )}

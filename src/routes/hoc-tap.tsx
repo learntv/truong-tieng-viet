@@ -5,9 +5,5 @@ export const Route = createFileRoute("/hoc-tap")({
 });
 
 function HocTapLayout() {
-  return (
-    <div className="relative min-h-screen bg-surface-subtle">
-      <Outlet />
-    </div>
-  );
+  return <Outlet />;
 }

@@ -36,22 +36,16 @@ const POLICY_LINKS = [
   { label: "Chính sách bảo mật", to: "/chinh-sach-bao-mat" },
 ];
 
-function LinkColumn({
-  title,
-  links,
-}: {
-  title: string;
-  links: { label: string; to: string }[];
-}) {
+function LinkColumn({ title, links }: { title: string; links: { label: string; to: string }[] }) {
   return (
     <div>
-      <h4 className="mb-4 font-display text-sm font-bold text-white">{title}</h4>
+      <h4 className="mb-4 font-display text-sm font-bold text-grass-ink">{title}</h4>
       <ul className="flex flex-col gap-2.5">
         {links.map(({ label, to }) => (
           <li key={label}>
             <Link
               to={to}
-              className="text-sm text-gold-soft/80 transition-colors hover:text-gold"
+              className="text-sm text-grass-ink-soft transition-colors hover:text-indigo-deep"
             >
               {label}
             </Link>
@@ -64,12 +58,17 @@ function LinkColumn({
 
 export function Footer() {
   return (
-    <footer className="bg-maroon-deep text-gold-soft/80">
+    // Flat --grass, the exact colour the home page's hills end on, so the
+    // footer is the same meadow running to the bottom of the page with no seam
+    // and no fade. The field stays light, so the type is dark green, not white.
+    <footer className="bg-grass text-grass-ink-soft">
       <div className="py-12">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-10 px-4 sm:px-6 lg:grid-cols-5">
           <div className="col-span-2 flex flex-col gap-4">
-            <Logo size="sm" light />
-            <p className="max-w-sm text-sm leading-relaxed text-gold-soft/80">
+            {/* The wordmark art, not the token lockup — its own colours read on
+              the grass, where the lockup's red-on-green would not. */}
+            <Logo size="sm" variant="wordmark" />
+            <p className="max-w-sm text-sm leading-relaxed text-grass-ink-soft">
               Nền tảng học tiếng Việt dành cho trẻ em Việt Nam ở trong và ngoài nước.
             </p>
             <div className="flex items-center gap-2">
@@ -80,7 +79,7 @@ export function Footer() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label={label}
-                  className="grid h-9 w-9 place-items-center rounded-full border border-white/20 text-gold-soft transition-colors hover:border-gold hover:bg-gold hover:text-maroon-deep"
+                  className="grid h-9 w-9 place-items-center rounded-full border-2 border-grass-ink/35 text-grass-ink transition-colors hover:border-grass-ink hover:bg-grass-ink hover:text-white"
                 >
                   <Icon className="h-4 w-4" />
                 </a>
@@ -106,9 +105,9 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-white/15 py-5">
+      <div className="border-t border-grass-ink/20 py-5">
         <div className="mx-auto flex max-w-7xl px-4 sm:px-6">
-          <p className="w-full text-center text-xs text-gold-soft/70">
+          <p className="w-full text-center text-xs text-grass-ink-soft">
             © {COPYRIGHT_YEAR} Trường Tiếng Việt Của Em. Tất cả quyền được bảo lưu.
           </p>
         </div>

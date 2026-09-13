@@ -36,11 +36,12 @@
   --color-cream: var(--cream);
   --color-sky: var(--sky);
   --color-navy: var(--navy);
-  --color-maroon: var(--maroon);
-  --color-maroon-deep: var(--maroon-deep);
+  --color-indigo: var(--indigo);
+  --color-indigo-deep: var(--indigo-deep);
+  --color-ribbon: var(--ribbon);
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);
-  --color-rose-tint: var(--rose-tint);
+  --color-sky-tint: var(--sky-tint);
   --color-teal-deep: var(--teal-deep);
 
   /* 5-accent stage set — green / sky / violet / amber / rose */
@@ -67,6 +68,37 @@
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
 
+
+  /* ── Sky theme: the blue-sky home layout and its bordered content boxes ── */
+  --color-sky-top: var(--sky-top);
+  --color-sky-mid: var(--sky-mid);
+  --color-nav-green: var(--nav-green);
+  --color-sky-ink: var(--sky-ink);
+  --color-sky-ink-soft: var(--sky-ink-soft);
+  --color-grass: var(--grass);
+  --color-grass-deep: var(--grass-deep);
+  --color-grass-ink: var(--grass-ink);
+  --color-grass-ink-soft: var(--grass-ink-soft);
+
+  /* Box fills — each one always sits inside a thick white border. Every tone
+     is a pair: the lighter step fills the header half, the -deep step the body
+     half below it. */
+  --color-box-lavender: var(--box-lavender);
+  --color-box-lavender-deep: var(--box-lavender-deep);
+  --color-box-peach: var(--box-peach);
+  --color-box-peach-deep: var(--box-peach-deep);
+  --color-box-ice: var(--box-ice);
+  --color-box-ice-deep: var(--box-ice-deep);
+  --color-box-pink: var(--box-pink);
+  --color-box-pink-deep: var(--box-pink-deep);
+  --color-box-mint: var(--box-mint);
+  --color-box-mint-deep: var(--box-mint-deep);
+  --color-box-cream: var(--box-cream);
+  --color-box-cream-deep: var(--box-cream-deep);
+  --color-box-red: var(--box-red);
+  --color-box-red-deep: var(--box-red-deep);
+  --color-box-white-deep: var(--box-white-deep);
+
   --font-display: "Arimo", Arial, sans-serif;
   --font-sans: "Arimo", Arial, sans-serif;
 }
@@ -77,8 +109,8 @@
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* Bevel shadows — tone-driven; -active is the "pressed" collapsed state */
-  --shadow-bevel-primary: 0 4px 0 0 oklch(0.353 0.144 29.2);
-  --shadow-bevel-primary-active: 0 1px 0 0 oklch(0.353 0.144 29.2);
+  --shadow-bevel-primary: 0 4px 0 0 var(--indigo-deep);
+  --shadow-bevel-primary-active: 0 1px 0 0 var(--indigo-deep);
   --shadow-bevel-stage-1: 0 4px 0 0 oklch(0.4 0.09 155);
   --shadow-bevel-stage-1-active: 0 1px 0 0 oklch(0.4 0.09 155);
   --shadow-bevel-stage-2: 0 4px 0 0 oklch(0.4 0.09 235);
@@ -91,7 +123,7 @@
   --shadow-bevel-stage-5-active: 0 1px 0 0 oklch(0.5 0.13 15);
   --shadow-bevel-neutral: 0 4px 0 0 oklch(0.75 0.015 260);
   --shadow-bevel-neutral-active: 0 1px 0 0 oklch(0.75 0.015 260);
-  --shadow-glow-current: 0 0 0 6px oklch(0.52 0.213 29.2 / 0.22), 0 12px 32px -8px oklch(0.52 0.213 29.2 / 0.35);
+  --shadow-glow-current: 0 0 0 6px color-mix(in srgb, var(--primary) 22%, transparent), 0 12px 32px -8px color-mix(in srgb, var(--primary) 35%, transparent);
 
   /* ── Clean, professional palette ── */
   --background: oklch(1 0 0); /* pure white — no tint, so it reads clean next
@@ -108,20 +140,24 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.28 0.045 260);
 
-  /* Brand red, hue 0. #ff0000 is the brand colour but only clears 4.0:1
-     against white, so `primary` is the #cc0000 step used wherever text or
-     icons sit on the fill, and `primary-glow` carries the pure brand red for
-     gradients and decoration. */
-  --primary: oklch(0.52 0.213 29.2); /* #cc0000 */
+  /* Brand blue — the button fill from the reference art. `primary` is the
+     #4f63e8 step (4.9:1 under white, so bold white type on it passes AA);
+     `primary-glow` is the lighter bloom used for hovers and decoration. */
+  --primary: #4f63e8;
   --primary-foreground: oklch(1 0 0);
-  --primary-glow: oklch(0.628 0.258 29.2); /* #ff0000 */
+  --primary-glow: #6b7cf5;
 
-  /* dark red band + gold, from the TTVCE-UI red theme */
-  --maroon: oklch(0.42 0.176 29.2); /* #a30000 — Lời cảm ơn band */
-  --maroon-deep: oklch(0.353 0.144 29.2); /* #800000 — footer */
+  /* Deep indigo bands + gold. These were maroon/#a30000 under the old red
+     theme; the artwork is green/blue now, so they carry the deep end of the
+     blue instead. Gold is unchanged — it is a yellow, not a red. */
+  --indigo: #2b429c; /* deep band */
+  --indigo-deep: #1c2c6e; /* deepest — footers, ribbons */
+  /* The box ribbon's yellow — brighter and greener than --gold, so the tab
+     reads as lemon rather than as the amber used for the nav's active state. */
+  --ribbon: #ffee00;
   --gold: oklch(0.86 0.174 92); /* #ffd400 */
   --gold-soft: oklch(0.96 0.084 97); /* #fff3b0 */
-  --rose-tint: oklch(0.968 0.014 29.2); /* #fff2f0 — alternating red-tinted band */
+  --sky-tint: #eef2fe; /* alternating pale blue band (was --rose-tint) */
 
   /* Deep green-teal, the cool counterweight to the red bands — used for the chủ đề stat strip.
      Dark enough (L 0.38) that white text on it clears AAA. */
@@ -168,11 +204,77 @@
 
   --border: oklch(0.9 0.008 250);
   --input: oklch(0.92 0.008 250);
-  --ring: oklch(0.52 0.213 29.2);
+  --ring: var(--primary);
+
+  /* ── Sky theme ──
+     The home page is a single continuous sky running top → low, bracketed by
+     the dark-green navbar above it and the grass band below. Kept as hex
+     because these are picked straight off the reference art, not derived from
+     the red palette. */
+  --sky-top: #2eb2ef;
+  --sky-mid: #6cc6f6;
+  /* Ink on the coloured boxes. Both are measured against the box surfaces
+     below, which are saturated enough that the ink has to carry the contrast:
+     --sky-ink clears 4.69:1 and --sky-ink-soft 4.80:1 on every *-deep tone, so
+     body copy passes AA on all of them rather than only on the lightest ones.
+     The soft step is a darker blue, not a grey — secondary text on a coloured
+     surface has to be tinted from the family or it reads as dead. */
+  --sky-ink: #174b6e;
+  --sky-ink-soft: #1f4a62;
+
+  --grass: #79c94e;
+  --grass-deep: #4ea53c;
+  /* The navbar's green — a shaded step of the same meadow the footer sits on,
+     so the page opens and closes on one colour. Dark enough that white type
+     clears 5.2:1 and the gold-soft active state 4.6:1, without going so deep
+     it reads as black. */
+  --nav-green: #2a7c35;
+  /* Type on the flat grass footer. Both are measured against --grass:
+     --grass-ink clears 6.0:1, --grass-ink-soft 4.8:1, so headings and body
+     both pass AA without the field having to darken. */
+  --grass-ink: #143d17;
+  --grass-ink-soft: #1a4d1d;
+
+  /* The box tones. Each is a light head / deep body pair of one hue, and the
+     six hues all carry the *same* OKLCH chroma — 0.095 on the heads, 0.110 on
+     the bodies — so they read as one saturated family. Equal chroma matters
+     more than equal contrast here: at a fixed lightness the yellow-green hues
+     could legally go far more vivid than the blues and violets, and letting
+     each hue run to its own ceiling makes mint look neon next to a timid
+     lavender. Lightness is then the free variable, set per hue to the darkest
+     step that still clears AA for --sky-ink-soft, which is why the numbers
+     below are not a tidy ramp. Don't hand-tweak one tone: re-derive the set. */
+  --box-lavender: #c6bafe;
+  --box-lavender-deep: #bdaefc;
+  /* Peach is run a step lighter than the family lightness on purpose; it keeps
+     the family chroma. */
+  --box-peach: #f9c28a;
+  --box-peach-deep: #f5b675;
+  /* Ice is the deliberate exception to the equal-chroma rule above: it is run
+     brighter than the rest on purpose, and at this lightness the sRGB gamut
+     simply has less blue chroma to give, so it sits at C 0.062 / 0.084. Both
+     are at the gamut edge for their lightness — the most saturated blue that
+     is still this bright. */
+  --box-ice: #b4e4ff;
+  --box-ice-deep: #98dbff;
+  --box-pink: #f9adc9;
+  --box-pink-deep: #f69fc0;
+  --box-mint: #8fd1a1;
+  --box-mint-deep: #7cc993;
+  --box-cream: #d9c179;
+  --box-cream-deep: #d3b661;
+  /* Red reads as coral at this lightness, not as a flag red — the family's
+     chroma and the AA floor for --sky-ink-soft together cap how dark it can
+     go. A true saturated red would have to invert to light type. */
+  --box-red: #feadad;
+  --box-red-deep: #fca09f;
+  /* The exception: this is the *white* box's body, so its identity is
+     near-white. It takes the family's blue at a fraction of the chroma. */
+  --box-white-deep: #e5efff;
 
   --gradient-sky: linear-gradient(180deg, oklch(0.93 0.03 235) 0%, oklch(0.86 0.05 235) 100%);
   --gradient-night: linear-gradient(180deg, oklch(0.22 0.03 260) 0%, oklch(0.14 0.02 260) 100%);
-  --gradient-primary: linear-gradient(135deg, oklch(0.628 0.258 29.2), oklch(0.42 0.176 29.2));
+  --gradient-primary: linear-gradient(135deg, var(--primary-glow), var(--indigo));
   --gradient-hero: linear-gradient(180deg, oklch(1 0 0) 0%, oklch(0.985 0.003 250) 100%);
 
   --shadow-soft: 0 10px 30px -12px oklch(0.28 0.045 260 / 0.16);
@@ -205,6 +307,42 @@
   h6 {
     font-family: var(--font-display);
     letter-spacing: -0.01em;
+  }
+
+  /* ── Browser surfaces ──
+     The parts we do not draw still carry the design. Left alone these ship the
+     UA defaults — a system-blue highlight, a black caret, a grey scrollbar, a
+     hairline focus outline — which belong to no design system and quietly read
+     as "assembled" rather than "built". */
+
+  ::selection {
+    background: color-mix(in srgb, var(--primary) 22%, transparent);
+    color: var(--indigo-deep);
+  }
+
+  html {
+    caret-color: var(--primary);
+    accent-color: var(--primary);
+    scrollbar-color: color-mix(in srgb, var(--indigo) 45%, transparent) transparent;
+  }
+
+  /* One focus ring for the whole app, offset so it reads on both the pale box
+     fills and the dark green bar. :focus-visible only, so pointer users never
+     see it but keyboard users always do. */
+  :focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: 0.35rem;
+  }
+
+  /* The blue ring disappears on the two green surfaces (1.1:1 on the navbar,
+     2.4:1 on the grass footer), so each picks a ring against its own ground. */
+  header :focus-visible {
+    outline-color: #fff;
+  }
+
+  footer :focus-visible {
+    outline-color: var(--indigo-deep);
   }
 }
 
@@ -650,6 +788,76 @@
 
 @utility animate-float {
   animation: float-up-down 3.5s cubic-bezier(0.54, 0.085, 0.5, 0.92) infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* ── Sky-theme utilities ──────────────────────────────────────────────── */
+
+/* White keyline around transparent-PNG artwork (the logo wordmark). Eight
+   stacked drop-shadows trace the image's own alpha silhouette, so the outline
+   follows the letterforms instead of boxing the image — which is what lifts the
+   wordmark off the green bar. Offsets, not blur, so the edge stays crisp. */
+@utility art-outline-white {
+  filter: drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff)
+    drop-shadow(0 -1px 0 #fff) drop-shadow(0.7px 0.7px 0 #fff) drop-shadow(-0.7px 0.7px 0 #fff)
+    drop-shadow(0.7px -0.7px 0 #fff) drop-shadow(-0.7px -0.7px 0 #fff);
+}
+
+/* The ribbon tab's banner shape — a rectangle with a triangular notch cut into
+   each end, the way a cloth banner tail is cut. clip-path rather than borders,
+   so the notch follows the fill exactly at any width. */
+@utility clip-ribbon {
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    calc(100% - 1.15rem) 50%,
+    100% 100%,
+    0 100%,
+    1.15rem 50%
+  );
+}
+
+/* The ribbon's drop shadow. It has to be a filter, not a box-shadow: the tab
+   is clip-path'd, and a box-shadow would be clipped away with the notches —
+   drop-shadow traces the clipped silhouette instead. */
+@utility shadow-ribbon {
+  filter: drop-shadow(0 3px 3px color-mix(in srgb, var(--indigo-deep) 32%, transparent));
+}
+
+/* The button's depth. A soft indigo-tinted shadow that falls off rather than
+   the hard offset block — the colour is mixed from --indigo-deep so it stays a
+   shaded version of the button family, not a grey wash. On :active it collapses
+   to a close contact shadow so the button reads as pushed to the surface. */
+@utility shadow-btn {
+  box-shadow:
+    0 3px 7px -2px color-mix(in srgb, var(--indigo-deep) 50%, transparent),
+    0 1px 2px color-mix(in srgb, var(--indigo-deep) 28%, transparent);
+}
+@utility shadow-btn-active {
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--indigo-deep) 38%, transparent);
+}
+
+/* The page-wide sky. Strongest blue directly under the navbar — the bar is the
+   horizon line — easing once to --sky-mid and then holding it all the way down,
+   so the page stays blue to the grass instead of washing out to white. */
+@utility bg-sky-page {
+  background-image: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 38%, var(--sky-mid) 100%);
+}
+
+/* Clouds drift sideways rather than bobbing — a slow alternate pan reads as
+   wind and never returns to a visible loop point. */
+@keyframes cloud-drift {
+  from {
+    transform: translateX(-6%);
+  }
+  to {
+    transform: translateX(6%);
+  }
+}
+@utility animate-cloud-drift {
+  animation: cloud-drift 26s ease-in-out infinite alternate;
   @media (prefers-reduced-motion: reduce) {
     animation: none;
   }

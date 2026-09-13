@@ -7,7 +7,7 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { Toaster } from "sonner";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import iconUrl from "../assets/buffalo-icon.png";
@@ -16,6 +16,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { ProfileSetupModal } from "@/components/ProfileSetupModal";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { SkyPage } from "@/components/layout/SkyPage";
+import { logCmsHealth } from "@/lib/cms-health";
 
 const SITE_URL = "https://truongtiengviet.cvcec.org";
 const OG_IMAGE =
@@ -28,8 +30,7 @@ const structuredData = JSON.stringify({
       "@type": "WebSite",
       name: "Trường Tiếng Việt Của Em",
       url: SITE_URL,
-      description:
-        "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào.",
+      description: "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào.",
       image: OG_IMAGE,
       inLanguage: "vi",
     },
@@ -128,19 +129,40 @@ function NewUserSetup() {
   return <ProfileSetupModal user={user} onComplete={() => setDismissed(true)} />;
 }
 
+const BARE_SKY_ROUTES = ["/hoc-tap/", "/dang-nhap", "/hoc-tap/khai-minh-duc/$slug"];
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const matches = useRouterState({ select: (s) => s.matches });
+
+  // Debug: one line in the console saying whether the CMS answered.
+  useEffect(() => {
+    logCmsHealth();
+  }, []);
+
   const isFullScreen = matches.some((m) => m.routeId.includes("hoc-tap_"));
+  const isHome = matches.some((m) => m.routeId === "/");
+  const isDashboard = matches.some((m) => m.routeId === "/dashboard");
+  // The học tập landing page is a bento of framed tiles, the sign-in page is
+  // one centred card, and a Khai Minh Đức lesson is a slide deck whose own
+  // pieces are already framed — all three sit straight on the sky rather than
+  // inside SkyPage's white card.
+  const isBareSky = matches.some((m) => BARE_SKY_ROUTES.includes(m.routeId));
 
   return (
     <QueryClientProvider client={queryClient}>
-      {isFullScreen ? (
-        <Outlet />
+      {isFullScreen || isHome || isDashboard ? (
+        <>
+          {!isFullScreen && <Navbar />}
+          <Outlet />
+          {!isFullScreen && <Footer />}
+        </>
       ) : (
         <>
           <Navbar />
-          <Outlet />
+          <SkyPage card={!isBareSky}>
+            <Outlet />
+          </SkyPage>
           <Footer />
         </>
       )}
