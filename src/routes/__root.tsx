@@ -129,6 +129,8 @@ function NewUserSetup() {
   return <ProfileSetupModal user={user} onComplete={() => setDismissed(true)} />;
 }
 
+const BARE_SKY_ROUTES = ["/hoc-tap/", "/dang-nhap", "/hoc-tap/khai-minh-duc/$slug"];
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const matches = useRouterState({ select: (s) => s.matches });
@@ -141,10 +143,11 @@ function RootComponent() {
   const isFullScreen = matches.some((m) => m.routeId.includes("hoc-tap_"));
   const isHome = matches.some((m) => m.routeId === "/");
   const isDashboard = matches.some((m) => m.routeId === "/dashboard");
-  // The học tập landing page is a bento of framed tiles, and the sign-in page
-  // is one centred card — both sit straight on the sky rather than inside
-  // SkyPage's white card.
-  const isBareSky = matches.some((m) => m.routeId === "/hoc-tap/" || m.routeId === "/dang-nhap");
+  // The học tập landing page is a bento of framed tiles, the sign-in page is
+  // one centred card, and a Khai Minh Đức lesson is a slide deck whose own
+  // pieces are already framed — all three sit straight on the sky rather than
+  // inside SkyPage's white card.
+  const isBareSky = matches.some((m) => BARE_SKY_ROUTES.includes(m.routeId));
 
   return (
     <QueryClientProvider client={queryClient}>

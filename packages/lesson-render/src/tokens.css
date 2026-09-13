@@ -20,4 +20,28 @@
   --ttv-primary: oklch(0.52 0.213 29.2); /* #cc0000 — the step that clears 4.5:1 on white */
   --ttv-primary-deep: oklch(0.42 0.176 29.2); /* #a30000 */
   --ttv-primary-soft: oklch(0.968 0.014 29.2); /* #fff2f0 */
+
+  /* --- the sky theme ------------------------------------------------------
+   *
+   * A lesson is read straight on the site's blue sky — no white page card under
+   * it — so its furniture needs the same family the sky pages are built from:
+   * the sky gradient itself (for the CMS preview, which has no backdrop of its
+   * own to sit on), the ink that stays legible on coloured boxes, the box tone
+   * pairs, and the ribbon yellow the site marks an active thing with. Kept as
+   * the site's own hex literals, same copy-don't-import rule as above. */
+  --ttv-sky-top: #2eb2ef;
+  --ttv-sky-mid: #6cc6f6;
+  --ttv-sky-ink: #174b6e;
+  --ttv-sky-ink-soft: #1f4a62;
+  --ttv-indigo-deep: #1c2c6e;
+  --ttv-ribbon: #ffee00;
+  --ttv-box-mint: #8fd1a1;
+  --ttv-box-mint-deep: #7cc993;
+  --ttv-box-ice: #b4e4ff;
+  --ttv-box-ice-deep: #98dbff;
+  --ttv-box-lavender: #c6bafe;
+  --ttv-box-cream: #d9c179;
+  /* The shadow everything framed on the sky casts — navy-tinted, because a grey
+   * shadow on a saturated blue reads as dirt. */
+  --ttv-sky-shadow: 0 10px 28px rgb(12 58 110 / 22%);
 }
