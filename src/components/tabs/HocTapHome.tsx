@@ -149,7 +149,9 @@ function ProgramTile({ item }: { item: Item }) {
       params={item.params}
       className={[
         "group relative h-full rounded-[1.25rem] shadow-[0_10px_28px_rgba(12,58,110,0.22)] sm:rounded-[1.5rem]",
-        "transition-transform duration-150 hover:-translate-y-1 active:translate-y-0",
+        // The tile grows in place rather than lifting, and rises above its
+        // neighbours while it does so the grown edges aren't overlapped.
+        "transition-transform duration-150 hover:z-10 hover:scale-[1.035] active:scale-100",
         item.span,
       ].join(" ")}
     >

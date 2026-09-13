@@ -1,18 +1,5 @@
 import { useState } from "react";
-import {
-  BarChart3,
-  BookOpen,
-  ChevronDown,
-  Flame,
-  Home,
-  LogOut,
-  Menu,
-  Star,
-  Trophy,
-  User,
-  UserCircle,
-  X,
-} from "lucide-react";
+import { BarChart3, ChevronDown, Flame, LogOut, Menu, Star, UserCircle, X } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,12 +20,11 @@ import {
 const tabs: {
   to: "/" | "/hoc-tap" | "/san-pham-cua-em" | "/bang-xep-hang";
   label: string;
-  Icon: typeof Home;
 }[] = [
-  { to: "/", label: "Trang chủ", Icon: Home },
-  { to: "/hoc-tap", label: "Học tập", Icon: BookOpen },
-  { to: "/san-pham-cua-em", label: "Sản phẩm của em", Icon: Star },
-  { to: "/bang-xep-hang", label: "Xếp hạng", Icon: Trophy },
+  { to: "/", label: "Trang chủ" },
+  { to: "/hoc-tap", label: "Học tập" },
+  { to: "/san-pham-cua-em", label: "Sản phẩm của em" },
+  { to: "/bang-xep-hang", label: "Xếp hạng" },
 ];
 
 export function Navbar() {
@@ -132,23 +118,12 @@ export function Navbar() {
             )}
 
             {!isLoading && !user && (
-              <>
-                <button
-                  onClick={() => openAuth("login")}
-                  className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-white transition hover:bg-white/20 sm:hidden"
-                  aria-label="Đăng nhập"
-                >
-                  <User className="h-5 w-5" strokeWidth={2.5} />
-                </button>
-                <div className="hidden items-center gap-2 sm:flex">
-                  <button
-                    onClick={() => openAuth("login")}
-                    className="font-display text-sm font-bold text-white transition-colors hover:text-gold-soft"
-                  >
-                    Đăng nhập
-                  </button>
-                </div>
-              </>
+              <button
+                onClick={() => openAuth("login")}
+                className="shrink-0 px-1 font-display text-sm font-bold text-white transition-colors hover:text-gold-soft"
+              >
+                Đăng nhập
+              </button>
             )}
 
             {!isLoading && user && (
@@ -260,17 +235,17 @@ export function Navbar() {
         <div className="fixed inset-0 z-50 bg-sky-ink/40 backdrop-blur-sm" onClick={closeSidebar} />
       )}
 
-      {/* Sidebar drawer */}
+      {/* Sidebar drawer — the same flat green as the bar it drops out of, so the
+        menu reads as the header unfolding rather than a second surface. Text
+        only: white labels, gold for the page you are on. */}
       <aside
         className={[
-          // Near-white, not --box-ice: the box tones are saturated now, and the
-          // drawer is a nav surface that should stay quiet behind its pills.
-          "fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-box-white-deep shadow-2xl transition-transform duration-300 ease-in-out",
+          "fixed inset-y-0 left-0 z-50 flex w-72 flex-col bg-nav-green shadow-2xl transition-transform duration-300 ease-in-out",
           sidebarOpen ? "translate-x-0" : "-translate-x-full",
         ].join(" ")}
       >
         {/* Sidebar header */}
-        <div className="flex items-center justify-between bg-nav-green px-5 py-4">
+        <div className="flex h-16 items-center justify-between px-5 sm:h-[4.5rem]">
           <Link to="/" onClick={closeSidebar}>
             <Logo size="sm" variant="wordmark" className="art-outline-white" />
           </Link>
@@ -283,10 +258,10 @@ export function Navbar() {
           </button>
         </div>
 
-        {/* Nav links */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4">
-          <ul className="flex flex-col gap-2">
-            {tabs.map(({ to, label, Icon }) => {
+        {/* Nav links — a plain list of labels on the green, nothing between them. */}
+        <nav className="flex-1 overflow-y-auto px-5 py-2">
+          <ul className="flex flex-col">
+            {tabs.map(({ to, label }) => {
               const isActive = to === "/" ? pathname === "/" : pathname.startsWith(to);
 
               return (
@@ -295,14 +270,11 @@ export function Navbar() {
                     to={to}
                     onClick={closeSidebar}
                     className={[
-                      "flex items-center gap-3 rounded-2xl border-[3px] border-white px-4 py-2.5 font-display text-sm font-bold transition-all",
-                      isActive
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-white/70 text-sky-ink hover:bg-white",
+                      "block py-3.5 font-display text-base font-bold transition-colors",
+                      isActive ? "text-gold" : "text-white hover:text-gold-soft",
                     ].join(" ")}
                   >
-                    <Icon className="h-5 w-5 shrink-0" strokeWidth={2.5} />
-                    <span>{label}</span>
+                    {label}
                   </Link>
                 </li>
               );
@@ -310,21 +282,20 @@ export function Navbar() {
           </ul>
         </nav>
 
-        {/* Sidebar footer — user actions */}
-        <div className="px-3 py-4">
-          {isLoading && <div className="h-12 animate-pulse rounded-2xl bg-white/60" />}
+        {/* Sidebar footer — user actions, same text-only treatment */}
+        <div className="px-5 py-2">
+          {isLoading && <div className="my-2 h-6 animate-pulse rounded bg-white/25" />}
           {!isLoading &&
             (user ? (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col">
                 {myUsername && (
                   <Link
                     to="/u/$username"
                     params={{ username: myUsername }}
                     onClick={closeSidebar}
-                    className="flex items-center gap-3 rounded-2xl border-[3px] border-white bg-white/70 px-4 py-2.5 font-display text-sm font-bold text-sky-ink transition-all hover:bg-white"
+                    className="block py-3.5 font-display text-base font-bold text-white transition-colors hover:text-gold-soft"
                   >
-                    <UserCircle className="h-5 w-5 shrink-0" strokeWidth={2.5} />
-                    <span>Trang cá nhân</span>
+                    Trang cá nhân
                   </Link>
                 )}
                 <button
@@ -332,34 +303,21 @@ export function Navbar() {
                     signOut();
                     closeSidebar();
                   }}
-                  className="flex items-center gap-3 rounded-2xl border-[3px] border-white bg-white/70 px-4 py-2.5 font-display text-sm font-bold text-destructive transition-all hover:bg-white"
+                  className="py-3.5 text-left font-display text-base font-bold text-white transition-colors hover:text-gold-soft"
                 >
-                  <LogOut className="h-5 w-5 shrink-0" strokeWidth={2.5} />
-                  <span>Đăng xuất</span>
+                  Đăng xuất
                 </button>
               </div>
             ) : (
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={() => {
-                    openAuth("register");
-                    closeSidebar();
-                  }}
-                  className="flex w-full items-center justify-center gap-3 rounded-2xl border-[3px] border-white bg-primary px-4 py-2.5 font-display text-sm font-bold text-primary-foreground transition-colors hover:bg-primary-glow"
-                >
-                  <User className="h-5 w-5 shrink-0" strokeWidth={2.5} />
-                  <span>Đăng ký</span>
-                </button>
-                <button
-                  onClick={() => {
-                    openAuth("login");
-                    closeSidebar();
-                  }}
-                  className="flex w-full items-center justify-center rounded-2xl border-[3px] border-white bg-white/70 px-4 py-2.5 font-display text-sm font-bold text-sky-ink transition-all hover:bg-white"
-                >
-                  <span>Đăng nhập</span>
-                </button>
-              </div>
+              <button
+                onClick={() => {
+                  openAuth("login");
+                  closeSidebar();
+                }}
+                className="py-3.5 text-left font-display text-base font-bold text-white transition-colors hover:text-gold-soft"
+              >
+                Đăng nhập
+              </button>
             ))}
         </div>
       </aside>
