@@ -7,7 +7,7 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import { Toaster } from "sonner";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import iconUrl from "../assets/buffalo-icon.png";
@@ -17,6 +17,7 @@ import { ProfileSetupModal } from "@/components/ProfileSetupModal";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { SkyPage } from "@/components/layout/SkyPage";
+import { logCmsHealth } from "@/lib/cms-health";
 
 const SITE_URL = "https://truongtiengviet.cvcec.org";
 const OG_IMAGE =
@@ -29,8 +30,7 @@ const structuredData = JSON.stringify({
       "@type": "WebSite",
       name: "Trường Tiếng Việt Của Em",
       url: SITE_URL,
-      description:
-        "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào.",
+      description: "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào.",
       image: OG_IMAGE,
       inLanguage: "vi",
     },
@@ -132,12 +132,19 @@ function NewUserSetup() {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const matches = useRouterState({ select: (s) => s.matches });
+
+  // Debug: one line in the console saying whether the CMS answered.
+  useEffect(() => {
+    logCmsHealth();
+  }, []);
+
   const isFullScreen = matches.some((m) => m.routeId.includes("hoc-tap_"));
   const isHome = matches.some((m) => m.routeId === "/");
   const isDashboard = matches.some((m) => m.routeId === "/dashboard");
-  // The học tập landing page is a bento of framed tiles — it sits straight on
-  // the sky rather than inside SkyPage's white card.
-  const isBareSky = matches.some((m) => m.routeId === "/hoc-tap/");
+  // The học tập landing page is a bento of framed tiles, and the sign-in page
+  // is one centred card — both sit straight on the sky rather than inside
+  // SkyPage's white card.
+  const isBareSky = matches.some((m) => m.routeId === "/hoc-tap/" || m.routeId === "/dang-nhap");
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -6,7 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useHasRole } from "@/hooks/useHasRole";
 import { generateUsername } from "@/lib/profile";
-import { AuthModal } from "@/components/AuthModal";
 import { Logo } from "@/components/Logo";
 import {
   DropdownMenu,
@@ -32,13 +31,12 @@ export function Navbar() {
   const pathname = location.pathname;
   const { user, isLoading, signOut } = useAuth();
   const isStaff = useHasRole("staff");
-  const [authOpen, setAuthOpen] = useState(false);
-  const [authTab, setAuthTab] = useState<"login" | "register">("login");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const openAuth = (tab: "login" | "register") => {
-    setAuthTab(tab);
-    setAuthOpen(true);
+  // Sign-in is its own page; send people back to where they were when done.
+  const authSearch = {
+    tab: "login" as const,
+    redirect: pathname === "/dang-nhap" ? undefined : pathname,
   };
 
   const displayName =
@@ -118,12 +116,13 @@ export function Navbar() {
             )}
 
             {!isLoading && !user && (
-              <button
-                onClick={() => openAuth("login")}
+              <Link
+                to="/dang-nhap"
+                search={authSearch}
                 className="shrink-0 px-1 font-display text-sm font-bold text-white transition-colors hover:text-gold-soft"
               >
                 Đăng nhập
-              </button>
+              </Link>
             )}
 
             {!isLoading && user && (
@@ -309,20 +308,17 @@ export function Navbar() {
                 </button>
               </div>
             ) : (
-              <button
-                onClick={() => {
-                  openAuth("login");
-                  closeSidebar();
-                }}
-                className="py-3.5 text-left font-display text-base font-bold text-white transition-colors hover:text-gold-soft"
+              <Link
+                to="/dang-nhap"
+                search={authSearch}
+                onClick={closeSidebar}
+                className="block py-3.5 text-left font-display text-base font-bold text-white transition-colors hover:text-gold-soft"
               >
                 Đăng nhập
-              </button>
+              </Link>
             ))}
         </div>
       </aside>
-
-      <AuthModal open={authOpen} onOpenChange={setAuthOpen} defaultTab={authTab} />
     </>
   );
 }
