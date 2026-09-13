@@ -51,13 +51,13 @@ function KhaiMinhDucIndex() {
         )}
 
         {error != null && !isLoading && (
-          <p className="py-16 text-center text-sm font-semibold text-white/80">
+          <p className="py-16 text-center text-sm font-semibold text-muted-foreground">
             Chưa tải được danh sách bài học — em thử lại sau nhé!
           </p>
         )}
 
         {!isLoading && !error && lessons != null && lessons.length === 0 && (
-          <p className="py-16 text-center text-sm font-semibold text-white/80">
+          <p className="py-16 text-center text-sm font-semibold text-muted-foreground">
             Chưa có bài học nào.
           </p>
         )}

@@ -16,6 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { ProfileSetupModal } from "@/components/ProfileSetupModal";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { SkyPage } from "@/components/layout/SkyPage";
 
 const SITE_URL = "https://truongtiengviet.cvcec.org";
 const OG_IMAGE =
@@ -132,15 +133,26 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const matches = useRouterState({ select: (s) => s.matches });
   const isFullScreen = matches.some((m) => m.routeId.includes("hoc-tap_"));
+  const isHome = matches.some((m) => m.routeId === "/");
+  const isDashboard = matches.some((m) => m.routeId === "/dashboard");
+  // The học tập landing page is a bento of framed tiles — it sits straight on
+  // the sky rather than inside SkyPage's white card.
+  const isBareSky = matches.some((m) => m.routeId === "/hoc-tap/");
 
   return (
     <QueryClientProvider client={queryClient}>
-      {isFullScreen ? (
-        <Outlet />
+      {isFullScreen || isHome || isDashboard ? (
+        <>
+          {!isFullScreen && <Navbar />}
+          <Outlet />
+          {!isFullScreen && <Footer />}
+        </>
       ) : (
         <>
           <Navbar />
-          <Outlet />
+          <SkyPage card={!isBareSky}>
+            <Outlet />
+          </SkyPage>
           <Footer />
         </>
       )}

@@ -37,6 +37,14 @@ type Item = {
   image?: string;
   imageFit?: "cover" | "contain";
   art?: ReactNode;
+  /**
+   * Where the tile sits in the bento. Two columns on phones, four from sm up,
+   * over rows of a fixed height — so a tile's size is just how many cells it
+   * takes. The spans are written to leave no holes in either layout (phone
+   * packs 1+1 / 2 / 1+1, desktop 2+1+1 / 2+2) and to match each tile's art:
+   * the book covers get tall portrait cells, the photos wide ones.
+   */
+  span: string;
 };
 
 const items: Item[] = [
@@ -48,6 +56,7 @@ const items: Item[] = [
     tone: "lavender",
     image: quyen1Cover,
     imageFit: "contain",
+    span: "col-span-1 row-span-3 sm:col-span-2",
   },
   {
     to: "/hoc-tap/quyen-{$quyenNumber}",
@@ -56,6 +65,7 @@ const items: Item[] = [
     tone: "peach",
     image: quyen2Cover,
     imageFit: "contain",
+    span: "col-span-1 row-span-3",
   },
   {
     to: "/hoc-tap/bang-chu-cai",
@@ -63,12 +73,14 @@ const items: Item[] = [
     tone: "ice",
     image: alphabetPark,
     imageFit: "cover",
+    span: "col-span-2 row-span-2 sm:col-span-1 sm:row-span-3",
   },
   {
     to: "/hoc-tap/luyen-noi",
     title: "Luyện nói",
     tone: "pink",
     art: <Mascot pose="listening" decorative className="h-full max-h-28 w-auto sm:max-h-36" />,
+    span: "col-span-1 row-span-2 sm:col-span-2",
   },
   {
     to: "/hoc-tap/khai-minh-duc",
@@ -77,26 +89,25 @@ const items: Item[] = [
     tone: "mint",
     image: khaiMinhDucImg,
     imageFit: "cover",
+    span: "col-span-1 row-span-2 sm:col-span-2",
   },
 ];
 
 export function HocTapHome() {
   return (
-    <main className="min-h-screen bg-background pb-24">
-      <div className="mx-auto max-w-6xl px-4 pt-8 sm:px-6 sm:pt-10">
-        <h1 className="flex justify-center sm:justify-start">
-          <SkyBoxRibbon shape="flag-right" fillClassName="bg-blue-600 text-yellow-300" size="lg">
-            Em muốn học gì hôm nay?
-          </SkyBoxRibbon>
-        </h1>
+    <div className="mx-auto w-full max-w-5xl">
+      <h1 className="flex justify-center sm:justify-start">
+        <SkyBoxRibbon shape="flag-right" fillClassName="bg-blue-600 text-yellow-300" size="lg">
+          Em muốn học gì hôm nay?
+        </SkyBoxRibbon>
+      </h1>
 
-        <div className="mt-12 grid grid-cols-3 gap-3 sm:gap-4">
-          {items.map((item) => (
-            <ProgramTile key={item.to + (item.params?.quyenNumber ?? "")} item={item} />
-          ))}
-        </div>
+      <div className="mt-8 grid auto-rows-[5.5rem] grid-cols-2 gap-3 sm:mt-10 sm:auto-rows-[7rem] sm:grid-cols-4 sm:gap-4">
+        {items.map((item) => (
+          <ProgramTile key={item.to + (item.params?.quyenNumber ?? "")} item={item} />
+        ))}
       </div>
-    </main>
+    </div>
   );
 }
 
@@ -122,58 +133,63 @@ const TONE_BG_DEEP: Record<SkyBoxTone, string> = {
   white: "bg-box-white-deep",
 };
 
-const TONE_BORDER: Record<SkyBoxTone, string> = {
-  lavender: "border-box-lavender/40",
-  peach: "border-box-peach/40",
-  ice: "border-box-ice/40",
-  pink: "border-box-pink/40",
-  mint: "border-box-mint/40",
-  cream: "border-box-cream/40",
-  red: "border-box-red/40",
-  white: "border-white",
-};
-
+/**
+ * One bento cell. Same two halves as a SkyBox — a light tone holding the art,
+ * a deeper tone holding the label — inside the thick white border that is what
+ * separates anything from the sky.
+ *
+ * The two halves are clipped by an inner wrapper rather than by the link
+ * itself, so the corner badge can be a sibling of that wrapper and lie across
+ * the white border instead of being cut off inside it.
+ */
 function ProgramTile({ item }: { item: Item }) {
   return (
     <Link
       to={item.to}
       params={item.params}
       className={[
-        "group relative flex aspect-square flex-col rounded-none border border-border bg-card shadow-md",
-        "transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0",
+        "group relative h-full rounded-[1.25rem] shadow-[0_10px_28px_rgba(12,58,110,0.22)] sm:rounded-[1.5rem]",
+        "transition-transform duration-150 hover:-translate-y-1 active:translate-y-0",
+        item.span,
       ].join(" ")}
     >
+      <div className="flex h-full flex-col overflow-hidden rounded-[1.25rem] border-[5px] border-white sm:rounded-[1.5rem] sm:border-[6px]">
+        <div className={["relative flex flex-1 items-center justify-center overflow-hidden", TONE_BG[item.tone]].join(" ")}>
+          {item.image ? (
+            <img
+              src={item.image}
+              alt=""
+              className={[
+                "h-full w-full",
+                item.imageFit === "contain" ? "object-contain" : "object-cover",
+              ].join(" ")}
+            />
+          ) : (
+            item.art
+          )}
+        </div>
+
+        <div className={["flex shrink-0 items-center justify-between gap-2 px-3 py-3", TONE_BG_DEEP[item.tone]].join(" ")}>
+          <span className="truncate text-sm font-semibold text-sky-ink">{item.title}</span>
+          <ArrowRight className="h-4 w-4 shrink-0 text-sky-ink-soft" strokeWidth={2.5} />
+        </div>
+      </div>
+
       {item.badge && <CornerBadge badge={item.badge} />}
-
-      <div className={["relative flex flex-1 items-center justify-center overflow-hidden", TONE_BG[item.tone]].join(" ")}>
-        {item.image ? (
-          <img
-            src={item.image}
-            alt=""
-            className={[
-              "h-full w-full border-[3px]",
-              TONE_BORDER[item.tone],
-              item.imageFit === "contain" ? "object-contain" : "object-cover",
-            ].join(" ")}
-          />
-        ) : (
-          item.art
-        )}
-      </div>
-
-      <div className={["flex shrink-0 items-center justify-between gap-2 px-3 py-4", TONE_BG_DEEP[item.tone]].join(" ")}>
-        <span className="truncate text-sm font-semibold text-foreground">{item.title}</span>
-        <ArrowRight className="h-4 w-4 shrink-0 text-foreground/70" strokeWidth={2.5} />
-      </div>
     </Link>
   );
 }
 
+/**
+ * The diagonal ribbon across the tile's top-left. It sits over the white
+ * border, clipped only to the tile's own corner radius so the ribbon follows
+ * the curve instead of overhanging it.
+ */
 function CornerBadge({ badge }: { badge: CornerBadgeData }) {
   const tone = BADGE_TONES[badge.tone];
   const Icon = badge.icon;
   return (
-    <div className="absolute -left-1 -top-1 z-10 h-20 w-20 overflow-hidden">
+    <div className="absolute left-0 top-0 z-10 h-20 w-20 overflow-hidden rounded-tl-[1.25rem] sm:rounded-tl-[1.5rem]">
       <div
         className={["absolute inset-0 bg-gradient-to-br", tone.gradient].join(" ")}
         style={{

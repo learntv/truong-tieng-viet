@@ -43,10 +43,15 @@ const CLOUDS: { top: string; left?: string; right?: string; w: string; opacity: 
   { top: "82%", right: "2%", w: "w-40 sm:w-56", opacity: 0.7 },
 ];
 
-export function SkyBackdrop() {
+/** A short field for pages whose content doesn't fill much height — the full
+ *  ten-cloud set reads as clutter once it's compressed into a shorter sky. */
+const CLOUDS_SPARSE = [CLOUDS[0], CLOUDS[3], CLOUDS[6], CLOUDS[9]];
+
+export function SkyBackdrop({ density = "full" }: { density?: "full" | "sparse" }) {
+  const clouds = density === "sparse" ? CLOUDS_SPARSE : CLOUDS;
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden bg-sky-page">
-      {CLOUDS.map((c, i) => (
+      {clouds.map((c, i) => (
         // The wrapper carries the data-driven position; the cloud itself carries
         // the drift, so the two transforms don't fight over the same element.
         <span key={i} className="absolute" style={{ top: c.top, left: c.left, right: c.right }}>
