@@ -84,11 +84,34 @@ export function SkyBox({
   );
 }
 
+// A flat left edge and a triangular point on the right, like a pennant flag —
+// the alternative to the default banner-tail notch on both ends.
+const FLAG_RIGHT_CLIP = "polygon(0 0, calc(100% - 1.15rem) 0, 100% 50%, calc(100% - 1.15rem) 100%, 0 100%)";
+
 /**
- * The yellow banner tab above the title — a rectangle with a triangular notch
- * cut into each end, the way a cloth banner tail is cut.
+ * The yellow banner tab above the title. Defaults to a rectangle with a
+ * triangular notch cut into each end, the way a cloth banner tail is cut;
+ * `shape="flag-right"` swaps that for a flat left edge and a point on the right.
  */
-function SkyBoxRibbon({ children }: { children: ReactNode }) {
+const RIBBON_SIZES = {
+  md: "px-10 py-2.5 text-sm sm:px-14 sm:text-base",
+  lg: "px-12 py-4 text-lg sm:px-16 sm:text-xl",
+};
+
+export function SkyBoxRibbon({
+  children,
+  shape = "notched",
+  fillClassName = "bg-ribbon text-indigo-deep",
+  size = "md",
+}: {
+  children: ReactNode;
+  shape?: "notched" | "flag-right";
+  /** Background + text color classes for the fill. Defaults to the yellow/indigo pair. */
+  fillClassName?: string;
+  size?: keyof typeof RIBBON_SIZES;
+}) {
+  const clipClassName = shape === "notched" ? "clip-ribbon" : "";
+  const clipStyle = shape === "flag-right" ? { clipPath: FLAG_RIGHT_CLIP } : undefined;
   return (
     <div className="mb-3 flex justify-center">
       {/* Three nested spans, because clip-path cuts away both a border and a
@@ -97,8 +120,16 @@ function SkyBoxRibbon({ children }: { children: ReactNode }) {
         shows through as the keyline; the innermost is the yellow fill, clipped
         to the same notch so the white follows the tails. */}
       <span className="shadow-ribbon inline-block">
-        <span className="clip-ribbon block bg-white p-[3px]">
-          <span className="clip-ribbon block bg-ribbon px-10 py-2.5 font-display text-sm font-extrabold tracking-[0.1em] text-indigo-deep uppercase sm:px-14 sm:text-base">
+        <span className={cn("block bg-white p-[3px]", clipClassName)} style={clipStyle}>
+          <span
+            className={cn(
+              "block font-display font-extrabold tracking-[0.1em] uppercase",
+              RIBBON_SIZES[size],
+              fillClassName,
+              clipClassName,
+            )}
+            style={clipStyle}
+          >
             {children}
           </span>
         </span>
