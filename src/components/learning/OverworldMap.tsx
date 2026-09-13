@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { Check, HelpCircle, Lock, MapPin, Undo2 } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { Check, HelpCircle, Lock, MapPin } from "lucide-react";
 import type { ChuDeWithChangs, QuyenNumber } from "@/lib/learning";
 import { chuDeShortTitle, isChuDeComplete } from "@/lib/learning";
 import type { ChangProgress } from "@/hooks/useUserProgress";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { ConfettiBurst } from "./ConfettiBurst";
 import { BuffaloMascot } from "./BuffaloMascot";
+import { BackLink } from "@/components/BackLink";
 import { loadBuffaloPos } from "@/components/tabs/LearningTab";
 import overworldArt from "@/assets/quyen1-overworld.jpg";
 import cachHocBanner from "@/assets/cach-hoc-3-buoc.png";
@@ -159,8 +160,9 @@ export function OverworldMap({
   };
 
   return (
-    <section className="w-full">
-      <div className="w-full px-3 pt-8 pb-8 sm:px-4 sm:pt-12">
+    <section className="relative w-full">
+      <BackLink to="/hoc-tap" label="Quay lại học tập" />
+      <div className="w-full px-3 pb-8 pt-20 sm:px-4 sm:pt-24">
         <p className="mx-auto mb-4 flex max-w-7xl items-center justify-center gap-2 text-center text-xs text-muted-foreground sm:text-sm">
           <span>Mỗi địa danh là một chủ đề — chạm vào địa danh để vừa khám phá vừa học nhé!</span>
           {/* Reopens the three-step tutorial for a child who dismissed it and wants it back. */}
@@ -190,16 +192,6 @@ export function OverworldMap({
                 alt="Bản đồ Việt Nam với các địa danh"
                 className="absolute inset-0 h-full w-full object-contain"
               />
-
-              {/* Back to học tập — floats over the map now that there's no header bar. */}
-              <Link
-                to="/hoc-tap"
-                aria-label="Quay lại"
-                onClick={(e) => e.stopPropagation()}
-                className="absolute left-3 top-3 z-30 grid h-10 w-10 cursor-pointer place-items-center rounded-full bg-white/90 text-primary shadow-[0_2px_0_0_rgba(0,0,0,0.15)] ring-1 ring-black/10 transition hover:scale-105 active:translate-y-[1px] sm:h-11 sm:w-11"
-              >
-                <Undo2 className="h-5 w-5" strokeWidth={2.5} />
-              </Link>
 
               {/* Journey progress, kept on the map itself rather than in a header bar. */}
               <div className="absolute right-3 top-3 z-30 rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-semibold text-navy shadow-card">
