@@ -140,12 +140,13 @@ export default buildConfig({
   collections: [Users, Media, SpeakingTopics, Quyen, ChuDe, BaiKMD],
   // The app (Vite dev server / prod site) fetches public content from this CMS's REST API.
   // Browsers enforce this list, so every origin the app is served from has to appear here:
-  // the custom domain, the Vercel project URL it is aliased to, and the local dev server.
+  // the custom domains, the Vercel project URL it is aliased to, and the local dev server.
   // Preview deploys get a unique URL per deployment and are deliberately not covered —
   // point a preview at the local CMS, or add its origin here temporarily.
   cors: [
     'http://localhost:8080',
     'https://truongtiengviet.cvcec.org',
+    'https://truongtiengvietcuaem.cvcec.org',
     'https://truong-tieng-viet.vercel.app',
   ],
   // The quyển roster is fixed and editors can't create rows, so the rows have to come from
