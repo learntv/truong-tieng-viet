@@ -22,7 +22,7 @@ type CmsSpeakingTopic = {
 // user progress, so the CMS preserves them verbatim.
 const CMS_URL: string = import.meta.env.VITE_CMS_URL || process.env.CMS_URL || "";
 
-async function fetchSpeakingContent(): Promise<SpeakingTopic[]> {
+export async function fetchSpeakingContent(): Promise<SpeakingTopic[]> {
   const res = await fetch(`${CMS_URL}/api/speaking-topics?sort=_order&pagination=false&depth=0`);
   if (!res.ok) throw new Error(`CMS speaking-topics request failed: ${res.status}`);
   const { docs } = (await res.json()) as { docs: CmsSpeakingTopic[] };

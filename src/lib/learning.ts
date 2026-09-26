@@ -191,7 +191,7 @@ async function fetchChuDes(select: string[][]): Promise<CmsChuDe[]> {
 // Structure only (chủ đề / chặng / nội dung / bài) with empty `hinhs`. This is all the roadmap
 // needs to draw the map and progress bars, and it's the much smaller half of the payload — so
 // skipping the hình here is what lets the roadmap skeleton clear quickly.
-function fetchLearningStructure(): Promise<ChuDeWithChangs[]> {
+export function fetchLearningStructure(): Promise<ChuDeWithChangs[]> {
   return fetchChuDes([
     ["title"],
     ["quyen"],
@@ -208,7 +208,7 @@ function fetchLearningStructure(): Promise<ChuDeWithChangs[]> {
 // lesson.
 export type HinhByBai = Map<string, Hinh[]>;
 
-async function fetchLearningImages(): Promise<HinhByBai> {
+export async function fetchLearningImages(): Promise<HinhByBai> {
   // `quyen` is selected here too: it is what the chủ đề half of every id is built from, so
   // without it this query's bài ids wouldn't match the structure query's.
   const docs = await fetchChuDes([["quyen"], ["changs", "noiDungs", "bais", "hinhs"]]);

@@ -7,41 +7,43 @@
 // is a little slower, never wrong or stuck serving old audio (there's nothing to go stale:
 // the cache key IS the text's hash).
 //
-// Reads `bai`/`hinh` rows with the plain public client — no service-role key needed, since
-// this pipeline never writes to Supabase (see src/lib/tts/audio-cache.server.ts).
+// Reads bài, hình and speaking sentences from the Payload CMS over the same public REST API the
+// app uses (src/lib/learning.ts, src/hooks/useSpeakingContent.ts) — set CMS_URL or VITE_CMS_URL
+// to the CMS you want to warm the cache for.
 //
 // Usage:
 //   bun run scripts/generate-audio.ts          # warm the cache for everything speakable
 //   bun run scripts/generate-audio.ts --prune   # also delete orphaned R2 objects
 
-import { supabase } from "@/integrations/supabase/client";
 import { ensureAudioForText } from "@/lib/tts/audio-cache.server";
 import { audioCacheKey } from "@/lib/tts/hash";
 import { headObject, listObjectKeys, deleteObject } from "@/lib/tts/r2.server";
-import { baiTextsFromJson, joinForSpeech } from "@/lib/tts/text";
+import { joinForSpeech } from "@/lib/tts/text";
 import { ALPHABET } from "@/data/alphabet";
-import { SPEAKING_TOPICS } from "@/data/speaking-topics";
+import { fetchLearningImages, fetchLearningStructure } from "@/lib/learning";
+import { fetchSpeakingContent } from "@/hooks/useSpeakingContent";
 
-async function fetchDbTexts(): Promise<string[]> {
-  const [baiRes, hinhRes] = await Promise.all([
-    supabase.from("bai").select("id, text"),
-    supabase.from("hinh").select("id, text"),
+async function fetchCmsTexts(): Promise<string[]> {
+  const [structure, hinhByBai, speakingTopics] = await Promise.all([
+    fetchLearningStructure(),
+    fetchLearningImages(),
+    fetchSpeakingContent(),
   ]);
-  if (baiRes.error) throw baiRes.error;
-  if (hinhRes.error) throw hinhRes.error;
 
   // Bài text is spoken as one joined clip per bài (matches how LessonPage's AudioButton
   // plays it); captions are spoken individually, one per word-cloud chip.
-  const baiTexts = baiRes.data
-    .map((row) => joinForSpeech(baiTextsFromJson(row.text)))
-    .filter((t) => t.length > 0);
-  const captionTexts = hinhRes.data.flatMap((row) => baiTextsFromJson(row.text));
+  const bais = structure.flatMap((cd) =>
+    cd.changs.flatMap((ch) => ch.noiDungs.flatMap((nd) => nd.bais)),
+  );
+  const baiTexts = bais.map((b) => joinForSpeech(b.texts)).filter((t) => t.length > 0);
+  const captionTexts = [...hinhByBai.values()].flat().flatMap((h) => h.captions);
+  const speakingTexts = speakingTopics.flatMap((topic) => topic.sentences.map((s) => s.text));
 
   console.log(
-    `[generate-audio] ${baiRes.data.length} bài rows, ${hinhRes.data.length} hình rows ` +
-      `→ ${baiTexts.length} bài texts, ${captionTexts.length} captions`,
+    `[generate-audio] ${bais.length} bài → ${baiTexts.length} bài texts, ${captionTexts.length} captions, ` +
+      `${speakingTexts.length} speaking sentences`,
   );
-  return [...baiTexts, ...captionTexts];
+  return [...baiTexts, ...captionTexts, ...speakingTexts];
 }
 
 function staticTexts(): string[] {
@@ -49,11 +51,8 @@ function staticTexts(): string[] {
     letter.soundName,
     ...letter.words.map((w) => w.vi),
   ]);
-  const speakingTopicTexts = SPEAKING_TOPICS.flatMap((topic) => topic.sentences);
-  console.log(
-    `[generate-audio] ${alphabetTexts.length} alphabet texts, ${speakingTopicTexts.length} speaking-topic sentences`,
-  );
-  return [...alphabetTexts, ...speakingTopicTexts];
+  console.log(`[generate-audio] ${alphabetTexts.length} alphabet texts`);
+  return alphabetTexts;
 }
 
 async function generate(texts: string[]) {
@@ -107,7 +106,7 @@ async function prune(texts: string[]) {
   }
 }
 
-const texts = [...(await fetchDbTexts()), ...staticTexts()];
+const texts = [...(await fetchCmsTexts()), ...staticTexts()];
 await generate(texts);
 if (process.argv.includes("--prune")) {
   await prune(texts);
