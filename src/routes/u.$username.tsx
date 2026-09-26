@@ -22,7 +22,6 @@ import { FlagImg } from "@/components/FlagImg";
 import { upsertProfile, generateUsername } from "@/lib/profile";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProgress } from "@/hooks/useUserProgress";
-import { BadgeCollection } from "@/components/learning/BadgeCollection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -606,10 +605,6 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
     queryClient.setQueryData(["streak", user.id], { days: 0, studiedToday: false });
     queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
     queryClient.invalidateQueries({ queryKey: ["public-profile"] });
-    // Deleting the progress rows makes the DB revoke every badge, so the cached collection is
-    // now wrong. Without this it keeps rendering badges that no longer exist until staleTime
-    // expires — they would appear to vanish later, for no reason the child can see.
-    queryClient.invalidateQueries({ queryKey: ["badges", user.id] });
     setIsRestarting(false);
     toast.success("Tiến độ đã được đặt lại! Hãy bắt đầu lại nhé 🌱");
   };
@@ -804,14 +799,6 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
           </div>
         </div>
 
-        {/* Badges */}
-        <BadgeCollection
-          userId={user.id}
-          title="🏅 Huy hiệu của em"
-          emptyHint="Em chưa có huy hiệu nào. Học hết một chủ đề để nhận huy hiệu đầu tiên nhé!"
-          zoomable
-        />
-
         {/* Account actions */}
         <div className="rounded-3xl bg-white ring-1 ring-border shadow-card p-6 space-y-3">
           <h2 className="font-display text-lg font-bold text-ink mb-4">⚙️ Tài khoản</h2>
@@ -908,7 +895,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                     Xóa tài khoản vĩnh viễn? ⚠️
                   </AlertDialogTitle>
                   <AlertDialogDescription className="text-base leading-relaxed">
-                    Toàn bộ hồ sơ, tiến độ học tập và huy hiệu của em sẽ bị xóa
+                    Toàn bộ hồ sơ và tiến độ học tập của em sẽ bị xóa
                     vĩnh viễn và không thể khôi phục. Hãy gõ{" "}
                     <span className="font-semibold text-destructive">XÓA</span> vào ô
                     bên dưới để xác nhận.
@@ -1076,14 +1063,6 @@ function PublicView({ username }: { username: string }) {
             <div className="text-xs font-semibold mt-1 text-muted-foreground">Bài hoàn thành</div>
           </div>
         </div>
-
-        {/* Badges */}
-        <BadgeCollection
-          userId={profile.id}
-          title="🏅 Huy hiệu"
-          emptyHint="Bạn này chưa sưu tầm được huy hiệu nào."
-          showLocked={false}
-        />
 
         <p className="text-center text-xs text-muted-foreground pb-4">
           Trường Tiếng Việt Của Em 🇻🇳

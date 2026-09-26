@@ -18,13 +18,12 @@ export const deleteOwnAccount = createServerFn({ method: "POST" })
 
     // Best-effort: remove app data first. Errors are logged but don't block
     // auth deletion. profiles.id cascades from auth.users, but user_progress,
-    // speaking_progress, user_badges, and user_roles have no FK cascade
+    // speaking_progress, and user_roles have no FK cascade
     // declared on user_id, so they'd otherwise be orphaned after the user
     // row is gone.
     const cleanups = await Promise.allSettled([
       supabaseAdmin.from("user_progress").delete().eq("user_id", userId),
       supabaseAdmin.from("speaking_progress").delete().eq("user_id", userId),
-      supabaseAdmin.from("user_badges").delete().eq("user_id", userId),
       supabaseAdmin.from("user_roles").delete().eq("user_id", userId),
       supabaseAdmin.from("profiles").delete().eq("id", userId),
     ]);

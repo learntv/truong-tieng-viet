@@ -44,17 +44,14 @@ export function useDashboardStats() {
       // "Finished the course" means every chặng, so the denominator has to come from wherever
       // the lessons live — that is the CMS now, not public.chang. `ensureQueryData` shares the
       // roadmap's cached copy instead of fetching the tree a second time.
-      const [profilesRes, lessons, badgesRes] = await Promise.all([
+      const [profilesRes, lessons] = await Promise.all([
         supabase.from("profiles").select("country, completed_count, created_at"),
         queryClient.ensureQueryData(learningStructureQueryOptions),
-        supabase.from("user_badges").select("badge_slug", { count: "exact", head: true }),
       ]);
       if (profilesRes.error) throw profilesRes.error;
-      if (badgesRes.error) throw badgesRes.error;
 
       const profiles = profilesRes.data ?? [];
       const totalChang = lessons.reduce((n, cd) => n + cd.changs.length, 0);
-      const certificatesIssued = badgesRes.count ?? 0;
 
       const totalRegistered = profiles.length;
 
@@ -85,7 +82,6 @@ export function useDashboardStats() {
       return {
         totalRegistered,
         totalChang,
-        certificatesIssued,
         countryData,
         monthlyGrowth,
         weeklyGrowth,

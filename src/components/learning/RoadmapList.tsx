@@ -6,8 +6,6 @@ import { STAGE_COLORS } from "./stageColors";
 import { Button } from "@/components/ui/button";
 import { locationForChuDe } from "@/data/scenes";
 import { landmarksForQuyen } from "@/data/overworld";
-import { badgeForChuDe } from "@/data/badges";
-import { BadgeMedal } from "./BadgeMedal";
 
 // Per-topic accent, keyed by ChuDe.accent — tints the coming-soon emoji plate.
 const ACCENT_SOFT: Record<ChuDe["accent"], string> = {
@@ -77,7 +75,6 @@ export function RoadmapList({
   const accentSoft = ACCENT_SOFT[chuDe.accent] ?? ACCENT_SOFT.primary;
   const location = placeForChuDe(quyenNumber, chuDeIndex);
   const photo = location.photo;
-  const badge = badgeForChuDe(quyenNumber, chuDeIndex);
 
   const totalStages = changTitles.length;
   const doneStages = Math.min(completedChangs.size, totalStages);
@@ -147,13 +144,11 @@ export function RoadmapList({
         </div>
       </div>
 
-      {/* ── Stat band: full-bleed colour strip carrying progress and the badge in one line each
-          — replaces the note cards that used to sit beside the list. ── */}
+      {/* ── Stat band: full-bleed colour strip carrying the chủ đề's progress — replaces the note
+          cards that used to sit beside the list. ── */}
       {!isLocked && (
         <div className="w-full bg-teal-deep text-white">
-          {/* Two items only, so they're spread to the band's edges rather than packed into the
-              left half of a grid. */}
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-10 gap-y-5 px-6 py-6 sm:px-10 lg:px-16">
+          <div className="mx-auto flex max-w-6xl items-center px-6 py-6 sm:px-10 lg:px-16">
             <div className="flex items-center gap-3">
               <BookOpen className="h-6 w-6 shrink-0" strokeWidth={2} aria-hidden />
               <div className="min-w-0">
@@ -168,17 +163,6 @@ export function RoadmapList({
                 </div>
               </div>
             </div>
-
-            {badge && (
-              <div className="flex items-center gap-3">
-                <BadgeMedal badge={badge} earned={allDone} size="sm" className="shrink-0" />
-                <div className="min-w-0 text-sm font-semibold sm:text-base">
-                  {allDone
-                    ? `Em đã sưu tầm huy hiệu ${badge.name}!`
-                    : `Huy hiệu ${badge.name} đang chờ em`}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       )}

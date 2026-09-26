@@ -12,11 +12,9 @@ import type { ChuDe } from "@/data/topics";
 import { RoadmapList } from "@/components/learning/RoadmapList";
 import { RoadmapSkeleton } from "@/components/learning/RoadmapSkeleton";
 import { buildSlides } from "@/components/learning/LessonPage";
-import { BADGE_TOAST_KEY } from "@/components/learning/LessonPage";
 import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
 import { Button } from "@/components/ui/button";
-import { BADGES } from "@/data/badges";
 
 export const BUFFALO_POS_KEY = "vui-hoc-buffalo-pos";
 
@@ -69,25 +67,6 @@ export function LearningTab({
 }) {
   const { data: allChuDes, isLoading, error } = useQuery(learningStructureQueryOptions);
   const navigate = useNavigate();
-
-  // When arriving from the badge-celebration "Nhận ngay" button, pop a corner toast so it's
-  // clear the huy hiệu is now in the collection. Purely cosmetic — the badge is awarded by
-  // the DB the moment the last chặng is completed, whether or not the user clicked the button.
-  useEffect(() => {
-    let slug: string | null = null;
-    try {
-      slug = sessionStorage.getItem(BADGE_TOAST_KEY);
-      if (slug) sessionStorage.removeItem(BADGE_TOAST_KEY);
-    } catch {
-      return;
-    }
-    if (!slug) return;
-    const badge = BADGES.find((b) => b.slug === slug);
-    toast.success("Chúc mừng, bé đã nhận được huy hiệu cho chủ đề này!", {
-      description: badge?.name,
-      duration: 5000,
-    });
-  }, []);
 
   // The roadmap only ever shows one quyển's chủ đề. Narrowing once here keeps every count below
   // (progress, celebration) on-book.

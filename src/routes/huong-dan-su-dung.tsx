@@ -98,7 +98,7 @@ function UserGuide() {
 
         <Step n={5} title="Theo dõi tiến trình">
           <p>
-            Bé nhận được huy hiệu, tích luỹ điểm và leo lên{" "}
+            Bé tích luỹ điểm và leo lên{" "}
             <a
               href="/bang-xep-hang"
               className="font-semibold text-primary underline underline-offset-2"

@@ -7,7 +7,7 @@
 -- away on every reset. Do not copy these credentials into any hosted environment.
 --
 -- The uuid below is fixed so the account survives a reset with the same id — progress rows,
--- badges and anything else keyed on user_id stay valid across resets.
+-- and anything else keyed on user_id stay valid across resets.
 
 -- Password hashing lives in the extensions schema on Supabase, so the calls are qualified;
 -- the default search_path does not always include it.

@@ -54,7 +54,7 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
   },
   {
     q: "Tôi có cần đăng nhập để học không?",
-    a: "Bạn có thể xem một số nội dung mà không cần đăng nhập, nhưng cần tài khoản để lưu tiến trình học, nhận huy hiệu và tham gia bảng xếp hạng.",
+    a: "Bạn có thể xem một số nội dung mà không cần đăng nhập, nhưng cần tài khoản để lưu tiến trình học và tham gia bảng xếp hạng.",
   },
   {
     q: "Làm sao để xoá tài khoản và dữ liệu?",
