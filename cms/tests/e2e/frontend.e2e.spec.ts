@@ -1,22 +1,11 @@
-import { test, expect, Page } from '@playwright/test'
+import { test, expect } from '@playwright/test'
 
 import { serverURL } from '../helpers/serverURL'
 
 test.describe('Frontend', () => {
-  let page: Page
-
-  test.beforeAll(async ({ browser }, testInfo) => {
-    const context = await browser.newContext()
-    page = await context.newPage()
-  })
-
-  test('can go on homepage', async ({ page }) => {
+  test('the root goes straight to the admin panel', async ({ page }) => {
     await page.goto(serverURL)
 
-    await expect(page).toHaveTitle(/Payload Blank Template/)
-
-    const heading = page.locator('h1').first()
-
-    await expect(heading).toHaveText('Welcome to your new project.')
+    await expect(page).toHaveURL(/\/admin(\/|$)/)
   })
 })
