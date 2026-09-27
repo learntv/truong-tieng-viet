@@ -15,7 +15,7 @@ import {
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { SkyBackdrop } from "./SkyBackdrop";
-import { PressVideo } from "./PressVideo";
+import { PressNews } from "./PressNews";
 import { SkyBox, SkyCard } from "@/components/ui/sky-box";
 import { skyButton } from "@/components/ui/sky-button";
 import { InfoCarousel } from "@/components/tabs/InfoCarousel";
@@ -514,8 +514,8 @@ export function HomePage() {
             <InfoCarousel />
           </SkyBox>
 
-          <div id="bao-chi" className="scroll-mt-24">
-            <PressVideo />
+          <div id="tin-tuc" className="scroll-mt-24">
+            <PressNews />
           </div>
 
           <div id="gioi-thieu" className="scroll-mt-24">

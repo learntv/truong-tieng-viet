@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ExternalLink, Play } from "lucide-react";
-import { SkyBox } from "@/components/ui/sky-box";
 import poster from "@/assets/vna-ket-noi-coi-nguon-poster.webp";
+import vietnamMediaLogo from "@/assets/press/vietnam-media-logo.png";
 
 /**
  * The VNA television report on the project's launch, played in place.
@@ -66,7 +66,7 @@ function VnaPlayer() {
 
   if (failed) {
     return (
-      <div className="grid aspect-video w-full place-items-center gap-3 rounded-xl border-[3px] border-white bg-white/75 p-6 text-center">
+      <div className="grid aspect-video w-full place-items-center gap-3 bg-box-cream p-6 text-center">
         <p className="text-sm leading-relaxed text-sky-ink-soft">
           Không phát được video ở đây. Em có thể xem bản gốc trên trang của Thông tấn xã Việt Nam.
         </p>
@@ -90,7 +90,7 @@ function VnaPlayer() {
         type="button"
         onClick={() => setPlaying(true)}
         aria-label="Phát video: Kết nối thế hệ trẻ kiều bào với cội nguồn"
-        className="group relative block aspect-video w-full cursor-pointer overflow-hidden rounded-xl border-[3px] border-white"
+        className="group relative block aspect-video w-full cursor-pointer overflow-hidden"
       >
         <img
           src={poster}
@@ -121,43 +121,64 @@ function VnaPlayer() {
       controls
       playsInline
       poster={poster}
-      className="aspect-video w-full rounded-xl border-[3px] border-white bg-black"
+      className="aspect-video w-full bg-black"
     />
   );
 }
 
+/**
+ * The featured item at the top of the homepage's "Tin tức" box (PressNews),
+ * built as a wider sibling of that box's article cards — same white card, same
+ * masthead-and-date line, headline, excerpt and link — so the report reads as
+ * the lead story of the list rather than a separate player dropped above it.
+ *
+ * Unlike the article cards the card itself is not a link: it holds the play
+ * button, and a button inside a link is invalid and ambiguous to tap. The
+ * link to the original is its own element at the foot of the text instead.
+ *
+ * Side by side from lg (player left, text right); stacked below that, where
+ * the player needs the full width to stay watchable.
+ */
 export function PressVideo() {
   return (
-    <SkyBox
-      tone="red"
-      ribbon="Truyền thông"
-      title="Kết nối thế hệ trẻ kiều bào với cội nguồn"
-      lede={
-        <>
-          Phóng sự của <strong>Thông tấn xã Việt Nam</strong> về lễ ra mắt nền tảng học tiếng Việt
-          trực tuyến dành riêng cho con em người Việt ở nước ngoài, do Hội đồng Văn hóa Giáo dục
-          Canada–Việt Nam tổ chức tại Canada.
-        </>
-      }
-    >
-      <div className="mx-auto max-w-2xl">
+    <article className="overflow-hidden rounded-2xl border-[3px] border-white bg-white lg:flex">
+      {/* Navy behind the player so that if the text column ever runs taller
+        than the 16:9 player, the spare height reads as letterboxing. */}
+      <div className="flex shrink-0 items-center bg-indigo-deep lg:w-3/5">
         <VnaPlayer />
-
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-          <p className="font-display text-xs font-bold tracking-[0.08em] text-sky-ink-soft uppercase">
-            VNA · 26-07-2026
-          </p>
-          <a
-            href={ARTICLE_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1.5 font-display text-sm font-extrabold text-indigo hover:underline"
-          >
-            Xem bài gốc trên VNA
-            <ExternalLink className="h-4 w-4" aria-hidden />
-          </a>
-        </div>
       </div>
-    </SkyBox>
+
+      <div className="flex flex-1 flex-col p-4 sm:p-5">
+        {/* The masthead is the source line, so its alt is the outlet's name. */}
+        <div className="flex min-h-8 items-center justify-between gap-3">
+          <img src={vietnamMediaLogo} alt="VietNam Media (TTXVN)" className="h-5 w-auto" />
+          <time
+            dateTime="2026-07-26"
+            className="shrink-0 font-display text-xs font-bold text-sky-ink-soft"
+          >
+            26-07-2026
+          </time>
+        </div>
+
+        <h3 className="mt-3 font-display text-lg leading-snug font-extrabold text-sky-ink">
+          Kết nối thế hệ trẻ kiều bào với cội nguồn
+        </h3>
+        <p className="mt-2 line-clamp-4 text-sm leading-relaxed text-sky-ink-soft">
+          Một nền tảng học tiếng Việt trực tuyến có tên “Trường Tiếng Việt Online” dành riêng cho
+          con em người Việt ở nước ngoài vừa được ra mắt tại Canada. Sự kiện do Hội đồng Văn hóa
+          Giáo dục Canada-Việt Nam tổ chức theo hình thức trực tiếp kết hợp trực tuyến.
+        </p>
+
+        <a
+          href={ARTICLE_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-auto inline-flex w-fit items-center gap-1.5 pt-3 font-display text-sm font-extrabold text-indigo hover:text-indigo-deep hover:underline"
+        >
+          Xem bài gốc
+          <ExternalLink className="h-4 w-4" aria-hidden />
+        </a>
+      </div>
+    </article>
   );
 }
