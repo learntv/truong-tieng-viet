@@ -60,10 +60,11 @@ function KhaiMinhDucLessonRoute() {
   // white card corner to fold out of and there is none here.
   return (
     <div className="mx-auto w-full max-w-[90rem]">
-      {/* ml-4 lines the pill up with the lesson's own 1rem gutter below it. */}
+      {/* sm:ml-4 lines the pill up with the lesson's own 1rem gutter below it; on a phone
+          the lesson drops that gutter (the page already has one), and so does the pill. */}
       <Link
         to="/hoc-tap/khai-minh-duc"
-        className="ml-4 inline-flex items-center gap-2 rounded-full border-[3px] border-white bg-white/85 px-4 py-1.5 font-display text-sm font-extrabold text-sky-ink shadow-[0_4px_12px_rgba(12,58,110,0.2)] transition hover:bg-ribbon hover:text-indigo-deep"
+        className="inline-flex items-center gap-2 rounded-full border-[3px] border-white bg-white/85 px-4 py-1.5 font-display text-sm font-extrabold text-sky-ink shadow-[0_4px_12px_rgba(12,58,110,0.2)] transition hover:bg-ribbon hover:text-indigo-deep sm:ml-4"
       >
         <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
         Danh sách bài học

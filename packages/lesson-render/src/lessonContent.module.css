@@ -46,6 +46,20 @@
   font-size: 1.15rem;
 }
 
+@media (max-width: 34rem) {
+  .content h1 {
+    font-size: 1.6rem;
+  }
+
+  .content h2 {
+    font-size: 1.4rem;
+  }
+
+  .content h3 {
+    font-size: 1.2rem;
+  }
+}
+
 .content ol,
 .content ul {
   margin: 0;
@@ -188,6 +202,28 @@
   font-style: italic;
 }
 
+/* On a phone the picture and the word side by side leave the word a column too
+ * narrow for itself, so the card stacks: picture on top, the word centred under
+ * it — the way a printed flashcard reads anyway. */
+@media (max-width: 34rem) {
+  .vocabularyCard {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .vocabularyImage {
+    width: min(11rem, 100%);
+  }
+
+  .vocabularyWord {
+    font-size: 1.75rem;
+    overflow-wrap: anywhere;
+  }
+}
+
 /* --- tạo tiếng ---------------------------------------------------------- */
 
 .chain {
@@ -247,6 +283,36 @@
   font-size: 1.5rem;
 }
 
+/* A whole chain — up to four boxes and three arrows — has to fit one phone
+ * line, or it wraps and leaves an arrow pointing at nothing at a line's end. */
+@media (max-width: 34rem) {
+  .chain {
+    gap: 0.3rem;
+  }
+
+  .chainCell {
+    min-width: 2.75rem;
+    min-height: 2.9rem;
+    padding: 0 0.45rem;
+    border-width: 2px;
+    border-radius: 12px;
+    font-size: 1.45rem;
+  }
+
+  .chainTone {
+    padding: 0 0.25rem;
+  }
+
+  .chainToneIcon {
+    width: 1.7rem;
+    height: 1.7rem;
+  }
+
+  .chainArrow {
+    font-size: 1.1rem;
+  }
+}
+
 /* --- đánh vần ----------------------------------------------------------- */
 
 /* The two greens are the diagram's own colours, carried over literally from the editor
@@ -293,4 +359,12 @@
 .blendResult {
   background: #a9dba9;
   letter-spacing: 0.06em;
+}
+
+@media (max-width: 34rem) {
+  .blendPart,
+  .blendResult {
+    min-height: 3.75rem;
+    font-size: 1.75rem;
+  }
 }
