@@ -2,19 +2,17 @@
 // shared Drive ("HD viết …" folders): a pencil tracing each stroke, letter, digraph,
 // number or sign over a grey guide on the ô li grid. The originals run 12–43 s, far too
 // slow for young kids, so they were sped up 5×, re-encoded to 540×540 / 30 fps and
-// uploaded to R2 under `tap-viet/v3/` (v1 and v2 are the same set at 1× and 3×), next
-// to a `<id>.jpg` of the finished shape turned back into the grey guide (pencil removed)
-// — used as the video poster and as the tracing background.
+// uploaded to R2 under `tap-viet/v3/`, next to a `<id>.jpg` of the finished shape as a
+// grey guide (pencil removed) — the video poster and the tracing background.
 //
 // The per-item tracing masks (135×135, white = the shape) live in public/tap-viet/mask/
 // rather than R2, because the tracing check reads their pixels and the R2 domain sends
 // no CORS headers.
 //
-// Each tab is shown as one continuous ô li page: public/tap-viet/grid/<category>.png is a
-// blank grid tile the page repeats as its background, and public/tap-viet/thumb/<id>.png
-// is the item's handwriting alone (transparent), drawn at one pen width on that same grid
-// so every item in a tab sits on the same baseline. Tiles are a multiple of 4 li tall, so
-// the solid lines stay 4 li apart from one row of tiles to the next.
+// Each tab is one ô li page: public/tap-viet/grid/<category>.png is a blank grid tile
+// repeated as its background, and public/tap-viet/thumb/<id>.png is the item's
+// handwriting alone (transparent), drawn on that same grid so it lands on its lines.
+// Tiles are a multiple of 4 li tall, so the solid lines stay 4 li apart across rows.
 
 const R2_BASE = "https://bucket.bambootech.fi/tap-viet/v3";
 
@@ -22,9 +20,7 @@ export type TapVietCategoryId = "net" | "chu" | "ghep" | "so";
 
 export type TapVietItem = {
   id: string;
-  /** What the tile shows. */
-  label: string;
-  /** The dialog heading, e.g. "Chữ a" or "Nét cong kín". */
+  /** The item's name, e.g. "Chữ a" or "Nét cong kín". */
   title: string;
 };
 
@@ -91,10 +87,10 @@ const letters: [string, string][] = [
 // The Drive folder has no nh.
 const digraphs = ["ch", "gh", "gi", "kh", "ng", "ngh", "ph", "qu", "th", "tr"];
 
-const signs: [string, string, string][] = [
-  ["dau-lon", ">", "Dấu lớn"],
-  ["dau-be", "<", "Dấu bé"],
-  ["dau-bang", "=", "Dấu bằng"],
+const signs: [string, string][] = [
+  ["dau-lon", "Dấu lớn"],
+  ["dau-be", "Dấu bé"],
+  ["dau-bang", "Dấu bằng"],
 ];
 
 export const TAP_VIET: TapVietCategory[] = [
@@ -102,31 +98,27 @@ export const TAP_VIET: TapVietCategory[] = [
     id: "net",
     label: "Nét cơ bản",
     tile: { cols: 8, rows: 12 },
-    items: strokes.map(([id, title]) => ({ id, label: title.replace(/^Nét /, ""), title })),
+    items: strokes.map(([id, title]) => ({ id, title })),
   },
   {
     id: "chu",
     label: "Chữ cái",
     tile: { cols: 8, rows: 12 },
-    items: letters.map(([id, l]) => ({ id, label: l, title: `Chữ ${l}` })),
+    items: letters.map(([id, l]) => ({ id, title: `Chữ ${l}` })),
   },
   {
     id: "ghep",
     label: "Chữ ghép",
     tile: { cols: 12, rows: 12 },
-    items: digraphs.map((d) => ({ id: d, label: d, title: `Chữ ${d}` })),
+    items: digraphs.map((d) => ({ id: d, title: `Chữ ${d}` })),
   },
   {
     id: "so",
     label: "Số và dấu",
     tile: { cols: 6, rows: 8 },
     items: [
-      ...Array.from({ length: 11 }, (_, n) => ({
-        id: `so-${n}`,
-        label: String(n),
-        title: `Số ${n}`,
-      })),
-      ...signs.map(([id, label, title]) => ({ id, label, title })),
+      ...Array.from({ length: 11 }, (_, n) => ({ id: `so-${n}`, title: `Số ${n}` })),
+      ...signs.map(([id, title]) => ({ id, title })),
     ],
   },
 ];

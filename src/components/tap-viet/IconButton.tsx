@@ -10,7 +10,7 @@ export function IconButton({
   children,
 }: {
   label: string;
-  tone?: "white" | "green" | "primary";
+  tone?: "white" | "green";
   disabled?: boolean;
   onClick: () => void;
   children: ReactNode;

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import {
   ArrowLeft,
   CaseLower,
@@ -100,29 +100,23 @@ function TapVietPage() {
             className="absolute bottom-full right-10 z-0 hidden h-28 translate-y-3 lg:block"
           />
           <SpiralBinding />
-          {/* One ô li page: the blank grid tile repeats as the background, one copy
-          per tile slot, so the lines run on unbroken between items and a short
-          last row is still ruled paper. Its top-left corner is square because
-          the first tab grows out of it. A 2px blue line (the grid's solid-line
-          colour, #1ea4dc) runs inside the white border; the open tab draws the
-          same line on its sides and top and covers the page's line under
-          itself, so one blue outline wraps tab and page together.
-
-          Its height is fixed to fit the tallest tab (Chữ cái) at each width, so
-          switching tabs never moves anything below it. Set as a ratio of the
-          page's width in li — 24/48/72 li across (see PAGE_COLS), by 108/60/36
-          li down: Chữ cái's 9/5/3 rows of 12-li tiles. content-start keeps the
-          rows at their own height; the spare room below is ruled paper. */}
+          {/* One ô li page: the blank grid tile repeats as the background, one
+            copy per tile slot, so the lines run on unbroken and a short last row
+            is still ruled paper. A 2px oli-line border runs inside the white one;
+            the open tab carries it up its own sides, so one outline wraps both. */}
           <div
             ref={pageRef}
             id={`tap-viet-page-${category.id}`}
             role="tabpanel"
             aria-labelledby={`tap-viet-tab-${category.id}`}
             className={[
-              "relative z-10 grid aspect-[24/108] grid-cols-[repeat(var(--cols),minmax(0,1fr))] content-start overflow-hidden sm:aspect-[48/60] lg:aspect-[72/36] rounded-[1.25rem] rounded-tl-none border-[6px] border-white bg-white bg-repeat shadow-[inset_0_0_0_2px_#1ea4dc,0_18px_40px_rgba(12,58,110,0.3)] [background-size:calc(100%/var(--cols))_auto] sm:rounded-[1.5rem] sm:rounded-tl-none",
-              PAGE_COLS[category.id],
+              "relative z-10 grid grid-cols-[repeat(var(--cols),minmax(0,1fr))] content-start overflow-hidden rounded-[1.25rem] rounded-tl-none border-[6px] border-white bg-white bg-repeat shadow-[inset_0_0_0_2px_var(--oli-line),0_18px_40px_rgba(12,58,110,0.3)] [background-size:calc(100%/var(--cols))_auto] sm:rounded-[1.5rem] sm:rounded-tl-none",
+              "aspect-(--ratio-0) [--cols:var(--cols-0)] sm:aspect-(--ratio-1) sm:[--cols:var(--cols-1)] lg:aspect-(--ratio-2) lg:[--cols:var(--cols-2)]",
             ].join(" ")}
-            style={{ backgroundImage: `url(${tapVietGridTile(category.id)})` }}
+            style={{
+              backgroundImage: `url(${tapVietGridTile(category.id)})`,
+              ...pageLayout(category),
+            }}
           >
             {category.items.map((item, i) => (
               <ItemTile
@@ -169,11 +163,6 @@ function SpiralBinding() {
   );
 }
 
-// The four sections as index tabs on the notebook page, like the coloured
-// dividers in a school binder. The tabs not in use are pastel and tucked a little
-// behind the page's top edge; the open one joins the page's white border with no
-// seam and carries the page's own grid, lined up so the ruling runs on up into
-// it — tab and page read as one sheet of paper.
 const TAB_LOOK: Record<TapVietCategoryId, { icon: LucideIcon; tone: string }> = {
   net: { icon: Spline, tone: "bg-box-ice" },
   chu: { icon: CaseLower, tone: "bg-box-mint" },
@@ -181,6 +170,10 @@ const TAB_LOOK: Record<TapVietCategoryId, { icon: LucideIcon; tone: string }> = 
   so: { icon: Hash, tone: "bg-box-peach" },
 };
 
+/** The four sections as index tabs, like the coloured dividers in a school binder.
+ *  The closed tabs are pastel and tucked behind the page's top edge; the open one
+ *  joins the page's border with no seam and carries its grid, so tab and page
+ *  read as one sheet of paper. */
 function NotebookTabs({
   selected,
   onSelect,
@@ -190,16 +183,17 @@ function NotebookTabs({
   onSelect: (index: number) => void;
   pageRef: React.RefObject<HTMLDivElement | null>;
 }) {
+  const listRef = useRef<HTMLDivElement>(null);
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
-  const openId = TAP_VIET[selected].id;
 
   // The open tab's grid has to line up with the page's: the same tile size (the
   // page's width over its --cols, which changes with the breakpoint) and shifted
   // left by however far the tab sits from the page's left edge. Anchoring it to
   // the tab's bottom — which is exactly where the page's grid starts — lines the
-  // rows up on its own. Re-measured whenever the page resizes.
+  // rows up on its own. Measured before paint, and again whenever the page or the
+  // tabs resize (a late web font changes the tabs' widths).
   const [grid, setGrid] = useState<{ size: number; x: number } | null>(null);
-  useEffect(() => {
+  useLayoutEffect(() => {
     const page = pageRef.current;
     if (!page) return;
     const measure = () => {
@@ -214,6 +208,7 @@ function NotebookTabs({
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(page);
+    if (listRef.current) observer.observe(listRef.current);
     return () => observer.disconnect();
   }, [pageRef, selected]);
 
@@ -239,6 +234,7 @@ function NotebookTabs({
 
   return (
     <div
+      ref={listRef}
       role="tablist"
       aria-label="Chọn bài tập viết"
       onKeyDown={onKeyDown}
@@ -265,10 +261,10 @@ function NotebookTabs({
             style={
               isOpen && grid
                 ? {
-                    backgroundImage: `url(${tapVietGridTile(openId)})`,
+                    backgroundImage: `url(${tapVietGridTile(c.id)})`,
                     backgroundSize: `${grid.size}px auto`,
                     // The tab runs 2px past the page's grid top (to cover the
-                    // page's blue line), so the grid is anchored 2px up from its foot.
+                    // page's line), so the grid is anchored 2px up from its foot.
                     backgroundPosition: `left ${grid.x}px bottom 2px`,
                   }
                 : undefined
@@ -278,9 +274,9 @@ function NotebookTabs({
               "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-ribbon",
               isOpen
                 ? // In front of the page (z-20 over its z-10), hanging over its
-                  // 6px top border and 2px blue line so both disappear under the
-                  // open tab, with the blue line carried up its sides and top.
-                  "relative z-20 -mb-[8px] h-[calc(100%+8px)] bg-white pb-1.5 shadow-[inset_2px_0_0_#1ea4dc,inset_-2px_0_0_#1ea4dc,inset_0_2px_0_#1ea4dc]"
+                  // 6px top border and 2px line so both disappear under the
+                  // open tab, with the line carried up its sides and top.
+                  "relative z-20 -mb-[8px] h-[calc(100%+8px)] bg-white pb-1.5 shadow-[inset_2px_0_0_var(--oli-line),inset_-2px_0_0_var(--oli-line),inset_0_2px_0_var(--oli-line)]"
                 : // Behind the page, dropped so its foot tucks under the page edge.
                   [
                     "relative z-0 h-[calc(100%-0.25rem)] translate-y-1.5 pb-1.5 hover:translate-y-0.5",
@@ -297,16 +293,26 @@ function NotebookTabs({
   );
 }
 
-// Tiles per row on the page, as the --cols the grid and its background both read.
-// Every tab is 24 li across on phones, 48 from sm and 72 from lg, so one li — and
-// with it the pen width — is the same size on screen in every tab. Tiles per row
-// is that width over the tab's tile width (8, 12 or 6 li).
-const PAGE_COLS: Record<TapVietCategoryId, string> = {
-  net: "[--cols:3] sm:[--cols:6] lg:[--cols:9]",
-  chu: "[--cols:3] sm:[--cols:6] lg:[--cols:9]",
-  ghep: "[--cols:2] sm:[--cols:4] lg:[--cols:6]",
-  so: "[--cols:4] sm:[--cols:8] lg:[--cols:12]",
-};
+// The page is 24 li across on phones, 48 from sm and 72 from lg in every tab, so
+// one li — and with it the pen width — is the same size on screen in every tab.
+// Tile widths (8, 12, 6 li) must divide 24.
+const PAGE_WIDTH_LI = [24, 48, 72] as const;
+const tilesPerRow = (c: TapVietCategory, width: number) => width / c.tile.cols;
+// Tall enough for the longest tab at each width, so switching tabs never moves
+// anything below the page.
+const PAGE_HEIGHT_LI = PAGE_WIDTH_LI.map((w) =>
+  Math.max(...TAP_VIET.map((c) => Math.ceil(c.items.length / tilesPerRow(c, w)) * c.tile.rows)),
+);
+
+/** --cols-N (tiles per row) and --ratio-N (page aspect) for each breakpoint N. */
+function pageLayout(c: TapVietCategory): CSSProperties {
+  const vars: Record<string, string> = {};
+  PAGE_WIDTH_LI.forEach((w, i) => {
+    vars[`--cols-${i}`] = String(tilesPerRow(c, w));
+    vars[`--ratio-${i}`] = `${w} / ${PAGE_HEIGHT_LI[i]}`;
+  });
+  return vars as CSSProperties;
+}
 
 // Every tile shows the handwriting from the video rather than typed text: the
 // handwriting kids learn differs from print (b, k, r, s…). The image is ink only,
@@ -339,7 +345,7 @@ function ItemTile({
       />
       {category.id === "net" && (
         <span className="absolute inset-x-0 top-[4%] px-1 text-center font-display text-[11px] font-extrabold leading-tight text-sky-ink sm:text-xs">
-          {item.label}
+          {item.title.replace(/^Nét /, "")}
         </span>
       )}
     </button>
@@ -359,10 +365,14 @@ function WritingDialog({
   onRateChange: (rate: number) => void;
   onIndexChange: (index: number | null) => void;
 }) {
-  const item = index === null ? null : category.items[index];
+  const open = index !== null;
+  // Keep showing the last item while the dialog animates closed.
+  const lastItem = useRef<TapVietItem | null>(null);
+  if (open) lastItem.current = category.items[index];
+  const item = lastItem.current;
 
   return (
-    <Dialog open={!!item} onOpenChange={(open) => !open && onIndexChange(null)}>
+    <Dialog open={open} onOpenChange={(o) => !o && onIndexChange(null)}>
       <DialogContent
         hideCloseButton
         className="flex h-[min(94dvh,44rem)] w-[calc(100%-1.5rem)] max-w-5xl flex-col gap-0 overflow-hidden border-0 bg-card p-0"
@@ -374,21 +384,20 @@ function WritingDialog({
 
         {item && (
           <div className="flex min-h-0 flex-1 flex-col gap-3 p-4 sm:gap-4 sm:p-6">
-            {/* No visible text anywhere in the popup: the controls are icons,
-              and the item's name is for screen readers only. */}
+            {/* No visible text in the popup: the controls are icons, and the
+              names (here and in the panels) are for screen readers only. */}
             <DialogTitle className="sr-only">{item.title}</DialogTitle>
 
-            {/* The model and the child's copy side by side (stacked on phones),
-              so the child traces while the video plays next to them. One grid
-              holds both: the two squares share a row (or, stacked, two equal
-              rows) and each row of buttons gets its own auto row, so the video
-              and the pad are always exactly the same size however the buttons
-              wrap. Each panel renders its square then its buttons as direct
-              grid items (display: contents); on sm+ the grid flows column by
-              column, putting square over buttons, video left and pad right. */}
-            <div className="relative grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_auto_minmax(0,1fr)_auto] gap-x-6 gap-y-3 sm:grid-flow-col sm:grid-cols-2 sm:grid-rows-[minmax(0,1fr)_auto]">
-              <WatchPanel key={item.id} id={item.id} rate={rate} onRateChange={onRateChange} />
-              <TracePad key={item.id} id={item.id} />
+            {/* Video and pad side by side (stacked on phones). Each panel's square
+              and buttons are direct items of this grid (display: contents), so
+              the two squares share equal rows and always match in size however
+              the buttons wrap. Keyed so a new item remounts both panels. */}
+            <div
+              key={item.id}
+              className="relative grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)_auto_minmax(0,1fr)_auto] gap-x-6 gap-y-3 sm:grid-flow-col sm:grid-cols-2 sm:grid-rows-[minmax(0,1fr)_auto]"
+            >
+              <WatchPanel id={item.id} rate={rate} onRateChange={onRateChange} />
+              <TracePad id={item.id} />
             </div>
           </div>
         )}
@@ -407,10 +416,15 @@ function WatchPanel({
   onRateChange: (rate: number) => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [playing, setPlaying] = useState(true);
+  // Set by onPlay, not assumed: some browsers block even muted autoplay.
+  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
-    if (videoRef.current) videoRef.current.playbackRate = rate;
+    const v = videoRef.current;
+    if (!v) return;
+    // defaultPlaybackRate survives the load that would otherwise reset playbackRate.
+    v.defaultPlaybackRate = rate;
+    v.playbackRate = rate;
   }, [rate]);
 
   const togglePlay = () => {
@@ -441,9 +455,6 @@ function WatchPanel({
           loop
           playsInline
           preload="auto"
-          onLoadedMetadata={(e) => {
-            e.currentTarget.playbackRate = rate;
-          }}
           onPlay={() => setPlaying(true)}
           onPause={() => setPlaying(false)}
           className="h-full w-full rounded-2xl bg-white ring-1 ring-black/10"

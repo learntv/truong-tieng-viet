@@ -271,6 +271,8 @@
   /* The exception: this is the *white* box's body, so its identity is
      near-white. It takes the family's blue at a fraction of the chroma. */
   --box-white-deep: #e5efff;
+  /* The solid lines of the Tập viết ô li grid images (public/tap-viet/grid). */
+  --oli-line: #1ea4dc;
 
   --gradient-sky: linear-gradient(180deg, oklch(0.93 0.03 235) 0%, oklch(0.86 0.05 235) 100%);
   --gradient-night: linear-gradient(180deg, oklch(0.22 0.03 260) 0%, oklch(0.14 0.02 260) 100%);

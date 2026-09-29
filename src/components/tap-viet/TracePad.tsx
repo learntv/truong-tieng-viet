@@ -18,7 +18,6 @@ const TOLERANCE = 4;
 // A touch wider than the video's grey guide (~14 at this scale), so a child can cover it
 // without the crayon looking like a marker.
 const INK_WIDTH = 16;
-const INK_COLOR = "#4f63e8"; // --primary
 
 type Mask = { on: Uint8Array; near: Uint8Array; count: number };
 
@@ -114,17 +113,20 @@ const MESSAGES: Record<Stars, string> = {
  *  Mount with `key={id}` so switching items starts from a clean page. */
 export function TracePad({ id }: { id: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const maskRef = useRef<Mask | null>(null);
-  const lastRef = useRef<{ x: number; y: number } | null>(null);
+  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+  // The pointer drawing the current stroke; other fingers (a resting palm) are ignored.
+  const strokeRef = useRef<{ pointerId: number; x: number; y: number } | null>(null);
+  const [mask, setMask] = useState<Mask | null>(null);
   const [hasInk, setHasInk] = useState(false);
   const [stars, setStars] = useState<Stars | null>(null);
   const [confetti, setConfetti] = useState(false);
 
   useEffect(() => {
     let alive = true;
+    // On failure the mask stays null and "Xong rồi" stays disabled.
     loadMask(tapVietMask(id)).then(
       (m) => {
-        if (alive) maskRef.current = m;
+        if (alive) setMask(m);
       },
       () => {},
     );
@@ -133,56 +135,64 @@ export function TracePad({ id }: { id: string }) {
     };
   }, [id]);
 
-  const point = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    return {
-      x: ((e.clientX - r.left) * SIZE) / r.width,
-      y: ((e.clientY - r.top) * SIZE) / r.height,
-    };
-  };
-
-  const strokeTo = (to: { x: number; y: number }) => {
-    const ctx = canvasRef.current?.getContext("2d");
-    const from = lastRef.current;
-    if (!ctx || !from) return;
-    ctx.strokeStyle = INK_COLOR;
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    ctx.strokeStyle = getComputedStyle(canvas).getPropertyValue("--primary").trim() || "#4f63e8";
     ctx.lineWidth = INK_WIDTH;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
+    ctxRef.current = ctx;
+  }, []);
+
+  const point = (e: PointerEvent, r: DOMRect) => ({
+    x: ((e.clientX - r.left) * SIZE) / r.width,
+    y: ((e.clientY - r.top) * SIZE) / r.height,
+  });
+
+  const strokeTo = (to: { x: number; y: number }) => {
+    const ctx = ctxRef.current;
+    const from = strokeRef.current;
+    if (!ctx || !from) return;
     ctx.beginPath();
     ctx.moveTo(from.x, from.y);
     ctx.lineTo(to.x, to.y);
     ctx.stroke();
-    lastRef.current = to;
+    from.x = to.x;
+    from.y = to.y;
   };
 
   const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (strokeRef.current) return;
     e.currentTarget.setPointerCapture(e.pointerId);
-    const p = point(e);
-    lastRef.current = p;
+    const p = point(e.nativeEvent, e.currentTarget.getBoundingClientRect());
+    strokeRef.current = { pointerId: e.pointerId, ...p };
     strokeTo(p); // a tap leaves a dot
     setHasInk(true);
     setStars(null);
   };
 
   const onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!lastRef.current) return;
-    strokeTo(point(e));
+    if (strokeRef.current?.pointerId !== e.pointerId) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    // Coalesced events keep fast strokes smooth instead of a few straight segments.
+    const events = e.nativeEvent.getCoalescedEvents?.() ?? [];
+    for (const ev of events.length ? events : [e.nativeEvent]) strokeTo(point(ev, r));
   };
 
-  const endStroke = () => {
-    lastRef.current = null;
+  const endStroke = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (strokeRef.current?.pointerId === e.pointerId) strokeRef.current = null;
   };
 
   const clear = () => {
-    canvasRef.current?.getContext("2d")?.clearRect(0, 0, SIZE, SIZE);
+    ctxRef.current?.clearRect(0, 0, SIZE, SIZE);
     setHasInk(false);
     setStars(null);
   };
 
   const check = () => {
     const canvas = canvasRef.current;
-    const mask = maskRef.current;
     if (!canvas || !mask) return;
     const s = score(canvas, mask);
     setStars(s);
@@ -228,7 +238,6 @@ export function TracePad({ id }: { id: string }) {
                 className="h-12"
               />
               <StarRow stars={stars} size="h-8 w-8" />
-              {/* No visible text in the popup; screen readers still hear it. */}
               <p className="sr-only">{MESSAGES[stars]}</p>
             </div>
           )}
@@ -239,7 +248,7 @@ export function TracePad({ id }: { id: string }) {
         <IconButton label="Xoá" onClick={clear} disabled={!hasInk}>
           <Eraser />
         </IconButton>
-        <IconButton label="Xong rồi" tone="green" onClick={check} disabled={!hasInk}>
+        <IconButton label="Xong rồi" tone="green" onClick={check} disabled={!hasInk || !mask}>
           <Check />
         </IconButton>
       </div>
