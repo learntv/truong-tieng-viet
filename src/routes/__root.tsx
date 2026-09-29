@@ -129,7 +129,12 @@ function NewUserSetup() {
   return <ProfileSetupModal user={user} onComplete={() => setDismissed(true)} />;
 }
 
-const BARE_SKY_ROUTES = ["/hoc-tap/", "/dang-nhap", "/hoc-tap/khai-minh-duc/$slug"];
+const BARE_SKY_ROUTES = [
+  "/hoc-tap/",
+  "/dang-nhap",
+  "/hoc-tap/khai-minh-duc/$slug",
+  "/hoc-tap/tap-viet",
+];
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
@@ -144,9 +149,9 @@ function RootComponent() {
   const isHome = matches.some((m) => m.routeId === "/");
   const isDashboard = matches.some((m) => m.routeId === "/dashboard");
   // The học tập landing page is a bento of framed tiles, the sign-in page is
-  // one centred card, and a Khai Minh Đức lesson is a slide deck whose own
-  // pieces are already framed — all three sit straight on the sky rather than
-  // inside SkyPage's white card.
+  // one centred card, a Khai Minh Đức lesson is a slide deck whose own pieces
+  // are already framed, and Tập viết is a notebook page — all of them sit
+  // straight on the sky rather than inside SkyPage's white card.
   const isBareSky = matches.some((m) => BARE_SKY_ROUTES.includes(m.routeId));
 
   return (

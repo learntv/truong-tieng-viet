@@ -3,7 +3,7 @@ import { Check, Eraser } from "lucide-react";
 import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
 import { StarRow } from "@/components/learning/StarRow";
 import { Mascot } from "@/components/Mascot";
-import { skyButton } from "@/components/ui/sky-button";
+import { IconButton } from "./IconButton";
 import { SquareStage } from "./SquareStage";
 import { tapVietGuide, tapVietMask } from "@/data/tap-viet";
 import type { Stars } from "@/lib/speech";
@@ -15,7 +15,9 @@ const CELL = 4;
 const GRID = SIZE / CELL;
 // How far (in mask cells) ink may stray from the guide before it counts as off the line.
 const TOLERANCE = 4;
-const INK_WIDTH = 24;
+// A touch wider than the video's grey guide (~14 at this scale), so a child can cover it
+// without the crayon looking like a marker.
+const INK_WIDTH = 16;
 const INK_COLOR = "#4f63e8"; // --primary
 
 type Mask = { on: Uint8Array; near: Uint8Array; count: number };
@@ -67,14 +69,31 @@ function score(canvas: HTMLCanvasElement, mask: Mask): Stars {
   const ctx = c.getContext("2d", { willReadFrequently: true })!;
   ctx.drawImage(canvas, 0, 0, GRID, GRID);
   const px = ctx.getImageData(0, 0, GRID, GRID).data;
-  let hit = 0;
+  const inked = new Uint8Array(GRID * GRID);
   let ink = 0;
   let off = 0;
   for (let i = 0; i < GRID * GRID; i++) {
     if (px[i * 4 + 3] < 40) continue;
+    inked[i] = 1;
     ink++;
-    if (mask.on[i]) hit++;
     if (!mask.near[i]) off++;
+  }
+  // A guide cell counts as covered when ink is on it or one cell away: the crayon
+  // is only a little wider than the guide, and a finger drifts a few pixels.
+  let hit = 0;
+  for (let y = 0; y < GRID; y++) {
+    for (let x = 0; x < GRID; x++) {
+      if (!mask.on[y * GRID + x]) continue;
+      let covered = false;
+      for (let dy = -1; dy <= 1 && !covered; dy++) {
+        for (let dx = -1; dx <= 1 && !covered; dx++) {
+          const X = x + dx;
+          const Y = y + dy;
+          covered = X >= 0 && Y >= 0 && X < GRID && Y < GRID && inked[Y * GRID + X] === 1;
+        }
+      }
+      if (covered) hit++;
+    }
   }
   const coverage = hit / Math.max(1, mask.count);
   const spill = ink ? off / ink : 0;
@@ -173,7 +192,9 @@ export function TracePad({ id }: { id: string }) {
   const hideConfetti = useCallback(() => setConfetti(false), []);
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col items-center gap-3">
+    // Laid out by the popup's grid: the square and the buttons are its items
+    // (display: contents), so the square matches the video's size exactly.
+    <div role="group" aria-label="Em tô theo" className="contents">
       {confetti && <ConfettiBurst onDone={hideConfetti} />}
 
       <SquareStage className="overflow-hidden rounded-2xl bg-white ring-1 ring-black/10">
@@ -194,56 +215,33 @@ export function TracePad({ id }: { id: string }) {
           onPointerUp={endStroke}
           onPointerCancel={endStroke}
         />
+
+        {/* The result floats over the top of the page as a bubble, so the pad
+          needs no feedback row and stays the same size as the video beside it.
+          It lets touches through, and the next stroke clears it. */}
+        <div aria-live="polite" className="pointer-events-none absolute inset-x-2 top-2">
+          {stars !== null && (
+            <div className="mx-auto flex w-fit items-center gap-2 rounded-2xl bg-white/95 p-2 pr-3 shadow-[0_4px_12px_rgba(12,58,110,0.2)] ring-1 ring-black/5">
+              <Mascot
+                pose={stars === 3 ? "cheer" : stars > 0 ? "thumbs-up" : "thinking"}
+                decorative
+                className="h-12"
+              />
+              <StarRow stars={stars} size="h-8 w-8" />
+              {/* No visible text in the popup; screen readers still hear it. */}
+              <p className="sr-only">{MESSAGES[stars]}</p>
+            </div>
+          )}
+        </div>
       </SquareStage>
 
-      {/* Fixed height so the buttons below don't jump when the stars appear. */}
-      <div className="flex min-h-[3.5rem] items-center justify-center gap-3" aria-live="polite">
-        {stars === null ? (
-          <p className="text-center font-display text-base font-extrabold text-sky-ink-soft">
-            {hasInk ? "Tô xong thì bấm “Xong rồi!” nhé." : "Em dùng ngón tay tô theo nét xám nhé!"}
-          </p>
-        ) : (
-          <>
-            <Mascot
-              pose={stars === 3 ? "cheer" : stars > 0 ? "thumbs-up" : "thinking"}
-              size="sm"
-              decorative
-            />
-            <div className="flex flex-col items-start gap-1">
-              <StarRow stars={stars} size="h-7 w-7" />
-              <p className="font-display text-base font-extrabold text-sky-ink">
-                {MESSAGES[stars]}
-              </p>
-            </div>
-          </>
-        )}
-      </div>
-
-      <div className="flex flex-wrap justify-center gap-3">
-        <button
-          type="button"
-          onClick={clear}
-          disabled={!hasInk}
-          className={skyButton(
-            "white",
-            "px-5 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none",
-          )}
-        >
-          <Eraser className="h-5 w-5" strokeWidth={2.5} />
-          Xoá
-        </button>
-        <button
-          type="button"
-          onClick={check}
-          disabled={!hasInk}
-          className={skyButton(
-            "green",
-            "px-6 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none",
-          )}
-        >
-          <Check className="h-5 w-5" strokeWidth={3} />
-          Xong rồi!
-        </button>
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <IconButton label="Xoá" onClick={clear} disabled={!hasInk}>
+          <Eraser />
+        </IconButton>
+        <IconButton label="Xong rồi" tone="green" onClick={check} disabled={!hasInk}>
+          <Check />
+        </IconButton>
       </div>
     </div>
   );
