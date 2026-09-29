@@ -107,6 +107,26 @@ const r2Storage = s3Storage({
   },
 })
 
+// Payload has no pattern support for CORS: it checks the request's Origin with a bare
+// `cors.indexOf(origin)` (payload/dist/utilities/headersWithCors.js). So this is a real array
+// of the exact origins with its own indexOf that also matches any Vercel deployment URL —
+// still an array, so Payload takes its list branch and echoes the origin back.
+const VERCEL_ORIGIN = /^https:\/\/[a-z0-9-]+(\.[a-z0-9-]+)*\.vercel\.app$/
+const corsOrigins = Object.assign(
+  [
+    'http://localhost:8080',
+    'https://truongtiengviet.cvcec.org',
+    'https://truongtiengvietcuaem.cvcec.org',
+    'https://truong-tieng-viet.vercel.app',
+  ],
+  {
+    indexOf(this: string[], origin: string, fromIndex?: number) {
+      const exact = Array.prototype.indexOf.call(this, origin, fromIndex)
+      return exact === -1 && VERCEL_ORIGIN.test(origin) ? 0 : exact
+    },
+  },
+)
+
 export default buildConfig({
   admin: {
     user: Users.slug,
@@ -141,14 +161,9 @@ export default buildConfig({
   // The app (Vite dev server / prod site) fetches public content from this CMS's REST API.
   // Browsers enforce this list, so every origin the app is served from has to appear here:
   // the custom domains, the Vercel project URL it is aliased to, and the local dev server.
-  // Preview deploys get a unique URL per deployment and are deliberately not covered —
-  // point a preview at the local CMS, or add its origin here temporarily.
-  cors: [
-    'http://localhost:8080',
-    'https://truongtiengviet.cvcec.org',
-    'https://truongtiengvietcuaem.cvcec.org',
-    'https://truong-tieng-viet.vercel.app',
-  ],
+  // Preview deploys get a unique URL per deployment, so any https://*.vercel.app origin is
+  // accepted too (see corsOrigins).
+  cors: corsOrigins,
   // The quyển roster is fixed and editors can't create rows, so the rows have to come from
   // here. Runs on every server start and only fills in what's missing, so it's safe to run
   // repeatedly and never touches the content a teacher has already put inside a quyển.
