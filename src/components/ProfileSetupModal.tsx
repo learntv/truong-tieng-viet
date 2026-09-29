@@ -6,21 +6,33 @@ import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { FlagImg } from "@/components/FlagImg";
 import { upsertProfile } from "@/lib/profile";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Mascot } from "@/components/Mascot";
 import { Button } from "@/components/ui/button";
 
 const AVATAR_OPTIONS = [
-  "🐯", "🐼", "🐨", "🦊", "🐸",
-  "🐙", "🦋", "🐬", "🦁", "🐺",
-  "🐻", "🦝", "🦄", "🐲", "🐧",
-  "🦜", "🐳", "🦔", "🐮", "🐱",
+  "🐯",
+  "🐼",
+  "🐨",
+  "🦊",
+  "🐸",
+  "🐙",
+  "🦋",
+  "🐬",
+  "🦁",
+  "🐺",
+  "🐻",
+  "🦝",
+  "🦄",
+  "🐲",
+  "🐧",
+  "🦜",
+  "🐳",
+  "🦔",
+  "🐮",
+  "🐱",
 ];
 
 const COUNTRIES = [
@@ -80,9 +92,7 @@ interface ProfileSetupModalProps {
 export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) {
   const queryClient = useQueryClient();
   const defaultName =
-    (user.user_metadata?.full_name as string | undefined) ||
-    user.email?.split("@")[0] ||
-    "";
+    (user.user_metadata?.full_name as string | undefined) || user.email?.split("@")[0] || "";
 
   // A provider avatar (e.g. Google's profile photo) always wins over an emoji in the avatar
   // display everywhere else in the app, so offering the emoji grid here would be a choice
@@ -102,7 +112,7 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
       try {
         const res = await fetch("https://ipapi.co/json/");
         if (res.ok) {
-          const data = await res.json() as { country_code?: string };
+          const data = (await res.json()) as { country_code?: string };
           if (data.country_code && COUNTRIES.some((c) => c.code === data.country_code)) {
             setCountryCode(data.country_code);
           }
@@ -140,7 +150,9 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
       },
     });
     if (!error) {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (user) {
         await upsertProfile({
           userId: user.id,
@@ -163,47 +175,44 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
   return (
     <Dialog open>
       <DialogContent
-        className="rounded-3xl max-w-sm p-6"
+        className="max-w-md"
         onInteractOutside={(e) => e.preventDefault()}
         hideCloseButton
       >
         <DialogHeader>
-          <DialogTitle className="font-display text-2xl font-bold text-navy text-center">
-            Chào mừng! 🎉
-          </DialogTitle>
-          <p className="text-sm text-muted-foreground text-center mt-1">
-            Hãy tạo hồ sơ của em nhé
-          </p>
+          <Mascot pose="wave" decorative className="mx-auto h-24" />
+          <DialogTitle className="text-center text-h2">Chào mừng em!</DialogTitle>
+          <p className="text-center text-ink-600">Hãy tạo hồ sơ của em nhé</p>
         </DialogHeader>
 
-        <div className="space-y-5 mt-2">
+        <div className="flex flex-col gap-5">
           {/* Avatar */}
           {hasProviderAvatar ? (
-            <div className="flex items-center gap-3 rounded-xl bg-muted/40 p-3">
+            <div className="flex items-center gap-3 rounded-2xl bg-brand-50 p-3">
               <img
                 src={user.user_metadata?.avatar_url as string}
                 alt="Avatar"
                 referrerPolicy="no-referrer"
-                className="h-12 w-12 shrink-0 rounded-full object-cover ring-2 ring-white shadow-sm"
+                className="size-12 shrink-0 rounded-full object-cover shadow-sm ring-2 ring-white"
               />
-              <p className="text-sm text-muted-foreground">
-                Bọn mình sẽ dùng ảnh đại diện Google của em nhé 👍
+              <p className="text-sm text-brand-800">
+                Bọn mình sẽ dùng ảnh đại diện Google của em nhé!
               </p>
             </div>
           ) : (
-            <div className="space-y-2">
-              <Label className="font-semibold text-navy">Chọn avatar của em</Label>
-              <div className="grid grid-cols-5 gap-1.5">
+            <div className="flex flex-col gap-2">
+              <Label>Chọn avatar của em</Label>
+              <div className="grid grid-cols-5 gap-2">
                 {AVATAR_OPTIONS.map((emoji) => (
                   <button
                     key={emoji}
                     type="button"
                     onClick={() => setSelectedEmoji(emoji)}
                     className={[
-                      "h-12 w-full rounded-xl text-2xl flex items-center justify-center transition-all active:scale-90",
+                      "flex h-12 w-full cursor-pointer items-center justify-center rounded-2xl text-2xl transition-[transform,background-color] duration-200 active:scale-90",
                       selectedEmoji === emoji
-                        ? "bg-sky/50 ring-2 ring-sky scale-110 shadow-sm"
-                        : "bg-muted/40 hover:bg-sky/20",
+                        ? "scale-110 bg-brand-50 ring-2 ring-brand-500"
+                        : "bg-ink-50 hover:bg-brand-50",
                     ].join(" ")}
                   >
                     {emoji}
@@ -214,53 +223,50 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
           )}
 
           {/* Name */}
-          <div className="space-y-1.5">
-            <Label htmlFor="setup-name" className="font-semibold text-navy">
-              Tên của em
-            </Label>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="setup-name">Tên của em</Label>
             <Input
               id="setup-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Nhập tên..."
-              className="rounded-xl"
               maxLength={40}
             />
           </div>
 
           {/* Country */}
-          <div className="space-y-1.5">
-            <Label className="font-semibold text-navy">Em đang ở đâu?</Label>
+          <div className="flex flex-col gap-2">
+            <Label>Em đang ở đâu?</Label>
             {!showCountryPicker ? (
               <button
                 type="button"
                 onClick={() => setShowCountryPicker(true)}
-                className="flex w-full items-center justify-between gap-2 rounded-xl border border-border bg-white px-3 py-2.5 text-sm font-medium text-navy hover:bg-muted transition-colors"
+                className="flex h-12 w-full cursor-pointer items-center justify-between gap-2 rounded-xl border border-ink-200 bg-white px-4 font-medium text-ink-900 shadow-xs transition-colors hover:border-ink-300"
               >
                 <span className="flex items-center gap-2">
                   {detectingCountry ? (
-                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    <Loader2 className="size-4 animate-spin text-ink-400" />
                   ) : selectedCountry ? (
                     <>
                       <FlagImg code={selectedCountry.code} size={20} />
                       {selectedCountry.name}
                     </>
                   ) : (
-                    <span className="text-muted-foreground">Chọn quốc gia...</span>
+                    <span className="text-ink-400">Chọn quốc gia...</span>
                   )}
                 </span>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                <ChevronRight className="size-4 text-ink-400" />
               </button>
             ) : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Input
                   placeholder="Tìm kiếm..."
+                  aria-label="Tìm quốc gia"
                   value={countrySearch}
                   onChange={(e) => setCountrySearch(e.target.value)}
-                  className="rounded-xl"
                   autoFocus
                 />
-                <div className="grid grid-cols-4 gap-1.5 max-h-40 overflow-y-auto pr-1">
+                <div className="grid max-h-44 grid-cols-4 gap-2 overflow-y-auto pr-1">
                   {filteredCountries.map((c) => (
                     <button
                       key={c.code}
@@ -272,18 +278,18 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
                       }}
                       title={c.name}
                       className={[
-                        "flex flex-col items-center gap-0.5 rounded-xl p-2 text-center transition-all hover:bg-sky/30 active:scale-95",
-                        countryCode === c.code ? "bg-sky/40 ring-2 ring-sky" : "",
+                        "flex cursor-pointer flex-col items-center gap-1 rounded-2xl p-2 text-center transition-[background-color,transform] duration-150 hover:bg-ink-50 active:scale-95",
+                        countryCode === c.code ? "bg-brand-50 ring-2 ring-brand-500" : "",
                       ].join(" ")}
                     >
                       <FlagImg code={c.code} size={24} />
-                      <span className="text-[9px] font-semibold text-navy leading-tight line-clamp-1">
+                      <span className="line-clamp-1 text-[0.6875rem] leading-tight font-semibold text-ink-700">
                         {c.name}
                       </span>
                     </button>
                   ))}
                   {filteredCountries.length === 0 && (
-                    <p className="col-span-4 text-center text-xs text-muted-foreground py-3">
+                    <p className="col-span-4 py-4 text-center text-sm text-ink-500">
                       Không tìm thấy
                     </p>
                   )}
@@ -292,12 +298,8 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
             )}
           </div>
 
-          <Button
-            className="w-full rounded-xl h-12 font-medium text-base"
-            onClick={handleSave}
-            disabled={saving}
-          >
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Bắt đầu học! 🚀"}
+          <Button size="lg" className="w-full" onClick={handleSave} disabled={saving}>
+            {saving ? <Loader2 className="animate-spin" /> : "Bắt đầu học!"}
           </Button>
         </div>
       </DialogContent>

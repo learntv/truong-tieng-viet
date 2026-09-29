@@ -1,6 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Facebook, Linkedin, Mail, MapPin, MessageCircle, Youtube } from "lucide-react";
-import { PageBanner } from "@/components/site/PageBanner";
+import {
+  ArrowUpRight,
+  Facebook,
+  Linkedin,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Youtube,
+} from "lucide-react";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Container } from "@/components/layout/Container";
 
 export const Route = createFileRoute("/lien-he")({
   head: () => ({
@@ -50,69 +59,81 @@ const SOCIALS = [
   { Icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com/company/cvcec/" },
 ];
 
+const CHANNEL_HUES = [
+  "bg-brand-50 text-brand-600",
+  "bg-leaf-50 text-leaf-600",
+  "bg-coral-50 text-coral-600",
+];
+
 function Contact() {
   return (
-    <main>
-      <PageBanner
+    <>
+      <PageHeader
+        icon={Mail}
+        hue="sky"
         title="Liên hệ"
-        subtitle="Chúng tôi luôn sẵn lòng lắng nghe và hỗ trợ bạn."
-      />
-
-      <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-        <p className="mb-10 text-sm leading-relaxed text-muted-foreground sm:text-base">
+        lede="Chúng tôi luôn sẵn lòng lắng nghe và hỗ trợ bạn."
+        width="content"
+      >
+        <p className="max-w-xl text-ink-600">
           Trường Tiếng Việt Của Em được vận hành bởi{" "}
-          <a
-            href="https://www.cvcec.org/"
-            target="_blank"
-            rel="noreferrer"
-            className="font-semibold text-primary underline underline-offset-2"
-          >
+          <a href="https://www.cvcec.org/" target="_blank" rel="noreferrer" className="link-inline">
             Canada Vietnam Cultural &amp; Educational Council (CVCEC)
           </a>
-          . Nếu bạn có câu hỏi, góp ý hoặc mong muốn hợp tác, hãy liên hệ với chúng tôi qua các
-          kênh dưới đây.
+          . Nếu bạn có câu hỏi, góp ý hoặc mong muốn hợp tác, hãy liên hệ với chúng tôi qua các kênh
+          dưới đây.
         </p>
+      </PageHeader>
 
-        <div className="flex flex-col gap-3">
-          {CHANNELS.map(({ Icon, label, value, href }) => (
-            <a
-              key={label}
-              href={href}
-              target={href.startsWith("http") ? "_blank" : undefined}
-              rel={href.startsWith("http") ? "noreferrer" : undefined}
-              className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary"
-            >
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
-                <Icon className="h-5 w-5" />
-              </span>
-              <span>
-                <span className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  {label}
+      <Container width="content" className="pb-20">
+        <ul className="grid gap-4 md:grid-cols-3">
+          {CHANNELS.map(({ Icon, label, value, href }, i) => (
+            <li key={label}>
+              <a
+                href={href}
+                target={href.startsWith("http") ? "_blank" : undefined}
+                rel={href.startsWith("http") ? "noreferrer" : undefined}
+                className="group flex h-full flex-col gap-5 rounded-3xl border border-ink-100 bg-white p-6 shadow-xs transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-lg"
+              >
+                <span
+                  className={`grid size-12 place-items-center rounded-2xl ${CHANNEL_HUES[i % CHANNEL_HUES.length]}`}
+                >
+                  <Icon className="size-6" aria-hidden />
                 </span>
-                <span className="font-display font-semibold text-foreground">{value}</span>
-              </span>
-            </a>
+                <span>
+                  <span className="block text-label text-ink-500">{label}</span>
+                  <span className="mt-1 block font-semibold break-words text-ink-900 group-hover:text-brand-700">
+                    {value}
+                  </span>
+                </span>
+                <ArrowUpRight
+                  className="mt-auto size-5 text-ink-300 transition-[color,transform] duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-brand-600"
+                  aria-hidden
+                />
+              </a>
+            </li>
           ))}
-        </div>
+        </ul>
 
-        <h2 className="mb-4 mt-10 font-display text-xl font-bold text-foreground">
-          Theo dõi chúng tôi
-        </h2>
-        <div className="flex items-center gap-3">
-          {SOCIALS.map(({ Icon, label, href }) => (
-            <a
-              key={label}
-              href={href}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={label}
-              className="grid h-11 w-11 place-items-center rounded-full border border-border text-foreground transition-colors hover:border-primary hover:bg-primary hover:text-white"
-            >
-              <Icon className="h-5 w-5" />
-            </a>
-          ))}
+        <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-h3 text-ink-900">Theo dõi chúng tôi</h2>
+          <ul className="flex items-center gap-3">
+            {SOCIALS.map(({ Icon, label, href }) => (
+              <li key={label}>
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-11 items-center gap-2 rounded-full border border-ink-100 bg-white px-4 text-sm font-semibold text-ink-700 shadow-xs transition-[color,border-color,transform] duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:text-brand-700"
+                >
+                  <Icon className="size-4" aria-hidden />
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
-      </div>
-    </main>
+      </Container>
+    </>
   );
 }

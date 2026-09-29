@@ -26,9 +26,9 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <main className="">
+    <>
       <CurtainOpening />
       <HomePage />
-    </main>
+    </>
   );
 }

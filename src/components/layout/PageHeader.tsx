@@ -1,88 +1,68 @@
+import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { HUES, type Hue } from "@/lib/hues";
 import { Container, type ContainerWidth } from "./Container";
 
 /**
- * The red header band every sub-page opens with.
- *
- * It is the first block inside the page card, so it runs to the card's edges
- * and its top corners are clipped by the card's radius — nothing here needs to
- * know about the navbar. (Its predecessor, PageBanner, carried a negative top
- * margin to tuck under a floating nav pill that no longer exists.)
+ * How every inner page opens: a soft wash in the page's hue fading to white,
+ * an icon tile in that hue, the title, one line of lede, and room on the right
+ * for art or actions. The hue is the page's identity — học tập is brand blue,
+ * luyện nói rose, the leaderboard sun — and it is the only place the header
+ * spends color, so the content below stays calm.
  */
 export function PageHeader({
   title,
-  subtitle,
-  illustration,
+  lede,
+  icon: Icon,
+  hue = "brand",
   back,
+  aside,
   width = "wide",
-  align = "center",
   children,
   className,
 }: {
-  title: string;
-  subtitle?: ReactNode;
-  /** Artwork shown above the title. */
-  illustration?: ReactNode;
-  /** A <BackLink>. Sits above the title, in the band's left gutter. */
+  title: ReactNode;
+  lede?: ReactNode;
+  icon?: LucideIcon;
+  hue?: Hue;
+  /** A <BackLink>, above the title. */
   back?: ReactNode;
+  /** Art or a summary card on the right from md up; stacks below on phones. */
+  aside?: ReactNode;
   width?: ContainerWidth;
-  align?: "center" | "left";
-  /** Actions or metadata rendered under the subtitle. */
+  /** Actions or metadata under the lede. */
   children?: ReactNode;
   className?: string;
 }) {
-  const centered = align === "center";
-
+  const h = HUES[hue];
   return (
-    <div
-      className={cn(
-        "relative overflow-hidden bg-gradient-to-br from-primary via-indigo to-indigo-deep py-10 sm:py-14",
-        className,
-      )}
-    >
-      {/* Soft radial washes rather than hard-edged blobs: each fades to fully
-        transparent, so the band reads as light falling across it instead of
-        two shapes sitting on top of it. */}
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(60rem 26rem at 78% -20%, color-mix(in oklab, var(--primary-glow) 55%, transparent) 0%, transparent 65%)",
-          }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(40rem 22rem at 12% 120%, color-mix(in oklab, var(--gold) 22%, transparent) 0%, transparent 60%)",
-          }}
-        />
-      </div>
-
-      <Container width={width} className="relative">
-        {back && <div className="mb-5 flex">{back}</div>}
-        <div className={cn(centered && "text-center")}>
-          {illustration && (
-            <div className={cn("mb-3 flex", centered ? "justify-center" : "justify-start")}>
-              {illustration}
-            </div>
-          )}
-          <h1 className="font-display text-3xl font-bold text-white sm:text-4xl">{title}</h1>
-          {subtitle && (
-            <p
-              className={cn(
-                "mt-3 max-w-2xl text-sm leading-relaxed text-gold-soft/90 sm:text-base",
-                centered && "mx-auto",
-              )}
-            >
-              {subtitle}
-            </p>
-          )}
-          {children && <div className="mt-6">{children}</div>}
+    <header className={cn("relative overflow-hidden bg-gradient-to-b to-white", h.from, className)}>
+      <div
+        aria-hidden
+        className="bg-dots pointer-events-none absolute inset-0 opacity-50 [mask-image:linear-gradient(to_bottom,black,transparent_85%)]"
+      />
+      <Container width={width} className="relative pt-8 pb-10 sm:pt-10 sm:pb-14">
+        {back && <div className="mb-6">{back}</div>}
+        <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
+          <div className="flex max-w-2xl flex-col gap-4">
+            {Icon && (
+              <span
+                className={cn(
+                  "grid size-12 place-items-center rounded-2xl text-white shadow-sm",
+                  h.fill,
+                )}
+              >
+                <Icon className="size-6" strokeWidth={2.25} aria-hidden />
+              </span>
+            )}
+            <h1 className="text-h1 text-ink-900">{title}</h1>
+            {lede && <p className="text-lede text-ink-600">{lede}</p>}
+            {children && <div className="mt-2">{children}</div>}
+          </div>
+          {aside && <div className="shrink-0">{aside}</div>}
         </div>
       </Container>
-    </div>
+    </header>
   );
 }

@@ -1,10 +1,11 @@
 import { createFileRoute, Link, Outlet, useChildMatches } from "@tanstack/react-router";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight, BookA, CloudOff, Inbox } from "lucide-react";
 import kmdCover from "@/assets/khai-minh-duc-reading.png";
 import { useKmdLessons, type KmdLessonSummary } from "@/hooks/useKmdLessons";
 import { BackLink } from "@/components/BackLink";
-import { PageBanner } from "@/components/site/PageBanner";
-import type { SkyBoxTone } from "@/components/ui/sky-box";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Container } from "@/components/layout/Container";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export const Route = createFileRoute("/hoc-tap/khai-minh-duc")({
   head: () => ({
@@ -38,132 +39,110 @@ function KhaiMinhDucIndex() {
   const { data: lessons, isLoading, error } = useKmdLessons();
 
   return (
-    <div>
-      <PageBanner
+    <>
+      <PageHeader
+        icon={BookA}
+        hue="leaf"
         title="Khai Minh Đức"
-        back={<BackLink to="/hoc-tap" label="Quay lại học tập" />}
+        lede="Học đánh vần cùng chương trình Khai Minh Đức: từng bài âm, vần cùng Trâu con."
+        back={<BackLink to="/hoc-tap" label="Học tập" />}
+        width="content"
       />
 
-      <div className="relative mx-auto max-w-3xl px-4 pb-10 sm:px-6">
+      <Container width="content" className="pb-16 sm:pb-24">
         {isLoading && (
-          <div className="flex justify-center py-16">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        )}
-
-        {error != null && !isLoading && (
-          <p className="py-16 text-center text-sm font-semibold text-muted-foreground">
-            Chưa tải được danh sách bài học — em thử lại sau nhé!
-          </p>
-        )}
-
-        {!isLoading && !error && lessons != null && lessons.length === 0 && (
-          <p className="py-16 text-center text-sm font-semibold text-muted-foreground">
-            Chưa có bài học nào.
-          </p>
-        )}
-
-        {!isLoading && !error && lessons != null && lessons.length > 0 && (
-          <ul className="flex flex-col gap-3 sm:gap-4">
-            {lessons.map((lesson, i) => (
-              <li key={lesson.id}>
-                <LessonRow lesson={lesson} index={i} />
+          <ul className="grid gap-4 md:grid-cols-2" aria-busy="true" aria-label="Đang tải bài học">
+            {Array.from({ length: 6 }, (_, i) => (
+              <li
+                key={i}
+                className="flex h-28 animate-pulse gap-4 rounded-3xl border border-ink-100 p-3"
+              >
+                <span className="w-24 rounded-2xl bg-ink-100" />
+                <span className="flex flex-1 flex-col justify-center gap-2">
+                  <span className="h-3 w-12 rounded-full bg-ink-100" />
+                  <span className="h-4 w-3/4 rounded-full bg-ink-100" />
+                </span>
               </li>
             ))}
           </ul>
         )}
-      </div>
-    </div>
+
+        {error != null && !isLoading && (
+          <EmptyState
+            icon={CloudOff}
+            title="Chưa tải được danh sách bài học"
+            description="Có thể mạng đang chập chờn. Em thử tải lại trang sau một lát nhé!"
+          />
+        )}
+
+        {!isLoading && !error && lessons != null && lessons.length === 0 && (
+          <EmptyState
+            icon={Inbox}
+            title="Chưa có bài học nào"
+            description="Các bài Khai Minh Đức đang được soạn. Em quay lại sau nhé!"
+          />
+        )}
+
+        {!isLoading && !error && lessons != null && lessons.length > 0 && (
+          <ol className="grid gap-4 md:grid-cols-2">
+            {lessons.map((lesson, i) => (
+              <li
+                key={lesson.id}
+                className="animate-rise"
+                style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}
+              >
+                <LessonRow lesson={lesson} index={i} />
+              </li>
+            ))}
+          </ol>
+        )}
+      </Container>
+    </>
   );
 }
 
 /**
- * The tones cycle down the list so a long roll of otherwise identical rows
- * still has a rhythm — the same trick the luyện nói cards play with
- * STAGE_COLORS. Mint leads because that is the tone the Khai Minh Đức tile
- * carries on the học tập bento, so arriving here lands on the colour you
- * clicked.
- */
-const ROW_TONES = [
-  "mint",
-  "ice",
-  "peach",
-  "lavender",
-  "pink",
-  "cream",
-] as const satisfies readonly SkyBoxTone[];
-
-const TONE_BG: Record<(typeof ROW_TONES)[number], { light: string; deep: string }> = {
-  mint: { light: "bg-box-mint", deep: "bg-box-mint-deep" },
-  ice: { light: "bg-box-ice", deep: "bg-box-ice-deep" },
-  peach: { light: "bg-box-peach", deep: "bg-box-peach-deep" },
-  lavender: { light: "bg-box-lavender", deep: "bg-box-lavender-deep" },
-  pink: { light: "bg-box-pink", deep: "bg-box-pink-deep" },
-  cream: { light: "bg-box-cream", deep: "bg-box-cream-deep" },
-};
-
-/**
- * One lesson in the roll: a SkyBox laid on its side. The lighter half on the
- * left holds the preview art, the deeper half on the right holds the number,
- * title and its âm/vần. No white border here — these rows sit on SkyPage's
- * white card, where a white keyline would be invisible; the soft shadow does
- * the separating instead.
- *
- * Every lesson shares one preview image for now: the CMS has no per-bài
- * artwork yet, so `lesson` carries no cover and this falls back to the
- * programme's own illustration.
+ * One lesson: the programme's art on a leaf wash, then the number, title and
+ * the âm/vần it teaches as chips. Every lesson shares one preview image for
+ * now — the CMS has no per-bài artwork yet.
  */
 function LessonRow({ lesson, index }: { lesson: KmdLessonSummary; index: number }) {
-  const tone = TONE_BG[ROW_TONES[index % ROW_TONES.length]];
-
   return (
     <Link
       to="/hoc-tap/khai-minh-duc/$slug"
       params={{ slug: lesson.slug }}
-      className="group block rounded-[1.25rem] shadow-[0_4px_16px_rgba(12,58,110,0.14)] transition-transform duration-150 hover:scale-[1.015] active:scale-100 sm:rounded-[1.5rem]"
+      className="group flex h-full items-stretch gap-4 rounded-3xl border border-ink-100 bg-white p-3 shadow-xs transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:border-leaf-100 hover:shadow-md"
     >
-      <div className="flex items-stretch overflow-hidden rounded-[1.25rem] sm:rounded-[1.5rem]">
-        <div className={["relative w-24 shrink-0 sm:w-36", tone.light].join(" ")}>
-          <img
-            src={kmdCover}
-            alt=""
-            className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
-          />
-        </div>
+      <span className="relative w-20 shrink-0 overflow-hidden rounded-2xl bg-leaf-50 sm:w-24">
+        <img
+          src={kmdCover}
+          alt=""
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+      </span>
 
-        <div
-          className={[
-            "flex min-w-0 flex-1 items-center gap-3 px-4 py-3 sm:gap-4 sm:px-5 sm:py-4",
-            tone.deep,
-          ].join(" ")}
-        >
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-sky-ink-soft">
-              Bài {index + 1}
-            </p>
-            <h2 className="mt-1 font-display text-base font-bold leading-tight text-sky-ink sm:text-lg">
-              {lesson.title}
-            </h2>
-            {lesson.amVan.length > 0 && (
-              <ul className="mt-2 flex flex-wrap gap-1.5">
-                {lesson.amVan.map((amVan) => (
-                  <li
-                    key={amVan}
-                    className="rounded-full bg-white/70 px-2.5 py-0.5 text-xs font-bold text-sky-ink"
-                  >
-                    {amVan}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+      <span className="flex min-w-0 flex-1 flex-col justify-center py-1">
+        <span className="text-caption font-bold tracking-wide text-leaf-700 uppercase">
+          Bài {index + 1}
+        </span>
+        <span className="mt-1 text-h3 text-ink-900">{lesson.title}</span>
+        {lesson.amVan.length > 0 && (
+          <span className="mt-2.5 flex flex-wrap gap-1.5">
+            {lesson.amVan.map((amVan) => (
+              <span
+                key={amVan}
+                className="rounded-lg bg-leaf-50 px-2 py-0.5 text-sm font-bold text-leaf-700"
+              >
+                {amVan}
+              </span>
+            ))}
+          </span>
+        )}
+      </span>
 
-          <ArrowRight
-            className="h-5 w-5 shrink-0 text-sky-ink-soft transition-transform group-hover:translate-x-0.5"
-            strokeWidth={2.5}
-          />
-        </div>
-      </div>
+      <span className="grid size-9 shrink-0 self-center place-items-center rounded-full bg-ink-50 text-ink-500 transition-colors duration-200 group-hover:bg-leaf-600 group-hover:text-white">
+        <ArrowRight className="size-4" strokeWidth={2.5} aria-hidden />
+      </span>
     </Link>
   );
 }

@@ -1,13 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowDown, ArrowUp, Search } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { ArrowDown, ArrowUp, Search, Star } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { FlagImg } from "@/components/FlagImg";
@@ -47,14 +41,11 @@ function relativeTime(d: Date | null): string {
   return `${Math.floor(days / 365)} năm trước`;
 }
 
-const STATUS_META: Record<
-  StudentStatus,
-  { label: string; className: string }
-> = {
-  completed: { label: "Hoàn thành", className: "bg-[var(--stage-1)]/15 text-[var(--stage-1)]" },
-  active: { label: "Đang học", className: "bg-primary/10 text-primary" },
-  attention: { label: "Cần hỗ trợ", className: "bg-amber-500/15 text-amber-600 dark:text-amber-400" },
-  new: { label: "Mới", className: "bg-muted text-muted-foreground" },
+const STATUS_META: Record<StudentStatus, { label: string; className: string }> = {
+  completed: { label: "Hoàn thành", className: "bg-leaf-50 text-leaf-700" },
+  active: { label: "Đang học", className: "bg-brand-50 text-brand-700" },
+  attention: { label: "Cần hỗ trợ", className: "bg-sun-50 text-sun-700" },
+  new: { label: "Mới", className: "bg-ink-50 text-ink-600" },
 };
 
 type SortKey = "name" | "completion" | "stars" | "active";
@@ -71,26 +62,22 @@ const FILTERS: { key: StatusFilter; label: string }[] = [
 function ProgressBar({ pct }: { pct: number }) {
   return (
     <div className="flex items-center gap-2">
-      <div className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
+      <div className="h-2 w-24 overflow-hidden rounded-full bg-ink-50">
         <div
-          className="h-full rounded-full bg-primary transition-all"
+          className="h-full rounded-full bg-brand-500 transition-[width]"
           style={{ width: `${Math.min(100, pct)}%` }}
         />
       </div>
-      <span className="w-9 text-right text-xs tabular-nums text-muted-foreground">
-        {pct.toFixed(0)}%
-      </span>
+      <span className="w-9 text-right text-sm text-ink-600 tabular-nums">{pct.toFixed(0)}%</span>
     </div>
   );
 }
 
 function SummaryStat({ label, value, tone }: { label: string; value: string; tone?: string }) {
   return (
-    <div className="min-w-0 px-4 py-3">
-      <div className="truncate text-xs text-muted-foreground">{label}</div>
-      <div
-        className={`mt-1 font-display text-2xl font-bold leading-none tabular-nums ${tone ?? "text-foreground"}`}
-      >
+    <div className="min-w-0 px-5 py-5">
+      <div className="truncate text-sm font-medium text-ink-500">{label}</div>
+      <div className={`mt-2 text-h2 leading-none tabular-nums ${tone ?? "text-ink-900"}`}>
         {value}
       </div>
     </div>
@@ -141,36 +128,32 @@ function StudentTable({ students }: { students: StudentRow[] }) {
       <button
         type="button"
         onClick={() => toggleSort(k)}
-        className="inline-flex items-center gap-1 hover:text-foreground"
+        className="inline-flex cursor-pointer items-center gap-1 hover:text-ink-900"
       >
         {label}
         {sort.key === k &&
-          (sort.dir === "asc" ? (
-            <ArrowUp className="h-3 w-3" />
-          ) : (
-            <ArrowDown className="h-3 w-3" />
-          ))}
+          (sort.dir === "asc" ? <ArrowUp className="size-3" /> : <ArrowDown className="size-3" />)}
       </button>
     </TableHead>
   );
 
   return (
-    <Card className="rounded-lg shadow-sm">
-      <CardHeader className="gap-3 px-4 pb-3 pt-4">
+    <Card>
+      <CardHeader className="gap-4 px-5 pt-5 pb-3">
         <div className="flex flex-col gap-0.5">
-          <CardTitle className="font-display text-sm">Danh sách học sinh</CardTitle>
-          <CardDescription className="text-xs">
+          <CardTitle className="text-base">Danh sách học sinh</CardTitle>
+          <CardDescription>
             Nhấp tiêu đề cột để sắp xếp, lọc theo trạng thái để tìm em cần hỗ trợ.
           </CardDescription>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative max-w-xs flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-ink-400" />
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Tìm theo tên, quốc gia…"
-              className="pl-9"
+              className="h-11 pl-10"
             />
           </div>
           <div className="flex flex-wrap gap-1.5">
@@ -180,10 +163,10 @@ function StudentTable({ students }: { students: StudentRow[] }) {
                 type="button"
                 onClick={() => setFilter(f.key)}
                 className={[
-                  "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+                  "h-9 cursor-pointer rounded-full px-3.5 text-sm font-semibold transition-colors",
                   filter === f.key
-                    ? "bg-primary text-white"
-                    : "bg-muted text-muted-foreground hover:bg-muted/70",
+                    ? "bg-ink-900 text-white"
+                    : "bg-ink-50 text-ink-600 hover:bg-ink-100 hover:text-ink-900",
                 ].join(" ")}
               >
                 {f.label}
@@ -192,8 +175,8 @@ function StudentTable({ students }: { students: StudentRow[] }) {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="px-4 pb-4">
-        <div className="overflow-x-auto [&_td]:py-1.5 [&_th]:h-8">
+      <CardContent className="px-3 pb-3 sm:px-5 sm:pb-5">
+        <div className="overflow-x-auto [&_td]:py-2.5">
           <Table>
             <TableHeader>
               <TableRow>
@@ -214,9 +197,9 @@ function StudentTable({ students }: { students: StudentRow[] }) {
                       <Link
                         to="/u/$username"
                         params={{ username: s.username }}
-                        className="flex items-center gap-2.5 hover:underline"
+                        className="group flex items-center gap-3"
                       >
-                        <span className="grid h-7 w-7 shrink-0 place-items-center overflow-hidden rounded-full bg-primary/10 text-sm">
+                        <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-full bg-brand-50 text-sm">
                           {s.avatarUrl ? (
                             <img
                               src={s.avatarUrl}
@@ -227,22 +210,22 @@ function StudentTable({ students }: { students: StudentRow[] }) {
                           ) : s.avatarEmoji ? (
                             s.avatarEmoji
                           ) : (
-                            <span className="font-semibold text-primary">
+                            <span className="font-semibold text-brand-700">
                               {s.displayName[0]?.toUpperCase() ?? "?"}
                             </span>
                           )}
                         </span>
                         <span className="min-w-0">
-                          <span className="block truncate font-semibold text-foreground">
+                          <span className="block truncate font-semibold text-ink-900 group-hover:text-brand-700">
                             {s.displayName}
                           </span>
-                          <span className="block truncate text-xs text-muted-foreground">
+                          <span className="block truncate text-caption text-ink-500">
                             {s.completedChang}/{s.totalChang} chặng
                           </span>
                         </span>
                       </Link>
                     </TableCell>
-                    <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
+                    <TableCell className="text-sm whitespace-nowrap text-ink-600">
                       <span className="inline-flex items-center gap-1.5">
                         {s.country && s.country.length === 2 && (
                           <FlagImg code={s.country} size={16} />
@@ -255,19 +238,19 @@ function StudentTable({ students }: { students: StudentRow[] }) {
                     </TableCell>
                     <TableCell className="text-right tabular-nums text-sm">
                       {s.speakingStars > 0 ? (
-                        <span className="font-semibold text-foreground">⭐ {s.speakingStars}</span>
+                        <span className="inline-flex items-center gap-1 font-semibold text-ink-900">
+                          <Star className="size-3.5 fill-sun-500 text-sun-500" aria-hidden />
+                          {s.speakingStars}
+                        </span>
                       ) : (
-                        <span className="text-muted-foreground">—</span>
+                        <span className="text-ink-400">—</span>
                       )}
                     </TableCell>
-                    <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
+                    <TableCell className="text-sm whitespace-nowrap text-ink-600">
                       {relativeTime(s.lastActive)}
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        variant="secondary"
-                        className={`${meta.className} hover:${meta.className} border-0`}
-                      >
+                      <Badge variant="secondary" className={meta.className}>
                         {meta.label}
                       </Badge>
                     </TableCell>
@@ -276,7 +259,7 @@ function StudentTable({ students }: { students: StudentRow[] }) {
               })}
               {rows.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-10 text-center text-sm text-muted-foreground">
+                  <TableCell colSpan={6} className="py-12 text-center text-sm text-ink-500">
                     Không có học sinh nào khớp bộ lọc.
                   </TableCell>
                 </TableRow>
@@ -303,33 +286,35 @@ function StuckPoints({ funnel }: { funnel: ChangFunnelRow[] }) {
   if (hardest.length === 0) return null;
 
   return (
-    <Card className="rounded-lg shadow-sm">
-      <CardHeader className="px-4 pb-3 pt-4">
-        <CardTitle className="font-display text-sm">Chặng học sinh dễ mắc kẹt</CardTitle>
-        <CardDescription className="text-xs">
+    <Card>
+      <CardHeader className="px-5 pt-5 pb-3">
+        <CardTitle className="text-base">Chặng học sinh dễ mắc kẹt</CardTitle>
+        <CardDescription>
           Tỷ lệ hoàn thành thấp nhất trong số các chặng đã có nhiều em bắt đầu — nơi nên xem lại nội
           dung hoặc hỗ trợ thêm.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2 px-4 pb-4">
+      <CardContent className="space-y-4 px-5 pb-5">
         {hardest.map((f) => (
           <div key={f.id} className="flex items-center gap-3">
             <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-semibold text-foreground">{f.title}</div>
+              <div className="truncate text-sm font-semibold text-ink-900">{f.title}</div>
               {f.chudeTitle && (
-                <div className="truncate text-xs text-muted-foreground">{f.chudeTitle}</div>
+                <div className="truncate text-caption text-ink-500">{f.chudeTitle}</div>
               )}
             </div>
             <div className="hidden w-40 sm:block">
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-ink-50">
                 <div
-                  className="h-full rounded-full bg-amber-500"
+                  className="h-full rounded-full bg-sun-500"
                   style={{ width: `${f.completionPct}%` }}
                 />
               </div>
             </div>
-            <div className="w-28 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
-              <span className="font-semibold text-foreground">{f.completionPct.toFixed(0)}%</span>{" "}
+            <div className="w-28 shrink-0 text-right text-caption text-ink-500 tabular-nums">
+              <span className="text-sm font-semibold text-ink-900">
+                {f.completionPct.toFixed(0)}%
+              </span>{" "}
               hoàn thành
               <div className="text-[11px]">
                 {f.dropoff} / {f.reached} còn dở
@@ -343,11 +328,7 @@ function StuckPoints({ funnel }: { funnel: ChangFunnelRow[] }) {
 }
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-      {children}
-    </h2>
-  );
+  return <h2 className="mt-6 text-h2 text-ink-900">{children}</h2>;
 }
 
 export function StudentReport() {
@@ -357,7 +338,7 @@ export function StudentReport() {
     return (
       <section className="space-y-4">
         <SectionHeading>Báo Cáo Học Sinh</SectionHeading>
-        <p className="text-sm text-muted-foreground">
+        <p className="rounded-2xl bg-danger-50 p-4 text-sm font-medium text-danger-700">
           Không tải được báo cáo học sinh. Vui lòng thử lại.
         </p>
       </section>
@@ -368,7 +349,10 @@ export function StudentReport() {
     return (
       <section className="space-y-4">
         <SectionHeading>Báo Cáo Học Sinh</SectionHeading>
-        <p className="text-sm text-muted-foreground">Đang tải báo cáo học sinh…</p>
+        <div
+          className="h-64 animate-pulse rounded-2xl bg-ink-100"
+          aria-label="Đang tải báo cáo học sinh"
+        />
       </section>
     );
   }
@@ -376,20 +360,23 @@ export function StudentReport() {
   const { summary } = report;
 
   return (
-    <section className="space-y-3">
+    <section className="space-y-5">
       <SectionHeading>Báo Cáo Học Sinh</SectionHeading>
-      <Card className="rounded-lg py-0 shadow-sm">
-        <div className="grid grid-cols-2 divide-y divide-border sm:grid-cols-4 sm:divide-y-0 sm:divide-x">
-          <SummaryStat label="Tổng học sinh" value={summary.totalStudents.toLocaleString("en-US")} />
+      <Card className="py-0">
+        <div className="grid grid-cols-2 divide-ink-100 sm:grid-cols-4 sm:divide-x max-sm:[&>*:nth-child(-n+2)]:border-b max-sm:[&>*:nth-child(odd)]:border-r">
+          <SummaryStat
+            label="Tổng học sinh"
+            value={summary.totalStudents.toLocaleString("en-US")}
+          />
           <SummaryStat
             label="Hoạt động trong 7 ngày"
             value={summary.activeWeek.toLocaleString("en-US")}
-            tone="text-primary"
+            tone="text-brand-700"
           />
           <SummaryStat
             label="Cần hỗ trợ"
             value={summary.needAttention.toLocaleString("en-US")}
-            tone="text-amber-600 dark:text-amber-400"
+            tone="text-sun-700"
           />
           <SummaryStat
             label="Tiến độ TB (đã bắt đầu)"
@@ -397,7 +384,7 @@ export function StudentReport() {
           />
         </div>
       </Card>
-      <div className="grid grid-cols-1 items-start gap-3 xl:grid-cols-3">
+      <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-3">
         <div className="xl:col-span-2">
           <StudentTable students={report.students} />
         </div>

@@ -9,39 +9,38 @@
  */
 
 :root {
-  --ttv-page: oklch(0.99 0.0068 67.7); /* #fffbf7 — the site's warm off-white ground */
+  --ttv-page: #fafbfe; /* ink-25 */
   --ttv-surface: oklch(1 0 0); /* cards */
-  --ttv-ink: oklch(0.28 0.045 260); /* deep navy body ink */
-  --ttv-ink-muted: oklch(0.52 0.02 260);
-  --ttv-border: oklch(0.9 0.008 250);
+  --ttv-ink: #1f2a44; /* ink-800 */
+  --ttv-ink-muted: #647089; /* ink-500 */
+  --ttv-border: #ebeff6; /* ink-100 */
   /* One step darker than `--ttv-border`, for the boxes in a tạo tiếng chain: a hairline that
    * disappears at the size those are drawn. Not a site token — the site has no equivalent yet. */
-  --ttv-border-strong: oklch(0.84 0.01 250);
+  --ttv-border-strong: #dde3ee; /* ink-200 */
   --ttv-primary: oklch(0.52 0.213 29.2); /* #cc0000 — the step that clears 4.5:1 on white */
   --ttv-primary-deep: oklch(0.42 0.176 29.2); /* #a30000 */
   --ttv-primary-soft: oklch(0.968 0.014 29.2); /* #fff2f0 */
 
-  /* --- the sky theme ------------------------------------------------------
+  /* --- the lesson surface -----------------------------------------------
    *
-   * A lesson is read straight on the site's blue sky — no white page card under
-   * it — so its furniture needs the same family the sky pages are built from:
-   * the sky gradient itself (for the CMS preview, which has no backdrop of its
-   * own to sit on), the ink that stays legible on coloured boxes, the box tone
-   * pairs, and the ribbon yellow the site marks an active thing with. Kept as
-   * the site's own hex literals, same copy-don't-import rule as above. */
-  --ttv-sky-top: #2eb2ef;
-  --ttv-sky-mid: #6cc6f6;
-  --ttv-sky-ink: #174b6e;
-  --ttv-sky-ink-soft: #1f4a62;
-  --ttv-indigo-deep: #1c2c6e;
-  --ttv-ribbon: #ffee00;
-  --ttv-box-mint: #8fd1a1;
-  --ttv-box-mint-deep: #7cc993;
-  --ttv-box-ice: #b4e4ff;
-  --ttv-box-ice-deep: #98dbff;
-  --ttv-box-lavender: #c6bafe;
-  --ttv-box-cream: #d9c179;
-  /* The shadow everything framed on the sky casts — navy-tinted, because a grey
-   * shadow on a saturated blue reads as dirt. */
-  --ttv-sky-shadow: 0 10px 28px rgb(12 58 110 / 22%);
+   * The names below predate the white redesign (the CMS preview still reads
+   * them), but the values are the site's current system: a lesson now sits on a
+   * pale leaf wash — the hue of the Khai Minh Đức tile — with white framed
+   * pieces, ink type, soft shadows, and the leaf green as the "this one" mark.
+   * Same copy-don't-import rule as above. */
+  --ttv-sky-top: #e9f9ef; /* leaf-50: the CMS preview's ground */
+  --ttv-sky-mid: #f4fbf7;
+  --ttv-sky-ink: #1f2a44; /* ink-800 */
+  --ttv-sky-ink-soft: #4b5772; /* ink-600 */
+  --ttv-indigo-deep: #141c31; /* ink-900 */
+  --ttv-ribbon: #ffd84d; /* sun-300 */
+  --ttv-accent: #0f8544; /* leaf-600 */
+  --ttv-accent-soft: #e9f9ef; /* leaf-50 */
+  --ttv-box-mint: #e9f9ef;
+  --ttv-box-mint-deep: #c9f0d8;
+  --ttv-box-ice: #eef2ff; /* brand-50 */
+  --ttv-box-ice-deep: #b9c8ff; /* brand-200 */
+  --ttv-box-lavender: #f4efff;
+  --ttv-box-cream: #fff8e1;
+  --ttv-sky-shadow: 0 2px 4px rgb(20 28 49 / 4%), 0 10px 24px -6px rgb(20 28 49 / 12%);
 }

@@ -207,7 +207,7 @@ export function TracePad({ id }: { id: string }) {
     <div role="group" aria-label="Em tô theo" className="contents">
       {confetti && <ConfettiBurst onDone={hideConfetti} />}
 
-      <SquareStage className="overflow-hidden rounded-2xl bg-white ring-1 ring-black/10">
+      <SquareStage className="overflow-hidden rounded-2xl bg-white ring-1 ring-ink-100">
         <img
           src={tapVietGuide(id)}
           alt=""
@@ -231,7 +231,7 @@ export function TracePad({ id }: { id: string }) {
           It lets touches through, and the next stroke clears it. */}
         <div aria-live="polite" className="pointer-events-none absolute inset-x-2 top-2">
           {stars !== null && (
-            <div className="mx-auto flex w-fit items-center gap-2 rounded-2xl bg-white/95 p-2 pr-3 shadow-[0_4px_12px_rgba(12,58,110,0.2)] ring-1 ring-black/5">
+            <div className="mx-auto flex w-fit items-center gap-2 rounded-2xl bg-white/95 p-2 pr-3 shadow-md ring-1 ring-ink-100">
               <Mascot
                 pose={stars === 3 ? "cheer" : stars > 0 ? "thumbs-up" : "thinking"}
                 decorative

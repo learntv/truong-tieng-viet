@@ -1,13 +1,11 @@
 /* The lesson page's own furniture — everything outside a slide's content, which
  * lessonContent.module.css owns.
  *
- * A lesson is read directly on the site's blue sky: there is no white page card
- * under it, so every piece here is its own framed component floating on that
- * blue — the thick white border plus a navy-tinted shadow is what separates
- * anything from the sky, exactly as on the rest of the site (see the app's
- * SkyBox / SkyPage). Nothing sits loose on the background: the pieces are the
- * title, the slide, the rail of thumbnails and the two nav buttons, and they
- * are sized to leave as little empty blue between them as possible.
+ * A lesson is read on a pale leaf wash (the Khai Minh Đức hue), and every piece
+ * here is its own white component on it — a hairline border plus a soft
+ * ink-tinted shadow, the same card language as the rest of the site. The
+ * pieces are the title, the slide, the rail of thumbnails and the two nav
+ * buttons, sized to leave as little empty wash between them as possible.
  *
  * Two narrow steps below the desktop layout: at 48rem the deck stacks (rail
  * above the slide), and below 40rem — Tailwind's `sm`, so it flips on the same
@@ -23,18 +21,15 @@
 }
 
 /* The site page already keeps a 1rem gutter off the screen edge on a phone;
- * a second one inside it would spend a sixth of the width on empty blue. */
+ * a second one inside it would spend a sixth of the width on empty wash. */
 @media (width < 40rem) {
   .lesson {
     padding: 0.75rem 0 1.5rem;
   }
 }
 
-/* The title rides in its own framed band rather than sitting loose on the blue:
- * the sky has white clouds drifting through it, and white type on a cloud is
- * type that disappears. The band is mint — the tone the Khai Minh Đức tile
- * carries on the học tập bento — so arriving here lands on the colour you
- * clicked, in the dark ink the site uses on every coloured box.
+/* The title rides in its own white pill band rather than sitting loose on the
+ * wash, in the site's ink.
  *
  * Title and âm/vần chips share the band, so the header costs one bar of height
  * rather than three stacked lines. */
@@ -45,9 +40,9 @@
   gap: 0.5rem 1.25rem;
   margin-bottom: 0.75rem;
   padding: 0.6rem 1.25rem;
-  border: 5px solid #fff;
+  border: 1px solid var(--ttv-border);
   border-radius: 999px;
-  background: var(--ttv-box-mint-deep);
+  background: var(--ttv-surface);
   box-shadow: var(--ttv-sky-shadow);
 }
 
@@ -55,7 +50,6 @@
   .header {
     gap: 0.5rem 0.75rem;
     padding: 0.6rem 1rem;
-    border-width: 4px;
     border-radius: 22px;
   }
 }
@@ -70,8 +64,7 @@
 
 /* The âm/vần a lesson teaches, as chips beside the title — the one piece of the
  * document's own metadata that belongs on the page, since it is what the lesson
- * is about. In the ribbon yellow, so what the lesson is about is the brightest
- * thing on the page after the slide itself. */
+ * is about. In the leaf accent, the Khai Minh Đức hue. */
 .amVan {
   display: flex;
   flex-wrap: wrap;
@@ -83,11 +76,9 @@
 
 .amVanItem {
   padding: 0.2rem 0.9rem;
-  border: 3px solid #fff;
   border-radius: 999px;
-  background: var(--ttv-ribbon);
-  box-shadow: var(--ttv-sky-shadow);
-  color: var(--ttv-indigo-deep);
+  background: var(--ttv-accent-soft);
+  color: var(--ttv-accent);
   font-size: 1.05rem;
   font-weight: 700;
 }
@@ -115,8 +106,8 @@
 }
 
 /* The rail is a translucent white sleeve rather than an opaque panel, so the
- * sky (and its clouds) still read behind the thumbnails and the page stays one
- * continuous blue instead of growing a second column of chrome. */
+ * wash still reads behind the thumbnails instead of growing a second column
+ * of chrome. */
 .rail {
   display: flex;
   flex-direction: column;
@@ -129,7 +120,7 @@
   overflow-y: auto;
   padding: 0.5rem;
   border-radius: 20px;
-  background: rgb(255 255 255 / 30%);
+  background: rgb(255 255 255 / 70%);
 }
 
 @media (max-width: 48rem) {
@@ -157,20 +148,21 @@
 }
 
 /* The slide's own card look, in miniature — so the rail reads as a strip of tiny slides, the way
- * a real slide sorter does, rather than a menu of labels. The active one is called out by the
- * ribbon yellow it is framed in, the site's mark for "this is the one you are on". */
+ * a real slide sorter does, rather than a menu of labels. The active one is framed in the leaf
+ * accent with a soft halo — "this is the one you are on". */
 .railThumb {
   position: relative;
   height: 4.75rem;
   overflow: hidden;
-  border: 3px solid #fff;
+  border: 2px solid var(--ttv-border);
   border-radius: 14px;
   background: var(--ttv-surface);
-  box-shadow: 0 4px 12px rgb(12 58 110 / 20%);
+  box-shadow: 0 1px 2px rgb(20 28 49 / 6%);
 }
 
-.railItem[data-active='true'] .railThumb {
-  border-color: var(--ttv-ribbon);
+.railItem[data-active="true"] .railThumb {
+  border-color: var(--ttv-accent);
+  box-shadow: 0 0 0 3px var(--ttv-accent-soft);
 }
 
 /* The real content, shrunk with a transform rather than redrawn — see the component for why.
@@ -208,9 +200,9 @@
   font-weight: 700;
 }
 
-.railItem[data-active='true'] .railIndex {
-  background: var(--ttv-ribbon);
-  color: var(--ttv-indigo-deep);
+.railItem[data-active="true"] .railIndex {
+  background: var(--ttv-accent);
+  color: #fff;
 }
 
 @media (max-width: 48rem) {
@@ -243,8 +235,8 @@
   .slideRow {
     display: grid;
     grid-template-areas:
-      'slide slide slide'
-      'previous counter next';
+      "slide slide slide"
+      "previous counter next";
     grid-template-columns: auto 1fr auto;
     align-items: center;
     gap: 0.75rem 0.5rem;
@@ -252,8 +244,8 @@
 }
 
 /* Big round white buttons — thumb-sized, because a five-year-old is the one
- * turning the page. They lift on hover and press down on click, the same bevel
- * motion the site's buttons have. */
+ * turning the page. They lift and fill with the leaf accent on hover and press
+ * in on click, the same motion the site's buttons have. */
 .slideNavButton {
   display: flex;
   align-items: center;
@@ -261,10 +253,12 @@
   width: 3.25rem;
   height: 3.25rem;
   flex-shrink: 0;
-  border: none;
+  border: 1px solid var(--ttv-border);
   border-radius: 999px;
   background: #fff;
-  box-shadow: 0 5px 0 0 rgb(12 58 110 / 30%);
+  box-shadow:
+    0 1px 2px rgb(20 28 49 / 5%),
+    0 4px 12px -2px rgb(20 28 49 / 10%);
   color: var(--ttv-sky-ink);
   cursor: pointer;
   transition:
@@ -275,16 +269,18 @@
 
 @media (hover: hover) {
   .slideNavButton:hover:not(:disabled) {
-    background: var(--ttv-ribbon);
-    color: var(--ttv-indigo-deep);
+    background: var(--ttv-accent);
+    color: #fff;
     transform: translateY(-2px);
-    box-shadow: 0 7px 0 0 rgb(12 58 110 / 30%);
+    box-shadow:
+      0 2px 4px rgb(20 28 49 / 6%),
+      0 12px 22px -6px rgb(15 133 68 / 45%);
   }
 }
 
 .slideNavButton:active:not(:disabled) {
-  transform: translateY(3px);
-  box-shadow: 0 2px 0 0 rgb(12 58 110 / 30%);
+  transform: scale(0.94);
+  box-shadow: 0 1px 2px rgb(20 28 49 / 8%);
 }
 
 .slideNavButton:disabled {
@@ -315,10 +311,9 @@
     grid-area: counter;
     justify-self: center;
     padding: 0.35rem 1rem;
-    border: 3px solid #fff;
+    border: 1px solid var(--ttv-border);
     border-radius: 999px;
-    background: rgb(255 255 255 / 85%);
-    box-shadow: 0 4px 12px rgb(12 58 110 / 20%);
+    background: #fff;
     color: var(--ttv-sky-ink);
     font-size: 1rem;
     font-weight: 700;
@@ -355,8 +350,8 @@
   /* Clears the site's sticky navbar when the component scrolls a new slide's
    * top back into view (and when a #muc-n link lands on it). */
   scroll-margin-top: 5.5rem;
-  padding: 1.75rem 2rem;
-  border: 8px solid #fff;
+  padding: 2rem 2.25rem;
+  border: 1px solid var(--ttv-border);
   border-radius: 28px;
   background: var(--ttv-surface);
   box-shadow: var(--ttv-sky-shadow);
@@ -379,7 +374,6 @@
     min-height: max(18rem, calc(100svh - 22rem));
     overflow: visible;
     padding: 1.25rem 1rem;
-    border-width: 6px;
     border-radius: 22px;
   }
 }
@@ -389,7 +383,7 @@
 .empty {
   margin: 0;
   padding: 3rem 1rem;
-  border: 8px solid #fff;
+  border: 1px dashed var(--ttv-border-strong);
   border-radius: 28px;
   background: var(--ttv-surface);
   box-shadow: var(--ttv-sky-shadow);

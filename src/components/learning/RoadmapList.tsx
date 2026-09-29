@@ -1,19 +1,23 @@
-import { ArrowLeft, BookOpen, Check, CircleDot, Lock } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronRight, Lock } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import type { ChuDe } from "@/data/topics";
 import type { QuyenNumber } from "@/lib/learning";
 import { STAGE_COLORS } from "./stageColors";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Container } from "@/components/layout/Container";
 import { locationForChuDe } from "@/data/scenes";
 import { landmarksForQuyen } from "@/data/overworld";
 
 // Per-topic accent, keyed by ChuDe.accent — tints the coming-soon emoji plate.
 const ACCENT_SOFT: Record<ChuDe["accent"], string> = {
-  primary: "bg-primary/10",
-  yellow: "bg-yellow/20",
-  pink: "bg-pink/15",
-  purple: "bg-purple/15",
-  green: "bg-green/15",
+  primary: "bg-brand-50",
+  yellow: "bg-sun-50",
+  pink: "bg-rose-50",
+  purple: "bg-grape-50",
+  green: "bg-leaf-50",
 };
 
 function getLessonButtonLabel(
@@ -89,230 +93,241 @@ export function RoadmapList({
 
   return (
     <div className="w-full">
-      {/* ── Hero band: full-bleed, flat, no card. Breadcrumb, title, one line of blurb and the
-          primary action on the left; a plain photo of the place on the right. ── */}
-      <div className="w-full bg-sky-tint">
-        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
-          <nav aria-label="breadcrumb" className="text-sm text-muted-foreground">
-            <Link to="/hoc-tap" className="font-semibold text-ink hover:underline">
+      {/* ── Hero: where this chủ đề is set, the way in, and how far along it is. ── */}
+      <header className="relative overflow-hidden bg-gradient-to-b from-brand-50 to-white">
+        <div
+          aria-hidden
+          className="bg-dots pointer-events-none absolute inset-0 opacity-50 [mask-image:linear-gradient(to_bottom,black,transparent_85%)]"
+        />
+        <Container className="relative pt-6 pb-10 sm:pt-8 lg:pb-14">
+          <nav
+            aria-label="Đường dẫn"
+            className="flex flex-wrap items-center gap-1 text-sm font-medium text-ink-500"
+          >
+            <Link
+              to="/hoc-tap"
+              className="rounded-full px-2 py-1 hover:bg-white hover:text-ink-900"
+            >
               Học tập
             </Link>
-            <span className="px-1.5">&gt;</span>
+            <ChevronRight className="size-4 text-ink-300" aria-hidden />
             <Link
               to="/hoc-tap/quyen-{$quyenNumber}"
               params={{ quyenNumber: String(quyenNumber) }}
-              className="font-semibold text-ink hover:underline"
+              className="rounded-full px-2 py-1 hover:bg-white hover:text-ink-900"
             >
               Quyển {quyenNumber}
             </Link>
-            <span className="px-1.5">&gt;</span>
-            <span>{location.name}</span>
+            <ChevronRight className="size-4 text-ink-300" aria-hidden />
+            <span aria-current="page" className="px-2 py-1 text-ink-800">
+              {location.name}
+            </span>
           </nav>
 
-          <div className="mt-8 grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:gap-12">
+          <div className="mt-8 grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] lg:gap-14">
             <div className="min-w-0">
-              {isLocked && (
-                <span className="mb-3 inline-flex items-center gap-1 bg-muted px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  <Lock className="h-3 w-3" strokeWidth={2.5} />
-                  Sắp có
-                </span>
-              )}
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="default">Chủ đề {chuDeIndex + 1}</Badge>
+                {isLocked && (
+                  <Badge variant="locked">
+                    <Lock aria-hidden />
+                    Sắp có
+                  </Badge>
+                )}
+              </div>
 
-              <h1 className="font-display text-3xl font-bold leading-tight text-ink sm:text-4xl lg:text-5xl">
-                {location.name}
-              </h1>
-
-              <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
-                {location.blurb}
-              </p>
+              <h1 className="mt-4 text-h1 text-ink-900">{location.name}</h1>
+              <p className="mt-4 max-w-xl text-lede text-ink-600">{location.blurb}</p>
 
               {!isLocked && (
-                <button
-                  type="button"
-                  onClick={() => onOpenLesson(currentChangIndex)}
-                  className="mt-7 cursor-pointer bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:text-base"
-                >
-                  {doneStages === 0 ? "Bắt đầu học" : allDone ? "Ôn tập lại" : "Tiếp tục học"}
-                </button>
+                <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+                  <Button size="xl" onClick={() => onOpenLesson(currentChangIndex)}>
+                    {doneStages === 0 ? "Bắt đầu học" : allDone ? "Ôn tập lại" : "Tiếp tục học"}
+                    <ArrowRight aria-hidden />
+                  </Button>
+                  <div className="min-w-44">
+                    <p className="text-sm font-semibold text-ink-700">
+                      <span className="tabular-nums">
+                        {doneStages}/{totalStages}
+                      </span>{" "}
+                      chặng đã hoàn thành
+                    </p>
+                    <Progress value={pct} className="mt-2 h-2" aria-label="Tiến độ chủ đề" />
+                  </div>
+                </div>
               )}
             </div>
 
             {photo && (
-              <img src={photo} alt={location.name} className="aspect-[16/10] w-full object-cover" />
+              <div className="relative">
+                <img
+                  src={photo}
+                  alt={location.name}
+                  className="aspect-[16/11] w-full rounded-[2rem] object-cover shadow-lg"
+                />
+                {!isLocked && (
+                  <span className="absolute -bottom-4 left-5 inline-flex items-center gap-2 rounded-full bg-white py-2 pr-4 pl-2 text-sm font-semibold text-ink-800 shadow-md">
+                    <span className="grid size-8 place-items-center rounded-full bg-brand-50 text-lg">
+                      {chuDe.emoji}
+                    </span>
+                    {titleName}
+                  </span>
+                )}
+              </div>
             )}
           </div>
-        </div>
-      </div>
+        </Container>
+      </header>
 
-      {/* ── Stat band: full-bleed colour strip carrying the chủ đề's progress — replaces the note
-          cards that used to sit beside the list. ── */}
-      {!isLocked && (
-        <div className="w-full bg-teal-deep text-white">
-          <div className="mx-auto flex max-w-6xl items-center px-6 py-6 sm:px-10 lg:px-16">
-            <div className="flex items-center gap-3">
-              <BookOpen className="h-6 w-6 shrink-0" strokeWidth={2} aria-hidden />
-              <div className="min-w-0">
-                <div className="text-sm font-semibold sm:text-base">
-                  {doneStages}/{totalStages} chặng đã hoàn thành
-                </div>
-                <div className="mt-1.5 h-1 w-full max-w-48 overflow-hidden bg-white/25">
-                  <div
-                    className="h-full bg-white transition-all duration-500"
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Chặng grid: flat cards, each led by an image from the chặng itself. ── */}
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-12">
+      <Container width="content" className="pt-8 pb-16 sm:pb-24">
         {isLocked ? (
-          <div className="py-10 text-center">
-            <div
-              className={["mx-auto grid h-16 w-16 place-items-center text-3xl", accentSoft].join(
-                " ",
-              )}
-            >
-              {chuDe.emoji}
-            </div>
-            <p className="mx-auto mt-4 max-w-sm text-sm text-muted-foreground">
-              Các cô đang biên soạn chủ đề này. Em quay lại chủ đề trước để luyện tập trong lúc chờ
-              nhé!
-            </p>
-            <Button asChild className="mx-auto mt-5">
-              <Link
-                to="/hoc-tap/quyen-{$quyenNumber}"
-                params={{ quyenNumber: String(quyenNumber) }}
+          <EmptyState
+            icon={Lock}
+            illustration={
+              <span
+                className={[
+                  "grid size-16 place-items-center rounded-2xl text-3xl",
+                  accentSoft,
+                ].join(" ")}
               >
-                <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
-                Về bản đồ
-              </Link>
-            </Button>
-          </div>
+                {chuDe.emoji}
+              </span>
+            }
+            title="Chủ đề này sắp có"
+            description="Các cô đang biên soạn chủ đề này. Em quay lại chủ đề trước để luyện tập trong lúc chờ nhé!"
+            action={
+              <Button asChild>
+                <Link
+                  to="/hoc-tap/quyen-{$quyenNumber}"
+                  params={{ quyenNumber: String(quyenNumber) }}
+                >
+                  <ArrowLeft aria-hidden />
+                  Về bản đồ
+                </Link>
+              </Button>
+            }
+          />
         ) : (
           <>
-            <h2 className="font-display text-xl font-bold text-ink sm:text-2xl">
-              Chủ đề: {titleName}
-            </h2>
+            <h2 className="text-h2 text-ink-900">Các chặng học</h2>
 
-            <ul className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {/* The chặng as a journey: a rail of nodes down the left joins each stop to the
+              next — filled when done, ringed when current, numbered when ahead. */}
+            <ol className="relative mt-8">
               {changTitles.map((title, i) => {
                 const color = STAGE_COLORS[i % STAGE_COLORS.length];
                 const isDone = completedChangs.has(i);
                 const isCurrent = i === currentChangIndex;
                 const prog = changProgress.get(i);
                 const total = changTotals[i] ?? prog?.total ?? 0;
+                const isLast = i === changTitles.length - 1;
                 return (
-                  <li key={i}>
+                  <li key={i} className="relative flex gap-4 pb-5 sm:gap-6">
+                    {!isLast && (
+                      <span
+                        aria-hidden
+                        className={[
+                          "absolute top-12 bottom-0 left-[1.3rem] w-0.5 sm:left-[1.55rem]",
+                          isDone ? color.bg : "bg-ink-100",
+                        ].join(" ")}
+                      />
+                    )}
+
+                    <span
+                      aria-hidden
+                      style={
+                        isCurrent
+                          ? ({ "--ring-color": color.hex } as React.CSSProperties)
+                          : undefined
+                      }
+                      className={[
+                        "relative z-10 mt-3 grid size-11 shrink-0 place-items-center rounded-full text-base font-extrabold sm:size-[3.25rem]",
+                        isDone
+                          ? [color.bg, "text-white"].join(" ")
+                          : isCurrent
+                            ? [color.bg, "animate-pulse-ring text-white"].join(" ")
+                            : "border-2 border-ink-100 bg-white text-ink-400",
+                      ].join(" ")}
+                    >
+                      {isDone ? <Check className="size-5" strokeWidth={3} /> : i + 1}
+                    </span>
+
                     <button
                       type="button"
                       onClick={() => onOpenLesson(i)}
-                      className="flex h-full w-full cursor-pointer flex-col overflow-hidden border border-border bg-card text-left transition-colors hover:border-ink/40"
+                      aria-label={`Chặng ${i + 1}: ${title} — ${getLessonButtonLabel(i, completedChangs, startedChangs)}`}
+                      className={[
+                        "group flex min-w-0 flex-1 cursor-pointer items-center gap-4 rounded-3xl border bg-white p-3 text-left transition-[transform,box-shadow,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md sm:gap-5 sm:p-4",
+                        isCurrent
+                          ? [color.border, "shadow-md"].join(" ")
+                          : "border-ink-100 shadow-xs",
+                      ].join(" ")}
                     >
-                      {/* Cover: typographic, not photographic — the chặng title set fat on the
-                          stage's soft colour, over an oversized ghost numeral. */}
                       <span
                         className={[
-                          "relative flex aspect-[16/9] w-full flex-col justify-end overflow-hidden p-5",
+                          "grid size-16 shrink-0 place-items-center rounded-2xl text-3xl transition-transform duration-300 group-hover:scale-105 sm:size-20 sm:text-4xl",
                           color.bgSoft,
                         ].join(" ")}
                       >
-                        <span
-                          aria-hidden
-                          className={[
-                            "pointer-events-none absolute -right-3 -top-8 font-display text-[8rem] font-bold leading-none opacity-15",
-                            color.text,
-                          ].join(" ")}
-                        >
-                          {i + 1}
-                        </span>
-
-                        {/* Emoji centred in whatever room the title leaves. */}
-                        <span className="relative grid flex-1 place-items-center text-5xl sm:text-6xl">
-                          {changEmojis[i] ?? "📖"}
-                        </span>
-
-                        <span
-                          className={[
-                            "relative line-clamp-2 font-display text-2xl font-bold leading-[1.15] tracking-tight sm:text-3xl",
-                            color.text,
-                          ].join(" ")}
-                        >
-                          {title}
-                        </span>
-
-                        {isCurrent && (
-                          <span
-                            className={[
-                              "absolute left-0 top-0 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white",
-                              color.bg,
-                            ].join(" ")}
-                          >
-                            Đang học
-                          </span>
-                        )}
-                        {isDone && (
-                          <span className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-green text-white">
-                            <Check className="h-5 w-5" strokeWidth={3} />
-                          </span>
-                        )}
+                        {changEmojis[i] ?? "📖"}
                       </span>
 
-                      <span className="flex flex-1 flex-col p-5">
+                      <span className="flex min-w-0 flex-1 flex-col">
                         <span
                           className={[
-                            "text-xs font-semibold uppercase tracking-wide",
+                            "text-caption font-bold tracking-wide uppercase",
                             color.text,
                           ].join(" ")}
                         >
                           Chặng {i + 1}
+                          {isCurrent && !isDone && " · Đang học"}
                         </span>
-                        <span className="mt-3 flex flex-col gap-2 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-2">
-                            <BookOpen className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+                        <span className="mt-1 line-clamp-2 text-h3 text-ink-900">{title}</span>
+                        <span className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-500">
+                          <span className="inline-flex items-center gap-1.5">
+                            <BookOpen className="size-4" aria-hidden />
                             {total} bài học
                           </span>
-                          <span className="flex items-center gap-2">
-                            <CircleDot className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+                          <span>
                             {isDone
                               ? "Đã hoàn thành"
                               : prog
-                                ? `Đang học: ${prog.current}/${prog.total} bài`
+                                ? `Đã học ${prog.current}/${prog.total}`
                                 : "Chưa bắt đầu"}
                           </span>
                         </span>
-
                         {prog && !isDone && (
-                          <span className="mt-3 block h-1 w-full overflow-hidden bg-muted">
+                          <span className="mt-2.5 block h-1.5 w-full max-w-60 overflow-hidden rounded-full bg-ink-100">
                             <span
-                              className={["block h-full", color.bg].join(" ")}
-                              style={{
-                                width: `${Math.round((prog.current / prog.total) * 100)}%`,
-                              }}
+                              className={["block h-full rounded-full", color.bg].join(" ")}
+                              style={{ width: `${Math.round((prog.current / prog.total) * 100)}%` }}
                             />
                           </span>
                         )}
-
-                        <span
-                          className={[
-                            "mt-5 inline-block self-start px-4 py-2 font-display text-xs font-semibold uppercase tracking-wide text-white",
-                            color.bg,
-                          ].join(" ")}
-                        >
-                          {getLessonButtonLabel(i, completedChangs, startedChangs)}
-                        </span>
                       </span>
+
+                      <span
+                        className={[
+                          "hidden h-10 shrink-0 items-center rounded-full px-4 text-sm font-semibold transition-colors sm:inline-flex",
+                          isDone
+                            ? "bg-ink-50 text-ink-700 group-hover:bg-ink-100"
+                            : [color.bg, "text-white"].join(" "),
+                        ].join(" ")}
+                      >
+                        {getLessonButtonLabel(i, completedChangs, startedChangs)}
+                      </span>
+                      <ChevronRight
+                        className="size-5 shrink-0 text-ink-300 sm:hidden"
+                        aria-hidden
+                      />
                     </button>
                   </li>
                 );
               })}
-            </ul>
+            </ol>
           </>
         )}
-      </div>
+      </Container>
     </div>
   );
 }

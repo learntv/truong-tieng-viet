@@ -66,15 +66,15 @@ function VnaPlayer() {
 
   if (failed) {
     return (
-      <div className="grid aspect-video w-full place-items-center gap-3 bg-box-cream p-6 text-center">
-        <p className="text-sm leading-relaxed text-sky-ink-soft">
+      <div className="grid aspect-video w-full place-items-center gap-3 bg-ink-800 p-6 text-center">
+        <p className="text-sm leading-relaxed text-ink-100">
           Không phát được video ở đây. Em có thể xem bản gốc trên trang của Thông tấn xã Việt Nam.
         </p>
         <a
           href={ARTICLE_URL}
           target="_blank"
           rel="noreferrer"
-          className="font-display text-sm font-extrabold text-indigo hover:underline"
+          className="text-sm font-semibold text-white underline underline-offset-4"
         >
           Xem trên VNA
         </a>
@@ -98,17 +98,14 @@ function VnaPlayer() {
           className="absolute inset-0 h-full w-full object-cover"
           loading="lazy"
         />
-        <span className="absolute inset-0 bg-indigo-deep/20 transition-colors group-hover:bg-indigo-deep/10" />
+        <span className="absolute inset-0 bg-gradient-to-t from-ink-900/50 via-ink-900/10 to-transparent transition-opacity duration-300 group-hover:opacity-70" />
         <span className="absolute inset-0 grid place-items-center">
-          <span className="grid h-16 w-16 place-items-center rounded-full bg-primary shadow-btn transition-transform group-hover:scale-105 sm:h-20 sm:w-20">
+          <span className="grid size-16 place-items-center rounded-full bg-white shadow-lg transition-transform duration-300 ease-out group-hover:scale-110 sm:size-20">
             {/* Nudged right so the triangle's visual centre sits on the disc's. */}
-            <Play
-              className="ml-1 h-7 w-7 fill-primary-foreground text-primary-foreground sm:h-9 sm:w-9"
-              aria-hidden
-            />
+            <Play className="ml-1 size-7 fill-brand-600 text-brand-600 sm:size-9" aria-hidden />
           </span>
         </span>
-        <span className="absolute right-2 bottom-2 rounded-md bg-indigo-deep/70 px-2 py-0.5 font-display text-xs font-bold text-white">
+        <span className="absolute right-3 bottom-3 rounded-full bg-ink-900/70 px-2.5 py-1 text-caption font-semibold text-white backdrop-blur-sm">
           02:12
         </span>
       </button>
@@ -141,29 +138,24 @@ function VnaPlayer() {
  */
 export function PressVideo() {
   return (
-    <article className="overflow-hidden rounded-2xl border-[3px] border-white bg-white lg:flex">
+    <article className="overflow-hidden rounded-3xl border border-ink-100 bg-white shadow-xs lg:flex">
       {/* Navy behind the player so that if the text column ever runs taller
         than the 16:9 player, the spare height reads as letterboxing. */}
-      <div className="flex shrink-0 items-center bg-indigo-deep lg:w-3/5">
+      <div className="flex shrink-0 items-center bg-ink-900 lg:w-3/5">
         <VnaPlayer />
       </div>
 
-      <div className="flex flex-1 flex-col p-4 sm:p-5">
+      <div className="flex flex-1 flex-col p-6 sm:p-8">
         {/* The masthead is the source line, so its alt is the outlet's name. */}
         <div className="flex min-h-8 items-center justify-between gap-3">
           <img src={vietnamMediaLogo} alt="VietNam Media (TTXVN)" className="h-5 w-auto" />
-          <time
-            dateTime="2026-07-26"
-            className="shrink-0 font-display text-xs font-bold text-sky-ink-soft"
-          >
+          <time dateTime="2026-07-26" className="shrink-0 text-caption font-medium text-ink-500">
             26-07-2026
           </time>
         </div>
 
-        <h3 className="mt-3 font-display text-lg leading-snug font-extrabold text-sky-ink">
-          Kết nối thế hệ trẻ kiều bào với cội nguồn
-        </h3>
-        <p className="mt-2 line-clamp-4 text-sm leading-relaxed text-sky-ink-soft">
+        <h3 className="mt-4 text-h2 text-ink-900">Kết nối thế hệ trẻ kiều bào với cội nguồn</h3>
+        <p className="mt-3 line-clamp-5 text-[0.9375rem] leading-relaxed text-ink-600">
           Một nền tảng học tiếng Việt trực tuyến có tên “Trường Tiếng Việt Online” dành riêng cho
           con em người Việt ở nước ngoài vừa được ra mắt tại Canada. Sự kiện do Hội đồng Văn hóa
           Giáo dục Canada-Việt Nam tổ chức theo hình thức trực tiếp kết hợp trực tuyến.
@@ -173,10 +165,10 @@ export function PressVideo() {
           href={ARTICLE_URL}
           target="_blank"
           rel="noreferrer"
-          className="mt-auto inline-flex w-fit items-center gap-1.5 pt-3 font-display text-sm font-extrabold text-indigo hover:text-indigo-deep hover:underline"
+          className="mt-auto inline-flex w-fit items-center gap-1.5 pt-5 text-sm font-semibold text-brand-600 hover:underline"
         >
           Xem bài gốc
-          <ExternalLink className="h-4 w-4" aria-hidden />
+          <ExternalLink className="size-4" aria-hidden />
         </a>
       </div>
     </article>

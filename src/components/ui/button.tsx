@@ -4,24 +4,35 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * The one button family. Pill-shaped, bold, and physical in a quiet way: a
+ * soft offset shadow at rest, a one-pixel lift on hover, a press on :active.
+ *
+ * `variant` picks the role (primary action, secondary, outline, ghost, link,
+ * destructive); `tone` recolors the solid variant for the lesson screens,
+ * where a stage's own hue is the primary action.
+ */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium cursor-pointer transition-[colors,transform,box-shadow] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  [
+    "relative inline-flex shrink-0 cursor-pointer select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold",
+    "transition-[background-color,color,box-shadow,transform,border-color] duration-200 ease-out",
+    "active:translate-y-px active:duration-75",
+    "disabled:pointer-events-none disabled:opacity-45",
+    "[&_svg]:pointer-events-none [&_svg]:size-[1.15em] [&_svg]:shrink-0",
+  ].join(" "),
   {
     variants: {
       variant: {
-        // The house button: solid blue, no outline, and a soft indigo shadow
-        // that falls off underneath — it presses to the surface on :active.
         default:
-          "rounded-[0.6rem] bg-primary font-bold text-primary-foreground shadow-btn hover:bg-primary-glow active:translate-y-[1px] active:shadow-btn-active",
-        pill: "rounded-full bg-primary font-bold text-primary-foreground shadow-btn hover:bg-primary-glow active:translate-y-[1px] active:shadow-btn-active",
-        destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+          "text-white shadow-[0_1px_2px_rgb(20_28_49/0.12),0_4px_12px_-2px_var(--btn-glow)] hover:-translate-y-px hover:shadow-[0_2px_4px_rgb(20_28_49/0.1),0_10px_22px_-4px_var(--btn-glow)]",
+        secondary: "bg-brand-50 text-brand-700 hover:bg-brand-100",
         outline:
-          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-        bevel:
-          "rounded-full font-display font-extrabold transition-[transform,box-shadow,filter] ease-bounce hover:brightness-105 active:translate-y-[3px]",
+          "border border-ink-200 bg-white text-ink-800 shadow-xs hover:border-ink-300 hover:bg-ink-25",
+        ghost: "text-ink-700 hover:bg-ink-50 hover:text-ink-900",
+        link: "h-auto! rounded-sm px-0! text-brand-600 underline-offset-4 hover:underline",
+        destructive:
+          "bg-danger-600 text-white shadow-sm hover:-translate-y-px hover:bg-danger-700 hover:shadow-md",
+        white: "bg-white text-ink-900 shadow-sm hover:-translate-y-px hover:shadow-md",
       },
       tone: {
         primary: "",
@@ -33,49 +44,50 @@ const buttonVariants = cva(
         "stage-5": "",
       },
       size: {
-        default: "h-9 px-4 py-2",
-        sm: "h-8 px-3 text-xs",
-        lg: "h-10 px-8",
-        xl: "h-14 px-10 text-base",
-        icon: "h-9 w-9",
+        sm: "h-9 px-4 text-sm",
+        default: "h-11 px-5 text-[0.9375rem]",
+        lg: "h-12 px-6 text-base",
+        xl: "h-14 px-8 text-[1.0625rem]",
+        icon: "size-11",
+        "icon-sm": "size-9",
       },
     },
     compoundVariants: [
       {
-        variant: "bevel",
+        variant: "default",
         tone: "primary",
-        class: "bg-primary text-primary-foreground shadow-bevel-primary active:shadow-bevel-primary-active",
+        class: "bg-brand-600 [--btn-glow:rgb(48_86_245/0.4)] hover:bg-brand-700",
       },
       {
-        variant: "bevel",
+        variant: "default",
         tone: "neutral",
         class:
-          "border-2 border-input bg-background text-foreground shadow-bevel-neutral hover:bg-accent active:shadow-bevel-neutral-active",
+          "border border-ink-200 bg-white text-ink-800! [--btn-glow:rgb(20_28_49/0.08)] hover:bg-ink-25",
       },
       {
-        variant: "bevel",
+        variant: "default",
         tone: "stage-1",
-        class: "bg-stage-1 text-white shadow-bevel-stage-1 active:shadow-bevel-stage-1-active",
+        class: "bg-stage-1 [--btn-glow:rgb(15_133_68/0.4)] hover:bg-stage-1-deep",
       },
       {
-        variant: "bevel",
+        variant: "default",
         tone: "stage-2",
-        class: "bg-stage-2 text-white shadow-bevel-stage-2 active:shadow-bevel-stage-2-active",
+        class: "bg-stage-2 [--btn-glow:rgb(10_127_166/0.4)] hover:bg-stage-2-deep",
       },
       {
-        variant: "bevel",
+        variant: "default",
         tone: "stage-3",
-        class: "bg-stage-3 text-white shadow-bevel-stage-3 active:shadow-bevel-stage-3-active",
+        class: "bg-stage-3 [--btn-glow:rgb(116_66_232/0.4)] hover:bg-stage-3-deep",
       },
       {
-        variant: "bevel",
+        variant: "default",
         tone: "stage-4",
-        class: "bg-stage-4 text-white shadow-bevel-stage-4 active:shadow-bevel-stage-4-active",
+        class: "bg-stage-4 [--btn-glow:rgb(217_60_23/0.4)] hover:bg-stage-4-deep",
       },
       {
-        variant: "bevel",
+        variant: "default",
         tone: "stage-5",
-        class: "bg-stage-5 text-white shadow-bevel-stage-5 active:shadow-bevel-stage-5-active",
+        class: "bg-stage-5 [--btn-glow:rgb(214_36_111/0.4)] hover:bg-stage-5-deep",
       },
     ],
     defaultVariants: {

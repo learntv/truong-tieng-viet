@@ -9,13 +9,14 @@ type Particle = {
   size: string;
 };
 
+// The system's vivid steps — brand, sun, rose, grape, leaf, sky.
 const COLORS = [
-  "oklch(0.52 0.22 22)",  // primary
-  "oklch(0.87 0.16 75)",  // yellow
-  "oklch(0.75 0.17 5)",   // pink
-  "oklch(0.68 0.13 295)", // purple
-  "oklch(0.72 0.17 150)", // green
-  "oklch(0.65 0.18 220)", // sky
+  "var(--color-brand-500)",
+  "var(--color-sun-500)",
+  "var(--color-rose-500)",
+  "var(--color-grape-500)",
+  "var(--color-leaf-500)",
+  "var(--color-sky-500)",
 ];
 
 const PARTICLES: Particle[] = Array.from({ length: 28 }, (_, i) => {

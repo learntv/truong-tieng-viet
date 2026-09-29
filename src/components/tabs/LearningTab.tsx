@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { CloudOff } from "lucide-react";
 import {
   chuDesOfQuyen,
   learningImagesQueryOptions,
@@ -15,6 +16,10 @@ import { buildSlides } from "@/components/learning/LessonPage";
 import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Container } from "@/components/layout/Container";
+import { Mascot } from "@/components/Mascot";
 
 export const BUFFALO_POS_KEY = "vui-hoc-buffalo-pos";
 
@@ -275,14 +280,13 @@ export function LearningTab({
   // state, the same one a chủ đề without content gets.
   if (error) {
     return (
-      <section className="flex min-h-[60vh] w-full items-center justify-center px-4 text-center text-navy">
-        <div>
-          <p className="font-display text-lg font-bold">Chưa có dữ liệu bài học.</p>
-          {error ? (
-            <p className="mt-2 text-sm text-muted-foreground">{(error as Error).message}</p>
-          ) : null}
-        </div>
-      </section>
+      <Container width="narrow" className="py-16">
+        <EmptyState
+          icon={CloudOff}
+          title="Chưa có dữ liệu bài học"
+          description={(error as Error).message || "Em thử tải lại trang sau một lát nhé!"}
+        />
+      </Container>
     );
   }
 
@@ -304,23 +308,23 @@ export function LearningTab({
           changProgress={changProgress}
         />
       </div>
-      {showCelebration && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
-          <div className="relative w-full max-w-md rounded-3xl border-2 border-black/10 bg-white p-8 text-center shadow-[0_4px_0_0_rgba(0,0,0,0.12)]">
-            <ConfettiBurst
-              onDone={() => {
-                /* keep card visible until user dismisses */
-              }}
-            />
-            <p className="font-display text-xl font-bold text-navy sm:text-2xl">
-              🎉 Em đã hoàn thành cả lộ trình! Em giỏi lắm!
-            </p>
-            <Button variant="bevel" tone="stage-4" onClick={dismissCelebration} className="mt-6">
-              Ôn tập lại
-            </Button>
-          </div>
-        </div>
-      )}
+      <Dialog open={showCelebration} onOpenChange={(open) => !open && dismissCelebration()}>
+        <DialogContent className="max-w-md overflow-visible text-center" hideCloseButton>
+          <ConfettiBurst
+            onDone={() => {
+              /* keep card visible until user dismisses */
+            }}
+          />
+          <Mascot pose="cheer" size="lg" decorative className="mx-auto -mt-20 animate-hop" />
+          <DialogTitle className="text-h2">Em đã hoàn thành cả lộ trình!</DialogTitle>
+          <DialogDescription className="text-lede">
+            Em giỏi lắm! Trâu con rất tự hào về em.
+          </DialogDescription>
+          <Button tone="stage-4" size="lg" onClick={dismissCelebration} className="mx-auto">
+            Ôn tập lại
+          </Button>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

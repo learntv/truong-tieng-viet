@@ -6,34 +6,32 @@ import {
   Copy,
   Copyright,
   Heart,
+  Languages,
   Mail,
   MessageCircle,
   Network,
+  PencilLine,
+  Quote,
   Volume2,
+  type LucideIcon,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { SkyBackdrop } from "./SkyBackdrop";
 import { PressNews } from "./PressNews";
-import { SkyBox, SkyCard } from "@/components/ui/sky-box";
-import { skyButton } from "@/components/ui/sky-button";
+import { Button } from "@/components/ui/button";
+import { Container } from "@/components/layout/Container";
+import { Section, SectionHeading } from "@/components/layout/Section";
+import { HUES, type Hue } from "@/lib/hues";
+import { cn } from "@/lib/utils";
 import congVienChuCai from "@/assets/cong-vien-chu-cai.jpg";
 import quyen1Cover from "@/assets/quyen_1_cover.jpg";
 import quyen2Cover from "@/assets/quyen_2_cover.jpg";
 import kidsAoDai from "@/assets/kids-aodai.jpg";
 import chimLac from "@/assets/symbols/chim-lac.png";
 import hoaSen from "@/assets/symbols/hoa-sen.png";
-import buffalo from "@/assets/buffalo-icon.png";
-import logoWordmark from "@/assets/logo-wordmark.png";
-import mascotRunning from "@/assets/mascot/running.png";
+import uyBan from "@/assets/uy-ban.png";
 import mascotWave from "@/assets/mascot/wave.png";
-import mascotReading from "@/assets/mascot/reading.png";
-import mascotFlag from "@/assets/mascot/flag.png";
-import mascotEatingPho from "@/assets/mascot/eating-pho.png";
-import mascotThumbsUp from "@/assets/mascot/thumbs-up.png";
-import mascotThinking from "@/assets/mascot/thinking.png";
 import mascotCheer from "@/assets/mascot/cheer.png";
-import mascotPointing from "@/assets/mascot/pointing.png";
 import caLopChupChung from "@/assets/gallery/ca-lop-chup-chung.webp";
 import beGioTheCo from "@/assets/gallery/be-gio-the-co.webp";
 import coGiaoKhaiMac from "@/assets/gallery/co-giao-khai-mac.webp";
@@ -42,39 +40,150 @@ import lopHocTuongTac from "@/assets/gallery/lop-hoc-tuong-tac.webp";
 import timTheNguoiThan from "@/assets/gallery/tim-the-nguoi-than.webp";
 import choiTheTuVung from "@/assets/gallery/choi-the-tu-vung.webp";
 
-/* ── Hero: the logo, centred on the sky ───────────────────────────────── */
+/* ── Hero ─────────────────────────────────────────────────────────────── */
 
-/* A thin white sticker outline around the wordmark, so the red and navy
-   brush lettering holds up on the blue sky. Each drop-shadow copies the
-   result of the one before, so four offsets make a 2px outline all round. */
-const LOGO_OUTLINE =
-  "[filter:drop-shadow(2px_0_0_white)_drop-shadow(-2px_0_0_white)_drop-shadow(0_2px_0_white)_drop-shadow(0_-2px_0_white)]";
+const HERO_CHIPS: { label: string; Icon: LucideIcon; hue: Hue; pos: string }[] = [
+  {
+    label: "Bảng chữ cái",
+    Icon: Languages,
+    hue: "grape",
+    pos: "left-3 top-6 sm:-left-5 sm:top-14",
+  },
+  { label: "Luyện nói", Icon: Volume2, hue: "rose", pos: "right-3 top-1/2 sm:-right-6" },
+  { label: "Tập viết", Icon: PencilLine, hue: "leaf", pos: "bottom-6 left-6 sm:-left-3" },
+];
 
 function Hero() {
   return (
-    <section aria-labelledby="hero-title" className="relative px-4 pt-12 sm:px-6 sm:pt-16 lg:pt-20">
-      {/* The wrapper is the logo's own width, so on lg the bubble can hang off
-        its right edge while the logo itself stays centred. */}
-      <div className="relative mx-auto w-full max-w-[30rem] text-center">
-        <h1 id="hero-title">
-          <img
-            src={logoWordmark}
-            alt="Trường Tiếng Việt Của Em"
-            width={1462}
-            height={589}
-            fetchPriority="high"
-            className={["block h-auto w-full", LOGO_OUTLINE].join(" ")}
-          />
-        </h1>
-        <SpellBubble />
-      </div>
+    <section aria-labelledby="hero-title" className="relative overflow-hidden bg-wash">
+      <Container className="grid items-center gap-12 pt-10 pb-16 sm:pt-14 lg:grid-cols-[1.05fr_1fr] lg:gap-10 lg:pt-16 lg:pb-24">
+        <div className="flex flex-col items-start gap-6 animate-rise">
+          <h1 id="hero-title" className="text-display text-ink-900">
+            Học tiếng Việt{" "}
+            <span className="relative whitespace-nowrap text-brand-600">
+              vui nhộn
+              <svg
+                aria-hidden
+                viewBox="0 0 220 18"
+                preserveAspectRatio="none"
+                className="absolute -bottom-2 left-0 h-3.5 w-full text-sun-500 sm:-bottom-3 sm:h-4"
+              >
+                <path
+                  d="M3 13 C 50 4, 120 3, 217 9"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="6"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </span>{" "}
+            cùng Trâu con
+          </h1>
 
-      <Gallery />
+          <p className="max-w-xl text-lede text-ink-600">
+            Hành trình miễn phí cho trẻ em kiều bào 5–12 tuổi: bảng chữ cái, 8 chủ đề với 40 chặng
+            học, luyện nói và tập viết — số hóa từ bộ sách{" "}
+            <strong className="font-semibold text-ink-800">Vui học Tiếng Việt</strong>.
+          </p>
+
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            <Button asChild size="xl">
+              <Link to="/hoc-tap">
+                Bắt đầu học
+                <ArrowRight aria-hidden />
+              </Link>
+            </Button>
+            <Button asChild size="xl" variant="outline">
+              <Link to="/hoc-tap/luyen-noi">
+                <Volume2 className="text-rose-600" aria-hidden />
+                Luyện nói
+              </Link>
+            </Button>
+          </div>
+
+          <ul className="flex flex-wrap gap-x-6 gap-y-2 pt-2 text-sm font-medium text-ink-600">
+            {["Miễn phí trọn đời", "8 chủ đề · 40 chặng học", "Dành cho em 5–12 tuổi"].map((t) => (
+              <li key={t} className="flex items-center gap-2">
+                <span className="grid size-5 place-items-center rounded-full bg-leaf-100 text-leaf-700">
+                  <Check className="size-3" strokeWidth={3.5} aria-hidden />
+                </span>
+                {t}
+              </li>
+            ))}
+          </ul>
+
+          <p className="flex items-center gap-3 border-t border-ink-100 pt-5 text-sm text-ink-600">
+            <img
+              src={uyBan}
+              alt=""
+              className="size-10 rounded-full bg-white object-contain p-0.5 shadow-xs"
+            />
+            <span>
+              Dưới sự bảo trợ của{" "}
+              <strong className="font-semibold text-ink-800">UBNVONN – Bộ Ngoại giao</strong>
+            </span>
+          </p>
+        </div>
+
+        <HeroStage />
+      </Container>
     </section>
   );
 }
 
-/* ── Spelling bubble: the logo "says" a word, letter by letter ───────── */
+/**
+ * The right half of the hero: a rounded stage on the notebook dot grid, Trâu
+ * con standing in it, and the spelling bubble over his head — the product's
+ * mechanism (a word built sound by sound) playing on loop in the first view.
+ */
+function HeroStage() {
+  return (
+    <div className="relative mx-auto w-full max-w-md animate-rise [animation-delay:120ms] lg:max-w-none">
+      <div className="relative aspect-[5/5.2] overflow-hidden rounded-[2.5rem] bg-brand-50 sm:aspect-[5/4.6]">
+        <div aria-hidden className="bg-dots absolute inset-0 opacity-70" />
+        <div
+          aria-hidden
+          className="absolute -right-16 -bottom-24 size-80 rounded-full bg-sun-100"
+        />
+        <div aria-hidden className="absolute -top-20 -left-20 size-64 rounded-full bg-brand-100" />
+
+        <div className="absolute inset-x-0 top-[9%] flex justify-center">
+          <SpellBubble />
+        </div>
+
+        <img
+          src={mascotWave}
+          alt="Trâu con đội nón lá vẫy tay chào"
+          width={296}
+          height={340}
+          fetchPriority="high"
+          className="absolute bottom-0 left-1/2 h-[54%] w-auto -translate-x-1/2 drop-shadow-[0_18px_24px_rgb(20_28_49/0.18)]"
+        />
+      </div>
+
+      {HERO_CHIPS.map(({ label, Icon, hue, pos }, i) => (
+        <span
+          key={label}
+          aria-hidden
+          style={{ animationDelay: `${300 + i * 120}ms` }}
+          className={cn(
+            "absolute flex animate-pop items-center gap-2 rounded-full border border-ink-100 bg-white py-1.5 pr-3.5 pl-1.5 text-sm font-semibold text-ink-800 shadow-md",
+            pos,
+          )}
+        >
+          <span
+            className={cn("grid size-7 place-items-center rounded-full text-white", HUES[hue].fill)}
+          >
+            <Icon className="size-4" strokeWidth={2.5} />
+          </span>
+          {label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/* ── Spelling bubble: a word spelled sound by sound ───────────────────── */
 
 /* Each word split the way a Vietnamese child spells it — "nh" is one sound,
    so it is one tile — with the tone mark kept on its vowel. */
@@ -87,11 +196,12 @@ const SPELL_WORDS = [
   { parts: ["đ", "ỏ"], word: "đỏ" },
 ];
 
-/* Tiles cycle through the stage accents — flat fills, no bevel. */
-const TILE_COLORS = ["bg-stage-5", "bg-stage-2", "bg-stage-4", "bg-stage-1", "bg-stage-3"];
+/* Tiles cycle through the stage hues at their AA step, so the white letters
+   hold contrast on every one of them. */
+const TILE_COLORS = ["bg-stage-5", "bg-brand-600", "bg-stage-4", "bg-stage-1", "bg-stage-3"];
 const WORD_COLORS = [
   "text-stage-5",
-  "text-stage-2",
+  "text-brand-600",
   "text-stage-4",
   "text-stage-1",
   "text-stage-3",
@@ -99,16 +209,8 @@ const WORD_COLORS = [
 
 const SPELL_INTERVAL_MS = 2800;
 
-/**
- * A cartoon speech bubble beside the logo that spells a short word tile by
- * tile, then shows it whole: m · è · o → mèo. It moves on to the next word
- * every few seconds. Purely decorative (aria-hidden) — a live region that
- * changes every three seconds would only be noise for a screen reader.
- *
- * lg+: it hangs off the logo's right edge. Below lg there is no room beside
- * the logo, so it sits centred underneath. Either way the tail curls off its
- * bottom-right corner.
- */
+/** Decorative (aria-hidden): a live region changing every three seconds
+ *  would only be noise for a screen reader. */
 function SpellBubble() {
   const [index, setIndex] = useState(0);
 
@@ -126,64 +228,40 @@ function SpellBubble() {
   return (
     <div
       aria-hidden="true"
-      className="relative mx-auto mt-4 mb-20 w-[15rem] rotate-[6deg] rounded-[1.4rem] border-[3px] border-indigo-deep bg-white px-3.5 py-2.5 shadow-bevel-primary lg:absolute lg:top-[8%] lg:left-full lg:mt-0 lg:mb-0 lg:ml-2 xl:ml-5 xl:w-[17.5rem]"
+      className="relative w-[15.5rem] rounded-3xl bg-white px-4 py-3.5 shadow-lg sm:w-[18rem]"
     >
-      {/* Tail: a curved comic-strip hook off the bottom-right. The SVG starts
-        4px up inside the bubble so its white fill paints over the bubble's
-        bottom border and bevel where they meet; only the two curved sides are
-        stroked, so the join reads as one continuous outline. */}
+      {/* The tail points down at Trâu con. */}
       <svg
-        viewBox="0 0 40 36"
-        className="absolute top-[calc(100%-4px)] right-5 h-9 w-10 overflow-visible"
+        viewBox="0 0 28 16"
+        className="absolute top-[calc(100%-1px)] left-1/2 h-4 w-7 -translate-x-1/2"
       >
-        <path d="M6 0 C 8 14 20 26 37 33 C 28 22 26 12 26 0 Z" className="fill-white" />
-        <path
-          d="M6 0 C 8 14 20 26 37 33 C 28 22 26 12 26 0"
-          fill="none"
-          strokeWidth="3"
-          strokeLinejoin="round"
-          className="stroke-indigo-deep"
-        />
+        <path d="M0 0 H28 L14 16 Z" className="fill-white" />
       </svg>
 
-      {/* The speaker: Trâu con's head at the tip of the tail, counter-rotated
-        so it stays upright while the bubble tilts. */}
-      <img
-        src={buffalo}
-        alt=""
-        className={[
-          "absolute top-[calc(100%+0.75rem)] -right-10 h-14 w-14 -rotate-[6deg] object-contain xl:h-16 xl:w-16",
-          LOGO_OUTLINE,
-        ].join(" ")}
-      />
-
-      {/* Fixed-width bubble, content centred: it holds its size from word to
-        word instead of jumping as they change length. */}
-      <div key={index} className="relative flex items-center justify-center gap-1.5">
+      <div key={index} className="flex items-center justify-center gap-1.5">
         {parts.map((p, i) => (
           <span
             key={i}
             style={{ animationDelay: `${i * 140}ms` }}
-            className={[
-              "grid h-9 min-w-9 animate-tile-pop place-items-center rounded-xl px-1.5 font-display text-xl leading-none font-extrabold text-white xl:h-11 xl:min-w-11 xl:text-[1.7rem]",
+            className={cn(
+              "grid h-10 min-w-10 animate-pop place-items-center rounded-xl px-1.5 text-[1.375rem] leading-none font-extrabold text-white sm:h-12 sm:min-w-12 sm:text-[1.625rem]",
               TILE_COLORS[color(i)],
-            ].join(" ")}
+            )}
           >
             {p}
           </span>
         ))}
-        <span
+        <ArrowRight
           style={{ animationDelay: `${parts.length * 140 + 120}ms` }}
-          className="ml-1 animate-tile-pop font-display text-xl font-extrabold text-indigo-deep"
-        >
-          →
-        </span>
+          className="mx-0.5 size-5 animate-pop text-ink-400"
+          strokeWidth={3}
+        />
         <span
           style={{ animationDelay: `${parts.length * 140 + 240}ms` }}
-          className={[
-            "animate-tile-pop font-display text-2xl leading-none font-extrabold xl:text-[2rem]",
+          className={cn(
+            "animate-pop text-[1.75rem] leading-none font-extrabold sm:text-[2.125rem]",
             WORD_COLORS[color(parts.length)],
-          ].join(" ")}
+          )}
         >
           {word}
         </span>
@@ -192,204 +270,188 @@ function SpellBubble() {
   );
 }
 
-/* ── Gallery: two rows of class photos under the logo ────────────────── */
+/* ── The path: four steps, one journey ────────────────────────────────── */
 
-/* Four photos over three, each its own rounded, white-bordered tile on the
-   sky. It runs on a 12-column grid so both rows fill the width: the top four
-   take 3 columns each at 4:3, the bottom three take 4 columns each at 16:9,
-   which is the same height as the top row (a third wider, same height:
-   4/3 × 4/3 = 16/9). Every tile stands on a faint mirror-image reflection. */
-const PHOTOS = [
-  {
-    src: beGioTheCo,
-    alt: "Em bé mặc áo dài đỏ giơ cao thẻ cờ Việt Nam",
-  },
-  {
-    src: coGiaoKhaiMac,
-    alt: "Cô giáo cầm thẻ cờ Việt Nam trong buổi khai mạc lớp tiếng Việt tương tác, dịp Giỗ Tổ Hùng Vương",
-  },
-  {
-    src: caLopChupChung,
-    alt: "Cô giáo, tình nguyện viên và các em học sinh mặc áo dài chụp ảnh chung, tay cầm sách tiếng Việt",
-  },
-  {
-    src: ghepTheDayLa,
-    alt: "Các em nhỏ chơi ghép thẻ từ vựng “Đây là” quanh bàn",
-  },
-  {
-    src: lopHocTuongTac,
-    alt: "Học sinh, tình nguyện viên và phụ huynh trong buổi học tiếng Việt tương tác",
-  },
-  {
-    src: timTheNguoiThan,
-    alt: "Các em cùng tìm thẻ hình người thân trên bàn",
-  },
-  {
-    src: choiTheTuVung,
-    alt: "Nhóm học sinh cúi xem thẻ từ vựng trải trên bàn",
-  },
-];
-
-const TILE = "overflow-hidden rounded-lg border-2 border-white sm:rounded-xl sm:border-[3px]";
-
-function Gallery() {
-  return (
-    // mb leaves room for the bottom row's reflection before the divider.
-    <ul className="mx-auto mt-6 mb-8 grid max-w-4xl grid-cols-12 gap-2 sm:mt-8 sm:mb-10 sm:gap-3">
-      {PHOTOS.map((p, i) => {
-        const bottomRow = i >= 4;
-        const shape = bottomRow ? "aspect-[16/9]" : "aspect-[4/3]";
-        return (
-          <li
-            key={p.src}
-            className={["relative", bottomRow ? "col-span-4" : "col-span-3"].join(" ")}
-          >
-            <div className={[TILE, shape].join(" ")}>
-              <img
-                src={p.src}
-                alt={p.alt}
-                loading="lazy"
-                decoding="async"
-                className="h-full w-full object-cover"
-              />
-            </div>
-
-            {/* Reflection: a copy of the tile flipped upside down just under
-              it, masked from faint to clear so it fades out like a glossy
-              floor. Drawn with markup rather than -webkit-box-reflect so it
-              works in Firefox too. The top row's reflections fall behind
-              the bottom row: later list items paint over earlier ones, so
-              only a sliver shows in the gap. */}
-            <div
-              aria-hidden="true"
-              className={[
-                TILE,
-                shape,
-                "pointer-events-none absolute inset-x-0 top-full -scale-y-100 [mask-image:linear-gradient(to_top,rgb(0_0_0/0.18),transparent_35%)]",
-              ].join(" ")}
-            >
-              <img
-                src={p.src}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                className="h-full w-full object-cover"
-              />
-            </div>
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
-/* ── Divider: a row of Trâu con poses ───────────────────────────────── */
-
-/* Nine full-body poses — crying and the two peeking crops don't stand on a
-   line. */
-const PARADE = [
-  mascotRunning,
-  mascotWave,
-  mascotReading,
-  mascotFlag,
-  mascotEatingPho,
-  mascotThumbsUp,
-  mascotThinking,
-  mascotCheer,
-  mascotPointing,
-];
-
-/**
- * Divider between the gallery and the content boxes: Trâu con in all his
- * poses, standing in one still row spread across the content width. Phones
- * only have room for the first six. Decorative.
- */
-function BuffaloParade() {
-  return (
-    <div aria-hidden="true" className="my-6 flex items-end justify-between sm:my-8">
-      {PARADE.map((src, i) => (
-        <img
-          key={i}
-          src={src}
-          alt=""
-          className={["h-12 w-auto sm:h-14 lg:h-16", i >= 6 ? "hidden sm:block" : ""].join(" ")}
-        />
-      ))}
-    </div>
-  );
-}
-
-/* ── Mission box: the four steps of the journey ───────────────────────── */
-
-const STEPS = [
+const STEPS: {
+  title: string;
+  img: string;
+  body: string;
+  hue: Hue;
+  to: "/hoc-tap/bang-chu-cai" | "/hoc-tap/luyen-noi" | "/hoc-tap/quyen-{$quyenNumber}";
+  /** Route params, for the two quyển — they share one route. */
+  params?: { quyenNumber: string };
+}[] = [
   {
     title: "Bảng chữ cái",
     img: congVienChuCai,
     body: "Làm quen với bảng chữ cái tiếng Việt qua hình ảnh, âm thanh và trò chơi.",
+    hue: "grape",
+    to: "/hoc-tap/bang-chu-cai",
   },
   {
     title: "Quyển 1",
     img: quyen1Cover,
     body: "Bốn chủ đề đầu tiên: gia đình, trường lớp và những người bạn quanh em.",
+    hue: "brand",
+    to: "/hoc-tap/quyen-{$quyenNumber}",
+    params: { quyenNumber: "1" },
   },
   {
     title: "Quyển 2",
     img: quyen2Cover,
     body: "Bốn chủ đề tiếp theo: quê hương, thiên nhiên và văn hóa Việt Nam.",
+    hue: "coral",
+    to: "/hoc-tap/quyen-{$quyenNumber}",
+    params: { quyenNumber: "2" },
   },
   {
     title: "Luyện nói",
     img: kidsAoDai,
     body: "Nghe, nhắc lại và ghi âm để nói tiếng Việt tự tin, rõ ràng hơn mỗi ngày.",
+    hue: "rose",
+    to: "/hoc-tap/luyen-noi",
   },
 ];
 
-function MissionBox() {
+function Journey() {
   return (
-    <SkyBox
-      tone="lavender"
-      ribbon="Sứ mệnh của dự án"
-      title={
-        <>
-          {/* --indigo, not --primary, for every accent that sits straight on a
-            box tone: the tones carry enough chroma now that --primary only
-            reaches 2.8:1 on them, while --indigo clears 5:1. */}
-          Giúp mọi trẻ em kiều bào <span className="text-indigo">giữ tiếng Việt</span> — miễn phí
-        </>
-      }
-      lede={
-        <>
-          Trường Tiếng Việt Của Em số hóa bộ sách <strong>Vui học Tiếng Việt</strong> thành một hành
-          trình bốn bước: chữ cái, quyển 1, quyển 2 và luyện nói. Miễn phí, trọn đời, cho mọi em
-          nhỏ.
-        </>
-      }
-    >
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {STEPS.map((s, i) => (
-          <SkyCard key={s.title} className="relative flex flex-col">
-            <span className="absolute -top-3 -left-3 grid h-9 w-9 place-items-center rounded-full border-[3px] border-white bg-primary font-display text-sm font-extrabold text-primary-foreground">
-              {i + 1}
-            </span>
-            <h3 className="text-center font-display text-base font-extrabold text-sky-ink">
-              {s.title}
-            </h3>
-            <span className="mt-3 block overflow-hidden rounded-xl border-[3px] border-white">
-              <img src={s.img} alt="" className="aspect-4/3 w-full object-cover" loading="lazy" />
-            </span>
-            <p className="mt-3 flex-1 text-sm leading-relaxed text-sky-ink-soft">{s.body}</p>
-          </SkyCard>
-        ))}
-      </div>
-    </SkyBox>
+    <Section id="su-menh" space="loose" className="scroll-mt-20">
+      <SectionHeading
+        title={
+          <>
+            Giúp mọi trẻ em kiều bào <span className="text-brand-600">giữ tiếng Việt</span> — miễn
+            phí
+          </>
+        }
+        lede={
+          <>
+            Trường Tiếng Việt Của Em số hóa bộ sách Vui học Tiếng Việt thành một hành trình bốn
+            bước. Miễn phí, trọn đời, cho mọi em nhỏ.
+          </>
+        }
+        action={
+          <Button asChild variant="secondary">
+            <Link to="/hoc-tap">
+              Xem tất cả bài học
+              <ArrowRight aria-hidden />
+            </Link>
+          </Button>
+        }
+      />
+
+      <ol className="relative grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+        {/* The dashed route joining the four stops, drawn behind them on lg. */}
+        <span
+          aria-hidden
+          className="absolute top-[4.25rem] right-[12%] left-[12%] hidden border-t-2 border-dashed border-ink-200 lg:block"
+        />
+        {STEPS.map((s, i) => {
+          const h = HUES[s.hue];
+          return (
+            <li key={s.title} className="relative">
+              <Link
+                to={s.to}
+                params={s.params}
+                className="group flex h-full flex-col rounded-3xl p-3 transition-colors duration-200 hover:bg-ink-25"
+              >
+                <span className={cn("relative block overflow-hidden rounded-2xl", h.wash)}>
+                  <img
+                    src={s.img}
+                    alt=""
+                    loading="lazy"
+                    className="aspect-[4/3] w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                  />
+                  <span
+                    className={cn(
+                      "absolute top-3 left-3 grid size-9 place-items-center rounded-full text-sm font-extrabold text-white shadow-md ring-4 ring-white",
+                      h.fill,
+                    )}
+                  >
+                    {i + 1}
+                  </span>
+                </span>
+                <span className="mt-4 flex items-center justify-between gap-2 px-1">
+                  <span className="text-h3 text-ink-900">{s.title}</span>
+                  <ArrowRight
+                    className={cn(
+                      "size-5 shrink-0 -translate-x-1 opacity-0 transition-[opacity,transform] duration-200 group-hover:translate-x-0 group-hover:opacity-100",
+                      h.ink,
+                    )}
+                    aria-hidden
+                  />
+                </span>
+                <span className="mt-2 px-1 text-sm leading-relaxed text-ink-600">{s.body}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ol>
+    </Section>
   );
 }
 
-/* ── About box ────────────────────────────────────────────────────────── */
+/* ── Gallery: the classes behind the platform ─────────────────────────── */
 
-const ROWS = [
+const PHOTOS = [
+  {
+    src: caLopChupChung,
+    alt: "Cô giáo, tình nguyện viên và các em học sinh mặc áo dài chụp ảnh chung, tay cầm sách tiếng Việt",
+    span: "col-span-2 row-span-2",
+  },
+  { src: beGioTheCo, alt: "Em bé mặc áo dài đỏ giơ cao thẻ cờ Việt Nam", span: "" },
+  {
+    src: coGiaoKhaiMac,
+    alt: "Cô giáo cầm thẻ cờ Việt Nam trong buổi khai mạc lớp tiếng Việt tương tác, dịp Giỗ Tổ Hùng Vương",
+    span: "",
+  },
+  { src: ghepTheDayLa, alt: "Các em nhỏ chơi ghép thẻ từ vựng “Đây là” quanh bàn", span: "" },
+  {
+    src: lopHocTuongTac,
+    alt: "Học sinh, tình nguyện viên và phụ huynh trong buổi học tiếng Việt tương tác",
+    span: "",
+  },
+  {
+    src: timTheNguoiThan,
+    alt: "Các em cùng tìm thẻ hình người thân trên bàn",
+    span: "col-span-2 sm:col-span-1",
+  },
+  {
+    src: choiTheTuVung,
+    alt: "Nhóm học sinh cúi xem thẻ từ vựng trải trên bàn",
+    span: "col-span-2 sm:col-span-3",
+  },
+];
+
+function Gallery() {
+  return (
+    <Section band="tint" space="loose">
+      <SectionHeading
+        title="Những lớp học thật phía sau từng bài học"
+        lede="Các buổi học tiếng Việt cộng đồng của CVCEC tại Canada — nơi bộ sách được dạy, chơi và thử nghiệm cùng các em."
+      />
+      <ul className="grid auto-rows-[9rem] grid-cols-2 gap-3 sm:auto-rows-[11rem] sm:grid-cols-4 sm:gap-4 lg:auto-rows-[13rem]">
+        {PHOTOS.map((p) => (
+          <li key={p.src} className={cn("overflow-hidden rounded-2xl bg-ink-100", p.span)}>
+            <img
+              src={p.src}
+              alt={p.alt}
+              loading="lazy"
+              decoding="async"
+              className="h-full w-full object-cover transition-transform duration-700 ease-out hover:scale-[1.03]"
+            />
+          </li>
+        ))}
+      </ul>
+    </Section>
+  );
+}
+
+/* ── About ────────────────────────────────────────────────────────────── */
+
+const ABOUT_ROWS = [
   {
     Icon: BookOpenText,
+    hue: "brand" as Hue,
     heading: "Dự án số hóa",
     body: (
       <>
@@ -401,6 +463,7 @@ const ROWS = [
   },
   {
     Icon: Network,
+    hue: "leaf" as Hue,
     heading: "Hệ sinh thái",
     body: (
       <>
@@ -411,6 +474,7 @@ const ROWS = [
   },
   {
     Icon: Copyright,
+    hue: "grape" as Hue,
     heading: "Bản quyền",
     body: (
       <>
@@ -421,96 +485,106 @@ const ROWS = [
   },
 ];
 
-function AboutBox() {
+function About() {
   return (
-    <SkyBox tone="ice" title="Giới thiệu">
-      {/* The sponsorship is the trust signal, so it leads on its own card
-        above the plain trio. The symbol PNG carries a white matte fringe from
-        how it was cut out, so it sits on a white disc where the fringe
-        disappears rather than being fought. */}
-      <SkyCard className="flex flex-col items-center gap-4 text-center sm:flex-row sm:gap-6 sm:text-left">
-        <span className="grid h-20 w-20 shrink-0 place-items-center rounded-full bg-white sm:h-24 sm:w-24">
-          <img src={chimLac} alt="" className="h-14 w-14 object-contain sm:h-16 sm:w-16" />
-        </span>
-        <span>
-          <span className="block font-display text-lg font-extrabold text-sky-ink">
-            Đồng hành chuyên môn
+    <Section id="gioi-thieu" band="tint" space="loose" className="scroll-mt-20">
+      <div className="grid gap-10 lg:grid-cols-[1fr_1.25fr] lg:gap-16">
+        {/* The endorsement is the trust signal, so it gets the one solid
+          colored block on the page's upper half. */}
+        <div className="relative flex flex-col justify-between gap-10 overflow-hidden rounded-[2rem] bg-brand-600 p-8 text-white sm:p-10">
+          <div
+            aria-hidden
+            className="absolute -top-24 -right-24 size-72 rounded-full bg-brand-500"
+          />
+          <div
+            aria-hidden
+            className="absolute -bottom-32 -left-16 size-72 rounded-full bg-brand-700/60"
+          />
+          <span className="relative grid size-20 place-items-center rounded-3xl bg-white shadow-md">
+            <img src={chimLac} alt="" className="size-14 object-contain" />
           </span>
-          <span className="mt-1 block text-sm leading-relaxed text-sky-ink-soft sm:text-base">
-            Dự án thực hiện dưới sự đồng hành và ủng hộ của{" "}
-            <strong className="text-indigo">
-              Ủy ban Nhà nước về người Việt Nam ở nước ngoài – Bộ Ngoại giao
-            </strong>
-            .
-          </span>
-        </span>
-      </SkyCard>
+          <div className="relative">
+            <h2 className="text-h2 text-white">Đồng hành chuyên môn</h2>
+            <p className="mt-4 text-lede text-brand-50">
+              Dự án thực hiện dưới sự đồng hành và ủng hộ của{" "}
+              <strong className="font-bold text-white">
+                Ủy ban Nhà nước về người Việt Nam ở nước ngoài – Bộ Ngoại giao
+              </strong>
+              .
+            </p>
+          </div>
+        </div>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-3">
-        {ROWS.map((r) => (
-          <SkyCard key={r.heading}>
-            <r.Icon className="h-6 w-6 text-primary" strokeWidth={2.5} aria-hidden />
-            <h3 className="mt-3 font-display text-base font-extrabold text-sky-ink">{r.heading}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-sky-ink-soft">{r.body}</p>
-          </SkyCard>
-        ))}
+        <div className="flex flex-col justify-center">
+          <h2 className="text-h2 text-ink-900">Giới thiệu dự án</h2>
+          <ul className="mt-6 divide-y divide-ink-100">
+            {ABOUT_ROWS.map((r) => {
+              const h = HUES[r.hue];
+              return (
+                <li key={r.heading} className="flex gap-5 py-6 first:pt-2 last:pb-0">
+                  <span
+                    className={cn(
+                      "grid size-12 shrink-0 place-items-center rounded-2xl",
+                      h.wash,
+                      h.ink,
+                    )}
+                  >
+                    <r.Icon className="size-6" strokeWidth={2.25} aria-hidden />
+                  </span>
+                  <div>
+                    <h3 className="text-h3 text-ink-900">{r.heading}</h3>
+                    <p className="mt-1.5 text-[0.9375rem] leading-relaxed text-ink-600 [&_strong]:font-semibold [&_strong]:text-ink-800">
+                      {r.body}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       </div>
-    </SkyBox>
+    </Section>
   );
 }
 
-/* ── Thank-you box ────────────────────────────────────────────────────── */
+/* ── Thanks: a letter, set as a quotation ─────────────────────────────── */
 
-function ThanksBox() {
+function Thanks() {
   return (
-    <div className="relative">
-      {/* Hoa sen nhô lên góc trên như trái tim của hộp đồng hành — cũng phải là
-        anh em của SkyBox vì SkyBox cắt phần tràn. */}
-      <img
-        src={hoaSen}
-        alt=""
-        aria-hidden
-        className="pointer-events-none absolute -top-4 right-4 z-10 h-20 w-20 object-contain sm:-top-5 sm:right-8 sm:h-24 sm:w-24"
-        style={{ filter: "drop-shadow(0 5px 4px oklch(0.28 0.045 260 / 0.28))" }}
-      />
-      <SkyBox tone="pink" title="Lời cảm ơn">
-        <SkyCard className="mx-auto max-w-2xl">
-          <p className="text-sm leading-relaxed text-sky-ink-soft sm:text-base">
+    <Section space="loose" width="content">
+      <figure className="relative mx-auto max-w-3xl text-center">
+        <img src={hoaSen} alt="" aria-hidden className="mx-auto size-20 object-contain" />
+        <Quote aria-hidden className="mx-auto mt-6 size-8 fill-coral-500 text-coral-500" />
+        <h2 className="sr-only">Lời cảm ơn</h2>
+        <blockquote className="mt-5 text-lede leading-relaxed text-ink-700 sm:text-[1.25rem] [&_strong]:font-semibold [&_strong]:text-ink-900">
+          <p>
             Ban quản lý dự án xin được gửi lời cảm ơn chân thành tới{" "}
-            <strong className="text-indigo">
-              Ủy ban Nhà nước về người Việt Nam ở nước ngoài – Bộ Ngoại giao
-            </strong>{" "}
-            nước Cộng hòa xã hội chủ nghĩa Việt Nam đã luôn đồng hành và định hướng. Chúng tôi xin
-            gửi lời tri ân sâu sắc tới các Đại sứ quán, các cơ quan ban ngành tại Việt Nam và
-            Canada, cùng Mạng lưới giảng dạy tiếng Việt đã tạo điều kiện và hỗ trợ quý báu để dự án{" "}
-            <strong className="text-indigo">&quot;Trường Tiếng Việt Của Em&quot;</strong> được hoàn
-            thiện và đi vào vận hành. Sự đồng hành của quý vị là nguồn động lực to lớn giúp chúng
-            tôi gìn giữ và lan tỏa ngôn ngữ, văn hóa Việt đến với thế hệ trẻ tại Canada nói riêng và
-            trên toàn thế giới nói chung.
+            <strong>Ủy ban Nhà nước về người Việt Nam ở nước ngoài – Bộ Ngoại giao</strong> nước
+            Cộng hòa xã hội chủ nghĩa Việt Nam đã luôn đồng hành và định hướng. Chúng tôi xin gửi
+            lời tri ân sâu sắc tới các Đại sứ quán, các cơ quan ban ngành tại Việt Nam và Canada,
+            cùng Mạng lưới giảng dạy tiếng Việt đã tạo điều kiện và hỗ trợ quý báu để dự án{" "}
+            <strong>&quot;Trường Tiếng Việt Của Em&quot;</strong> được hoàn thiện và đi vào vận
+            hành. Sự đồng hành của quý vị là nguồn động lực to lớn giúp chúng tôi gìn giữ và lan tỏa
+            ngôn ngữ, văn hóa Việt đến với thế hệ trẻ tại Canada nói riêng và trên toàn thế giới nói
+            chung.
           </p>
-          <p className="mt-4 text-right font-display text-sm font-extrabold text-indigo">
-            — Ban quản lý dự án
-          </p>
-        </SkyCard>
-      </SkyBox>
-    </div>
+        </blockquote>
+        <figcaption className="mt-6 text-label text-coral-700">— Ban quản lý dự án</figcaption>
+      </figure>
+    </Section>
   );
 }
 
-/* ── Support box ──────────────────────────────────────────────────────── */
+/* ── Support ──────────────────────────────────────────────────────────── */
 
-/**
- * One line of contact: icon, the address itself, and a copy button. Deliberately
- * not a card — it sits under the support headline, where a boxed card would
- * outweigh the copy it belongs to.
- */
-function ContactCard({
+/** One line of contact: icon, the address itself, and a copy button. */
+function ContactRow({
   icon: Icon,
   label,
   value,
   href,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
+  icon: LucideIcon;
   label: string;
   value: string;
   href: string;
@@ -529,37 +603,32 @@ function ContactCard({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-x-1 gap-y-1">
-      <a href={href} className="group flex min-w-0 items-center gap-2.5">
-        {/* Đĩa tròn nhỏ giữ cho icon có cùng trọng lượng với dòng chữ đậm bên
-          cạnh — icon trần trông lạc lõng ở cỡ này. */}
-        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
-          <Icon className="h-3.5 w-3.5" aria-hidden />
-        </span>
-        <span className="text-sm text-sky-ink-soft">{label}:</span>
-        <span className="font-display text-sm font-extrabold text-sky-ink group-hover:text-indigo-deep">
-          {value}
-        </span>
+    <div className="flex items-center gap-2 rounded-2xl border border-ink-100 bg-white p-2 pl-3 shadow-xs">
+      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-coral-50 text-coral-600">
+        <Icon className="size-[1.1rem]" aria-hidden />
+      </span>
+      <a href={href} className="min-w-0 flex-1 hover:text-brand-600">
+        <span className="block text-caption text-ink-500">{label}</span>
+        <span className="block truncate font-semibold text-ink-900">{value}</span>
       </a>
       <button
         type="button"
         onClick={handleCopy}
-        className="grid h-7 w-7 shrink-0 cursor-pointer place-items-center rounded-md text-sky-ink-soft transition-colors hover:bg-white hover:text-primary"
+        className="grid size-10 shrink-0 cursor-pointer place-items-center rounded-xl text-ink-500 transition-colors hover:bg-ink-50 hover:text-ink-900"
         aria-label={"Sao chép " + label}
         title={"Sao chép " + label}
       >
         {copied ? (
-          <Check className="h-4 w-4 text-nav-green" aria-hidden />
+          <Check className="size-4 text-leaf-600" strokeWidth={3} aria-hidden />
         ) : (
-          <Copy className="h-4 w-4" aria-hidden />
+          <Copy className="size-4" aria-hidden />
         )}
       </button>
     </div>
   );
 }
 
-/* Mỗi dòng là một việc mà sự đồng hành trực tiếp nuôi dưỡng — tất cả đều là
-   những gì dự án đang làm, không phải lời hứa. */
+/* Each point is something the project already does, not a promise. */
 const SUPPORT_POINTS = [
   {
     heading: "Giữ toàn bộ chương trình miễn phí",
@@ -575,81 +644,107 @@ const SUPPORT_POINTS = [
   },
 ];
 
-function SupportBox() {
+function Support() {
   return (
-    <div className="relative">
-      {/* SkyBox có overflow-hidden nên trái tim phải là anh em của nó, không
-        phải con — nếu không, phần nhô lên trên sẽ bị viền trắng cắt mất. Bóng
-        đổ dùng drop-shadow inline vì filter phải bám theo hình trái tim, không
-        phải theo ô vuông của icon. */}
-      <Heart
-        aria-hidden
-        className="pointer-events-none absolute -top-6 right-4 z-10 h-20 w-20 rotate-6 fill-stage-5 text-stage-5-deep sm:-top-8 sm:right-8 sm:h-24 sm:w-24"
-        strokeWidth={1.5}
-        style={{ filter: "drop-shadow(0 5px 4px oklch(0.46 0.12 15 / 0.45))" }}
-      />
-      <SkyBox tone="peach" title="Kêu gọi hỗ trợ">
-        <div className="grid gap-5 sm:grid-cols-2 sm:items-start sm:gap-6">
-          {/* Cột trái: lời kêu gọi và hai cách liên hệ. */}
-          <div>
-            <h3 className="font-display text-2xl font-extrabold text-indigo-deep sm:text-3xl">
-              Đồng hành để giữ tiếng Việt cho mọi em nhỏ.
-            </h3>
-            <p className="mt-4 text-sm leading-relaxed text-sky-ink-soft">
-              <strong className="text-indigo">&quot;Trường Tiếng Việt Của Em&quot;</strong> là dự án
-              phi lợi nhuận. Dự án luôn rộng mở đón nhận sự đồng hành, đóng góp và tài trợ từ các
-              bậc phụ huynh, kiều bào và các mạnh thường quân. Mỗi sự đóng góp – dù là nhỏ nhất –
-              đều quý báu.
-            </p>
+    <Section id="dong-hanh" band="tint" space="loose" className="scroll-mt-20">
+      <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
+        <div>
+          <span className="grid size-12 place-items-center rounded-2xl bg-rose-50 text-rose-600">
+            <Heart className="size-6 fill-rose-500 text-rose-500" aria-hidden />
+          </span>
+          <h2 className="mt-5 text-h2 text-ink-900">Đồng hành để giữ tiếng Việt cho mọi em nhỏ</h2>
+          <p className="mt-4 max-w-xl text-lede text-ink-600">
+            &quot;Trường Tiếng Việt Của Em&quot; là dự án phi lợi nhuận. Dự án luôn rộng mở đón nhận
+            sự đồng hành, đóng góp và tài trợ từ các bậc phụ huynh, kiều bào và các mạnh thường
+            quân. Mỗi sự đóng góp – dù là nhỏ nhất – đều quý báu.
+          </p>
+          <div className="mt-8 grid max-w-md gap-3">
+            <ContactRow
+              icon={Mail}
+              label="Email"
+              value="contact@cvcec.org"
+              href="mailto:contact@cvcec.org"
+            />
+            <ContactRow
+              icon={MessageCircle}
+              label="Điện thoại / WhatsApp"
+              value="+1 647 897 2358"
+              href="https://wa.me/16478972358"
+            />
+          </div>
+        </div>
 
-            <div className="mt-5 flex flex-col gap-2">
-              <ContactCard
-                icon={Mail}
-                label="Email"
-                value="contact@cvcec.org"
-                href="mailto:contact@cvcec.org"
-              />
-              <ContactCard
-                icon={MessageCircle}
-                label="Điện thoại"
-                value="+1 647 897 2358"
-                href="https://wa.me/16478972358"
-              />
+        <div className="rounded-[2rem] bg-leaf-50 p-6 sm:p-10">
+          <h3 className="text-h3 text-leaf-700">Đóng góp của bạn giúp</h3>
+          <ul className="mt-6 flex flex-col gap-6">
+            {SUPPORT_POINTS.map((point) => (
+              <li key={point.heading} className="flex gap-4">
+                <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-leaf-600 text-white">
+                  <Check className="size-4" strokeWidth={3} aria-hidden />
+                </span>
+                <span>
+                  <span className="block font-semibold text-ink-900">{point.heading}</span>
+                  <span className="mt-1 block text-[0.9375rem] leading-relaxed text-ink-600">
+                    {point.body}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-8 font-semibold text-leaf-700">Xin chân thành cảm ơn!</p>
+        </div>
+      </div>
+    </Section>
+  );
+}
+
+/* ── Closing call ─────────────────────────────────────────────────────── */
+
+function ClosingCall() {
+  return (
+    <Section space="loose">
+      <div className="relative overflow-hidden rounded-[2.5rem] bg-brand-600 px-6 py-12 sm:px-12 sm:py-16 lg:px-16">
+        <div aria-hidden className="absolute -top-32 -left-24 size-96 rounded-full bg-brand-500" />
+        <div
+          aria-hidden
+          className="absolute -right-10 -bottom-40 size-96 rounded-full bg-sun-500/25"
+        />
+        <div className="relative flex flex-col items-center gap-10 text-center md:flex-row md:justify-between md:text-left">
+          <div className="max-w-xl">
+            <h2 className="text-h1 text-white">Học tiếng Việt mọi lúc, mọi nơi</h2>
+            <p className="mt-4 text-lede text-brand-50">
+              Trâu con đội nón lá đã sẵn sàng. Mở bài học đầu tiên và bắt đầu hành trình của em.
+            </p>
+            <div className="mt-8 flex flex-wrap justify-center gap-3 md:justify-start">
+              <Button asChild size="xl" variant="white">
+                <Link to="/hoc-tap">
+                  Học ngay
+                  <ArrowRight className="text-brand-600" aria-hidden />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="xl"
+                variant="ghost"
+                className="text-white ring-1 ring-white/40 hover:bg-white/10 hover:text-white"
+              >
+                <Link to="/hoc-tap/luyen-noi">
+                  <Volume2 aria-hidden />
+                  Luyện nói
+                </Link>
+              </Button>
             </div>
           </div>
-
-          {/* Cột phải: đóng góp đi về đâu. */}
-          <SkyCard className="sm:p-5">
-            <h4 className="font-display text-xs font-extrabold tracking-[0.12em] text-indigo uppercase sm:text-sm">
-              Đóng góp của bạn giúp
-            </h4>
-            <ul className="mt-4 flex flex-col gap-4">
-              {SUPPORT_POINTS.map((point) => (
-                <li key={point.heading} className="flex gap-3">
-                  <Check
-                    className="mt-0.5 h-5 w-5 shrink-0 text-nav-green"
-                    strokeWidth={3.5}
-                    aria-hidden
-                  />
-                  <span>
-                    <span className="block font-display text-sm font-extrabold text-sky-ink">
-                      {point.heading}
-                    </span>
-                    <span className="mt-0.5 block text-sm leading-relaxed text-sky-ink-soft">
-                      {point.body}
-                    </span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-
-            <p className="mt-5 font-display text-sm font-extrabold text-indigo">
-              Xin chân thành cảm ơn!
-            </p>
-          </SkyCard>
+          <img
+            src={mascotCheer}
+            alt=""
+            aria-hidden
+            loading="lazy"
+            className="h-44 w-auto shrink-0 animate-float drop-shadow-[0_20px_24px_rgb(20_28_49/0.25)] sm:h-56"
+          />
         </div>
-      </SkyBox>
-    </div>
+      </div>
+    </Section>
   );
 }
 
@@ -657,59 +752,17 @@ function SupportBox() {
 
 export function HomePage() {
   return (
-    <div className="relative isolate overflow-hidden">
-      <SkyBackdrop />
-
+    <>
       <Hero />
-
-      {/* pb clears the grass band at the bottom of the backdrop, so the last
-        box never overlaps the hills. */}
-      <div className="relative w-full px-4 pt-8 pb-44 sm:px-6 sm:pt-10 sm:pb-56">
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-9 sm:gap-12">
-          <BuffaloParade />
-
-          <div id="su-menh" className="scroll-mt-24">
-            <MissionBox />
-          </div>
-
-          <div id="tin-tuc" className="scroll-mt-24">
-            <PressNews />
-          </div>
-
-          <div id="gioi-thieu" className="scroll-mt-24">
-            <AboutBox />
-          </div>
-
-          <ThanksBox />
-
-          <div id="dong-hanh" className="scroll-mt-24">
-            <SupportBox />
-          </div>
-
-          {/* Closing call — the reference's "Take Starfall Anywhere" beat. */}
-          <SkyBox
-            tone="mint"
-            title={
-              <>
-                <img src={buffalo} alt="" className="mx-auto mb-2 h-16 w-16 object-contain" />
-                Học tiếng Việt mọi lúc, mọi nơi
-              </>
-            }
-            lede="Trâu con đội nón lá đã sẵn sàng. Mở bài học đầu tiên và bắt đầu hành trình của em."
-          >
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <Link to="/hoc-tap" className={skyButton("primary", "px-6")}>
-                Học ngay
-                <ArrowRight className="h-5 w-5" aria-hidden />
-              </Link>
-              <Link to="/hoc-tap/luyen-noi" className={skyButton("white", "px-6")}>
-                <Volume2 className="h-5 w-5" aria-hidden />
-                Luyện nói
-              </Link>
-            </div>
-          </SkyBox>
-        </div>
+      <Journey />
+      <Gallery />
+      <div id="tin-tuc" className="scroll-mt-20">
+        <PressNews />
       </div>
-    </div>
+      <About />
+      <Thanks />
+      <Support />
+      <ClosingCall />
+    </>
   );
 }

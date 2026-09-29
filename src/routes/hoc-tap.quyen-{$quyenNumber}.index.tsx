@@ -2,7 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { chuDesOfQuyen, learningStructureQueryOptions, parseQuyenNumber } from "@/lib/learning";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
+import { CloudOff } from "lucide-react";
 import { OverworldMap } from "@/components/learning/OverworldMap";
+import { Container } from "@/components/layout/Container";
+import { EmptyState } from "@/components/ui/empty-state";
 
 // "/hoc-tap/quyen-N" is the hub of the book: an overworld map of Việt Nam with one landmark per
 // chủ đề. Moving between chủ đề goes through this map rather than a stepper, so the child always
@@ -46,14 +49,13 @@ function RouteComponent() {
   // map draws every landmark as "sắp có", which is exactly what a book being written looks like.
   if (error || !quyen) {
     return (
-      <section className="flex min-h-[60vh] w-full items-center justify-center px-4 text-center text-navy">
-        <div>
-          <p className="font-display text-lg font-bold">Chưa có dữ liệu bài học.</p>
-          {error ? (
-            <p className="mt-2 text-sm text-muted-foreground">{(error as Error).message}</p>
-          ) : null}
-        </div>
-      </section>
+      <Container width="narrow" className="py-16">
+        <EmptyState
+          icon={CloudOff}
+          title="Chưa có dữ liệu bài học"
+          description={error ? (error as Error).message : "Em thử tải lại trang sau một lát nhé!"}
+        />
+      </Container>
     );
   }
 

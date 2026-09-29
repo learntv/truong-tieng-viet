@@ -9,10 +9,10 @@ import {
   Headphones,
   Image as ImageIcon,
   Link2,
-  Loader2,
   Menu,
   PenLine,
   Play,
+  SearchX,
   X,
 } from "lucide-react";
 import { Link, useCanGoBack, useNavigate, useRouter } from "@tanstack/react-router";
@@ -26,9 +26,13 @@ import { ConfettiBurst } from "./ConfettiBurst";
 import { ImageHighlightOverlay } from "./ImageHighlightOverlay";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageLoader } from "@/components/ui/page-loader";
 import mapPinIcon from "@/assets/map-pin-icon.png";
 
 type StageColor = (typeof STAGE_COLORS)[number];
+
+const STAGE_TONES = ["stage-1", "stage-2", "stage-3", "stage-4", "stage-5"] as const;
 
 // Shared by the mobile inline bar and the desktop fixed pill (see their call sites below) —
 // only sizing/positioning differs between the two, passed in via className.
@@ -62,13 +66,20 @@ function BackToMapButton({
       // the plain left-click is intercepted, and direct-load (no history) falls through.
       onClick={(e) => {
         if (!canGoBack) return;
-        if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
+        if (
+          e.defaultPrevented ||
+          e.button !== 0 ||
+          e.metaKey ||
+          e.ctrlKey ||
+          e.shiftKey ||
+          e.altKey
+        )
           return;
         e.preventDefault();
         router.history.back();
       }}
       aria-label="Quay lại bản đồ"
-      className={[className, color.bgSoft, color.bevel, color.bevelActive].join(" ")}
+      className={[className, color.bgSoft].join(" ")}
     >
       <ArrowLeft className={[arrowClassName, color.text].join(" ")} strokeWidth={3} />
       <img src={mapPinIcon} alt="" className={iconClassName} />
@@ -102,13 +113,13 @@ function AudioButton({ src }: { src: string }) {
         onClick={playing ? pause : play}
         aria-label={playing ? "Dừng" : "Nghe"}
         className={[
-          "cursor-pointer grid h-8 w-8 shrink-0 place-items-center rounded-full transition-[transform,box-shadow,background-color] ease-bounce active:translate-y-[1px]",
+          "grid size-10 shrink-0 cursor-pointer place-items-center rounded-full transition-[transform,background-color,color] duration-200 active:scale-90",
           playing
-            ? "animate-pulse bg-stage-2 text-white shadow-bevel-stage-2-active"
-            : "bg-stage-2-soft text-stage-2-deep hover:brightness-95",
+            ? "animate-pulse-ring bg-stage-2 text-white [--ring-color:var(--color-stage-2)]"
+            : "bg-stage-2-soft text-stage-2-deep hover:bg-stage-2 hover:text-white",
         ].join(" ")}
       >
-        <Headphones className="h-4 w-4" strokeWidth={2.5} />
+        <Headphones className="size-5" strokeWidth={2.25} />
       </button>
     </>
   );
@@ -119,7 +130,7 @@ function VideoEmbed({ url }: { url: string }) {
   if (embedUrl) {
     return (
       <div className="flex flex-col gap-1.5 sm:h-full">
-        <div className="aspect-video w-full overflow-hidden rounded-none ring-1 ring-border/60 sm:aspect-auto sm:min-h-0 sm:flex-1 sm:rounded-xl">
+        <div className="aspect-video w-full overflow-hidden rounded-none bg-ink-900 sm:aspect-auto sm:min-h-0 sm:flex-1 sm:rounded-2xl">
           <iframe
             src={embedUrl}
             className="h-full w-full"
@@ -133,7 +144,7 @@ function VideoEmbed({ url }: { url: string }) {
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex shrink-0 items-center gap-1 self-start text-xs font-medium text-primary hover:underline"
+          className="inline-flex shrink-0 items-center gap-1 self-start px-3 text-caption font-medium text-brand-600 hover:underline sm:px-0"
         >
           <ExternalLink className="h-3.5 w-3.5" />
           Video không phát được? Mở trên YouTube
@@ -142,7 +153,7 @@ function VideoEmbed({ url }: { url: string }) {
     );
   }
   return (
-    <div className="aspect-video w-full overflow-hidden rounded-none ring-1 ring-border/60 sm:aspect-auto sm:h-full sm:rounded-xl">
+    <div className="aspect-video w-full overflow-hidden rounded-none bg-ink-900 sm:aspect-auto sm:h-full sm:rounded-2xl">
       <video src={url} controls className="h-full w-full object-contain" />
     </div>
   );
@@ -170,17 +181,10 @@ function CloudWord({ text, color }: { text: string; color: StageColor }) {
         onClick={play}
         aria-label={`Nghe đọc: ${text}`}
         className={[
-          "relative cursor-pointer overflow-hidden rounded-full border-2 px-3 py-1.5 font-display text-base leading-tight transition-[transform,box-shadow,background-color,color] ease-bounce",
+          "relative cursor-pointer overflow-hidden rounded-full px-4 py-2 text-lg leading-tight font-semibold transition-[transform,box-shadow,background-color,color] duration-200 ease-out hover:-translate-y-0.5 active:scale-95",
           playing
-            ? ["text-white", color.bg, color.border, color.bevel].join(" ")
-            : [
-                color.bgSoft,
-                color.border,
-                color.text,
-                color.bevel,
-                color.bevelActive,
-                "active:translate-y-[3px]",
-              ].join(" "),
+            ? ["text-white", color.bg, color.bevel].join(" ")
+            : [color.bgSoft, color.text, "shadow-xs hover:shadow-sm"].join(" "),
         ].join(" ")}
       >
         {playing && (
@@ -240,7 +244,7 @@ function HinhBlock({
             className={[
               "relative min-h-0 overflow-hidden rounded-none sm:rounded-xl",
               growClass,
-              !isLoaded ? "min-h-48 animate-pulse bg-stone-100 sm:min-h-64" : "",
+              !isLoaded ? "min-h-48 animate-pulse bg-ink-50 sm:min-h-64" : "",
             ].join(" ")}
           >
             {/* Relative wrapper hugging the image exactly, so the %-based highlight
@@ -256,7 +260,7 @@ function HinhBlock({
                   setIsLoaded(true);
                 }}
                 className={[
-                  "w-full max-w-full rounded-none object-contain ring-1 ring-border/60 transition-opacity duration-300 sm:h-full sm:max-h-full sm:rounded-xl",
+                  "w-full max-w-full rounded-none object-contain transition-opacity duration-300 sm:h-full sm:max-h-full sm:rounded-2xl",
                   isLoaded ? "opacity-100" : "opacity-0",
                 ].join(" ")}
               />
@@ -264,7 +268,7 @@ function HinhBlock({
             </div>
           </div>
         ) : (
-          <div className="grid min-h-0 flex-1 place-items-center rounded-none bg-stone-50 text-xs text-muted-foreground ring-1 ring-border/60 sm:rounded-xl">
+          <div className="grid min-h-0 flex-1 place-items-center rounded-none bg-ink-50 text-sm text-ink-500 sm:rounded-2xl">
             (Không tải được hình)
           </div>
         )}
@@ -345,22 +349,25 @@ function ChangProgressHeader({
         color={color}
         quyenNumber={quyenNumber}
         topicIndex={chuDeIndex}
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-[transform,box-shadow] ease-bounce active:translate-y-[2px]"
+        className="flex size-10 shrink-0 items-center justify-center rounded-full transition-transform duration-200 hover:-translate-x-0.5 active:scale-95"
         arrowClassName="h-5 w-5 shrink-0"
         iconClassName="hidden"
       />
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-2">
-          <span className="truncate text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+          <span className="truncate text-caption font-bold tracking-wide text-ink-500 uppercase">
             {isCompleted ? "Đã hoàn thành" : "Tiến độ chặng"}
           </span>
-          <span className="shrink-0 text-xs font-semibold text-navy">
+          <span className="shrink-0 text-sm font-bold text-ink-800 tabular-nums">
             {slideIndex + 1}/{total}
           </span>
         </div>
-        <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-muted">
+        <div className="mt-1.5 h-2.5 w-full overflow-hidden rounded-full bg-ink-100">
           <div
-            className={["h-full rounded-full transition-[width] duration-300", color.bg].join(" ")}
+            className={[
+              "h-full rounded-full transition-[width] duration-500 ease-out",
+              color.gradient,
+            ].join(" ")}
             style={{ width: `${total > 0 ? ((slideIndex + 1) / total) * 100 : 0}%` }}
           />
         </div>
@@ -412,7 +419,7 @@ function LessonSidebar({
   }, [slideIndex]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-none border-border bg-card sm:rounded-2xl sm:border sm:shadow-card">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-none bg-white lg:rounded-3xl lg:border lg:border-ink-100 lg:shadow-sm">
       {/* Desktop only: on mobile this same bar is pinned at the top of the page, outside
           the drawer, so the way back and the progress stay visible without opening it. */}
       <ChangProgressHeader
@@ -426,11 +433,11 @@ function LessonSidebar({
       />
 
       {/* Breadcrumb + chặng stepper */}
-      <div className="shrink-0 border-b border-border px-3 py-2.5">
+      <div className="shrink-0 border-b border-ink-100 px-3 py-3">
         {/* Quyển › Chủ đề, each crumb its own link. */}
         <nav
           aria-label="Đường dẫn"
-          className="flex items-center justify-center gap-1 text-[11px] font-bold uppercase tracking-wide"
+          className="flex items-center justify-center gap-1 text-caption font-bold tracking-wide uppercase"
         >
           <Link
             to="/hoc-tap/quyen-{$quyenNumber}"
@@ -439,7 +446,7 @@ function LessonSidebar({
           >
             Quyển {quyenNumber}
           </Link>
-          <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground" strokeWidth={3} />
+          <ChevronRight className="size-3 shrink-0 text-ink-300" strokeWidth={3} />
           <Link
             to="/hoc-tap/quyen-{$quyenNumber}/chu-de-{$chuDeIndex}"
             params={{ quyenNumber: String(quyenNumber), chuDeIndex: String(chuDeIndex + 1) }}
@@ -454,13 +461,13 @@ function LessonSidebar({
             disabled={!prevChang}
             aria-label="Chặng trước"
             className={[
-              "grid h-7 w-7 shrink-0 place-items-center rounded-full text-navy transition",
-              prevChang ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed opacity-30",
+              "grid size-9 shrink-0 place-items-center rounded-full text-ink-700 transition-colors",
+              prevChang ? "cursor-pointer hover:bg-ink-50" : "cursor-not-allowed opacity-30",
             ].join(" ")}
           >
             <ChevronLeft className="h-4 w-4" strokeWidth={3} />
           </button>
-          <p className="min-w-0 flex-1 truncate text-center font-display text-sm font-bold text-navy">
+          <p className="min-w-0 flex-1 truncate text-center text-sm font-bold text-ink-900">
             Chặng {changIndex + 1}/{changCount}: {chang.title}
           </p>
           <button
@@ -468,8 +475,8 @@ function LessonSidebar({
             disabled={!nextChang}
             aria-label="Chặng kế tiếp"
             className={[
-              "grid h-7 w-7 shrink-0 place-items-center rounded-full text-navy transition",
-              nextChang ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed opacity-30",
+              "grid size-9 shrink-0 place-items-center rounded-full text-ink-700 transition-colors",
+              nextChang ? "cursor-pointer hover:bg-ink-50" : "cursor-not-allowed opacity-30",
             ].join(" ")}
           >
             <ChevronRight className="h-4 w-4" strokeWidth={3} />
@@ -478,7 +485,7 @@ function LessonSidebar({
       </div>
 
       {/* Content items */}
-      <div className="min-h-0 flex-1 overflow-y-auto py-1">
+      <div className="min-h-0 flex-1 overflow-y-auto p-2">
         {slides.map((s, i) => {
           const Icon = slideIcon(s);
           const isActive = i === slideIndex;
@@ -491,10 +498,8 @@ function LessonSidebar({
               ref={isActive ? activeRef : undefined}
               onClick={() => onSelect(i)}
               className={[
-                "flex w-full cursor-pointer items-center gap-3 border-l-4 px-3 py-2.5 text-left transition",
-                isActive
-                  ? [color.bgSoft, color.border].join(" ")
-                  : "border-transparent hover:bg-muted/60",
+                "flex w-full cursor-pointer items-center gap-3 rounded-2xl px-2.5 py-2 text-left transition-colors duration-150",
+                isActive ? color.bgSoft : "hover:bg-ink-25",
               ].join(" ")}
             >
               {/* The item keeps its own kind icon once done — the tick is a small badge
@@ -502,18 +507,18 @@ function LessonSidebar({
               <span className="relative shrink-0">
                 <span
                   className={[
-                    "grid h-8 w-8 place-items-center rounded-lg border",
+                    "grid size-9 place-items-center rounded-xl",
                     isActive
-                      ? [color.bg, color.border, "text-white"].join(" ")
+                      ? [color.bg, "text-white shadow-sm"].join(" ")
                       : isDone
-                        ? "border-stage-1-soft bg-stage-1-soft text-stage-1-deep"
-                        : "border-border bg-card text-muted-foreground",
+                        ? "bg-stage-1-soft text-stage-1-deep"
+                        : "bg-ink-50 text-ink-400",
                   ].join(" ")}
                 >
                   <Icon className="h-4 w-4" strokeWidth={2.5} />
                 </span>
                 {isDone && (
-                  <span className="absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded-full border border-card bg-stage-1 text-white">
+                  <span className="absolute -top-1 -right-1 grid size-4 place-items-center rounded-full bg-stage-1 text-white ring-2 ring-white">
                     <Check className="h-2.5 w-2.5" strokeWidth={4} />
                   </span>
                 )}
@@ -522,12 +527,12 @@ function LessonSidebar({
                 <span
                   className={[
                     "block truncate text-sm font-semibold",
-                    isActive ? color.text : "text-navy",
+                    isActive ? color.text : "text-ink-800",
                   ].join(" ")}
                 >
                   {slideLabel(s, i)}
                 </span>
-                <span className="block truncate text-[11px] text-muted-foreground">
+                <span className="block truncate text-caption text-ink-500">
                   {isActive ? "Đang học" : isDone ? "Đã học" : "Chưa học"}
                 </span>
               </span>
@@ -689,26 +694,32 @@ export function LessonPage({
 
   if (isLoading || authIsLoading || isProgressLoading) {
     return (
-      <div className="flex h-dvh w-full items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex h-dvh w-full bg-ink-25">
+        <PageLoader label="Đang mở bài học" />
       </div>
     );
   }
 
   if (error || !found) {
     return (
-      <div className="flex h-dvh w-full flex-col items-center justify-center bg-background px-4 text-center">
-        <div className="mb-4 text-6xl">🔍</div>
-        <h1 className="mb-2 font-display text-2xl font-bold text-navy">
-          Không tìm thấy bài học
-        </h1>
-        <p className="mb-6 text-muted-foreground">Chặng học này không tồn tại hoặc đã bị xóa.</p>
-        <Button variant="bevel" tone="primary" asChild>
-          <Link to="/hoc-tap/quyen-{$quyenNumber}" params={{ quyenNumber: String(quyenNumber) }}>
-            <ArrowLeft className="h-4 w-4" />
-            Quay lại lộ trình
-          </Link>
-        </Button>
+      <div className="flex h-dvh w-full items-center justify-center bg-ink-25 px-4">
+        <EmptyState
+          icon={SearchX}
+          className="w-full max-w-lg bg-white"
+          title="Không tìm thấy bài học"
+          description="Chặng học này không tồn tại hoặc đã bị xóa."
+          action={
+            <Button asChild>
+              <Link
+                to="/hoc-tap/quyen-{$quyenNumber}"
+                params={{ quyenNumber: String(quyenNumber) }}
+              >
+                <ArrowLeft aria-hidden />
+                Quay lại lộ trình
+              </Link>
+            </Button>
+          }
+        />
       </div>
     );
   }
@@ -799,17 +810,17 @@ export function LessonPage({
   };
 
   return (
-    <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-surface-subtle">
+    <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-ink-25">
       {/* Mobile drawer for the rail. It lives at the page root, not inside the two-pane
           row: the row is its own stacking context (z-10), so a drawer nested in there
           could never rise above the z-20 progress bar below, however high its own z. */}
       {mobileRailOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
-            className="absolute inset-0 bg-black/40 animate-in fade-in"
+            className="absolute inset-0 bg-ink-900/40 backdrop-blur-[3px] animate-in fade-in"
             onClick={() => setMobileRailOpen(false)}
           />
-          <div className="absolute inset-y-0 left-0 w-[85%] max-w-sm animate-in slide-in-from-left duration-200">
+          <div className="absolute inset-y-0 left-0 w-[85%] max-w-sm overflow-hidden rounded-r-3xl shadow-xl animate-in slide-in-from-left duration-200">
             <LessonSidebar
               chuDe={chuDe}
               quyenNumber={quyenNumber}
@@ -840,18 +851,18 @@ export function LessonPage({
         slideIndex={slideIndex}
         total={total}
         isCompleted={isCompleted}
-        className="z-20 flex border-b border-border bg-card lg:hidden"
+        className="z-20 flex border-b border-ink-100 bg-white lg:hidden"
       />
 
       {/* No padding on the row itself: any vertical padding here would also shorten the
           lesson pane, which has to run flush from the strip to the bottom of the window.
           The breathing room around the rail card lives on the rail alone. */}
-      <div className="relative z-10 mx-auto flex w-full min-h-0 max-w-7xl flex-1 items-stretch gap-0 p-0 lg:gap-3">
+      <div className="relative z-10 mx-auto flex w-full min-h-0 max-w-[90rem] flex-1 items-stretch gap-0 p-0 lg:gap-4 lg:p-4">
         {/* Left rail: the chặng's content items (desktop, collapsible) */}
         <aside
           className={[
-            "hidden shrink-0 transition-[width] duration-200 lg:block lg:py-4 lg:pl-4",
-            railOpen ? "w-100 xl:w-112" : "w-0 overflow-hidden lg:p-0",
+            "hidden shrink-0 transition-[width] duration-300 ease-out lg:block",
+            railOpen ? "w-96 xl:w-104" : "w-0 overflow-hidden",
           ].join(" ")}
         >
           <LessonSidebar
@@ -874,14 +885,14 @@ export function LessonPage({
         </aside>
 
         {/* Main content */}
-        <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-card lg:border-l lg:border-border">
+        <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-white lg:rounded-3xl lg:border lg:border-ink-100 lg:shadow-sm">
           {/* Collapse handle: an oval tab riding the lesson panel's own left edge. */}
           <button
             onClick={() => setRailOpen((v) => !v)}
             aria-label={railOpen ? "Ẩn danh sách bài" : "Hiện danh sách bài"}
             // Flush D-tab: square against the panel's own left edge (no radius, no border
             // there), rounded only on the side that pokes into the content.
-            className="absolute left-0 top-1/2 z-20 hidden h-11 w-7 -translate-y-1/2 cursor-pointer place-items-center rounded-l-none rounded-r-full border border-l-0 border-border bg-card text-navy shadow-[1px_1px_4px_rgba(0,0,0,0.10)] transition hover:bg-muted lg:grid"
+            className="absolute top-1/2 left-0 z-20 hidden h-12 w-7 -translate-y-1/2 cursor-pointer place-items-center rounded-r-full border border-l-0 border-ink-100 bg-white text-ink-600 shadow-sm transition-colors hover:bg-ink-50 hover:text-ink-900 lg:grid"
           >
             {railOpen ? (
               <ChevronLeft className="h-4 w-4" strokeWidth={2.5} />
@@ -893,18 +904,18 @@ export function LessonPage({
           {/* Lesson header strip: slide number, nội dung title, and the bài instruction
               text with its audio button — plus the rail toggle while the rail is a drawer
               (the way back to the map lives inside that drawer). */}
-          <div className="flex shrink-0 items-center gap-2 border-b border-border bg-secondary/15 px-3 py-2 sm:gap-3 sm:px-4">
+          <div className="flex shrink-0 items-center gap-3 border-b border-ink-100 px-3 py-3 sm:gap-4 sm:px-6 sm:py-4">
             <button
               onClick={() => setMobileRailOpen(true)}
               aria-label="Danh sách bài"
-              className="grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-full text-navy transition hover:bg-muted lg:hidden"
+              className="grid size-10 shrink-0 cursor-pointer place-items-center rounded-full text-ink-700 transition-colors hover:bg-ink-50 lg:hidden"
             >
               <Menu className="h-4 w-4" strokeWidth={2.5} />
             </button>
 
             <span
               className={[
-                "grid h-7 w-7 shrink-0 place-items-center rounded-full font-display text-xs font-extrabold text-white sm:h-8 sm:w-8 sm:text-sm",
+                "grid size-8 shrink-0 place-items-center rounded-xl text-sm font-extrabold text-white sm:size-9",
                 color.bg,
               ].join(" ")}
             >
@@ -918,10 +929,10 @@ export function LessonPage({
                 {bai?.texts.map((t, i) => (
                   <p
                     key={i}
-                    className="whitespace-pre-line font-display text-sm font-semibold text-navy sm:text-base"
+                    className="text-[0.9375rem] leading-snug font-semibold whitespace-pre-line text-ink-900 sm:text-lg"
                   >
                     {currentNoiDung?.title && i === 0 && (
-                      <span className="mr-1 inline-flex items-center gap-1 align-middle text-sm font-semibold text-stage-2-deep sm:text-base">
+                      <span className="mr-1 inline-flex items-center gap-1 align-middle font-semibold text-stage-2-deep">
                         {currentNoiDung.title}
                         <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-70" />
                       </span>
@@ -936,7 +947,7 @@ export function LessonPage({
             </div>
           </div>
 
-          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-card p-3 sm:overflow-hidden sm:px-8 sm:py-4">
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-3 sm:overflow-hidden sm:px-8 sm:py-5">
             <div
               key={`${currentNoiDung?.id}-${currentSlide?.baiIndex}`}
               className={[
@@ -963,7 +974,7 @@ export function LessonPage({
                   return (
                     <article className="flex flex-col gap-2 sm:min-h-0 sm:flex-1">
                       {hasEmbed ? (
-                        <div className="-mx-3 aspect-video w-auto overflow-hidden rounded-none ring-1 ring-border/60 sm:mx-0 sm:aspect-auto sm:min-h-0 sm:w-full sm:flex-1 sm:rounded-xl">
+                        <div className="-mx-3 aspect-video w-auto overflow-hidden rounded-none bg-ink-50 sm:mx-0 sm:aspect-auto sm:min-h-0 sm:w-full sm:flex-1 sm:rounded-2xl">
                           <iframe
                             src={bai.meta!.link!}
                             className="h-full w-full"
@@ -1013,31 +1024,27 @@ export function LessonPage({
                   );
                 })()
               ) : (
-                <p className="text-center text-sm text-muted-foreground">
-                  Nội dung đang được cập nhật.
-                </p>
+                <p className="text-center text-sm text-ink-500">Nội dung đang được cập nhật.</p>
               )}
             </div>
           </div>
 
-          {/* Action bar — back on the left, the run of dots in the middle, the one
-              primary action (tiếp tục / hoàn thành) on the right. */}
-          <div className="relative flex shrink-0 items-center gap-2 border-t border-border bg-card px-3 py-2.5 sm:gap-4 sm:px-6">
-            <button
+          {/* Action bar — back on the left, where we are in the middle, the one primary
+              action (tiếp tục / hoàn thành) on the right. */}
+          <div className="relative flex shrink-0 items-center gap-2 border-t border-ink-100 bg-white px-3 py-3 sm:gap-4 sm:px-6">
+            <Button
+              variant="outline"
               onClick={() => goTo(slideIndex - 1)}
               disabled={!canPrev}
               aria-label="Bài trước"
-              className={[
-                "flex shrink-0 items-center gap-1.5 rounded-none px-2.5 py-2 text-sm font-medium text-navy transition sm:px-3",
-                canPrev ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed opacity-40",
-              ].join(" ")}
+              className="px-3 sm:px-5"
             >
-              <ChevronLeft className="h-4 w-4" strokeWidth={2.5} />
+              <ChevronLeft aria-hidden />
               <span className="hidden sm:inline">Bài trước</span>
-            </button>
+            </Button>
 
             <div className="flex min-w-0 flex-1 items-center justify-center">
-              <span className="truncate text-sm font-semibold text-navy">
+              <span className="truncate text-sm font-semibold text-ink-600 tabular-nums">
                 Trang {slideIndex + 1} / {total}
               </span>
             </div>
@@ -1045,36 +1052,33 @@ export function LessonPage({
             {isLastSlide ? (
               <>
                 {showConfetti && <ConfettiBurst onDone={() => setShowConfetti(false)} />}
-                <button
-                  onClick={handleComplete}
-                  disabled={isCompleted}
-                  className={[
-                    "relative flex shrink-0 items-center justify-center gap-1.5 overflow-hidden rounded-none px-5 py-2.5 text-sm font-bold transition-colors sm:px-8",
-                    isCompleted
-                      ? "cursor-not-allowed bg-stage-1-soft text-stage-1-deep"
-                      : "cursor-pointer bg-stage-1 text-white hover:brightness-110",
-                  ].join(" ")}
-                >
-                  {!isCompleted && (
-                    <span className="pointer-events-none absolute inset-0 animate-shine bg-gradient-to-r from-transparent via-white/50 to-transparent" />
-                  )}
-                  <Check className="h-4 w-4" strokeWidth={3} />
-                  {isCompleted ? "Đã hoàn thành" : "Hoàn thành"}
-                </button>
+                {isCompleted ? (
+                  <span className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full bg-stage-1-soft px-5 text-[0.9375rem] font-semibold text-stage-1-deep">
+                    <Check className="size-4" strokeWidth={3} aria-hidden />
+                    Đã hoàn thành
+                  </span>
+                ) : (
+                  <Button
+                    tone="stage-1"
+                    onClick={handleComplete}
+                    className="overflow-hidden px-6 sm:px-8"
+                  >
+                    <span className="pointer-events-none absolute inset-0 animate-shine bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                    <Check strokeWidth={3} aria-hidden />
+                    Hoàn thành
+                  </Button>
+                )}
               </>
             ) : (
-              <button
+              <Button
+                tone={STAGE_TONES[changIndex % STAGE_TONES.length]}
                 onClick={() => goTo(slideIndex + 1)}
                 disabled={!canNext}
-                className={[
-                  "flex shrink-0 items-center justify-center gap-1.5 rounded-none px-5 py-2.5 text-sm font-bold text-white transition-colors sm:px-8",
-                  color.bg,
-                  canNext ? "cursor-pointer hover:brightness-110" : "cursor-not-allowed opacity-40",
-                ].join(" ")}
+                className="px-6 sm:px-8"
               >
                 Tiếp tục
-                <ChevronRight className="h-4 w-4" strokeWidth={3} />
-              </button>
+                <ChevronRight strokeWidth={3} aria-hidden />
+              </Button>
             )}
           </div>
         </div>
@@ -1084,34 +1088,32 @@ export function LessonPage({
           clear of the card's own footer buttons on mobile (no dedicated slot for this one,
           since it's transient/dismissible rather than a persistent nav element). */}
       {showNextPrompt && nextChang && (
-        <div className="fixed bottom-16 right-2 z-20 max-w-[calc(100vw-1rem)] animate-in slide-in-from-right fade-in duration-300 sm:bottom-4 sm:right-4">
-          <div className="relative flex items-stretch overflow-hidden rounded-3xl border border-border bg-card shadow-card">
+        <div className="fixed right-3 bottom-20 z-20 max-w-[calc(100vw-1.5rem)] animate-in slide-in-from-right fade-in duration-300 sm:right-6 sm:bottom-24">
+          <div className="relative flex items-stretch overflow-hidden rounded-3xl border border-ink-100 bg-white shadow-xl">
             <button
               onClick={() => setShowNextPrompt(false)}
               aria-label="Đóng"
-              className="absolute right-1.5 top-1.5 grid h-6 w-6 cursor-pointer place-items-center rounded-full text-muted-foreground transition hover:bg-muted"
+              className="absolute top-2 right-2 grid size-7 cursor-pointer place-items-center rounded-full text-ink-400 transition-colors hover:bg-ink-50 hover:text-ink-800"
             >
               <X className="h-3.5 w-3.5" strokeWidth={2.5} />
             </button>
             <button
               onClick={goToNextChang}
-              className="flex cursor-pointer items-center gap-2 py-2.5 pl-3 pr-7 text-left transition hover:brightness-105 sm:gap-3 sm:py-3 sm:pl-4 sm:pr-8"
+              className="flex cursor-pointer items-center gap-3 py-3 pr-10 pl-3 text-left transition-colors hover:bg-ink-25 sm:py-4 sm:pl-4"
             >
               <span
                 className={[
-                  "grid h-10 w-10 shrink-0 place-items-center rounded-2xl text-xl sm:h-12 sm:w-12 sm:text-2xl",
-                  nextColor.bg,
+                  "grid size-12 shrink-0 place-items-center rounded-2xl text-2xl sm:size-14",
+                  nextColor.bgSoft,
                 ].join(" ")}
               >
                 {nextChang.emoji}
               </span>
               <span className="min-w-0">
-                <span className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <span className="block text-caption font-bold tracking-wide text-ink-500 uppercase">
                   Bài kế tiếp
                 </span>
-                <span className="block truncate font-display text-sm font-semibold text-navy">
-                  {nextChang.title}
-                </span>
+                <span className="block truncate font-semibold text-ink-900">{nextChang.title}</span>
               </span>
               <ChevronRight
                 className={["h-5 w-5 shrink-0", nextColor.text].join(" ")}
@@ -1121,7 +1123,6 @@ export function LessonPage({
           </div>
         </div>
       )}
-
     </div>
   );
 }

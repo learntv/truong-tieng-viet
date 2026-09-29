@@ -1,6 +1,16 @@
 import { useMemo, useRef, useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, ChevronLeft, ChevronRight, ThumbsUp, Undo2, Volume2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Flower2,
+  Headphones,
+  MicOff,
+  Smile,
+  ThumbsUp,
+  Volume2,
+  X,
+} from "lucide-react";
 import {
   canRecordAudio,
   compareSentence,
@@ -20,6 +30,9 @@ import { StarRow } from "@/components/learning/StarRow";
 import { Mascot } from "@/components/Mascot";
 import { useSingletonAudio } from "@/hooks/useSingletonAudio";
 import { ttsSrc } from "@/lib/tts/text";
+import { Container } from "@/components/layout/Container";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Button } from "@/components/ui/button";
 import { RecordButton } from "./RecordButton";
 
 type Stage = "ready" | "recording" | "review";
@@ -37,6 +50,8 @@ type GradeResult = {
 // helpful (or kind) — just encourage another try instead of a wall of red.
 // Higher = stricter (more attempts get the "try again" message instead of a diff).
 const TOO_WRONG_RATIO = 0.15;
+
+const STAGE_TONES = ["stage-1", "stage-2", "stage-3", "stage-4", "stage-5"] as const;
 
 export function SpeakingPractice({
   title,
@@ -158,76 +173,52 @@ export function SpeakingPractice({
 
   if (sentences.length === 0) {
     return (
-      <div className="mx-auto max-w-lg px-4 py-20 text-center">
-        <div className="mb-4 text-6xl">🎤</div>
-        <h1 className="mb-2 font-display text-2xl font-bold text-navy">
-          Chủ đề này chưa có câu luyện
-        </h1>
-        <p className="mb-6 text-muted-foreground">Em chọn chủ đề khác để luyện nói nhé!</p>
-        <Link
-          to="/hoc-tap/luyen-noi"
-          className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/90"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Chọn chủ đề khác
-        </Link>
-      </div>
+      <Container width="narrow" className="py-16">
+        <EmptyState
+          icon={MicOff}
+          title="Chủ đề này chưa có câu luyện"
+          description="Em chọn chủ đề khác để luyện nói nhé!"
+          action={
+            <Button asChild>
+              <Link to="/hoc-tap/luyen-noi">Chọn chủ đề khác</Link>
+            </Button>
+          }
+        />
+      </Container>
     );
   }
 
   const isReviewing = stage === "review";
   const showSelfAssess = isReviewing && result != null && !result.graded;
   const showGraded = isReviewing && result != null && result.graded;
+  const tooWrong = showGraded && (result.ratio ?? 1) < TOO_WRONG_RATIO;
+  const showDiff = showGraded && !tooWrong;
 
   return (
-    <div className="relative mx-auto max-w-3xl px-4 pb-6 pt-10 sm:px-6 sm:pt-12">
-      {/* Mobile: no room to float the button outside the card, so it sits inline above. */}
-      <div className="mb-5 sm:hidden">
-        <Link
-          to="/hoc-tap/luyen-noi"
-          aria-label="Chọn chủ đề khác"
-          className={[
-            "grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-[1.15rem] shadow-bevel-neutral transition-[transform,box-shadow] ease-bounce active:translate-y-[2px] active:shadow-bevel-neutral-active",
-            color.bgSoft,
-            color.text,
-          ].join(" ")}
-        >
-          <Undo2 className="h-5 w-5" strokeWidth={2.5} />
-        </Link>
-      </div>
-
-      {/* sm+: floats to the left of the card, aligned with its top edge. */}
-      <Link
-        to="/hoc-tap/luyen-noi"
-        aria-label="Chọn chủ đề khác"
-        className={[
-          "absolute left-0 top-10 hidden -translate-x-[calc(100%+0.75rem)] shrink-0 cursor-pointer place-items-center rounded-[1.15rem] shadow-bevel-neutral transition-[transform,box-shadow] ease-bounce active:translate-y-[2px] active:shadow-bevel-neutral-active sm:top-12 sm:grid sm:h-11 sm:w-11",
-          color.bgSoft,
-          color.text,
-        ].join(" ")}
-      >
-        <Undo2 className="h-5 w-5" strokeWidth={2.5} />
-      </Link>
-
-      {/* Everything below lives in a single Duolingo-style bevel card. */}
+    <div className={["relative flex-1 pb-12", color.bgSoft].join(" ")}>
       <div
-        className={["overflow-hidden rounded-2xl border border-border bg-card", color.bevel].join(
-          " ",
-        )}
-      >
-        {/* Colored header strip */}
-        <div className={["flex items-center gap-3 px-5 py-4 sm:px-8", color.bg].join(" ")}>
-          <span className="text-3xl leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
-            {emoji}
-          </span>
-          <h1 className="font-display text-xl font-bold text-white drop-shadow-sm sm:text-2xl">
-            {title}
-          </h1>
-        </div>
+        aria-hidden
+        className="bg-dots pointer-events-none absolute inset-0 opacity-50 [mask-image:linear-gradient(to_bottom,black,transparent_60%)]"
+      />
 
-        <div className="relative p-5 sm:p-8">
-          {/* Progress */}
-          <div className="mb-1 h-2.5 w-full overflow-hidden rounded-full bg-stone-200 shadow-[inset_0_1px_2px_rgba(0,0,0,0.15)]">
+      <Container width="narrow" className="relative pt-6 sm:pt-8">
+        {/* Top bar: the way out, the topic, and how far through it we are. */}
+        <div className="flex items-center gap-3">
+          <Link
+            to="/hoc-tap/luyen-noi"
+            aria-label="Chọn chủ đề khác"
+            className="grid size-11 shrink-0 place-items-center rounded-full border border-ink-100 bg-white text-ink-600 shadow-xs transition-colors hover:text-ink-900"
+          >
+            <X className="size-5" strokeWidth={2.5} />
+          </Link>
+          <div
+            className="h-3 flex-1 overflow-hidden rounded-full bg-white shadow-[inset_0_1px_2px_rgb(20_28_49/0.08)]"
+            role="progressbar"
+            aria-valuemin={1}
+            aria-valuemax={sentences.length}
+            aria-valuenow={index + 1}
+            aria-label={`Câu ${index + 1} trên ${sentences.length}`}
+          >
             <div
               className={[
                 "h-full rounded-full transition-[width] duration-500 ease-out",
@@ -236,147 +227,141 @@ export function SpeakingPractice({
               style={{ width: `${((index + 1) / sentences.length) * 100}%` }}
             />
           </div>
-          <p className="mb-5 text-xs font-semibold text-muted-foreground">
-            Câu {index + 1}/{sentences.length}
-          </p>
+          <span className="shrink-0 text-sm font-bold tabular-nums text-ink-700">
+            {index + 1}/{sentences.length}
+          </span>
+        </div>
 
+        <h1 className="mt-6 flex items-center gap-3 text-h2 text-ink-900">
+          <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-white text-2xl shadow-xs">
+            {emoji}
+          </span>
+          {title}
+        </h1>
+
+        <div className="relative mt-6 rounded-[2rem] bg-white p-6 shadow-lg sm:p-10">
           {showConfetti && <ConfettiBurst onDone={() => setShowConfetti(false)} />}
 
           {sentence?.imageUrl && (
             <img
               src={sentence.imageUrl}
               alt="Hình minh họa"
-              className="mx-auto mb-5 max-h-52 rounded-xl object-contain ring-1 ring-border/60"
+              className="mx-auto mb-6 max-h-52 rounded-2xl object-contain"
             />
           )}
 
-          {/* When the attempt is too far off, a word-by-word diff just reads as a
-            wall of red — encourage another try instead. */}
-          {(() => {
-            const tooWrong = showGraded && (result.ratio ?? 1) < TOO_WRONG_RATIO;
-            const showDiff = showGraded && !tooWrong;
-            return (
-              <>
-                {/* The sentence — after grading, wrong letters/tones get a red
-                  squiggle right where they are, so the child sees exactly what
-                  to fix. Skipped when the attempt was too far off to diff. */}
-                <div className="mb-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 text-center">
-                  {showDiff && result.words.length > 0 ? (
-                    result.words.map((w, i) => (
+          {/* The sentence — after grading, wrong letters/tones get a red squiggle
+            right where they are, so the child sees exactly what to fix. Skipped
+            when the attempt was too far off to diff. */}
+          <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 text-center">
+            {showDiff && result.words.length > 0 ? (
+              result.words.map((w, i) => (
+                <span
+                  key={i}
+                  className="rounded-lg px-1 py-0.5 text-[1.75rem] font-bold sm:text-[2.125rem]"
+                >
+                  {w.matched ? (
+                    <span className="text-ink-900">{w.word}</span>
+                  ) : w.chars ? (
+                    w.chars.map((c, ci) => (
                       <span
-                        key={i}
-                        className="rounded-lg px-1 py-0.5 font-display text-2xl font-bold sm:text-3xl"
+                        key={ci}
+                        className={
+                          c.ok
+                            ? "text-ink-900"
+                            : "text-danger-600 underline decoration-wavy decoration-2 underline-offset-4"
+                        }
                       >
-                        {w.matched ? (
-                          <span className="text-navy">{w.word}</span>
-                        ) : w.chars ? (
-                          w.chars.map((c, ci) => (
-                            <span
-                              key={ci}
-                              className={
-                                c.ok
-                                  ? "text-navy"
-                                  : "text-destructive underline decoration-wavy decoration-2 underline-offset-4"
-                              }
-                            >
-                              {c.char}
-                            </span>
-                          ))
-                        ) : (
-                          <span className="text-destructive/70 underline decoration-wavy decoration-2 underline-offset-4">
-                            {w.word}
-                          </span>
-                        )}
+                        {c.char}
                       </span>
                     ))
                   ) : (
-                    <p className="font-display text-2xl font-bold leading-snug text-navy sm:text-3xl">
-                      {sentence?.text}
-                    </p>
+                    <span className="text-danger-600/80 underline decoration-wavy decoration-2 underline-offset-4">
+                      {w.word}
+                    </span>
                   )}
+                </span>
+              ))
+            ) : (
+              <p className="text-[1.75rem] leading-snug font-bold text-ink-900 sm:text-[2.125rem]">
+                {sentence?.text}
+              </p>
+            )}
 
-                  {/* Listen to the model pronunciation */}
-                  {sentence && (
-                    <>
-                      <audio
-                        ref={modelAudio.audioRef}
-                        src={modelAudio.src}
-                        preload="none"
-                        onEnded={modelAudio.onEnded}
-                        onPause={modelAudio.onPause}
-                        onError={modelAudio.onError}
-                      />
-                      <button
-                        onClick={modelAudio.play}
-                        aria-label="Nghe cô đọc"
-                        className={[
-                          "inline-grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-full border-2 transition active:scale-90 hover:-translate-y-0.5",
-                          color.bgSoft,
-                          color.border,
-                          color.text,
-                        ].join(" ")}
-                      >
-                        <Volume2 className="h-5 w-5" strokeWidth={2.5} />
-                      </button>
-                    </>
-                  )}
-                </div>
-
-                {/* Reserves the feedback row's height up front (even with nothing
-                  in it yet) so the card doesn't grow/shrink once grading lands. */}
-                <div className="mb-6 flex min-h-[2.25rem] items-center justify-center text-center sm:min-h-[2.5rem]">
-                  {tooWrong ? (
-                    <p className="font-display text-base font-semibold text-amber-500 sm:text-lg">
-                      Cô nghe không rõ, em thử lại nhé! 🌼
-                    </p>
-                  ) : (
-                    showGraded &&
-                    result.transcript && (
-                      <div className="inline-flex max-w-full items-center gap-2 rounded-full bg-muted px-4 py-2 text-base font-semibold text-muted-foreground sm:text-lg">
-                        <span aria-hidden>🎧</span>
-                        <span>
-                          Con đã nói: “
-                          {result.spokenWords && result.spokenWords.length > 0 ? (
-                            result.spokenWords.map((w, i) => (
-                              <span key={i}>
-                                {i > 0 && " "}
-                                <span
-                                  className={[
-                                    "font-display font-semibold",
-                                    w.extra
-                                      ? "rounded bg-amber-100 text-amber-700"
-                                      : "italic text-navy",
-                                  ].join(" ")}
-                                >
-                                  {w.word}
-                                </span>
-                              </span>
-                            ))
-                          ) : (
-                            <span className="font-display font-semibold italic text-navy">
-                              {result.transcript}
-                            </span>
-                          )}
-                          ”
-                        </span>
-                      </div>
-                    )
-                  )}
-                </div>
+            {/* Listen to the model pronunciation */}
+            {sentence && (
+              <>
+                <audio
+                  ref={modelAudio.audioRef}
+                  src={modelAudio.src}
+                  preload="none"
+                  onEnded={modelAudio.onEnded}
+                  onPause={modelAudio.onPause}
+                  onError={modelAudio.onError}
+                />
+                <button
+                  onClick={modelAudio.play}
+                  aria-label="Nghe cô đọc"
+                  className={[
+                    "ml-1 inline-grid size-11 shrink-0 cursor-pointer place-items-center rounded-full text-white transition-transform duration-200 hover:-translate-y-0.5 active:scale-90",
+                    color.bg,
+                    color.bevel,
+                  ].join(" ")}
+                >
+                  <Volume2 className="size-5" strokeWidth={2.5} />
+                </button>
               </>
-            );
-          })()}
+            )}
+          </div>
+
+          {/* Reserves the feedback row's height up front so the card doesn't
+            grow or shrink once grading lands. */}
+          <div className="mt-5 flex min-h-11 items-center justify-center text-center">
+            {tooWrong ? (
+              <p className="inline-flex items-center gap-2 rounded-full bg-sun-50 px-4 py-2 font-semibold text-sun-700">
+                <Flower2 className="size-5" aria-hidden />
+                Cô nghe không rõ, em thử lại nhé!
+              </p>
+            ) : (
+              showGraded &&
+              result.transcript && (
+                <div className="inline-flex max-w-full items-center gap-2 rounded-full bg-ink-50 px-4 py-2 text-base font-medium text-ink-600">
+                  <Headphones className="size-4 shrink-0" aria-hidden />
+                  <span>
+                    Con đã nói: “
+                    {result.spokenWords && result.spokenWords.length > 0 ? (
+                      result.spokenWords.map((w, i) => (
+                        <span key={i}>
+                          {i > 0 && " "}
+                          <span
+                            className={
+                              w.extra
+                                ? "rounded bg-sun-100 px-0.5 font-semibold text-sun-700"
+                                : "font-semibold text-ink-900 italic"
+                            }
+                          >
+                            {w.word}
+                          </span>
+                        </span>
+                      ))
+                    ) : (
+                      <span className="font-semibold text-ink-900 italic">{result.transcript}</span>
+                    )}
+                    ”
+                  </span>
+                </div>
+              )
+            )}
+          </div>
 
           {showGraded && !grading && (
-            <div className="mb-6 flex justify-center">
-              {/* Stars stay centered on the card — the same spot they occupy
-                before grading — with Trâu con hung off their left edge so he
-                does not push them off-centre. He reacts to the attempt: never
-                disappointed, just thoughtful when it did not land, so a miss
-                stays encouraging. */}
+            <div className="mt-4 flex justify-center">
+              {/* Stars stay centred, with Trâu con hung off their left edge.
+                He reacts to the attempt: never disappointed, just thoughtful
+                when it did not land, so a miss stays encouraging. */}
               <div className="relative">
                 <Mascot
-                  className="absolute right-full top-1/2 mr-3 -translate-y-1/2"
+                  className="absolute top-1/2 right-full mr-3 -translate-y-1/2"
                   pose={result.stars === 3 ? "cheer" : result.stars > 0 ? "thumbs-up" : "thinking"}
                   size="sm"
                   decorative
@@ -387,85 +372,68 @@ export function SpeakingPractice({
           )}
 
           {stage !== "review" && (
-            <div className="mb-6 flex justify-center">
+            <div className="mt-4 flex justify-center">
               <StarRow stars={bestStars} animated={false} loading={stage === "recording"} />
             </div>
           )}
 
           {/* Record / review area */}
-          {!canRecord || micDenied ? (
-            <div className="mx-auto max-w-sm rounded-2xl bg-sky/30 p-4 text-center">
-              <p className="text-sm font-semibold text-navy">
-                {micDenied
-                  ? "Micro chưa được bật. Không sao — em nghe cô đọc rồi đọc to theo nhé!"
-                  : "Thiết bị này chưa ghi âm được. Em nghe cô đọc rồi đọc to theo nhé!"}
-              </p>
-              <button
-                onClick={handleRepeatedAloud}
-                className="mt-3 inline-flex items-center gap-2 rounded-full bg-gradient-primary px-5 py-2.5 font-display text-sm font-medium text-white shadow-sm transition hover:scale-105 active:scale-95"
-              >
-                <ThumbsUp className="h-4 w-4" strokeWidth={2.5} />
-                Em đã đọc to theo cô!
-              </button>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-5">
-              {isReviewing && showSelfAssess && !grading && (
-                <div className="flex w-full max-w-md flex-col items-center gap-4">
-                  <button
-                    onClick={handleSelfAssessDone}
-                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-400 to-green-600 px-5 py-2.5 font-display text-sm font-medium text-white shadow-sm transition hover:scale-105 active:scale-95"
-                  >
-                    😊 Giống rồi!
-                  </button>
-                </div>
-              )}
+          <div className="mt-8">
+            {!canRecord || micDenied ? (
+              <div className="mx-auto max-w-sm rounded-3xl bg-sky-50 p-5 text-center">
+                <p className="text-sm font-medium text-sky-700">
+                  {micDenied
+                    ? "Micro chưa được bật. Không sao — em nghe cô đọc rồi đọc to theo nhé!"
+                    : "Thiết bị này chưa ghi âm được. Em nghe cô đọc rồi đọc to theo nhé!"}
+                </p>
+                <Button onClick={handleRepeatedAloud} className="mt-4">
+                  <ThumbsUp aria-hidden />
+                  Em đã đọc to theo cô!
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-5">
+                {isReviewing && showSelfAssess && !grading && (
+                  <Button onClick={handleSelfAssessDone} tone="stage-1">
+                    <Smile aria-hidden />
+                    Giống rồi!
+                  </Button>
+                )}
 
-              {/* Record button stays mounted (just disabled) while grading —
-                unmounting it here left a blank gap that popped back in once
-                grading finished. It also stays put after review, so the child
-                can tap it again right away with no separate "try again" tap. */}
-              <RecordButton
-                onStart={handleRecordStart}
-                onFinish={handleRecordFinish}
-                onMicDenied={() => setMicDenied(true)}
-                disabled={grading}
-              />
-            </div>
-          )}
-
-          {/* Bottom nav — lives inside the same card, separated by a divider */}
-          <div className="mt-6 flex items-center justify-between gap-3 border-t border-border pt-5">
-            <button
-              onClick={() => goTo(index - 1)}
-              disabled={index === 0}
-              className={[
-                "inline-flex items-center gap-1.5 rounded-full border-2 border-black/10 bg-white px-4 py-2.5 text-sm font-extrabold text-navy shadow-bevel-neutral transition-[transform,box-shadow] ease-bounce active:translate-y-[2px] active:shadow-bevel-neutral-active",
-                index > 0 ? "hover:brightness-95" : "cursor-not-allowed opacity-40",
-              ].join(" ")}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Câu trước
-            </button>
-
-            <button
-              onClick={() => goTo(index + 1)}
-              disabled={index >= sentences.length - 1}
-              className={[
-                "inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-extrabold text-white transition-[transform,box-shadow,filter] ease-bounce active:translate-y-[2px]",
-                index < sentences.length - 1
-                  ? [color.gradient, color.bevel, color.bevelActive, "hover:brightness-110"].join(
-                      " ",
-                    )
-                  : "cursor-not-allowed bg-muted text-muted-foreground opacity-60",
-              ].join(" ")}
-            >
-              Câu tiếp theo
-              <ChevronRight className="h-4 w-4" />
-            </button>
+                {/* Stays mounted (just disabled) while grading, and stays put after
+                  review, so the child can tap it again right away. */}
+                <RecordButton
+                  onStart={handleRecordStart}
+                  onFinish={handleRecordFinish}
+                  onMicDenied={() => setMicDenied(true)}
+                  disabled={grading}
+                />
+              </div>
+            )}
           </div>
         </div>
-      </div>
+
+        <div className="mt-6 flex items-center justify-between gap-3">
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => goTo(index - 1)}
+            disabled={index === 0}
+          >
+            <ChevronLeft aria-hidden />
+            Câu trước
+          </Button>
+          <Button
+            size="lg"
+            tone={STAGE_TONES[colorIndex % STAGE_TONES.length]}
+            onClick={() => goTo(index + 1)}
+            disabled={index >= sentences.length - 1}
+          >
+            Câu tiếp theo
+            <ChevronRight aria-hidden />
+          </Button>
+        </div>
+      </Container>
     </div>
   );
 }

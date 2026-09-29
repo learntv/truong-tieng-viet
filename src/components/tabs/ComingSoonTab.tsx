@@ -1,16 +1,24 @@
-import { Star } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Sparkles } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Button } from "@/components/ui/button";
+import { Container } from "@/components/layout/Container";
 import { Mascot } from "@/components/Mascot";
 
 export function ComingSoonTab() {
   return (
-    <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-24">
+    <Container width="content" className="pb-20">
       <EmptyState
-        icon={Star}
-        illustration={<Mascot pose="peeking" size="lg" decorative />}
-        title="Góc của em"
-        description="Mục này đang được xây dựng và sẽ sớm ra mắt các bạn nhỏ nhé! 👧✏️📝🧸✈️"
+        icon={Sparkles}
+        illustration={<Mascot pose="peeking" size="lg" decorative className="animate-bob" />}
+        title="Góc của em đang được xây dựng"
+        description="Mục này sẽ sớm ra mắt các bạn nhỏ nhé! Trong lúc chờ, em vào học một bài mới cùng Trâu con."
+        action={
+          <Button asChild>
+            <Link to="/hoc-tap">Vào học tập</Link>
+          </Button>
+        }
       />
-    </section>
+    </Container>
   );
 }

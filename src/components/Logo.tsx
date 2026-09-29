@@ -3,8 +3,8 @@ import buffaloIcon from "@/assets/buffalo-icon.png";
 import logoWordmark from "@/assets/logo-wordmark.png";
 
 const SIZES = {
-  sm: { badge: "h-10 w-10", text: "text-sm", wordmark: "h-14" },
-  md: { badge: "h-11 w-11", text: "text-base", wordmark: "h-11" },
+  sm: { badge: "h-10 w-10", text: "text-sm", wordmark: "h-10 md:h-12" },
+  md: { badge: "h-11 w-11", text: "text-base", wordmark: "h-14" },
 };
 
 export function Logo({
@@ -43,7 +43,7 @@ export function Logo({
           className={cn(
             "font-display font-bold leading-none",
             text,
-            light ? "text-white" : "text-primary",
+            light ? "text-white" : "text-coral-600",
           )}
         >
           Trường Tiếng Việt
@@ -52,7 +52,7 @@ export function Logo({
           className={cn(
             "font-display font-bold leading-none",
             text,
-            light ? "text-white/85" : "text-navy",
+            light ? "text-white/85" : "text-ink-900",
           )}
         >
           Của Em

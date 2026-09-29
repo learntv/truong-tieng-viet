@@ -1,5 +1,5 @@
 import { ExternalLink } from "lucide-react";
-import { SkyBox } from "@/components/ui/sky-box";
+import { Section, SectionHeading } from "@/components/layout/Section";
 import { PressVideo } from "./PressVideo";
 import daiDoanKetCover from "@/assets/press/dai-doan-ket-cover.webp";
 import daiDoanKetLogo from "@/assets/press/dai-doan-ket-logo.png";
@@ -9,7 +9,7 @@ import vietnamPlusCover from "@/assets/press/vietnamplus-cover.webp";
 import vietnamPlusLogo from "@/assets/press/vietnamplus-logo.png";
 
 /**
- * The homepage's one press box: the VNA television report up top as the
+ * The homepage's press section: the VNA television report up top as the
  * featured piece (played in place, see PressVideo), then newspaper articles
  * about CVCEC's work in Canada, newest first.
  *
@@ -64,70 +64,67 @@ const formatDate = (iso: string) => iso.split("-").reverse().join("-");
 
 export function PressNews() {
   return (
-    <SkyBox
-      tone="cream"
-      ribbon="Tin tức"
-      title="Báo chí viết về chúng tôi"
-      lede={
-        <>
-          Nền tảng học tiếng Việt, các lớp học, tủ sách và hoạt động của{" "}
-          <strong>Hội đồng Văn hóa Giáo dục Canada–Việt Nam</strong> qua góc nhìn của báo chí trong
-          nước.
-        </>
-      }
-    >
+    <Section space="loose">
+      <SectionHeading
+        title="Báo chí viết về chúng tôi"
+        lede={
+          <>
+            Nền tảng học tiếng Việt, các lớp học, tủ sách và hoạt động của Hội đồng Văn hóa Giáo dục
+            Canada–Việt Nam qua góc nhìn của báo chí trong nước.
+          </>
+        }
+      />
+
       <PressVideo />
 
-      {/* Three across only from lg, where each card still gets ~17rem. Between
-        sm and lg a third of the box is too narrow for a headline, so each card
-        lies on its side instead — photo left, text right — rather than
-        stacking three full-width photos one above the other. */}
-      <ul className="mt-4 grid gap-4 lg:grid-cols-3">
+      {/* Three across from lg; between sm and lg each card lies on its side —
+        photo left, text right — instead of three full-width photos stacked. */}
+      <ul className="mt-5 grid gap-5 lg:grid-cols-3">
         {ARTICLES.map((a) => (
           <li key={a.url} className="flex">
             <a
               href={a.url}
               target="_blank"
               rel="noreferrer"
-              className="group flex w-full flex-col overflow-hidden rounded-2xl border-[3px] border-white bg-white transition-transform duration-200 hover:-translate-y-1 sm:max-lg:flex-row"
+              className="group flex w-full flex-col overflow-hidden rounded-3xl border border-ink-100 bg-white shadow-xs transition-[box-shadow,transform] duration-300 ease-out hover:-translate-y-1 hover:shadow-lg sm:max-lg:flex-row"
             >
-              <span className="relative block aspect-video shrink-0 overflow-hidden bg-box-cream-deep sm:max-lg:aspect-auto sm:max-lg:w-2/5">
+              <span className="relative block aspect-video shrink-0 overflow-hidden bg-ink-100 sm:max-lg:aspect-auto sm:max-lg:w-2/5">
                 <img
                   src={a.cover}
                   alt=""
                   loading="lazy"
-                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
                 />
               </span>
 
-              <span className="flex flex-1 flex-col p-4">
+              <span className="flex flex-1 flex-col p-5 sm:p-6">
                 {/* The masthead is the source line, so its alt is the paper's name. */}
                 <span className="flex min-h-8 items-center justify-between gap-3">
                   <img src={a.logo} alt={a.press} className={`${a.logoClass} w-auto`} />
                   <time
                     dateTime={a.date}
-                    className="shrink-0 font-display text-xs font-bold text-sky-ink-soft"
+                    className="shrink-0 text-caption font-medium text-ink-500"
                   >
                     {formatDate(a.date)}
                   </time>
                 </span>
 
-                <span className="mt-3 font-display text-base leading-snug font-extrabold text-sky-ink group-hover:text-indigo-deep">
+                <span className="mt-4 text-h3 text-ink-900 transition-colors group-hover:text-brand-700">
                   {a.title}
                 </span>
-                <span className="mt-2 line-clamp-3 text-sm leading-relaxed text-sky-ink-soft">
+                <span className="mt-2 line-clamp-3 text-sm leading-relaxed text-ink-600">
                   {a.excerpt}
                 </span>
 
-                <span className="mt-auto inline-flex items-center gap-1.5 pt-3 font-display text-sm font-extrabold text-indigo">
+                <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-sm font-semibold text-brand-600">
                   Đọc bài
-                  <ExternalLink className="h-4 w-4" aria-hidden />
+                  <ExternalLink className="size-4" aria-hidden />
                 </span>
               </span>
             </a>
           </li>
         ))}
       </ul>
-    </SkyBox>
+    </Section>
   );
 }

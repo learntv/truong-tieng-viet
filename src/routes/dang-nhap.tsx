@@ -1,20 +1,35 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  BookmarkCheck,
+  Gift,
+  Loader2,
+  MailCheck,
+  Star,
+  type LucideIcon,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Logo } from "@/components/Logo";
+import { Field } from "@/components/ui/field";
+import { Mascot } from "@/components/Mascot";
+import { Container } from "@/components/layout/Container";
 
 type AuthTab = "login" | "register";
+
+const PERKS: { Icon: LucideIcon; label: string }[] = [
+  { Icon: BookmarkCheck, label: "Lưu tiến độ từng chặng học" },
+  { Icon: Star, label: "Giữ lại sao luyện nói của em" },
+  { Icon: Gift, label: "Miễn phí trọn đời" },
+];
 
 export const Route = createFileRoute("/dang-nhap")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -65,12 +80,12 @@ function GoogleButton({ onClick, loading }: { onClick: () => void; loading: bool
       type="button"
       onClick={onClick}
       disabled={loading}
-      className="flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-white px-4 py-3 text-sm font-medium text-foreground shadow-sm transition-all hover:bg-muted disabled:opacity-60"
+      className="flex h-12 w-full cursor-pointer items-center justify-center gap-3 rounded-full border border-ink-200 bg-white px-4 text-[0.9375rem] font-semibold text-ink-800 shadow-xs transition-[background-color,border-color,box-shadow] duration-200 hover:border-ink-300 hover:bg-ink-25 hover:shadow-sm disabled:opacity-60"
     >
       {loading ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <Loader2 className="size-5 animate-spin" />
       ) : (
-        <svg className="h-4 w-4" viewBox="0 0 24 24">
+        <svg className="size-5" viewBox="0 0 24 24" aria-hidden>
           <path
             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
             fill="#4285F4"
@@ -122,53 +137,47 @@ function ForgotPasswordView({ onBack }: { onBack: () => void }) {
 
   if (sent) {
     return (
-      <div className="space-y-4 text-center">
-        <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-green/20 text-2xl">
-          ✉️
-        </div>
-        <p className="text-sm text-muted-foreground">
+      <div className="flex flex-col items-center gap-4 py-4 text-center">
+        <span className="grid size-16 place-items-center rounded-2xl bg-leaf-50 text-leaf-600">
+          <MailCheck className="size-8" aria-hidden />
+        </span>
+        <h2 className="text-h3 text-ink-900">Đã gửi email!</h2>
+        <p className="text-sm text-ink-600">
           Email đặt lại mật khẩu đã được gửi. Kiểm tra hộp thư của bạn.
         </p>
-        <button
-          type="button"
-          onClick={onBack}
-          className="flex items-center gap-1 text-sm font-medium text-primary hover:underline mx-auto"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
+        <Button variant="ghost" onClick={onBack}>
+          <ArrowLeft aria-hidden />
           Quay lại đăng nhập
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-5">
       <div>
-        <button
-          type="button"
-          onClick={onBack}
-          className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
+        <Button variant="ghost" size="sm" onClick={onBack} className="-ml-3">
+          <ArrowLeft aria-hidden />
           Quay lại
-        </button>
-        <p className="mt-2 text-sm text-muted-foreground">
+        </Button>
+        <h2 className="mt-3 text-h3 text-ink-900">Quên mật khẩu?</h2>
+        <p className="mt-1 text-sm text-ink-600">
           Nhập email của bạn và chúng tôi sẽ gửi liên kết đặt lại mật khẩu.
         </p>
       </div>
-      <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-        <div className="space-y-1.5">
-          <Label htmlFor="forgot-email">Email</Label>
+      <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <Field id="forgot-email" label="Email" error={errors.email?.message}>
           <Input
             id="forgot-email"
             type="email"
+            autoComplete="email"
             placeholder="em@example.com"
+            aria-invalid={!!errors.email}
             {...register("email")}
           />
-          {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
-        </div>
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        </Field>
+        <Button type="submit" size="lg" className="w-full" disabled={loading}>
+          {loading && <Loader2 className="animate-spin" aria-hidden />}
           Gửi email đặt lại mật khẩu
         </Button>
       </form>
@@ -221,31 +230,46 @@ function EmailForm({
   };
 
   return (
-    <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-      <div className="space-y-1.5">
-        <Label htmlFor="auth-email">Email</Label>
-        <Input id="auth-email" type="email" placeholder="em@example.com" {...register("email")} />
-        {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
-      </div>
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="auth-password">Mật khẩu</Label>
-          {mode === "login" && (
+    <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+      <Field id={`auth-email-${mode}`} label="Email" error={errors.email?.message}>
+        <Input
+          id={`auth-email-${mode}`}
+          type="email"
+          autoComplete="email"
+          placeholder="em@example.com"
+          aria-invalid={!!errors.email}
+          {...register("email")}
+        />
+      </Field>
+      <Field
+        id={`auth-password-${mode}`}
+        label="Mật khẩu"
+        error={errors.password?.message}
+        hint={mode === "register" ? "Tối thiểu 6 ký tự." : undefined}
+        aside={
+          mode === "login" && (
             <button
               type="button"
               onClick={onForgotPassword}
-              className="text-xs font-medium text-primary hover:underline"
+              className="cursor-pointer text-sm font-semibold text-brand-600 hover:underline"
             >
               Quên mật khẩu?
             </button>
-          )}
-        </div>
-        <Input id="auth-password" type="password" placeholder="••••••" {...register("password")} />
-        {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
-      </div>
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        {mode === "login" ? "Đăng nhập" : "Đăng ký"}
+          )
+        }
+      >
+        <Input
+          id={`auth-password-${mode}`}
+          type="password"
+          autoComplete={mode === "login" ? "current-password" : "new-password"}
+          placeholder="••••••"
+          aria-invalid={!!errors.password}
+          {...register("password")}
+        />
+      </Field>
+      <Button type="submit" size="lg" className="mt-1 w-full" disabled={loading}>
+        {loading && <Loader2 className="animate-spin" aria-hidden />}
+        {mode === "login" ? "Đăng nhập" : "Tạo tài khoản"}
       </Button>
     </form>
   );
@@ -284,60 +308,85 @@ function AuthPage() {
   const handleSuccess = () => navigate({ to: destination, replace: true });
 
   return (
-    // The sign-in card sits straight on the sky (see __root's bare-sky list),
-    // centred in the viewport minus the navbar so the page reads as one screen.
-    <div className="flex min-h-[calc(100svh-16rem)] items-center justify-center">
-      <div className="w-full max-w-md border-[6px] border-white bg-white p-6 shadow-2xl sm:border-[8px] sm:p-8">
-        <div className="mb-6 flex flex-col items-center text-center">
-          <Link to="/" aria-label="Về trang chủ">
-            <Logo size="md" variant="wordmark" />
-          </Link>
-          <h1 className="mt-4 font-display text-2xl font-bold text-navy">
-            {tab === "register" ? "Tạo tài khoản" : "Chào em trở lại!"}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Đăng nhập để lưu tiến độ học tập của em.
-          </p>
+    <section className="relative flex flex-1 items-center overflow-hidden bg-wash py-10 sm:py-16">
+      <Container className="grid items-stretch gap-8 lg:grid-cols-2 lg:gap-0">
+        {/* Welcome panel — desktop only; on a phone the form is the whole job. */}
+        <div className="relative hidden flex-col justify-between overflow-hidden rounded-[2rem] bg-brand-600 p-10 text-white lg:flex lg:rounded-r-none">
+          <div
+            aria-hidden
+            className="absolute -top-24 -right-24 size-80 rounded-full bg-brand-500"
+          />
+          <div
+            aria-hidden
+            className="absolute -bottom-28 -left-20 size-72 rounded-full bg-sun-500/25"
+          />
+          <div className="relative">
+            <h2 className="text-h1 text-white">Chào mừng em đến lớp!</h2>
+            <p className="mt-4 max-w-sm text-lede text-brand-50">
+              Có tài khoản, Trâu con sẽ nhớ em đã học tới đâu.
+            </p>
+            <ul className="mt-8 flex flex-col gap-4">
+              {PERKS.map(({ Icon, label }) => (
+                <li key={label} className="flex items-center gap-3 font-semibold">
+                  <span className="grid size-10 place-items-center rounded-xl bg-white/15">
+                    <Icon className="size-5" aria-hidden />
+                  </span>
+                  {label}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <Mascot pose="wave" decorative className="relative mt-10 h-44 self-end animate-float" />
         </div>
 
-        {forgotPassword ? (
-          <ForgotPasswordView onBack={() => setForgotPassword(false)} />
-        ) : (
-          <Tabs
-            value={tab}
-            onValueChange={(next) =>
-              navigate({
-                to: "/dang-nhap",
-                search: { tab: next as AuthTab, redirect },
-                replace: true,
-              })
-            }
-          >
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Đăng nhập</TabsTrigger>
-              <TabsTrigger value="register">Đăng ký</TabsTrigger>
-            </TabsList>
+        <div className="mx-auto flex w-full max-w-md flex-col justify-center rounded-[2rem] border border-ink-100 bg-white p-6 shadow-lg sm:p-10 lg:max-w-none lg:rounded-l-none lg:border-l-0 lg:px-14">
+          <div className="mb-8 flex flex-col items-center text-center lg:items-start lg:text-left">
+            <Mascot pose="wave" decorative className="mb-4 h-20 lg:hidden" />
+            <h1 className="text-h2 text-ink-900">
+              {tab === "register" ? "Tạo tài khoản" : "Chào em trở lại!"}
+            </h1>
+            <p className="mt-2 text-ink-600">Đăng nhập để lưu tiến độ học tập của em.</p>
+          </div>
 
-            {(["login", "register"] as const).map((mode) => (
-              <TabsContent key={mode} value={mode} className="space-y-4 pt-4">
-                <GoogleButton onClick={handleGoogle} loading={googleLoading} />
+          {forgotPassword ? (
+            <ForgotPasswordView onBack={() => setForgotPassword(false)} />
+          ) : (
+            <Tabs
+              value={tab}
+              onValueChange={(next) =>
+                navigate({
+                  to: "/dang-nhap",
+                  search: { tab: next as AuthTab, redirect },
+                  replace: true,
+                })
+              }
+            >
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">Đăng nhập</TabsTrigger>
+                <TabsTrigger value="register">Đăng ký</TabsTrigger>
+              </TabsList>
 
-                <div className="flex items-center gap-3">
-                  <Separator className="flex-1" />
-                  <span className="text-xs text-muted-foreground">hoặc</span>
-                  <Separator className="flex-1" />
-                </div>
+              {(["login", "register"] as const).map((mode) => (
+                <TabsContent key={mode} value={mode} className="mt-6 flex flex-col gap-5">
+                  <GoogleButton onClick={handleGoogle} loading={googleLoading} />
 
-                <EmailForm
-                  mode={mode}
-                  onSuccess={handleSuccess}
-                  onForgotPassword={() => setForgotPassword(true)}
-                />
-              </TabsContent>
-            ))}
-          </Tabs>
-        )}
-      </div>
-    </div>
+                  <div className="flex items-center gap-3">
+                    <Separator className="flex-1" />
+                    <span className="text-caption font-medium text-ink-500">hoặc dùng email</span>
+                    <Separator className="flex-1" />
+                  </div>
+
+                  <EmailForm
+                    mode={mode}
+                    onSuccess={handleSuccess}
+                    onForgotPassword={() => setForgotPassword(true)}
+                  />
+                </TabsContent>
+              ))}
+            </Tabs>
+          )}
+        </div>
+      </Container>
+    </section>
   );
 }

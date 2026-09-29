@@ -134,7 +134,8 @@ export function RecordButton({
 
     // Safari doesn't support audio/webm — fall back to its default (audio/mp4).
     const mime =
-      typeof MediaRecorder.isTypeSupported === "function" && MediaRecorder.isTypeSupported("audio/webm")
+      typeof MediaRecorder.isTypeSupported === "function" &&
+      MediaRecorder.isTypeSupported("audio/webm")
         ? "audio/webm"
         : "";
     const recorder = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
@@ -190,12 +191,11 @@ export function RecordButton({
         disabled={disabled || phase === "starting"}
         aria-label={isRecording ? "Dừng ghi âm" : "Bắt đầu ghi âm"}
         className={[
-          "grid h-20 w-20 place-items-center rounded-full border-2 border-black/10 text-white ring-4 ring-white/70",
-          "transition-[transform,box-shadow,filter] duration-150 ease-bounce hover:brightness-110",
-          "disabled:cursor-not-allowed disabled:opacity-50 disabled:active:translate-y-0",
+          "grid size-20 cursor-pointer place-items-center rounded-full text-white ring-8 transition-[transform,background-color,box-shadow] duration-200 ease-out sm:size-24",
+          "disabled:cursor-not-allowed disabled:opacity-50",
           isRecording
-            ? "animate-pulse-glow bg-destructive translate-y-[3px] shadow-bevel-primary-active"
-            : "bg-gradient-primary shadow-bevel-primary active:translate-y-[3px] active:shadow-bevel-primary-active",
+            ? "animate-pulse-ring bg-danger-600 ring-danger-50 [--ring-color:var(--color-danger-500)]"
+            : "bg-brand-600 shadow-[0_4px_8px_rgb(20_28_49/0.1),0_14px_28px_-8px_rgb(48_86_245/0.55)] ring-brand-50 hover:-translate-y-0.5 hover:bg-brand-700 active:translate-y-0 active:scale-95",
         ].join(" ")}
       >
         {phase === "starting" ? (
@@ -206,7 +206,7 @@ export function RecordButton({
           <Mic className="h-9 w-9" strokeWidth={2.5} />
         )}
       </button>
-      <span className="font-display text-sm font-semibold text-navy">
+      <span className="text-sm font-semibold text-ink-700" aria-live="polite">
         {isRecording ? "Đang nghe em nói… bấm để xong" : "Em nói nào!"}
       </span>
     </div>

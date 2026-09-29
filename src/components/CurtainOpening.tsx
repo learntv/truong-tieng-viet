@@ -79,17 +79,15 @@ export function CurtainOpening() {
           <span
             className="h-px w-40 md:w-56"
             style={{
-              background:
-                "linear-gradient(90deg, transparent, var(--gold), transparent)",
+              background: "linear-gradient(90deg, transparent, #ffd400, transparent)",
             }}
           />
           <h1
             className="font-bold leading-tight tracking-wide"
             style={{
               fontSize: "clamp(2.25rem, 7vw, 5rem)",
-              color: "var(--gold-soft)",
-              backgroundImage:
-                "linear-gradient(180deg, var(--gold-soft) 0%, var(--gold) 55%, #b8860b 100%)",
+              color: "#fff3b0",
+              backgroundImage: "linear-gradient(180deg, #fff3b0 0%, #ffd400 55%, #b8860b 100%)",
               WebkitBackgroundClip: "text",
               backgroundClip: "text",
               WebkitTextFillColor: "transparent",
@@ -104,13 +102,12 @@ export function CurtainOpening() {
           <span
             className="h-px w-40 md:w-56"
             style={{
-              background:
-                "linear-gradient(90deg, transparent, var(--gold), transparent)",
+              background: "linear-gradient(90deg, transparent, #ffd400, transparent)",
             }}
           />
           <span
             className="mt-2 animate-pulse text-base font-medium tracking-widest md:text-lg"
-            style={{ color: "var(--gold)", opacity: 0.9 }}
+            style={{ color: "#ffd400", opacity: 0.9 }}
           >
             CHẠM ĐỂ VÉN MÀN
           </span>
@@ -163,9 +160,7 @@ function CurtainPanel({ side, open }: { side: "left" | "right"; open: boolean })
     <div
       className="relative h-full w-1/2"
       style={{
-        transform: open
-          ? `translateX(${isLeft ? "-100%" : "100%"})`
-          : "translateX(0)",
+        transform: open ? `translateX(${isLeft ? "-100%" : "100%"})` : "translateX(0)",
         transition: "transform 1900ms cubic-bezier(0.66, 0, 0.24, 1)",
         backgroundColor: "#8a0003",
         backgroundImage: `${sheen}, ${pleats}, ${bunching}, ${base}`,
@@ -184,10 +179,8 @@ function CurtainPanel({ side, open }: { side: "left" | "right"; open: boolean })
             backgroundBlendMode: "soft-light, normal",
             boxShadow: "inset 0 -18px 30px rgba(0,0,0,0.55)",
             // scalloped bottom edge
-            maskImage:
-              "radial-gradient(28px 22px at 28px 100%, transparent 98%, black 100%)",
-            WebkitMaskImage:
-              "radial-gradient(28px 22px at 28px 100%, transparent 98%, black 100%)",
+            maskImage: "radial-gradient(28px 22px at 28px 100%, transparent 98%, black 100%)",
+            WebkitMaskImage: "radial-gradient(28px 22px at 28px 100%, transparent 98%, black 100%)",
             maskRepeat: "repeat-x",
             WebkitMaskRepeat: "repeat-x",
             maskSize: "56px 100%",
@@ -198,8 +191,7 @@ function CurtainPanel({ side, open }: { side: "left" | "right"; open: boolean })
         <div
           className="absolute inset-x-0 top-0 h-2"
           style={{
-            backgroundImage:
-              "linear-gradient(180deg, var(--gold-soft), var(--gold))",
+            backgroundImage: "linear-gradient(180deg, #fff3b0, #ffd400)",
             boxShadow: "0 1px 6px rgba(255,212,0,0.5)",
           }}
         />

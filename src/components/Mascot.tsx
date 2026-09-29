@@ -5,6 +5,7 @@ import listening from "@/assets/mascot/listening.png";
 import peeking from "@/assets/mascot/peeking.png";
 import reading from "@/assets/mascot/reading.png";
 import peekingOver from "@/assets/mascot/peeking-over.png";
+import pointing from "@/assets/mascot/pointing.png";
 import thinking from "@/assets/mascot/thinking.png";
 import thumbsUp from "@/assets/mascot/thumbs-up.png";
 import wave from "@/assets/mascot/wave.png";
@@ -19,6 +20,7 @@ const POSES = {
   // Cropped flat at the bottom — sits on an edge, so pair it with a container
   // border rather than floating it in open space.
   "peeking-over": { src: peekingOver, alt: "Trâu con ló đầu lên nhìn" },
+  pointing: { src: pointing, alt: "Trâu con chỉ tay" },
   reading: { src: reading, alt: "Trâu con đang đọc sách" },
   thinking: { src: thinking, alt: "Trâu con đang suy nghĩ" },
   "thumbs-up": { src: thumbsUp, alt: "Trâu con giơ ngón tay cái" },

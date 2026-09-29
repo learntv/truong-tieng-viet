@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useMemo, useState } from "react";
 import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
-import { Minus, Plus, RotateCcw } from "lucide-react";
+import { BarChart3, Minus, Plus, RotateCcw } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -15,16 +15,11 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { PageBanner } from "@/components/site/PageBanner";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Container } from "@/components/layout/Container";
 import { useDashboardStats, type CountryCount } from "@/hooks/useDashboardStats";
 import { StudentReport } from "@/components/dashboard/StudentReport";
 import { ISO_ALPHA2_TO_NUMERIC } from "@/lib/iso3166";
@@ -35,7 +30,9 @@ export const Route = createFileRoute("/dashboard")({
   // staff-read RLS on the progress tables; this just avoids rendering an empty
   // dashboard for people who shouldn't be here.
   beforeLoad: async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) throw redirect({ to: "/" });
     const { data } = await supabase
       .from("user_roles")
@@ -54,7 +51,10 @@ export const Route = createFileRoute("/dashboard")({
           "Báo cáo tác động xã hội của Trường Tiếng Việt Của Em: quy mô, tăng trưởng và phân bổ địa lý.",
       },
       { property: "og:title", content: "Báo cáo tác động — Trường Tiếng Việt Của Em" },
-      { property: "og:description", content: "Quy mô, tăng trưởng và phân bổ địa lý của học sinh Trường Tiếng Việt Của Em." },
+      {
+        property: "og:description",
+        content: "Quy mô, tăng trưởng và phân bổ địa lý của học sinh Trường Tiếng Việt Của Em.",
+      },
       { name: "robots", content: "noindex" },
       { property: "og:url", content: "/dashboard" },
     ],
@@ -76,20 +76,21 @@ function countryLabel(code: string): string {
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
 
 const TOOLTIP_STYLE: React.CSSProperties = {
-  borderRadius: "0.75rem",
-  fontSize: "12px",
-  border: "1px solid var(--border)",
-  background: "var(--card)",
-  color: "var(--foreground)",
-  boxShadow: "0 8px 24px -12px oklch(0 0 0 / 0.2)",
+  borderRadius: "1rem",
+  fontSize: "13px",
+  border: "1px solid var(--color-ink-100)",
+  background: "#fff",
+  color: "var(--color-ink-800)",
+  boxShadow: "0 4px 8px rgb(20 28 49 / 0.04), 0 22px 44px -14px rgb(20 28 49 / 0.2)",
 };
 
 function countryFill(count: number | undefined, maxCount: number): string {
-  if (!count) return "color-mix(in oklab, var(--muted) 65%, var(--foreground))";
+  if (!count) return "var(--color-ink-100)";
   // sqrt scale so mid-sized counts stay visually distinct from the top country instead
   // of clustering near the low end.
   const intensity = 0.35 + 0.65 * Math.sqrt(count / maxCount);
-  return `color-mix(in oklab, var(--primary) ${(intensity * 100).toFixed(0)}%, var(--card))`;
+  // One hue, light → dark: the brand blue mixed down toward white for small counts.
+  return `color-mix(in oklab, var(--color-brand-600) ${(intensity * 100).toFixed(0)}%, white)`;
 }
 
 /** A single cell within a merged KPI row — label on top, big number, small delta/sub below. */
@@ -106,19 +107,17 @@ function KpiCell({
   deltaTone?: "up" | "down";
 }) {
   return (
-    <div className="min-w-0 px-4 py-3">
-      <div className="truncate text-xs text-muted-foreground">{title}</div>
-      <div className="mt-1 font-display text-2xl font-bold leading-none tabular-nums text-foreground">
-        {value}
-      </div>
+    <div className="min-w-0 px-5 py-5">
+      <div className="truncate text-sm font-medium text-ink-500">{title}</div>
+      <div className="mt-2 text-h1 leading-none text-ink-900 tabular-nums">{value}</div>
       {sub && (
         <div
-          className={`mt-1.5 truncate text-xs font-semibold ${
+          className={`mt-2 truncate text-sm font-semibold ${
             deltaTone === "up"
-              ? "text-emerald-600 dark:text-emerald-400"
+              ? "text-leaf-700"
               : deltaTone === "down"
-                ? "text-red-600 dark:text-red-400"
-                : "text-muted-foreground"
+                ? "text-danger-700"
+                : "text-ink-500"
           }`}
         >
           {sub}
@@ -131,8 +130,8 @@ function KpiCell({
 /** Merges KPI cells into one bordered card with dividers between them, Sellforte-style. */
 function KpiRow({ children }: { children: React.ReactNode }) {
   return (
-    <Card className="rounded-lg py-0 shadow-sm">
-      <div className="grid grid-cols-1 divide-y divide-border sm:grid-cols-4 sm:divide-y-0 sm:divide-x">
+    <Card className="py-0">
+      <div className="grid grid-cols-2 divide-ink-100 sm:grid-cols-4 sm:divide-x max-sm:[&>*:nth-child(-n+2)]:border-b max-sm:[&>*:nth-child(odd)]:border-r">
         {children}
       </div>
     </Card>
@@ -173,12 +172,12 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
       >
         {hovered && pointer && (
           <div
-            className="pointer-events-none absolute z-10 flex -translate-x-1/2 -translate-y-full items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground shadow-md"
+            className="pointer-events-none absolute z-10 flex -translate-x-1/2 -translate-y-full items-center gap-2 rounded-xl border border-ink-100 bg-white px-3 py-2 text-sm font-medium text-ink-800 shadow-lg"
             style={{ left: pointer.x, top: pointer.y - 10 }}
           >
             <FlagImg code={hovered.code} size={18} />
             <span>{countryLabel(hovered.code)}</span>
-            <span className="font-semibold text-primary">
+            <span className="font-semibold text-ink-900 tabular-nums">
               {hovered.count.toLocaleString("en-US")} học sinh
             </span>
           </div>
@@ -213,15 +212,13 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
                       key={geo.rsmKey}
                       geography={geo}
                       fill={countryFill(data?.count, maxCount)}
-                      stroke="var(--card)"
+                      stroke="#fff"
                       strokeWidth={0.5 / zoom}
                       style={{
                         default: { outline: "none" },
                         hover: {
                           outline: "none",
-                          fill: data
-                            ? "color-mix(in oklab, var(--primary) 85%, var(--foreground))"
-                            : "color-mix(in oklab, var(--muted) 55%, var(--foreground))",
+                          fill: data ? "var(--color-brand-800)" : "var(--color-ink-200)",
                           cursor: data ? "pointer" : "default",
                         },
                         pressed: { outline: "none" },
@@ -241,17 +238,17 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
             type="button"
             aria-label="Phóng to"
             onClick={() => setZoom((z) => Math.min(MAX_MAP_ZOOM, z * 1.5))}
-            className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card text-foreground shadow-sm hover:bg-muted"
+            className="flex size-9 cursor-pointer items-center justify-center rounded-full border border-ink-100 bg-white text-ink-700 shadow-sm transition-colors hover:bg-ink-50"
           >
-            <Plus className="h-3.5 w-3.5" />
+            <Plus className="size-4" />
           </button>
           <button
             type="button"
             aria-label="Thu nhỏ"
             onClick={() => setZoom((z) => Math.max(MIN_MAP_ZOOM, z / 1.5))}
-            className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card text-foreground shadow-sm hover:bg-muted"
+            className="flex size-9 cursor-pointer items-center justify-center rounded-full border border-ink-100 bg-white text-ink-700 shadow-sm transition-colors hover:bg-ink-50"
           >
-            <Minus className="h-3.5 w-3.5" />
+            <Minus className="size-4" />
           </button>
           <button
             type="button"
@@ -260,20 +257,20 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
               setZoom(1);
               setCenter(DEFAULT_MAP_CENTER);
             }}
-            className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card text-foreground shadow-sm hover:bg-muted"
+            className="flex size-9 cursor-pointer items-center justify-center rounded-full border border-ink-100 bg-white text-ink-700 shadow-sm transition-colors hover:bg-ink-50"
           >
-            <RotateCcw className="h-3.5 w-3.5" />
+            <RotateCcw className="size-4" />
           </button>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+      <div className="flex items-center gap-2 text-caption text-ink-500">
         <span>Ít hơn</span>
         <div className="flex gap-0.5">
           {[0.2, 0.4, 0.6, 0.8, 1.0].map((frac) => (
             <div
               key={frac}
-              className="h-3 w-5 rounded-sm border border-border/50"
+              className="h-3 w-5 rounded-[3px]"
               style={{ background: countryFill(frac, 1) }}
             />
           ))}
@@ -291,20 +288,20 @@ function TopCountries({ countryData, total }: { countryData: CountryCount[]; tot
   return (
     <div className="space-y-2">
       {top.map((c) => (
-        <div key={c.code} className="flex items-center gap-2">
+        <div key={c.code} className="flex items-center gap-2.5">
           <FlagImg code={c.code} size={18} />
-          <span className="w-24 shrink-0 truncate text-xs text-foreground">
+          <span className="w-24 shrink-0 truncate text-sm text-ink-800">
             {countryLabel(c.code)}
           </span>
-          <div className="h-1.5 flex-1 overflow-hidden rounded-sm bg-muted">
+          <div className="h-2 flex-1 overflow-hidden rounded-full bg-ink-50">
             <div
-              className="h-full rounded-sm bg-primary"
+              className="h-full rounded-full bg-brand-500"
               style={{ width: `${Math.max(4, (c.count / max) * 100)}%` }}
             />
           </div>
-          <span className="w-14 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+          <span className="w-16 shrink-0 text-right text-sm text-ink-700 tabular-nums">
             {c.count.toLocaleString("en-US")}
-            <span className="ml-1 text-[10px]">
+            <span className="ml-1 text-caption text-ink-400">
               {total > 0 ? `${((c.count / total) * 100).toFixed(0)}%` : ""}
             </span>
           </span>
@@ -335,22 +332,34 @@ function DashboardPage() {
 
   const completionData = stats
     ? [
-        { name: "Đã hoàn thành", value: stats.completion.completed, color: "var(--stage-1)" },
-        { name: "Đang học", value: stats.completion.inProgress, color: "var(--stage-2)" },
-        { name: "Mới bắt đầu", value: stats.completion.notStarted, color: "var(--muted)" },
+        {
+          name: "Đã hoàn thành",
+          value: stats.completion.completed,
+          color: "var(--color-leaf-500)",
+        },
+        { name: "Đang học", value: stats.completion.inProgress, color: "var(--color-brand-500)" },
+        { name: "Mới bắt đầu", value: stats.completion.notStarted, color: "var(--color-ink-200)" },
       ]
     : [];
 
   return (
-    <main className="bg-muted/40">
-      <PageBanner
+    <div className="flex-1 bg-ink-25">
+      <PageHeader
+        icon={BarChart3}
+        hue="grape"
         title="Báo cáo tác động xã hội"
-        subtitle="Trường Tiếng Việt Của Em · Dành cho Bộ Ngoại Giao & Ban Quản Lý"
+        lede="Trường Tiếng Việt Của Em · Dành cho Bộ Ngoại Giao & Ban Quản Lý"
       />
 
-      <div className="mx-auto max-w-7xl space-y-4 px-4 py-6 sm:px-6">
+      <Container className="flex flex-col gap-5 pb-16">
         {isStatsLoading || !stats ? (
-          <p className="text-center text-sm text-muted-foreground">Đang tải dữ liệu...</p>
+          <div className="flex flex-col gap-5" aria-busy="true" aria-label="Đang tải dữ liệu">
+            <div className="h-28 animate-pulse rounded-2xl bg-ink-100" />
+            <div className="grid gap-5 lg:grid-cols-3">
+              <div className="h-64 animate-pulse rounded-2xl bg-ink-100 lg:col-span-2" />
+              <div className="h-64 animate-pulse rounded-2xl bg-ink-100" />
+            </div>
+          </div>
         ) : (
           <>
             {/* KPI row — one merged card, columns divided by hairlines */}
@@ -380,46 +389,42 @@ function DashboardPage() {
 
             {/* Growth + completion bento */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-              <Card className="rounded-lg shadow-sm lg:col-span-2">
-                <CardHeader className="flex flex-row items-start justify-between gap-3 px-4 pb-2 pt-4">
+              <Card className="lg:col-span-2">
+                <CardHeader className="flex flex-row items-start justify-between gap-3 px-5 pt-5 pb-2">
                   <div>
-                    <CardTitle className="font-display text-sm">
-                      Tốc độ tăng trưởng người dùng
-                    </CardTitle>
-                    <CardDescription className="text-xs">
-                      Tổng học sinh tích lũy theo thời gian đăng ký
-                    </CardDescription>
+                    <CardTitle className="text-base">Tốc độ tăng trưởng người dùng</CardTitle>
+                    <CardDescription>Tổng học sinh tích lũy theo thời gian đăng ký</CardDescription>
                   </div>
                   <Tabs
                     value={growthView}
                     onValueChange={(v) => setGrowthView(v as "monthly" | "weekly")}
                   >
-                    <TabsList className="h-8">
-                      <TabsTrigger value="monthly" className="px-3 text-xs">
+                    <TabsList className="h-9">
+                      <TabsTrigger value="monthly" className="px-3 text-caption">
                         Tháng
                       </TabsTrigger>
-                      <TabsTrigger value="weekly" className="px-3 text-xs">
+                      <TabsTrigger value="weekly" className="px-3 text-caption">
                         Tuần
                       </TabsTrigger>
                     </TabsList>
                   </Tabs>
                 </CardHeader>
-                <CardContent className="px-4 pb-4">
+                <CardContent className="px-5 pb-5">
                   <ResponsiveContainer width="100%" height={180}>
                     <LineChart data={growthData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
                       <CartesianGrid
                         vertical={false}
-                        stroke="var(--border)"
+                        stroke="var(--color-ink-100)"
                         strokeDasharray="3 3"
                       />
                       <XAxis
                         dataKey="period"
-                        tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+                        tick={{ fontSize: 12, fill: "var(--color-ink-500)" }}
                         axisLine={false}
                         tickLine={false}
                       />
                       <YAxis
-                        tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+                        tick={{ fontSize: 12, fill: "var(--color-ink-500)" }}
                         axisLine={false}
                         tickLine={false}
                         width={45}
@@ -431,21 +436,26 @@ function DashboardPage() {
                       <Line
                         type="monotone"
                         dataKey="students"
-                        stroke="var(--primary)"
+                        stroke="var(--color-brand-600)"
                         strokeWidth={2}
                         dot={false}
-                        activeDot={{ r: 4, fill: "var(--primary)" }}
+                        activeDot={{
+                          r: 5,
+                          fill: "var(--color-brand-600)",
+                          stroke: "#fff",
+                          strokeWidth: 2,
+                        }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
 
-              <Card className="rounded-lg shadow-sm">
-                <CardHeader className="px-4 pb-2 pt-4">
-                  <CardTitle className="font-display text-sm">Tỷ lệ hoàn thành</CardTitle>
+              <Card>
+                <CardHeader className="px-5 pt-5 pb-2">
+                  <CardTitle className="text-base">Tỷ lệ hoàn thành</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 px-4 pb-4">
+                <CardContent className="space-y-3 px-5 pb-5">
                   <ResponsiveContainer width="100%" height={120}>
                     <PieChart>
                       <Pie
@@ -454,7 +464,10 @@ function DashboardPage() {
                         cy="50%"
                         innerRadius={40}
                         outerRadius={62}
-                        paddingAngle={3}
+                        paddingAngle={2}
+                        stroke="#fff"
+                        strokeWidth={2}
+                        cornerRadius={4}
                         dataKey="value"
                       >
                         {completionData.map((entry) => (
@@ -469,21 +482,21 @@ function DashboardPage() {
                   </ResponsiveContainer>
                   {completionData.map((entry) => (
                     <div key={entry.name}>
-                      <div className="mb-0.5 flex items-center justify-between text-xs">
-                        <span className="flex items-center gap-1.5 text-muted-foreground">
+                      <div className="mb-1 flex items-center justify-between text-sm">
+                        <span className="flex items-center gap-2 text-ink-600">
                           <span
-                            className="inline-block h-2 w-2 rounded-full"
+                            className="inline-block size-2.5 rounded-full"
                             style={{ backgroundColor: entry.color }}
                           />
                           {entry.name}
                         </span>
-                        <span className="font-semibold tabular-nums text-foreground">
+                        <span className="font-semibold text-ink-900 tabular-nums">
                           {entry.value.toLocaleString("en-US")}
                         </span>
                       </div>
                       <Progress
                         value={(entry.value / (stats.totalRegistered || 1)) * 100}
-                        className="h-1"
+                        className="h-1.5"
                       />
                     </div>
                   ))}
@@ -493,28 +506,25 @@ function DashboardPage() {
 
             {/* Map + top countries bento */}
             <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
-              <Card className="rounded-lg shadow-sm lg:col-span-2">
-                <CardHeader className="px-4 pb-2 pt-4">
-                  <CardTitle className="font-display text-sm">Học sinh theo quốc gia</CardTitle>
-                  <CardDescription className="text-xs">
+              <Card className="lg:col-span-2">
+                <CardHeader className="px-5 pt-5 pb-2">
+                  <CardTitle className="text-base">Học sinh theo quốc gia</CardTitle>
+                  <CardDescription>
                     {stats.totalRegistered.toLocaleString("en-US")} học sinh tại{" "}
                     {stats.countryData.length} quốc gia
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="px-4 pb-4">
+                <CardContent className="px-5 pb-5">
                   <MapView countryData={stats.countryData} total={stats.totalRegistered} />
                 </CardContent>
               </Card>
 
-              <Card className="rounded-lg shadow-sm">
-                <CardHeader className="px-4 pb-2 pt-4">
-                  <CardTitle className="font-display text-sm">Quốc gia dẫn đầu</CardTitle>
+              <Card>
+                <CardHeader className="px-5 pt-5 pb-2">
+                  <CardTitle className="text-base">Quốc gia dẫn đầu</CardTitle>
                 </CardHeader>
-                <CardContent className="px-4 pb-4">
-                  <TopCountries
-                    countryData={stats.countryData}
-                    total={stats.totalRegistered}
-                  />
+                <CardContent className="px-5 pb-5">
+                  <TopCountries countryData={stats.countryData} total={stats.totalRegistered} />
                 </CardContent>
               </Card>
             </div>
@@ -522,7 +532,7 @@ function DashboardPage() {
             <StudentReport />
           </>
         )}
-      </div>
-    </main>
+      </Container>
+    </div>
   );
 }

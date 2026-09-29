@@ -4,11 +4,12 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { KeyRound, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Field } from "@/components/ui/field";
+import { Container } from "@/components/layout/Container";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
@@ -62,7 +63,11 @@ function ResetPassword() {
     });
   }, [navigate]);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormValues>({
     resolver: zodResolver(schema),
   });
 
@@ -79,34 +84,59 @@ function ResetPassword() {
   };
 
   return (
-    <div className="flex min-h-[70vh] flex-col">
-      <main className="flex flex-1 items-center justify-center px-4">
-        <div className="w-full max-w-sm space-y-6">
-          <div className="text-center">
-            <h1 className="font-display text-2xl font-bold text-navy">Đặt lại mật khẩu</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Nhập mật khẩu mới cho tài khoản của bạn.</p>
-          </div>
+    <section className="flex flex-1 items-center bg-wash py-12 sm:py-20">
+      <Container width="form">
+        <div className="rounded-[2rem] border border-ink-100 bg-white p-6 shadow-lg sm:p-10">
+          <span className="grid size-12 place-items-center rounded-2xl bg-brand-600 text-white shadow-sm">
+            <KeyRound className="size-6" aria-hidden />
+          </span>
+          <h1 className="mt-5 text-h2 text-ink-900">Đặt lại mật khẩu</h1>
+          <p className="mt-2 text-ink-600">Nhập mật khẩu mới cho tài khoản của bạn.</p>
 
-          {ready && (
-            <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="new-password">Mật khẩu mới</Label>
-                <Input id="new-password" type="password" placeholder="••••••" {...register("password")} />
-                {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="confirm-password">Xác nhận mật khẩu</Label>
-                <Input id="confirm-password" type="password" placeholder="••••••" {...register("confirm")} />
-                {errors.confirm && <p className="text-xs text-destructive">{errors.confirm.message}</p>}
-              </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {ready ? (
+            <form noValidate onSubmit={handleSubmit(onSubmit)} className="mt-8 flex flex-col gap-4">
+              <Field
+                id="new-password"
+                label="Mật khẩu mới"
+                error={errors.password?.message}
+                hint="Tối thiểu 6 ký tự."
+              >
+                <Input
+                  id="new-password"
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder="••••••"
+                  aria-invalid={!!errors.password}
+                  {...register("password")}
+                />
+              </Field>
+              <Field
+                id="confirm-password"
+                label="Xác nhận mật khẩu"
+                error={errors.confirm?.message}
+              >
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder="••••••"
+                  aria-invalid={!!errors.confirm}
+                  {...register("confirm")}
+                />
+              </Field>
+              <Button type="submit" size="lg" className="mt-1 w-full" disabled={loading}>
+                {loading && <Loader2 className="animate-spin" aria-hidden />}
                 Cập nhật mật khẩu
               </Button>
             </form>
+          ) : (
+            <div className="mt-8 flex items-center gap-3 text-sm text-ink-500" role="status">
+              <Loader2 className="size-4 animate-spin" aria-hidden />
+              Đang kiểm tra liên kết…
+            </div>
           )}
         </div>
-      </main>
-    </div>
+      </Container>
+    </section>
   );
 }

@@ -1,5 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { SearchX } from "lucide-react";
+import { Container } from "@/components/layout/Container";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageLoader } from "@/components/ui/page-loader";
+import { Button } from "@/components/ui/button";
 import { useSpeakingContent } from "@/hooks/useSpeakingContent";
 import { SpeakingPractice } from "@/components/speaking/SpeakingPractice";
 
@@ -27,11 +31,7 @@ function SpeakingRoute() {
   const { data: speakingTopics, isLoading: speakingContentLoading } = useSpeakingContent();
 
   if (speakingContentLoading) {
-    return (
-      <div className="flex justify-center py-32">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <PageLoader label="Đang mở chủ đề" />;
   }
 
   const staticIndex = speakingTopics?.findIndex((t) => t.id === chuDeId) ?? -1;
@@ -48,19 +48,17 @@ function SpeakingRoute() {
   }
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-20 text-center">
-      <div className="mb-4 text-6xl">🔍</div>
-      <h1 className="mb-2 font-display text-2xl font-bold text-foreground">
-        Không tìm thấy chủ đề
-      </h1>
-      <p className="mb-6 text-muted-foreground">Chủ đề này không tồn tại hoặc đã bị đổi.</p>
-      <Link
-        to="/hoc-tap/luyen-noi"
-        className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-display font-extrabold text-white shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Chọn chủ đề khác
-      </Link>
-    </div>
+    <Container width="narrow" className="py-16">
+      <EmptyState
+        icon={SearchX}
+        title="Không tìm thấy chủ đề"
+        description="Chủ đề này không tồn tại hoặc đã bị đổi."
+        action={
+          <Button asChild>
+            <Link to="/hoc-tap/luyen-noi">Chọn chủ đề khác</Link>
+          </Button>
+        }
+      />
+    </Container>
   );
 }

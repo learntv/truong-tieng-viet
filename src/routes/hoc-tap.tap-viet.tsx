@@ -1,11 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import {
-  ArrowLeft,
   CaseLower,
   Hash,
   Link2,
   Pause,
+  PencilLine,
   Play,
   Rabbit,
   RotateCcw,
@@ -16,11 +16,12 @@ import {
 } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Mascot } from "@/components/Mascot";
+import { BackLink } from "@/components/BackLink";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Container } from "@/components/layout/Container";
 import { IconButton } from "@/components/tap-viet/IconButton";
 import { SquareStage } from "@/components/tap-viet/SquareStage";
-import { SkyBoxRibbon } from "@/components/ui/sky-box";
 import { TracePad } from "@/components/tap-viet/TracePad";
-import { skyButton } from "@/components/ui/sky-button";
 import * as SwitchPrimitive from "@radix-ui/react-switch";
 import {
   TAP_VIET,
@@ -65,70 +66,62 @@ function TapVietPage() {
   const category = TAP_VIET[categoryIndex];
   const pageRef = useRef<HTMLDivElement>(null);
 
-  // The page sits straight on the sky (see BARE_SKY_ROUTES in __root): a ribbon
-  // heading, then the notebook itself, floating, with Trâu con peeking over it.
   return (
-    <div className="mx-auto w-full max-w-5xl">
-      <header className="mb-6 flex flex-col items-center gap-1 text-center sm:mb-8">
-        {/* A floating pill rather than BackLink's folded corner, which needs a
-          white card corner to fold out of — same as a Khai Minh Đức lesson. */}
-        <Link
-          to="/hoc-tap"
-          className="mb-3 inline-flex items-center gap-2 self-start rounded-full border-[3px] border-white bg-white/85 px-4 py-1.5 font-display text-sm font-extrabold text-sky-ink shadow-[0_4px_12px_rgba(12,58,110,0.2)] transition hover:bg-ribbon hover:text-indigo-deep"
-        >
-          <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
-          Học tập
-        </Link>
-        <h1>
-          <SkyBoxRibbon size="lg">Tập viết</SkyBoxRibbon>
-        </h1>
-        <p className="max-w-md font-display text-base font-bold text-white drop-shadow-[0_2px_4px_rgba(12,58,110,0.45)] sm:text-lg">
-          Xem cô viết mẫu, rồi em lấy ngón tay tô theo nhé!
-        </p>
-      </header>
+    <>
+      <PageHeader
+        icon={PencilLine}
+        hue="sky"
+        title="Tập viết"
+        lede="Xem cô viết mẫu, rồi em lấy ngón tay tô theo nhé!"
+        back={<BackLink to="/hoc-tap" label="Học tập" />}
+        width="content"
+      />
 
-      <div className="relative">
-        <NotebookTabs selected={categoryIndex} onSelect={setCategoryIndex} pageRef={pageRef} />
+      <Container width="content" className="pb-16 sm:pb-24">
+        {/* The notebook lies open on a soft sky desk, so the page's white edge reads. */}
+        <div className="relative rounded-[2.5rem] bg-sky-50 px-4 pt-8 pb-8 sm:px-10 sm:pt-12 sm:pb-12">
+          <NotebookTabs selected={categoryIndex} onSelect={setCategoryIndex} pageRef={pageRef} />
 
-        <div className="relative">
-          {/* Trâu con peeks over the page's top edge, past the tabs. The pose is
+          <div className="relative">
+            {/* Trâu con peeks over the page's top edge, past the tabs. The pose is
             cropped flat at the bottom, so it tucks behind the page (z-0 under
             its z-10). Desktop only: narrower, the tabs reach across to where he sits. */}
-          <Mascot
-            pose="peeking-over"
-            decorative
-            className="absolute bottom-full right-10 z-0 hidden h-28 translate-y-3 lg:block"
-          />
-          <SpiralBinding />
-          {/* One ô li page: the blank grid tile repeats as the background, one
+            <Mascot
+              pose="peeking-over"
+              decorative
+              className="absolute bottom-full right-10 z-0 hidden h-28 translate-y-3 lg:block"
+            />
+            <SpiralBinding />
+            {/* One ô li page: the blank grid tile repeats as the background, one
             copy per tile slot, so the lines run on unbroken and a short last row
             is still ruled paper. A 2px oli-line border runs inside the white one;
             the open tab carries it up its own sides, so one outline wraps both. */}
-          <div
-            ref={pageRef}
-            id={`tap-viet-page-${category.id}`}
-            role="tabpanel"
-            aria-labelledby={`tap-viet-tab-${category.id}`}
-            className={[
-              "relative z-10 grid grid-cols-[repeat(var(--cols),minmax(0,1fr))] content-start overflow-hidden rounded-[1.25rem] rounded-tl-none border-[6px] border-white bg-white bg-repeat shadow-[inset_0_0_0_2px_var(--oli-line),0_18px_40px_rgba(12,58,110,0.3)] [background-size:calc(100%/var(--cols))_auto] sm:rounded-[1.5rem] sm:rounded-tl-none",
-              "aspect-(--ratio-0) [--cols:var(--cols-0)] sm:aspect-(--ratio-1) sm:[--cols:var(--cols-1)] lg:aspect-(--ratio-2) lg:[--cols:var(--cols-2)]",
-            ].join(" ")}
-            style={{
-              backgroundImage: `url(${tapVietGridTile(category.id)})`,
-              ...pageLayout(category),
-            }}
-          >
-            {category.items.map((item, i) => (
-              <ItemTile
-                key={item.id}
-                item={item}
-                category={category}
-                onClick={() => setActiveIndex(i)}
-              />
-            ))}
+            <div
+              ref={pageRef}
+              id={`tap-viet-page-${category.id}`}
+              role="tabpanel"
+              aria-labelledby={`tap-viet-tab-${category.id}`}
+              className={[
+                "relative z-10 grid grid-cols-[repeat(var(--cols),minmax(0,1fr))] content-start overflow-hidden rounded-[1.25rem] rounded-tl-none border-[6px] border-white bg-white bg-repeat shadow-[inset_0_0_0_2px_var(--oli-line),0_4px_8px_rgb(20_28_49/0.04),0_22px_44px_-14px_rgb(20_28_49/0.22)] [background-size:calc(100%/var(--cols))_auto] sm:rounded-[1.5rem] sm:rounded-tl-none",
+                "aspect-(--ratio-0) [--cols:var(--cols-0)] sm:aspect-(--ratio-1) sm:[--cols:var(--cols-1)] lg:aspect-(--ratio-2) lg:[--cols:var(--cols-2)]",
+              ].join(" ")}
+              style={{
+                backgroundImage: `url(${tapVietGridTile(category.id)})`,
+                ...pageLayout(category),
+              }}
+            >
+              {category.items.map((item, i) => (
+                <ItemTile
+                  key={item.id}
+                  item={item}
+                  category={category}
+                  onClick={() => setActiveIndex(i)}
+                />
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      </Container>
 
       <WritingDialog
         category={category}
@@ -137,7 +130,7 @@ function TapVietPage() {
         onRateChange={setRate}
         onIndexChange={setActiveIndex}
       />
-    </div>
+    </>
   );
 }
 
@@ -164,10 +157,10 @@ function SpiralBinding() {
 }
 
 const TAB_LOOK: Record<TapVietCategoryId, { icon: LucideIcon; tone: string }> = {
-  net: { icon: Spline, tone: "bg-box-ice" },
-  chu: { icon: CaseLower, tone: "bg-box-mint" },
-  ghep: { icon: Link2, tone: "bg-box-lavender" },
-  so: { icon: Hash, tone: "bg-box-peach" },
+  net: { icon: Spline, tone: "bg-sky-100 text-sky-700" },
+  chu: { icon: CaseLower, tone: "bg-leaf-100 text-leaf-700" },
+  ghep: { icon: Link2, tone: "bg-grape-100 text-grape-700" },
+  so: { icon: Hash, tone: "bg-coral-100 text-coral-700" },
 };
 
 /** The four sections as index tabs, like the coloured dividers in a school binder.
@@ -270,8 +263,8 @@ function NotebookTabs({
                 : undefined
             }
             className={[
-              "flex min-w-0 flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-t-[1rem] border-[6px] border-b-0 border-white px-1.5 font-display text-xs font-extrabold leading-tight text-sky-ink transition-transform duration-200 ease-bounce sm:flex-none sm:flex-row sm:gap-2 sm:rounded-t-[1.25rem] sm:px-5 sm:text-base",
-              "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-ribbon",
+              "flex min-w-0 flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-t-[1rem] border-[6px] border-b-0 border-white px-1.5 text-xs leading-tight font-bold text-ink-800 transition-transform duration-200 ease-spring sm:flex-none sm:flex-row sm:gap-2 sm:rounded-t-[1.25rem] sm:px-5 sm:text-base",
+              "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-500 focus-visible:ring-inset",
               isOpen
                 ? // In front of the page (z-20 over its z-10), hanging over its
                   // 6px top border and 2px line so both disappear under the
@@ -335,16 +328,16 @@ function ItemTile({
       onClick={onClick}
       aria-label={item.title}
       style={{ aspectRatio: `${cols} / ${rows}` }}
-      className="group relative cursor-pointer transition-colors hover:bg-ribbon/25 focus-visible:bg-ribbon/25 focus-visible:outline-none"
+      className="group relative cursor-pointer transition-colors hover:bg-sun-300/25 focus-visible:bg-sun-300/35 focus-visible:outline-none"
     >
       <img
         src={tapVietThumb(item.id)}
         alt=""
         loading="lazy"
-        className="absolute inset-0 h-full w-full transition-transform duration-200 ease-bounce group-hover:scale-105"
+        className="absolute inset-0 h-full w-full transition-transform duration-200 ease-spring group-hover:scale-105"
       />
       {category.id === "net" && (
-        <span className="absolute inset-x-0 top-[4%] px-1 text-center font-display text-[11px] font-extrabold leading-tight text-sky-ink sm:text-xs">
+        <span className="absolute inset-x-0 top-[4%] px-1 text-center text-[11px] leading-tight font-bold text-ink-700 sm:text-xs">
           {item.title.replace(/^Nét /, "")}
         </span>
       )}
@@ -375,9 +368,9 @@ function WritingDialog({
     <Dialog open={open} onOpenChange={(o) => !o && onIndexChange(null)}>
       <DialogContent
         hideCloseButton
-        className="flex h-[min(94dvh,44rem)] w-[calc(100%-1.5rem)] max-w-5xl flex-col gap-0 overflow-hidden border-0 bg-card p-0"
+        className="flex h-[min(94dvh,44rem)] w-[calc(100%-1.5rem)] max-w-5xl flex-col gap-0 overflow-hidden bg-sky-50 p-0 sm:p-0"
       >
-        <DialogClose className="absolute right-3 top-3 z-10 grid h-10 w-10 cursor-pointer place-items-center rounded-[0.6rem] bg-white text-indigo-deep shadow-btn transition-[colors,box-shadow] hover:bg-box-white-deep active:shadow-btn-active">
+        <DialogClose className="absolute top-3 right-3 z-10 grid size-11 cursor-pointer place-items-center rounded-full border border-ink-100 bg-white text-ink-700 shadow-sm transition-[transform,box-shadow] hover:shadow-md active:scale-90">
           <X className="h-5 w-5" strokeWidth={2.5} />
           <span className="sr-only">Đóng</span>
         </DialogClose>
@@ -457,7 +450,7 @@ function WatchPanel({
           preload="auto"
           onPlay={() => setPlaying(true)}
           onPause={() => setPlaying(false)}
-          className="h-full w-full rounded-2xl bg-white ring-1 ring-black/10"
+          className="h-full w-full rounded-3xl bg-white shadow-sm ring-1 ring-ink-100"
         />
       </SquareStage>
 
@@ -484,24 +477,20 @@ function SpeedSwitch({ fast, onChange }: { fast: boolean; onChange: (fast: boole
     <div className="flex items-center gap-2">
       <Turtle
         aria-hidden
-        className={["h-7 w-7 transition-colors", fast ? "text-sky-ink/35" : "text-grass-deep"].join(
-          " ",
-        )}
+        className={["size-7 transition-colors", fast ? "text-ink-300" : "text-leaf-600"].join(" ")}
         strokeWidth={2.25}
       />
       <SwitchPrimitive.Root
         checked={fast}
         onCheckedChange={onChange}
         aria-label="Chạy nhanh"
-        className="relative h-9 w-16 shrink-0 cursor-pointer rounded-full bg-grass-deep shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ribbon data-[state=checked]:bg-primary"
+        className="relative h-9 w-16 shrink-0 cursor-pointer rounded-full bg-leaf-600 shadow-[inset_0_2px_4px_rgb(20_28_49/0.15)] transition-colors duration-200 data-[state=checked]:bg-brand-600"
       >
-        <SwitchPrimitive.Thumb className="block h-7 w-7 translate-x-1 rounded-full bg-white shadow-btn transition-transform duration-200 ease-bounce data-[state=checked]:translate-x-8" />
+        <SwitchPrimitive.Thumb className="block size-7 translate-x-1 rounded-full bg-white shadow-sm transition-transform duration-200 ease-spring data-[state=checked]:translate-x-8" />
       </SwitchPrimitive.Root>
       <Rabbit
         aria-hidden
-        className={["h-7 w-7 transition-colors", fast ? "text-primary" : "text-sky-ink/35"].join(
-          " ",
-        )}
+        className={["size-7 transition-colors", fast ? "text-brand-600" : "text-ink-300"].join(" ")}
         strokeWidth={2.25}
       />
     </div>

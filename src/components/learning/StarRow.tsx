@@ -21,12 +21,10 @@ export function StarRow({
             size,
             "transition-transform",
             loading
-              ? "animate-pulse text-stone-300"
+              ? "animate-pulse fill-ink-100 text-ink-200"
               : i <= stars
-                ? ["fill-yellow-400 text-yellow-500", animated && "animate-hop"]
-                    .filter(Boolean)
-                    .join(" ")
-                : "text-stone-300",
+                ? ["fill-sun-500 text-sun-600", animated && "animate-hop"].filter(Boolean).join(" ")
+                : "fill-ink-50 text-ink-200",
           ].join(" ")}
           style={
             !loading && animated && i <= stars

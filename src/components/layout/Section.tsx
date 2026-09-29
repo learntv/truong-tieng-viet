@@ -2,49 +2,27 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Container, type ContainerWidth } from "./Container";
 
-/**
- * Background bands. A band paints the full width of the page card and is
- * clipped by its rounded corners — inside a boxed layout there is no such thing
- * as a "full-bleed" band any more, so pages never need the old
- * `-mx-4 sm:-mx-6` escape hatches.
- */
+/** Background bands — white is the default; tint and wash separate a band
+ *  from its neighbours without a rule. */
 const BAND = {
-  /** Inherit whatever is behind — the default. */
   none: "",
-  /** The card's own white. */
-  plain: "bg-background",
-  /** Warm off-white, for quietly separating a band from the one above. */
-  subtle: "bg-surface-subtle",
-  /** Red-tinted band from the brand theme. */
-  tint: "bg-sky-tint",
-  /** Deep red band, white ink. */
-  indigo: "bg-indigo text-white",
-  /** Navy band, white ink. */
-  navy: "bg-navy text-white",
+  white: "bg-white",
+  tint: "bg-ink-25",
+  wash: "bg-wash",
 } as const;
 
-/**
- * Vertical rhythm. Four steps, so stacked sections on different pages breathe
- * the same way.
- */
+/** Vertical rhythm: four steps, so stacked sections breathe the same way on
+ *  every page. */
 const SPACE = {
   none: "",
-  tight: "py-6 sm:py-8",
-  default: "py-10 sm:py-14",
+  tight: "py-8 sm:py-10",
+  default: "py-12 sm:py-16",
   loose: "py-16 sm:py-24",
 } as const;
 
 export type SectionBand = keyof typeof BAND;
 export type SectionSpace = keyof typeof SPACE;
 
-/**
- * One horizontal band of a page: a background, the standard vertical rhythm,
- * and a centred <Container> for its contents.
- *
- * Pass `bare` when the children need to control their own container (a section
- * with a full-width image beside a narrow column, say); otherwise the children
- * are wrapped for you and a page body is just a stack of <Section>s.
- */
 export function Section({
   band = "none",
   space = "default",
@@ -58,6 +36,7 @@ export function Section({
   band?: SectionBand;
   space?: SectionSpace;
   width?: ContainerWidth;
+  /** Children lay out their own container. */
   bare?: boolean;
   className?: string;
   containerClassName?: string;
@@ -73,5 +52,42 @@ export function Section({
         </Container>
       )}
     </section>
+  );
+}
+
+/** A section's heading row: title, optional one-line lede, optional action on
+ *  the right. More space above than below, so it belongs to what follows. */
+export function SectionHeading({
+  title,
+  lede,
+  action,
+  id,
+  align = "left",
+  className,
+}: {
+  title: ReactNode;
+  lede?: ReactNode;
+  action?: ReactNode;
+  id?: string;
+  align?: "left" | "center";
+  className?: string;
+}) {
+  const centered = align === "center";
+  return (
+    <div
+      className={cn(
+        "mb-8 flex flex-col gap-4 sm:mb-10",
+        centered ? "items-center text-center" : "sm:flex-row sm:items-end sm:justify-between",
+        className,
+      )}
+    >
+      <div className={cn("flex max-w-2xl flex-col gap-3", centered && "items-center")}>
+        <h2 id={id} className="text-h2 text-ink-900">
+          {title}
+        </h2>
+        {lede && <p className="text-lede text-ink-600">{lede}</p>}
+      </div>
+      {action && <div className="shrink-0">{action}</div>}
+    </div>
   );
 }

@@ -3,24 +3,26 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+/** Pill labels. Soft by default — a wash with the hue's own ink — so a row of
+ *  badges adds color without shouting over the content they annotate. */
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex h-6 items-center gap-1 whitespace-nowrap rounded-full px-2.5 text-caption font-semibold [&_svg]:size-3.5 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
-        secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        destructive:
-          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
-        outline: "text-foreground",
-        success: "border-transparent bg-stage-1-soft text-stage-1-deep",
-        locked: "border-transparent bg-muted text-muted-foreground",
-        "stage-1": "border-transparent bg-stage-1-soft text-stage-1-deep",
-        "stage-2": "border-transparent bg-stage-2-soft text-stage-2-deep",
-        "stage-3": "border-transparent bg-stage-3-soft text-stage-3-deep",
-        "stage-4": "border-transparent bg-stage-4-soft text-stage-4-deep",
-        "stage-5": "border-transparent bg-stage-5-soft text-stage-5-deep",
+        default: "bg-brand-50 text-brand-700",
+        solid: "bg-brand-600 text-white",
+        secondary: "bg-ink-50 text-ink-600",
+        outline: "border border-ink-200 bg-white text-ink-700",
+        destructive: "bg-danger-50 text-danger-700",
+        success: "bg-leaf-50 text-leaf-700",
+        warning: "bg-sun-50 text-sun-700",
+        locked: "bg-ink-50 text-ink-500",
+        "stage-1": "bg-stage-1-soft text-stage-1-deep",
+        "stage-2": "bg-stage-2-soft text-stage-2-deep",
+        "stage-3": "bg-stage-3-soft text-stage-3-deep",
+        "stage-4": "bg-stage-4-soft text-stage-4-deep",
+        "stage-5": "bg-stage-5-soft text-stage-5-deep",
       },
     },
     defaultVariants: {
@@ -30,10 +32,10 @@ const badgeVariants = cva(
 );
 
 export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {}
+  extends React.HTMLAttributes<HTMLSpanElement>, VariantProps<typeof badgeVariants> {}
 
 function Badge({ className, variant, ...props }: BadgeProps) {
-  return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
+  return <span className={cn(badgeVariants({ variant }), className)} {...props} />;
 }
 
 export { Badge, badgeVariants };

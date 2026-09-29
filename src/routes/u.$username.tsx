@@ -3,17 +3,27 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import * as React from "react";
 import {
+  BookOpen,
+  Check,
+  ChevronRight,
+  Flame,
+  Globe,
+  Home,
+  ImagePlus,
   KeyRound,
   Loader2,
-  RotateCcw,
-  Globe,
-  ImagePlus,
-  Pencil,
-  Check,
-  Home,
   LogOut,
+  Pencil,
+  RotateCcw,
+  SearchX,
+  Settings,
+  Target,
   Trash2,
+  TriangleAlert,
+  Trophy,
+  type LucideIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { deleteOwnAccount } from "@/lib/account.functions";
@@ -22,7 +32,10 @@ import { FlagImg } from "@/components/FlagImg";
 import { upsertProfile, generateUsername } from "@/lib/profile";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProgress } from "@/hooks/useUserProgress";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageLoader } from "@/components/ui/page-loader";
+import { Container } from "@/components/layout/Container";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -144,7 +157,6 @@ const AVATAR_OPTIONS = [
 function avatarColor(letter: string) {
   return AVATAR_COLORS[letter.charCodeAt(0) % AVATAR_COLORS.length];
 }
-
 
 function computeStreak(completedAts: string[]): { days: number; studiedToday: boolean } {
   const MS_PER_DAY = 86400_000;
@@ -294,11 +306,9 @@ function AvatarPickerDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-3xl max-w-xs p-5">
+      <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle className="font-display text-xl font-bold text-ink">
-            Chọn avatar của em 🎨
-          </DialogTitle>
+          <DialogTitle>Chọn avatar của em</DialogTitle>
         </DialogHeader>
         <input
           ref={fileInputRef}
@@ -311,16 +321,12 @@ function AvatarPickerDialog({
           variant="outline"
           disabled={saving}
           onClick={() => fileInputRef.current?.click()}
-          className="w-full rounded-xl"
+          className="w-full"
         >
-          {saving ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <ImagePlus className="h-4 w-4" />
-          )}
+          {saving ? <Loader2 className="animate-spin" /> : <ImagePlus className="text-brand-600" />}
           Tải ảnh của em lên
         </Button>
-        <p className="text-center text-xs text-muted-foreground">
+        <p className="-mt-2 text-center text-caption text-ink-500">
           JPG, PNG, WebP hoặc GIF — tối đa 2MB
         </p>
         <div className="grid grid-cols-5 gap-2">
@@ -330,10 +336,10 @@ function AvatarPickerDialog({
               onClick={() => handleSelect(emoji)}
               disabled={saving}
               className={[
-                "h-12 w-full rounded-xl text-2xl flex items-center justify-center transition-all active:scale-90 disabled:opacity-50",
+                "flex h-12 w-full cursor-pointer items-center justify-center rounded-2xl text-2xl transition-[transform,background-color] duration-200 active:scale-90 disabled:opacity-50",
                 current === emoji
-                  ? "bg-sky/50 ring-2 ring-sky scale-110 shadow-sm"
-                  : "bg-muted/40 hover:bg-sky/20",
+                  ? "scale-110 bg-brand-50 ring-2 ring-brand-500"
+                  : "bg-ink-50 hover:bg-brand-50",
               ].join(" ")}
             >
               {emoji}
@@ -402,20 +408,18 @@ function CountryPickerDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-3xl max-w-sm p-5">
+      <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-display text-xl font-bold text-ink">
-            Chọn quốc gia của em 🌍
-          </DialogTitle>
+          <DialogTitle>Chọn quốc gia của em</DialogTitle>
         </DialogHeader>
         <Input
           placeholder="Tìm kiếm..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="rounded-xl"
+          aria-label="Tìm quốc gia"
           autoFocus
         />
-        <div className="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto pr-1">
+        <div className="grid max-h-72 grid-cols-4 gap-2 overflow-y-auto pr-1">
           {filtered.map((c) => (
             <button
               key={c.code}
@@ -423,18 +427,18 @@ function CountryPickerDialog({
               disabled={saving}
               title={c.name}
               className={[
-                "flex flex-col items-center gap-0.5 rounded-xl p-2 transition-all text-center hover:bg-sky/30 active:scale-95",
-                current === c.code ? "bg-sky/40 ring-2 ring-sky" : "",
+                "flex cursor-pointer flex-col items-center gap-1 rounded-2xl p-2 text-center transition-[background-color,transform] duration-150 hover:bg-ink-50 active:scale-95",
+                current === c.code ? "bg-brand-50 ring-2 ring-brand-500" : "",
               ].join(" ")}
             >
               <FlagImg code={c.code} size={28} />
-              <span className="text-[9px] font-semibold text-ink leading-tight line-clamp-1">
+              <span className="line-clamp-1 text-[0.6875rem] leading-tight font-semibold text-ink-700">
                 {c.name}
               </span>
             </button>
           ))}
           {filtered.length === 0 && (
-            <p className="col-span-4 text-center text-sm text-muted-foreground py-4">
+            <p className="col-span-4 py-6 text-center text-sm text-ink-500">
               Không tìm thấy quốc gia
             </p>
           )}
@@ -526,7 +530,13 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
     const url = user.user_metadata?.avatar_url as string | undefined;
     setAvatarEmoji(emoji);
     setAvatarUrl(url);
-    upsertProfile({ userId: user.id, displayName, avatarEmoji: emoji, avatarUrl: url, country: countryCode });
+    upsertProfile({
+      userId: user.id,
+      displayName,
+      avatarEmoji: emoji,
+      avatarUrl: url,
+      country: countryCode,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOwnProfileLoading, ownProfile, user.id]);
 
@@ -620,329 +630,366 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
   const isEmailUser = user.app_metadata?.provider !== "google";
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8 sm:px-6">
-        {/* Hero card */}
-        <div className="relative mb-6 overflow-hidden rounded-3xl border border-border bg-card shadow-card ring-1 ring-black/[0.02]">
-          {/* Red cover strip, same gradient and squircle motif as PageBanner.
-            The avatar below overlaps it, so the card reads as a profile header
-            without any of its edit controls needing to work on red. */}
-          <div className="relative h-28 overflow-hidden bg-gradient-to-br from-primary via-indigo to-indigo-deep">
-            <div aria-hidden className="pointer-events-none absolute inset-0">
-              <div className="absolute -right-16 -top-20 h-56 w-56 rotate-[20deg] rounded-[30%] bg-primary-glow/40 blur-[2px]" />
-              <div className="absolute -bottom-24 -left-16 h-44 w-44 rotate-[20deg] rounded-[30%] bg-gold/20 blur-[2px]" />
-            </div>
-          </div>
-
-          <div className="relative flex flex-col items-center gap-4 p-8 pt-4 text-center sm:flex-row sm:items-start sm:text-left">
-            {/* Avatar — lifted so it straddles the cover strip's bottom edge. */}
-            <div className="relative -mt-16 shrink-0">
-              <div
-                className={[
-                  "h-24 w-24 rounded-full shadow-lg ring-4 ring-white overflow-hidden flex items-center justify-center font-semibold font-display",
-                  avatarUrl || avatarEmoji ? "bg-sky-100" : avatarColor(avatarLetter),
-                ].join(" ")}
-              >
-                {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt="Avatar"
-                    className="h-full w-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : avatarEmoji ? (
-                  <span className="text-5xl">{avatarEmoji}</span>
-                ) : (
-                  <span className="text-3xl">{avatarLetter}</span>
-                )}
-              </div>
-              <button
-                onClick={() => setAvatarPickerOpen(true)}
-                className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-white shadow-bevel-neutral flex items-center justify-center transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-neutral-active"
-                title="Đổi avatar"
-              >
-                <Pencil className="h-3.5 w-3.5 text-ink" />
-              </button>
-              <AvatarPickerDialog
-                current={avatarEmoji}
-                open={avatarPickerOpen}
-                onOpenChange={setAvatarPickerOpen}
-                onSelect={({ emoji, url }) => {
-                  setAvatarEmoji(emoji);
-                  setAvatarUrl(url);
-                }}
-              />
-            </div>
-
-            {/* Info */}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-primary/80">Trang cá nhân của em ♥</p>
-              <div className="flex items-center gap-2 flex-wrap">
-                {editingName ? (
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <input
-                      ref={nameInputRef}
-                      value={nameInput}
-                      onChange={(e) => setNameInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") handleSaveName();
-                        if (e.key === "Escape") setEditingName(false);
-                      }}
-                      className="font-display text-2xl font-bold text-ink bg-white/70 rounded-lg px-2 py-0.5 border border-sky outline-none min-w-0 w-full"
-                      maxLength={40}
-                      autoFocus
-                    />
-                    <button
-                      onClick={handleSaveName}
-                      disabled={savingName}
-                      className="shrink-0 h-8 w-8 rounded-full bg-green shadow-bevel-green flex items-center justify-center text-white transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-green-active disabled:opacity-50 disabled:pointer-events-none"
-                    >
-                      {savingName ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Check className="h-4 w-4" />
-                      )}
-                    </button>
-                  </div>
-                ) : (
-                  <h1 className="font-display text-2xl font-bold text-ink leading-tight flex items-center gap-2 flex-wrap">
-                    <span className="truncate">{displayName}</span>
-                    <button
-                      onClick={() => {
-                        setNameInput(displayName);
-                        setEditingName(true);
-                        setTimeout(() => nameInputRef.current?.select(), 0);
-                      }}
-                      className="shrink-0 h-7 w-7 rounded-full bg-white shadow-bevel-neutral flex items-center justify-center transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-neutral-active"
-                      title="Đổi tên"
-                    >
-                      <Pencil className="h-3.5 w-3.5 text-ink/60" />
-                    </button>
-                    <button
-                      onClick={() => setCountryPickerOpen(true)}
-                      className="shrink-0 rounded-md border border-white/60 bg-white/50 shadow-sm ease-bounce transition-all hover:-translate-y-0.5 hover:bg-white hover:shadow-md active:translate-y-0 active:scale-95 overflow-hidden cursor-pointer"
-                      title="Chọn quốc gia"
-                    >
-                      {countryCode ? (
-                        <FlagImg code={countryCode} size={32} />
-                      ) : (
-                        <Globe className="h-5 w-5 text-ink/50 m-1" />
-                      )}
-                    </button>
-                  </h1>
-                )}
-              </div>
-              <CountryPickerDialog
-                current={countryCode}
-                displayName={displayName}
-                avatarEmoji={avatarEmoji}
-                avatarUrl={avatarUrl}
-                open={countryPickerOpen}
-                onOpenChange={setCountryPickerOpen}
-                onSelect={setCountryCode}
-              />
-              <p className="text-sm text-muted-foreground mt-0.5 truncate">{user.email}</p>
-              <p className="text-xs text-muted-foreground mt-1">Thành viên từ {memberSince}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats row */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          {[
-            {
-              emoji: "🎯",
-              value: completedCount,
-              label: "Bài hoàn thành",
-              color: "bg-stage-1-soft text-stage-1-deep",
-            },
-            {
-              emoji: "📖",
-              value: inProgressCount,
-              label: "Đang học",
-              color: "bg-stage-4-soft text-ink",
-            },
-          ].map(({ emoji, value, label, color }) => (
-            <div
-              key={label}
-              className={["rounded-2xl p-4 text-center ring-1 ring-border shadow-card", color].join(
-                " ",
-              )}
+    <Container width="narrow" className="py-8 sm:py-12">
+      <ProfileHero
+        avatar={
+          <>
+            <ProfileAvatarFace url={avatarUrl} emoji={avatarEmoji} letter={avatarLetter} />
+            <button
+              onClick={() => setAvatarPickerOpen(true)}
+              className="absolute right-0 bottom-0 grid size-9 cursor-pointer place-items-center rounded-full border border-ink-100 bg-white text-ink-700 shadow-md transition-transform duration-200 hover:scale-110"
+              aria-label="Đổi avatar"
+              title="Đổi avatar"
             >
-              <div className="text-2xl mb-1">{emoji}</div>
-              <div className="font-display text-2xl font-bold text-ink leading-none">
-                {isProgressLoading ? "—" : value}
-              </div>
-              <div className="text-xs font-semibold mt-1 text-muted-foreground leading-tight">
-                {label}
-              </div>
-            </div>
-          ))}
-          <div className="rounded-2xl bg-primary/8 p-4 text-center shadow-card ring-1 ring-border">
-            <div className="text-2xl mb-1">🔥</div>
-            <div className="font-display text-2xl font-bold text-ink leading-none">
-              {streak.days}
-            </div>
-            <div className="text-xs font-semibold mt-1 text-muted-foreground leading-tight">
-              Ngày liên tiếp
-            </div>
-            <div
-              className={[
-                "mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold",
-                streak.studiedToday
-                  ? "bg-stage-1-soft text-stage-1-deep"
-                  : "bg-muted text-muted-foreground",
-              ].join(" ")}
-            >
-              {streak.studiedToday ? "✓ Hôm nay xong" : "Chưa học hôm nay"}
-            </div>
-          </div>
-        </div>
-
-        {/* Account actions */}
-        <div className="rounded-3xl bg-white ring-1 ring-border shadow-card p-6 space-y-3">
-          <h2 className="font-display text-lg font-bold text-ink mb-4">⚙️ Tài khoản</h2>
-
-          {isEmailUser && (
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-3 rounded-xl h-12 font-medium text-ink border-border hover:bg-muted"
-              onClick={handleResetPassword}
-              disabled={isSendingReset}
-            >
-              {isSendingReset ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <KeyRound className="h-4 w-4 text-primary" />
-              )}
-              Đổi mật khẩu
-            </Button>
-          )}
-
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="outline"
-                className="h-12 w-full justify-start gap-3 rounded-xl border-stage-4/40 font-medium text-stage-4-deep hover:border-stage-4/60 hover:bg-stage-4-soft"
-                disabled={isRestarting}
-              >
-                {isRestarting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <RotateCcw className="h-4 w-4" />
-                )}
-                Bắt đầu lại từ đầu
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent className="rounded-3xl">
-              <AlertDialogHeader>
-                <AlertDialogTitle className="font-display text-xl font-bold text-ink">
-                  Bắt đầu lại từ đầu? 🔄
-                </AlertDialogTitle>
-                <AlertDialogDescription className="text-base leading-relaxed">
-                  Tất cả tiến độ học tập của em sẽ bị xóa và em sẽ bắt đầu lại từ bài đầu tiên. Tài
-                  khoản của em vẫn được giữ lại.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel className="rounded-xl font-medium">
-                  Thôi, giữ lại
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleRestartProgress}
-                  className="rounded-xl bg-stage-4 font-medium hover:brightness-95"
-                >
-                  Bắt đầu lại
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-
-          <Button
-            variant="outline"
-            className="w-full justify-start gap-3 rounded-xl h-12 font-medium text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50"
-            onClick={signOut}
-          >
-            <LogOut className="h-4 w-4" />
-            Đăng xuất
-          </Button>
-
-          <div className="pt-4 mt-2 border-t border-destructive/20">
-            <p className="text-xs font-semibold uppercase tracking-wide text-destructive/80 mb-2">
-              Vùng nguy hiểm
-            </p>
-            <AlertDialog
-              open={deleteOpen}
-              onOpenChange={(open) => {
-                if (!isDeleting) {
-                  setDeleteOpen(open);
-                  if (!open) setDeleteConfirm("");
-                }
+              <Pencil className="size-4" aria-hidden />
+            </button>
+            <AvatarPickerDialog
+              current={avatarEmoji}
+              open={avatarPickerOpen}
+              onOpenChange={setAvatarPickerOpen}
+              onSelect={({ emoji, url }) => {
+                setAvatarEmoji(emoji);
+                setAvatarUrl(url);
               }}
+            />
+          </>
+        }
+      >
+        {editingName ? (
+          <div className="flex items-center gap-2">
+            <Input
+              ref={nameInputRef}
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSaveName();
+                if (e.key === "Escape") setEditingName(false);
+              }}
+              aria-label="Tên hiển thị"
+              className="h-11 text-lg font-bold"
+              maxLength={40}
+              autoFocus
+            />
+            <Button
+              size="icon"
+              tone="stage-1"
+              onClick={handleSaveName}
+              disabled={savingName}
+              aria-label="Lưu tên"
             >
+              {savingName ? <Loader2 className="animate-spin" /> : <Check strokeWidth={3} />}
+            </Button>
+          </div>
+        ) : (
+          <h1 className="flex flex-wrap items-center justify-center gap-2 text-h2 text-ink-900 sm:justify-start">
+            <span className="truncate">{displayName}</span>
+            <button
+              onClick={() => {
+                setNameInput(displayName);
+                setEditingName(true);
+                setTimeout(() => nameInputRef.current?.select(), 0);
+              }}
+              className="grid size-8 shrink-0 cursor-pointer place-items-center rounded-full bg-ink-50 text-ink-500 transition-colors hover:bg-ink-100 hover:text-ink-900"
+              aria-label="Đổi tên"
+              title="Đổi tên"
+            >
+              <Pencil className="size-4" aria-hidden />
+            </button>
+            <button
+              onClick={() => setCountryPickerOpen(true)}
+              className="shrink-0 cursor-pointer overflow-hidden rounded-md shadow-xs ring-1 ring-ink-100 transition-transform hover:-translate-y-0.5"
+              aria-label="Chọn quốc gia"
+              title="Chọn quốc gia"
+            >
+              {countryCode ? (
+                <FlagImg code={countryCode} size={32} />
+              ) : (
+                <Globe className="m-1 size-5 text-ink-400" />
+              )}
+            </button>
+          </h1>
+        )}
+        <CountryPickerDialog
+          current={countryCode}
+          displayName={displayName}
+          avatarEmoji={avatarEmoji}
+          avatarUrl={avatarUrl}
+          open={countryPickerOpen}
+          onOpenChange={setCountryPickerOpen}
+          onSelect={setCountryCode}
+        />
+        <p className="mt-1 truncate text-ink-600">{user.email}</p>
+        <p className="mt-1 text-sm text-ink-500">Thành viên từ {memberSince}</p>
+      </ProfileHero>
+
+      <ul className="mt-6 grid grid-cols-3 gap-3">
+        <StatTile
+          icon={Target}
+          hue="bg-leaf-50 text-leaf-700"
+          value={isProgressLoading ? "—" : completedCount}
+          label="Bài hoàn thành"
+        />
+        <StatTile
+          icon={BookOpen}
+          hue="bg-brand-50 text-brand-700"
+          value={isProgressLoading ? "—" : inProgressCount}
+          label="Đang học"
+        />
+        <StatTile
+          icon={Flame}
+          hue="bg-coral-50 text-coral-700"
+          value={streak.days}
+          label="Ngày liên tiếp"
+          note={streak.studiedToday ? "Hôm nay xong" : "Chưa học hôm nay"}
+          noteDone={streak.studiedToday}
+        />
+      </ul>
+
+      <section className="mt-6 rounded-3xl border border-ink-100 bg-white p-2 shadow-xs">
+        <h2 className="flex items-center gap-2 px-4 pt-4 pb-2 text-h3 text-ink-900">
+          <Settings className="size-5 text-ink-400" aria-hidden />
+          Tài khoản
+        </h2>
+        <ul className="flex flex-col">
+          {isEmailUser && (
+            <li>
+              <SettingsRow
+                icon={isSendingReset ? Loader2 : KeyRound}
+                spin={isSendingReset}
+                iconHue="bg-brand-50 text-brand-600"
+                label="Đổi mật khẩu"
+                hint="Gửi liên kết đặt lại mật khẩu tới email của em"
+                onClick={handleResetPassword}
+                disabled={isSendingReset}
+              />
+            </li>
+          )}
+          <li>
+            <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start gap-3 rounded-xl h-12 font-medium bg-destructive text-destructive-foreground border-destructive hover:bg-destructive/90 hover:text-destructive-foreground"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Xóa tài khoản
-                </Button>
+                <SettingsRow
+                  icon={isRestarting ? Loader2 : RotateCcw}
+                  spin={isRestarting}
+                  iconHue="bg-sun-50 text-sun-700"
+                  label="Bắt đầu lại từ đầu"
+                  hint="Xóa tiến độ học, giữ lại tài khoản"
+                  disabled={isRestarting}
+                />
               </AlertDialogTrigger>
-              <AlertDialogContent className="rounded-3xl">
+              <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle className="font-display text-xl font-bold text-destructive">
-                    Xóa tài khoản vĩnh viễn? ⚠️
-                  </AlertDialogTitle>
-                  <AlertDialogDescription className="text-base leading-relaxed">
-                    Toàn bộ hồ sơ và tiến độ học tập của em sẽ bị xóa
-                    vĩnh viễn và không thể khôi phục. Hãy gõ{" "}
-                    <span className="font-semibold text-destructive">XÓA</span> vào ô
-                    bên dưới để xác nhận.
+                  <AlertDialogTitle>Bắt đầu lại từ đầu?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-base">
+                    Tất cả tiến độ học tập của em sẽ bị xóa và em sẽ bắt đầu lại từ bài đầu tiên.
+                    Tài khoản của em vẫn được giữ lại.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
-                <Input
-                  value={deleteConfirm}
-                  onChange={(e) => setDeleteConfirm(e.target.value)}
-                  placeholder="Gõ XÓA để xác nhận"
-                  className="rounded-xl"
-                  disabled={isDeleting}
-                />
                 <AlertDialogFooter>
-                  <AlertDialogCancel
-                    disabled={isDeleting}
-                    className="rounded-xl font-medium"
-                  >
-                    Hủy
-                  </AlertDialogCancel>
+                  <AlertDialogCancel>Thôi, giữ lại</AlertDialogCancel>
                   <AlertDialogAction
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleDeleteAccount();
-                    }}
-                    disabled={isDeleting || deleteConfirm.trim().toUpperCase() !== "XÓA"}
-                    className="rounded-xl bg-destructive font-medium text-destructive-foreground hover:bg-destructive/90"
+                    onClick={handleRestartProgress}
+                    className={buttonVariants({ tone: "stage-4" })}
                   >
-                    {isDeleting ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      "Xóa vĩnh viễn"
-                    )}
+                    Bắt đầu lại
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-          </div>
+          </li>
+          <li>
+            <SettingsRow
+              icon={LogOut}
+              iconHue="bg-ink-50 text-ink-600"
+              label="Đăng xuất"
+              onClick={signOut}
+            />
+          </li>
+        </ul>
+      </section>
+
+      <section className="mt-6 flex flex-col gap-4 rounded-3xl bg-danger-50 p-6 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-h3 text-danger-700">Xóa tài khoản</h2>
+          <p className="mt-1 text-sm text-danger-700/80">
+            Xóa vĩnh viễn hồ sơ và toàn bộ tiến độ học tập.
+          </p>
         </div>
+        <AlertDialog
+          open={deleteOpen}
+          onOpenChange={(open) => {
+            if (!isDeleting) {
+              setDeleteOpen(open);
+              if (!open) setDeleteConfirm("");
+            }
+          }}
+        >
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive" className="shrink-0">
+              <Trash2 aria-hidden />
+              Xóa tài khoản
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-danger-50 text-danger-600 sm:mx-0">
+                <TriangleAlert className="size-6" aria-hidden />
+              </span>
+              <AlertDialogTitle className="text-danger-700">
+                Xóa tài khoản vĩnh viễn?
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-base">
+                Toàn bộ hồ sơ và tiến độ học tập của em sẽ bị xóa vĩnh viễn và không thể khôi phục.
+                Hãy gõ <span className="font-bold text-danger-700">XÓA</span> vào ô bên dưới để xác
+                nhận.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <Input
+              value={deleteConfirm}
+              onChange={(e) => setDeleteConfirm(e.target.value)}
+              placeholder="Gõ XÓA để xác nhận"
+              aria-label="Xác nhận xóa tài khoản"
+              disabled={isDeleting}
+            />
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isDeleting}>Hủy</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleDeleteAccount();
+                }}
+                disabled={isDeleting || deleteConfirm.trim().toUpperCase() !== "XÓA"}
+                className={buttonVariants({ variant: "destructive" })}
+              >
+                {isDeleting ? <Loader2 className="animate-spin" /> : "Xóa vĩnh viễn"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </section>
 
+      <p className="mt-8 text-center text-caption text-ink-400">
+        Phiên bản 1.0 · Trường Tiếng Việt Của Em
+      </p>
+    </Container>
+  );
+}
 
-        <p className="text-center text-xs text-muted-foreground mt-6 pb-4">
-          Phiên bản 1.0 · Trường Tiếng Việt Của Em 🇻🇳
-        </p>
-      </main>
+// ─── Shared pieces ────────────────────────────────────────────────────────────
+
+function ProfileAvatarFace({
+  url,
+  emoji,
+  letter,
+}: {
+  url?: string | null;
+  emoji?: string | null;
+  letter: string;
+}) {
+  return (
+    <span
+      className={[
+        "grid size-28 place-items-center overflow-hidden rounded-full font-bold shadow-lg ring-[6px] ring-white",
+        url || emoji ? "bg-sky-50" : avatarColor(letter),
+      ].join(" ")}
+    >
+      {url ? (
+        <img src={url} alt="" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+      ) : emoji ? (
+        <span className="text-6xl">{emoji}</span>
+      ) : (
+        <span className="text-4xl">{letter}</span>
+      )}
+    </span>
+  );
+}
+
+/** The profile's header card: a brand-blue cover band, the avatar straddling
+ *  its lower edge, and the name block beside it. */
+function ProfileHero({ avatar, children }: { avatar: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <div className="overflow-hidden rounded-[2rem] border border-ink-100 bg-white shadow-md">
+      <div aria-hidden className="relative h-32 overflow-hidden bg-brand-600">
+        <div className="absolute -top-20 -right-10 size-64 rounded-full bg-brand-500" />
+        <div className="absolute -bottom-24 left-1/4 size-48 rounded-full bg-sun-500/30" />
+        <div className="bg-dots absolute inset-0 opacity-20 invert" />
+      </div>
+      <div className="flex flex-col items-center gap-4 px-6 pb-8 text-center sm:flex-row sm:items-end sm:gap-6 sm:px-8 sm:text-left">
+        <div className="relative -mt-14 shrink-0">{avatar}</div>
+        <div className="min-w-0 flex-1 sm:pb-1">{children}</div>
+      </div>
     </div>
   );
 }
+
+function StatTile({
+  icon: Icon,
+  hue,
+  value,
+  label,
+  note,
+  noteDone,
+}: {
+  icon: LucideIcon;
+  hue: string;
+  value: React.ReactNode;
+  label: string;
+  note?: string;
+  noteDone?: boolean;
+}) {
+  return (
+    <li className="flex flex-col items-center gap-2 rounded-3xl border border-ink-100 bg-white p-4 text-center shadow-xs sm:items-start sm:p-5 sm:text-left">
+      <span className={`grid size-10 place-items-center rounded-xl ${hue}`}>
+        <Icon className="size-5" aria-hidden />
+      </span>
+      <span className="text-h2 leading-none text-ink-900 tabular-nums">{value}</span>
+      <span className="text-sm leading-tight font-medium text-ink-500">{label}</span>
+      {note && (
+        <span
+          className={[
+            "rounded-full px-2 py-0.5 text-caption font-semibold",
+            noteDone ? "bg-leaf-50 text-leaf-700" : "bg-ink-50 text-ink-500",
+          ].join(" ")}
+        >
+          {note}
+        </span>
+      )}
+    </li>
+  );
+}
+
+const SettingsRow = React.forwardRef<
+  HTMLButtonElement,
+  {
+    icon: LucideIcon;
+    spin?: boolean;
+    iconHue: string;
+    label: string;
+    hint?: string;
+  } & React.ButtonHTMLAttributes<HTMLButtonElement>
+>(({ icon: Icon, spin, iconHue, label, hint, className, ...props }, ref) => (
+  <button
+    ref={ref}
+    type="button"
+    className={[
+      "group flex w-full cursor-pointer items-center gap-4 rounded-2xl px-4 py-3 text-left transition-colors hover:bg-ink-25 disabled:cursor-not-allowed disabled:opacity-60",
+      className ?? "",
+    ].join(" ")}
+    {...props}
+  >
+    <span className={`grid size-10 shrink-0 place-items-center rounded-xl ${iconHue}`}>
+      <Icon className={["size-5", spin ? "animate-spin" : ""].join(" ")} aria-hidden />
+    </span>
+    <span className="min-w-0 flex-1">
+      <span className="block font-semibold text-ink-900">{label}</span>
+      {hint && <span className="block truncate text-sm text-ink-500">{hint}</span>}
+    </span>
+    <ChevronRight
+      className="size-5 text-ink-300 transition-transform group-hover:translate-x-0.5"
+      aria-hidden
+    />
+  </button>
+));
+SettingsRow.displayName = "SettingsRow";
 
 // ─── Public (read-only) view ──────────────────────────────────────────────────
 
@@ -962,35 +1009,30 @@ function PublicView({ username }: { username: string }) {
   });
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen">
-        <div className="flex items-center justify-center py-32">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </div>
-    );
+    return <PageLoader label="Đang tải hồ sơ" />;
   }
 
   if (!profile) {
     return (
-      <div className="min-h-screen">
-        <main className="mx-auto max-w-lg px-4 py-20 text-center">
-          <div className="text-6xl mb-4">🔍</div>
-          <h1 className="font-display text-2xl font-bold text-ink mb-2">
-            Không tìm thấy người dùng
-          </h1>
-          <p className="text-muted-foreground mb-6">
-            Hồ sơ <span className="font-semibold text-ink">@{username}</span> không tồn tại.
-          </p>
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-display text-sm font-extrabold text-white shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active"
-          >
-            <Home className="h-4 w-4" />
-            Về trang chủ
-          </Link>
-        </main>
-      </div>
+      <Container width="narrow" className="py-16">
+        <EmptyState
+          icon={SearchX}
+          title="Không tìm thấy người dùng"
+          description={
+            <>
+              Hồ sơ <span className="font-semibold text-ink-800">@{username}</span> không tồn tại.
+            </>
+          }
+          action={
+            <Button asChild>
+              <Link to="/">
+                <Home aria-hidden />
+                Về trang chủ
+              </Link>
+            </Button>
+          }
+        />
+      </Container>
     );
   }
 
@@ -1001,74 +1043,46 @@ function PublicView({ username }: { username: string }) {
   });
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8 sm:px-6">
-        {/* Hero card */}
-        <div className="relative mb-6 overflow-hidden rounded-3xl border border-border bg-card shadow-card ring-1 ring-black/[0.02]">
-          {/* Red cover strip — matches the owner's own profile header. */}
-          <div className="relative h-28 overflow-hidden bg-gradient-to-br from-primary via-indigo to-indigo-deep">
-            <div aria-hidden className="pointer-events-none absolute inset-0">
-              <div className="absolute -right-16 -top-20 h-56 w-56 rotate-[20deg] rounded-[30%] bg-primary-glow/40 blur-[2px]" />
-              <div className="absolute -bottom-24 -left-16 h-44 w-44 rotate-[20deg] rounded-[30%] bg-gold/20 blur-[2px]" />
-            </div>
-          </div>
+    <Container width="narrow" className="py-8 sm:py-12">
+      <ProfileHero
+        avatar={
+          <ProfileAvatarFace
+            url={profile.avatar_url}
+            emoji={profile.avatar_emoji}
+            letter={avatarLetter}
+          />
+        }
+      >
+        <h1 className="flex flex-wrap items-center justify-center gap-2 text-h2 text-ink-900 sm:justify-start">
+          {profile.display_name}
+          {profile.country && (
+            <span className="overflow-hidden rounded-md shadow-xs ring-1 ring-ink-100">
+              <FlagImg code={profile.country} size={28} />
+            </span>
+          )}
+        </h1>
+        <p className="mt-1 text-ink-600">@{profile.username}</p>
+        <p className="mt-1 text-sm text-ink-500">Thành viên từ {memberSince}</p>
+      </ProfileHero>
 
-          <div className="relative flex flex-col items-center gap-4 p-8 pt-4 text-center sm:flex-row sm:items-start sm:text-left">
-            {/* Lifted so it straddles the cover strip's bottom edge. */}
-            <div className="-mt-16 shrink-0">
-              <div
-                className={[
-                  "h-24 w-24 rounded-full shadow-lg ring-4 ring-white overflow-hidden flex items-center justify-center font-semibold font-display",
-                  profile.avatar_url || profile.avatar_emoji
-                    ? "bg-sky-100"
-                    : avatarColor(avatarLetter),
-                ].join(" ")}
-              >
-                {profile.avatar_url ? (
-                  <img
-                    src={profile.avatar_url}
-                    alt="Avatar"
-                    className="h-full w-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : profile.avatar_emoji ? (
-                  <span className="text-5xl">{profile.avatar_emoji}</span>
-                ) : (
-                  <span className="text-3xl">{avatarLetter}</span>
-                )}
-              </div>
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                <h1 className="font-display text-2xl font-bold text-ink">{profile.display_name}</h1>
-                {profile.country && (
-                  <span className="rounded-md border border-white/60 bg-white/50 shadow-sm overflow-hidden">
-                    <FlagImg code={profile.country} size={28} />
-                  </span>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground mt-0.5">@{profile.username}</p>
-              <p className="text-xs text-muted-foreground mt-1">Thành viên từ {memberSince}</p>
-            </div>
-          </div>
-        </div>
+      <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <StatTile
+          icon={Target}
+          hue="bg-leaf-50 text-leaf-700"
+          value={profile.completed_count}
+          label="Bài hoàn thành"
+        />
+      </ul>
 
-        {/* Stats */}
-        <div className="mb-6">
-          <div className="rounded-2xl p-4 text-center ring-1 ring-border shadow-card bg-stage-1-soft">
-            <div className="text-2xl mb-1">🎯</div>
-            <div className="font-display text-2xl font-bold text-ink leading-none">
-              {profile.completed_count}
-            </div>
-            <div className="text-xs font-semibold mt-1 text-muted-foreground">Bài hoàn thành</div>
-          </div>
-        </div>
-
-        <p className="text-center text-xs text-muted-foreground pb-4">
-          Trường Tiếng Việt Của Em 🇻🇳
-        </p>
-      </main>
-    </div>
+      <div className="mt-8 flex justify-center">
+        <Button asChild variant="secondary">
+          <Link to="/bang-xep-hang">
+            <Trophy aria-hidden />
+            Xem bảng xếp hạng
+          </Link>
+        </Button>
+      </div>
+    </Container>
   );
 }
 
@@ -1079,13 +1093,7 @@ function ProfilePage() {
   const { user, isLoading, signOut } = useAuth();
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen">
-        <div className="flex items-center justify-center py-32">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </div>
-    );
+    return <PageLoader label="Đang tải hồ sơ" />;
   }
 
   const myDisplayName =

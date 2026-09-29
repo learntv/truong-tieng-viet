@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Check, HelpCircle, Lock, MapPin } from "lucide-react";
+import { Check, HelpCircle, Lock, Map as MapIcon, MapPin } from "lucide-react";
 import type { ChuDeWithChangs, QuyenNumber } from "@/lib/learning";
 import { chuDeShortTitle, isChuDeComplete } from "@/lib/learning";
 import type { ChangProgress } from "@/hooks/useUserProgress";
@@ -8,6 +8,9 @@ import type { ChuDe } from "@/data/topics";
 import { landmarksForQuyen } from "@/data/overworld";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Container } from "@/components/layout/Container";
 import { ConfettiBurst } from "./ConfettiBurst";
 import { BuffaloMascot } from "./BuffaloMascot";
 import { BackLink } from "@/components/BackLink";
@@ -43,11 +46,11 @@ function hasSeenTutorial(): boolean {
 type PinStatus = "completed" | "current" | "locked" | "coming-soon";
 
 const ACCENT: Record<ChuDe["accent"], { solid: string; text: string }> = {
-  primary: { solid: "bg-primary", text: "text-primary" },
-  yellow: { solid: "bg-[oklch(0.72_0.17_55)]", text: "text-[oklch(0.58_0.14_70)]" },
-  pink: { solid: "bg-pink", text: "text-pink" },
-  purple: { solid: "bg-purple", text: "text-purple" },
-  green: { solid: "bg-green", text: "text-green" },
+  primary: { solid: "bg-brand-500", text: "text-brand-700" },
+  yellow: { solid: "bg-sun-500", text: "text-sun-700" },
+  pink: { solid: "bg-rose-500", text: "text-rose-700" },
+  purple: { solid: "bg-grape-500", text: "text-grape-700" },
+  green: { solid: "bg-leaf-500", text: "text-leaf-700" },
 };
 
 export function OverworldMap({
@@ -78,16 +81,6 @@ export function OverworldMap({
       // localStorage unavailable — the tutorial will show again next visit
     }
   };
-
-  // Escape closes it too, the same as tapping the backdrop or the button.
-  useEffect(() => {
-    if (!showTutorial) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") dismissTutorial();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [showTutorial]);
 
   // Every landmark is drawn, including ones whose chủ đề hasn't been written yet — those show
   // as "sắp có" so the child can see the whole journey ahead of them, not a map that grows.
@@ -161,23 +154,31 @@ export function OverworldMap({
 
   return (
     <section className="relative w-full">
-      <BackLink to="/hoc-tap" label="Quay lại học tập" />
-      <div className="w-full px-3 pb-8 pt-20 sm:px-4 sm:pt-24">
-        <p className="mx-auto mb-4 flex max-w-7xl items-center justify-center gap-2 text-center text-xs text-muted-foreground sm:text-sm">
-          <span>Mỗi địa danh là một chủ đề — chạm vào địa danh để vừa khám phá vừa học nhé!</span>
+      <PageHeader
+        icon={MapIcon}
+        hue="brand"
+        title={`Quyển ${quyenNumber} — Bản đồ hành trình`}
+        lede="Mỗi địa danh là một chủ đề. Chạm vào địa danh để vừa khám phá vừa học nhé!"
+        back={<BackLink to="/hoc-tap" label="Học tập" />}
+      >
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="inline-flex h-10 items-center gap-2 rounded-full bg-white px-4 text-sm font-semibold text-ink-800 shadow-xs">
+            <Check className="size-4 text-leaf-600" strokeWidth={3} aria-hidden />
+            <span className="tabular-nums">
+              {doneCount}/{landmarks.length}
+            </span>{" "}
+            chủ đề đã xong
+          </span>
           {/* Reopens the three-step tutorial for a child who dismissed it and wants it back. */}
-          <button
-            type="button"
-            onClick={() => setShowTutorial(true)}
-            aria-label="Xem lại hướng dẫn"
-            title="Xem lại hướng dẫn"
-            className="grid h-6 w-6 shrink-0 cursor-pointer place-items-center rounded-full bg-primary/10 text-primary transition hover:bg-primary/20 active:translate-y-[1px]"
-          >
-            <HelpCircle className="h-4 w-4" strokeWidth={2.75} />
-          </button>
-        </p>
+          <Button variant="ghost" size="sm" onClick={() => setShowTutorial(true)}>
+            <HelpCircle aria-hidden />
+            Xem lại hướng dẫn
+          </Button>
+        </div>
+      </PageHeader>
 
-        <div className="relative z-20 mx-auto flex max-w-7xl flex-col overflow-hidden rounded-[1.75rem] border border-border shadow-card ring-1 ring-black/[0.03]">
+      <Container className="pb-16 sm:pb-24">
+        <div className="relative z-20 flex flex-col overflow-hidden rounded-[2rem] border border-ink-100 bg-sky-50 shadow-lg">
           {/* Map stage. On phones the artwork keeps a readable size and the card scrolls
               sideways, the same affordance the chủ đề roadmap already uses. */}
           <div className="relative w-full overflow-x-auto overflow-y-hidden overscroll-x-contain touch-pan-x touch-pan-y sm:overflow-x-hidden">
@@ -193,11 +194,6 @@ export function OverworldMap({
                 className="absolute inset-0 h-full w-full object-contain"
               />
 
-              {/* Journey progress, kept on the map itself rather than in a header bar. */}
-              <div className="absolute right-3 top-3 z-30 rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-semibold text-navy shadow-card">
-                {doneCount}/{landmarks.length} chủ đề
-              </div>
-
               {/* Route between landmarks */}
               <svg
                 className="pointer-events-none absolute inset-0 h-full w-full"
@@ -212,7 +208,7 @@ export function OverworldMap({
                       key={seg.fromIndex}
                       d={seg.d}
                       fill="none"
-                      stroke={travelled ? "oklch(0.87 0.16 75)" : "white"}
+                      stroke={travelled ? "var(--color-sun-500)" : "white"}
                       strokeWidth={travelled ? 1.4 : 1}
                       strokeDasharray="2.5 2.5"
                       strokeLinecap="round"
@@ -271,30 +267,30 @@ export function OverworldMap({
                             onClick={() =>
                               setOpenIndex(openIndex === lm.chuDeIndex ? null : lm.chuDeIndex)
                             }
-                            className="relative cursor-pointer transition-transform ease-bounce hover:scale-110 active:translate-y-[2px]"
+                            className="relative cursor-pointer rounded-full transition-transform duration-200 ease-spring hover:-translate-y-1 hover:scale-110 active:scale-95"
                           >
                             {/* Just the pin itself — no disc behind it. A white stroke keeps it
                                 readable wherever it lands on the artwork. */}
                             <MapPin
                               className={[
-                                "h-11 w-11 drop-shadow-[0_4px_6px_rgba(0,0,0,0.45)] sm:h-13 sm:w-13",
-                                isOpen ? "text-destructive" : "text-stone-400",
+                                "size-11 drop-shadow-[0_6px_8px_rgb(20_28_49/0.35)] sm:size-13",
+                                isOpen ? "text-coral-600" : "text-ink-400",
                               ].join(" ")}
                               fill="currentColor"
                               stroke="white"
                               strokeWidth={1.75}
                             />
                             {status === "completed" ? (
-                              <span className="absolute -right-1 top-0 grid h-5 w-5 place-items-center rounded-full border-2 border-white bg-green text-white shadow-sm">
+                              <span className="absolute -right-1 top-0 grid size-5 place-items-center rounded-full border-2 border-white bg-leaf-600 text-white shadow-sm">
                                 <Check className="h-3 w-3" strokeWidth={3.5} />
                               </span>
                             ) : !isOpen ? (
-                              <span className="absolute -right-1 top-0 grid h-5 w-5 place-items-center rounded-full border-2 border-white bg-stone-500 text-white shadow-sm">
+                              <span className="absolute -right-1 top-0 grid size-5 place-items-center rounded-full border-2 border-white bg-ink-500 text-white shadow-sm">
                                 <Lock className="h-2.5 w-2.5" strokeWidth={3} />
                               </span>
                             ) : null}
                           </button>
-                          <span className="whitespace-nowrap rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-semibold text-navy shadow-card">
+                          <span className="mt-0.5 whitespace-nowrap rounded-full bg-white px-2.5 py-1 text-caption font-semibold text-ink-800 shadow-md">
                             {lm.name}
                           </span>
                         </div>
@@ -307,9 +303,9 @@ export function OverworldMap({
                         side="bottom"
                         sideOffset={10}
                         collisionPadding={16}
-                        className="w-64 overflow-hidden rounded-lg border border-black/10 bg-card p-0 shadow-none"
+                        className="w-72 overflow-hidden rounded-3xl p-0"
                       >
-                        <div className="relative h-28 w-full">
+                        <div className="relative h-32 w-full">
                           <img
                             src={lm.photo}
                             alt={lm.name}
@@ -319,42 +315,39 @@ export function OverworldMap({
                             ].join(" ")}
                           />
                           {status === "completed" && (
-                            <span className="absolute right-2 top-2 grid h-5 w-5 place-items-center rounded-full bg-green text-white">
-                              <Check className="h-3 w-3" strokeWidth={3.5} />
+                            <span className="absolute top-3 right-3 grid size-7 place-items-center rounded-full bg-leaf-600 text-white shadow-md">
+                              <Check className="size-4" strokeWidth={3.5} />
                             </span>
                           )}
                         </div>
 
-                        <div className="border-t border-black/10 p-4">
+                        <div className="p-5">
                           {/* Eyebrow sits above the title rather than floating on the photo —
                               the whole card reads as flat panels stacked, no overlays. */}
                           <p
                             className={[
-                              "text-[10px] font-semibold uppercase tracking-[0.12em]",
-                              status === "coming-soon" ? "text-muted-foreground" : accent.text,
+                              "text-caption font-bold tracking-wide uppercase",
+                              status === "coming-soon" ? "text-ink-500" : accent.text,
                             ].join(" ")}
                           >
                             {status === "coming-soon" ? "Sắp có" : `Chủ đề ${lm.chuDeIndex + 1}`}
                           </p>
-                          <h2 className="mt-0.5 font-display text-base font-bold leading-tight text-navy">
-                            {lm.name}
-                          </h2>
-                          <p className="mt-1 text-xs leading-snug text-muted-foreground">
-                            {lm.blurb}
-                          </p>
+                          <h2 className="mt-1 text-h3 text-ink-900">{lm.name}</h2>
+                          <p className="mt-1 text-sm leading-snug text-ink-500">{lm.blurb}</p>
 
                           {status === "coming-soon" ? (
-                            <p className="mt-3 border-t border-black/10 pt-3 text-xs leading-snug text-muted-foreground">
+                            <p className="mt-4 rounded-2xl bg-ink-50 p-3 text-sm leading-snug text-ink-600">
                               Các cô đang biên soạn chủ đề này. Em học các chủ đề trước trong lúc
-                              chờ nhé! ✨
+                              chờ nhé!
                             </p>
                           ) : status === "locked" ? (
-                            <p className="mt-3 border-t border-black/10 pt-3 text-xs leading-snug text-muted-foreground">
-                              Em hoàn thành chủ đề trước để mở khoá địa danh này nhé! ✨
+                            <p className="mt-4 flex gap-2 rounded-2xl bg-ink-50 p-3 text-sm leading-snug text-ink-600">
+                              <Lock className="mt-0.5 size-4 shrink-0 text-ink-400" aria-hidden />
+                              Em hoàn thành chủ đề trước để mở khoá địa danh này nhé!
                             </p>
                           ) : (
                             <>
-                              <div className="mt-3 flex items-center justify-between text-[11px] font-semibold text-navy/70">
+                              <div className="mt-4 flex items-center justify-between text-caption font-semibold text-ink-600">
                                 <span>
                                   {stats.done}/{stats.total} chặng
                                 </span>
@@ -367,14 +360,14 @@ export function OverworldMap({
                                   <span
                                     key={s}
                                     className={[
-                                      "h-1.5 flex-1 rounded-sm",
-                                      s < stats.done ? accent.solid : "bg-muted",
+                                      "h-2 flex-1 rounded-full",
+                                      s < stats.done ? accent.solid : "bg-ink-100",
                                     ].join(" ")}
                                   />
                                 ))}
                               </div>
                               <Button
-                                className="mt-4 w-full font-display font-bold shadow-none"
+                                className="mt-5 w-full"
                                 onClick={() => openChuDe(lm.chuDeIndex)}
                               >
                                 Khám phá ngay
@@ -392,38 +385,22 @@ export function OverworldMap({
             </div>
           </div>
         </div>
-      </div>
+      </Container>
 
-      {/* First-visit tutorial: dims the whole page, shows the three steps, and goes away for
-          good once the child taps through. */}
-      {showTutorial && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Cách học ba bước"
-          className="animate-modal-overlay-in fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4"
-          onClick={dismissTutorial}
-        >
-          <div
-            className="animate-modal-pop-in flex w-full max-w-2xl flex-col items-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <img
-              src={cachHocBanner}
-              alt="Ba bước học: 1. Khám phá địa danh — 2. Hoàn thành bài học — 3. Nhận con dấu"
-              className="w-full rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.45)]"
-            />
-            <Button
-              variant="bevel" tone="primary"
-              autoFocus
-              onClick={dismissTutorial}
-              className="mt-6 px-8 text-base"
-            >
-              Em đã hiểu
-            </Button>
-          </div>
-        </div>
-      )}
+      {/* First-visit tutorial: the three steps, gone for good once the child taps through. */}
+      <Dialog open={showTutorial} onOpenChange={(open) => !open && dismissTutorial()}>
+        <DialogContent className="max-w-2xl gap-6 p-4 sm:p-6">
+          <DialogTitle className="sr-only">Cách học ba bước</DialogTitle>
+          <img
+            src={cachHocBanner}
+            alt="Ba bước học: 1. Khám phá địa danh — 2. Hoàn thành bài học — 3. Nhận con dấu"
+            className="w-full rounded-2xl"
+          />
+          <Button size="lg" autoFocus onClick={dismissTutorial} className="mx-auto px-10">
+            Em đã hiểu
+          </Button>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

@@ -10,11 +10,7 @@ export function BuffaloMascot({ xPercent, yPercent }: { xPercent: number; yPerce
       }}
     >
       <div className="relative flex flex-col items-center animate-bob">
-        <Mascot
-          pose="wave"
-          size="lg"
-          className="drop-shadow-[0_10px_16px_rgba(0,0,0,0.35)]"
-        />
+        <Mascot pose="wave" size="lg" className="drop-shadow-[0_12px_16px_rgb(20_28_49/0.35)]" />
       </div>
     </div>
   );

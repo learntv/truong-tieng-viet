@@ -1,5 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { PageBanner } from "@/components/site/PageBanner";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { MessageCircleQuestion, Plus } from "lucide-react";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Container } from "@/components/layout/Container";
+import { Button } from "@/components/ui/button";
+import { Mascot } from "@/components/Mascot";
 
 export const Route = createFileRoute("/cau-hoi-thuong-gap")({
   head: () => ({
@@ -40,12 +44,8 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
     a: (
       <>
         Không. Giọng nói được xử lý ngay trên trình duyệt để chấm điểm phát âm và{" "}
-        <strong className="text-foreground">không được ghi âm, lưu trữ hay gửi lên máy chủ</strong>{" "}
-        của chúng tôi. Xem thêm tại{" "}
-        <a
-          href="/chinh-sach-bao-mat"
-          className="font-semibold text-primary underline underline-offset-2"
-        >
+        <strong>không được ghi âm, lưu trữ hay gửi lên máy chủ</strong> của chúng tôi. Xem thêm tại{" "}
+        <a href="/chinh-sach-bao-mat" className="link-inline">
           Chính sách bảo mật
         </a>
         .
@@ -61,10 +61,7 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
     a: (
       <>
         Bạn có thể xoá tài khoản ngay trong phần cài đặt tài khoản, hoặc liên hệ chúng tôi qua{" "}
-        <a
-          href="mailto:contact@cvcec.org"
-          className="font-semibold text-primary underline underline-offset-2"
-        >
+        <a href="mailto:contact@cvcec.org" className="link-inline">
           contact@cvcec.org
         </a>
         .
@@ -76,7 +73,7 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
     a: (
       <>
         Hãy ghé trang{" "}
-        <a href="/lien-he" className="font-semibold text-primary underline underline-offset-2">
+        <a href="/lien-he" className="link-inline">
           Liên hệ
         </a>{" "}
         để gửi thắc mắc. Chúng tôi luôn sẵn lòng hỗ trợ bạn và bé.
@@ -87,32 +84,53 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
 
 function FAQ() {
   return (
-    <main>
-      <PageBanner
+    <>
+      <PageHeader
+        icon={MessageCircleQuestion}
+        hue="grape"
         title="Câu hỏi thường gặp"
-        subtitle="Những thắc mắc phổ biến của phụ huynh và học sinh."
+        lede="Những thắc mắc phổ biến của phụ huynh và học sinh."
+        width="content"
+        aside={
+          <Mascot
+            pose="thinking"
+            size="lg"
+            decorative
+            className="hidden h-40 animate-float md:block"
+          />
+        }
       />
 
-      <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-        <div className="flex flex-col gap-4">
+      <Container width="content" className="pb-20">
+        <div className="flex max-w-3xl flex-col gap-3">
           {FAQS.map(({ q, a }) => (
             <details
               key={q}
-              className="group rounded-2xl border border-border bg-card p-5 [&_summary::-webkit-details-marker]:hidden"
+              className="group rounded-3xl border border-ink-100 bg-white shadow-xs transition-[box-shadow,border-color] duration-200 open:border-grape-100 open:shadow-md hover:border-ink-200 [&_summary::-webkit-details-marker]:hidden"
             >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-base font-bold text-foreground sm:text-lg">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-3xl p-5 text-[1.0625rem] font-bold text-ink-900 sm:p-6">
                 {q}
-                <span className="shrink-0 text-primary transition-transform group-open:rotate-45">
-                  +
+                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-grape-50 text-grape-700 transition-transform duration-300 ease-out group-open:rotate-45">
+                  <Plus className="size-5" strokeWidth={2.5} aria-hidden />
                 </span>
               </summary>
-              <div className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+              <div className="px-5 pb-6 text-[1.0625rem] leading-relaxed text-ink-700 sm:px-6 [&_strong]:font-semibold [&_strong]:text-ink-900">
                 {a}
               </div>
             </details>
           ))}
         </div>
-      </div>
-    </main>
+
+        <div className="mt-12 flex max-w-3xl flex-col items-start gap-5 rounded-3xl bg-grape-50 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+          <div>
+            <h2 className="text-h3 text-ink-900">Vẫn còn thắc mắc?</h2>
+            <p className="mt-1 text-ink-600">Chúng tôi luôn sẵn lòng hỗ trợ bạn và bé.</p>
+          </div>
+          <Button asChild>
+            <Link to="/lien-he">Liên hệ với chúng tôi</Link>
+          </Button>
+        </div>
+      </Container>
+    </>
   );
 }

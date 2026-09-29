@@ -16,7 +16,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { ProfileSetupModal } from "@/components/ProfileSetupModal";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { SkyPage } from "@/components/layout/SkyPage";
 import { logCmsHealth } from "@/lib/cms-health";
 
 const SITE_URL = "https://truongtiengviet.cvcec.org";
@@ -89,7 +88,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap",
       },
     ],
     scripts: [
@@ -129,13 +128,6 @@ function NewUserSetup() {
   return <ProfileSetupModal user={user} onComplete={() => setDismissed(true)} />;
 }
 
-const BARE_SKY_ROUTES = [
-  "/hoc-tap/",
-  "/dang-nhap",
-  "/hoc-tap/khai-minh-duc/$slug",
-  "/hoc-tap/tap-viet",
-];
-
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const matches = useRouterState({ select: (s) => s.matches });
@@ -145,34 +137,41 @@ function RootComponent() {
     logCmsHealth();
   }, []);
 
+  // A chặng lesson is its own full-screen player; everything else shares the
+  // white shell — navbar, one <main> for the routed page, footer. Pages
+  // therefore render sections, never a <main> of their own.
   const isFullScreen = matches.some((m) => m.routeId.includes("hoc-tap_"));
-  const isHome = matches.some((m) => m.routeId === "/");
-  const isDashboard = matches.some((m) => m.routeId === "/dashboard");
-  // The học tập landing page is a bento of framed tiles, the sign-in page is
-  // one centred card, a Khai Minh Đức lesson is a slide deck whose own pieces
-  // are already framed, and Tập viết is a notebook page — all of them sit
-  // straight on the sky rather than inside SkyPage's white card.
-  const isBareSky = matches.some((m) => BARE_SKY_ROUTES.includes(m.routeId));
 
   return (
     <QueryClientProvider client={queryClient}>
-      {isFullScreen || isHome || isDashboard ? (
-        <>
-          {!isFullScreen && <Navbar />}
-          <Outlet />
-          {!isFullScreen && <Footer />}
-        </>
+      {isFullScreen ? (
+        <Outlet />
       ) : (
-        <>
+        <div className="flex min-h-screen flex-col pb-[calc(4.25rem+env(safe-area-inset-bottom))] md:pb-0">
+          <a
+            href="#main"
+            className="sr-only z-[60] rounded-full bg-brand-600 px-4 py-2 font-semibold text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-3"
+          >
+            Bỏ qua đến nội dung chính
+          </a>
           <Navbar />
-          <SkyPage card={!isBareSky}>
+          <main id="main" className="flex flex-1 flex-col">
             <Outlet />
-          </SkyPage>
+          </main>
           <Footer />
-        </>
+        </div>
       )}
       <NewUserSetup />
-      <Toaster richColors position="top-center" />
+      <Toaster
+        richColors
+        position="top-center"
+        toastOptions={{
+          classNames: {
+            toast: "!rounded-2xl !border-ink-100 !font-sans !shadow-lg !text-[0.9375rem]",
+            description: "!text-sm",
+          },
+        }}
+      />
     </QueryClientProvider>
   );
 }

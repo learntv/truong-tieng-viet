@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Check, Download, Volume2, X } from "lucide-react";
+import { Check, Download, Languages, Volume2, X } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Mascot } from "@/components/Mascot";
 import { BackLink } from "@/components/BackLink";
-import { PageBanner } from "@/components/site/PageBanner";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Container } from "@/components/layout/Container";
 import { ALPHABET, type AlphabetLetter, type AlphabetWord } from "@/data/alphabet";
 import { loadAlphabetProgress, markLetterSeen } from "@/lib/alphabet-progress";
 import { STAGE_COLORS } from "@/components/learning/stageColors";
@@ -86,7 +86,11 @@ export const Route = createFileRoute("/hoc-tap/bang-chu-cai")({
           "Khám phá bảng chữ cái tiếng Việt cùng các bạn thú vui nhộn — nghe phát âm và học từ mới.",
       },
       { property: "og:title", content: "Bảng chữ cái — Trường Tiếng Việt Của Em" },
-      { property: "og:description", content: "Khám phá bảng chữ cái tiếng Việt cùng các bạn thú vui nhộn — nghe phát âm và học từ mới." },
+      {
+        property: "og:description",
+        content:
+          "Khám phá bảng chữ cái tiếng Việt cùng các bạn thú vui nhộn — nghe phát âm và học từ mới.",
+      },
       { property: "og:url", content: "/hoc-tap/bang-chu-cai" },
     ],
     links: [{ rel: "canonical", href: "/hoc-tap/bang-chu-cai" }],
@@ -113,99 +117,100 @@ function BangChuCaiTab() {
   };
 
   return (
-    <main className="pb-24">
-      <PageBanner
-        title="Bảng chữ cái 🎈"
-        subtitle="Bấm vào từng chữ để gặp bạn thú, nghe cách đọc và học từ mới nhé!"
-        back={<BackLink to="/hoc-tap" label="Quay lại học tập" />}
+    <>
+      <PageHeader
+        icon={Languages}
+        hue="grape"
+        title="Bảng chữ cái"
+        lede="Bấm vào từng chữ để gặp bạn thú, nghe cách đọc và học từ mới nhé!"
+        back={<BackLink to="/hoc-tap" label="Học tập" />}
+        aside={
+          <div className="w-full rounded-3xl border border-ink-100 bg-white p-5 shadow-md md:w-80">
+            <div className="flex items-center gap-4">
+              <Mascot pose="reading" decorative className="h-16" />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-ink-600">Đã khám phá</p>
+                <p className="text-h2 text-ink-900 tabular-nums">
+                  {seenCount}
+                  <span className="text-lede font-semibold text-ink-400">/{total} chữ</span>
+                </p>
+              </div>
+            </div>
+            <Progress
+              tone="stage-3"
+              value={total > 0 ? (seenCount / total) * 100 : 0}
+              className="mt-4"
+              aria-label="Số chữ đã khám phá"
+            />
+            <Button asChild variant="outline" size="sm" className="mt-4 w-full">
+              <a href={ALPHABET_PDF_URL} download>
+                <Download aria-hidden />
+                Tải PDF bảng chữ cái
+              </a>
+            </Button>
+          </div>
+        }
       />
 
-      <div className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        {/* Progress — the title that used to head this card now lives in the
-          PageBanner, so the card carries the counter alone. */}
-        <Card className="mx-auto mb-8 max-w-2xl p-6 sm:p-8">
-          <div className="flex items-center gap-4">
-            <Mascot pose="reading" decorative className="h-16 sm:h-20" />
-            <div className="min-w-0 flex-1">
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Đã khám phá
-                </span>
-                <Badge variant="stage-1">
-                  {seenCount}/{total} chữ
-                </Badge>
-              </div>
-              <Progress tone="stage-1" value={total > 0 ? (seenCount / total) * 100 : 0} />
-            </div>
-          </div>
-
-          <div className="mt-4 flex justify-end">
-            <a
-              href={ALPHABET_PDF_URL}
-              download
-              className="flex cursor-pointer items-center gap-2 rounded-full bg-stage-1 px-4 py-2 text-sm font-medium text-white shadow-card transition hover:brightness-110 active:translate-y-[1px]"
-            >
-              <Download className="h-4 w-4" />
-              Tải PDF bảng chữ cái
-            </a>
-          </div>
-        </Card>
-
-        {/* Letter grid */}
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-5">
-          {ALPHABET.map((letter) => (
-            <LetterCard
-              key={letter.id}
-              letter={letter}
-              isSeen={!!progress[letter.id]}
-              onClick={() => openLetter(letter)}
-            />
+      <Container className="pb-16 sm:pb-24">
+        <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4 md:grid-cols-5 lg:grid-cols-6">
+          {ALPHABET.map((letter, i) => (
+            <li key={letter.id}>
+              <LetterCard
+                letter={letter}
+                color={STAGE_COLORS[i % STAGE_COLORS.length]}
+                isSeen={!!progress[letter.id]}
+                onClick={() => openLetter(letter)}
+              />
+            </li>
           ))}
-        </div>
-      </div>
+        </ul>
+      </Container>
 
       <LetterDetailDialog
         letter={activeLetter}
         onOpenChange={(open) => !open && setActiveLetter(null)}
       />
-    </main>
+    </>
   );
 }
 
 function LetterCard({
   letter,
+  color,
   isSeen,
   onClick,
 }: {
   letter: AlphabetLetter;
+  color: StageColor;
   isSeen: boolean;
   onClick: () => void;
 }) {
   return (
-    <Card
-      asChild
-      interactive
-      className="group relative aspect-square transition-[transform,box-shadow] ease-bounce hover:-translate-y-1 active:translate-y-0"
+    <button
+      onClick={onClick}
+      aria-label={`Chữ ${letter.letter}${isSeen ? " — đã khám phá" : ""}`}
+      className={[
+        "group relative flex aspect-square w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-3xl p-2 transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-md active:scale-95",
+        color.bgSoft,
+      ].join(" ")}
     >
-      <button
-        onClick={onClick}
-        className="flex cursor-pointer flex-col items-center justify-center gap-1 p-1.5 sm:p-2"
-      >
-        {isSeen && (
-          <span className="absolute -right-1.5 -top-1.5 grid h-6 w-6 place-items-center rounded-full border-2 border-card bg-stage-1 shadow-card">
-            <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />
-          </span>
-        )}
-        <img
-          src={LETTER_IMAGES[letter.id]}
-          alt={`Bạn thú chữ ${letter.letter}`}
-          className="h-1/2 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-        />
-        <span className="font-display text-xl font-extrabold text-ink sm:text-2xl">
-          {letter.letter.toUpperCase()}/{letter.letter}
+      {isSeen && (
+        <span className="absolute top-2 right-2 grid size-6 place-items-center rounded-full bg-leaf-600 text-white shadow-sm">
+          <Check className="size-3.5" strokeWidth={3} aria-hidden />
         </span>
-      </button>
-    </Card>
+      )}
+      <img
+        src={LETTER_IMAGES[letter.id]}
+        alt=""
+        className="h-1/2 w-auto object-contain transition-transform duration-300 ease-spring group-hover:scale-110"
+      />
+      <span className={["text-xl font-extrabold sm:text-2xl", color.text].join(" ")}>
+        {letter.letter.toUpperCase()}
+        <span className="text-ink-400">/</span>
+        {letter.letter}
+      </span>
+    </button>
   );
 }
 
@@ -235,13 +240,13 @@ function LetterSoundButton({
         onClick={play}
         aria-label={`Nghe đọc chữ ${label}`}
         className={[
-          "grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full text-white",
-          "transition-[transform,box-shadow,filter] duration-150 ease-bounce hover:brightness-110 active:translate-y-[2px]",
-          color.gradient,
-          "shadow-card",
+          "grid size-12 shrink-0 cursor-pointer place-items-center rounded-full text-white",
+          "transition-transform duration-200 hover:-translate-y-0.5 active:scale-90",
+          color.bg,
+          color.bevel,
         ].join(" ")}
       >
-        <Volume2 className="h-5 w-5" />
+        <Volume2 className="size-5" />
       </button>
     </>
   );
@@ -263,16 +268,29 @@ function WordRow({ word, color }: { word: AlphabetWord; color: StageColor }) {
         onClick={play}
         aria-label={`Nghe đọc: ${word.vi}`}
         className={[
-          "group flex cursor-pointer items-center gap-4 rounded-2xl p-3.5 text-left",
-          "transition-[transform,filter] duration-150 ease-bounce hover:brightness-95 active:translate-y-[2px]",
-          color.bgSoft,
+          "group flex w-full cursor-pointer items-center gap-4 rounded-2xl border border-ink-100 bg-white p-3 text-left",
+          "transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-ink-200 hover:shadow-sm active:scale-[0.98]",
         ].join(" ")}
       >
-        <span className="text-3xl transition-transform group-hover:scale-110">{word.emoji}</span>
-        <span className="flex-1">
-          <span className="block font-display text-base font-extrabold text-ink">{word.vi}</span>
-          <span className="block text-sm text-muted-foreground">{word.en}</span>
+        <span
+          className={[
+            "grid size-12 shrink-0 place-items-center rounded-xl text-2xl transition-transform group-hover:scale-110",
+            color.bgSoft,
+          ].join(" ")}
+        >
+          {word.emoji}
         </span>
+        <span className="flex-1">
+          <span className="block text-lg font-bold text-ink-900">{word.vi}</span>
+          <span className="block text-sm text-ink-500">{word.en}</span>
+        </span>
+        <Volume2
+          className={[
+            "size-5 shrink-0 opacity-60 transition-opacity group-hover:opacity-100",
+            color.text,
+          ].join(" ")}
+          aria-hidden
+        />
       </button>
     </>
   );
@@ -295,9 +313,9 @@ function LetterDetailDialog({
     <Dialog open={!!letter} onOpenChange={onOpenChange}>
       <DialogContent
         hideCloseButton
-        className="max-h-[92vh] w-[calc(100%-1.5rem)] max-w-3xl gap-0 overflow-hidden border-0 bg-card p-0"
+        className="max-h-[92vh] w-[calc(100%-1.5rem)] max-w-3xl gap-0 overflow-hidden p-0 sm:p-0"
       >
-        <DialogClose className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white/90 text-ink shadow-[0_2px_0_0_rgba(0,0,0,0.15)] ring-1 ring-black/10 transition hover:scale-105">
+        <DialogClose className="absolute top-4 right-4 z-10 grid size-10 cursor-pointer place-items-center rounded-full bg-white text-ink-700 shadow-md transition-transform hover:scale-105">
           <X className="h-5 w-5" strokeWidth={2.5} />
           <span className="sr-only">Đóng</span>
         </DialogClose>
@@ -313,20 +331,20 @@ function LetterDetailDialog({
               <img
                 src={LETTER_IMAGES[letter.id]}
                 alt={`Bạn thú chữ ${letter.letter}`}
-                className="h-40 w-auto animate-breathe object-contain sm:h-64"
+                className="h-40 w-auto animate-float object-contain sm:h-64"
               />
             </div>
 
             {/* Right: letter + sound button, then the word list */}
             <div className="flex flex-1 flex-col gap-6 p-6 text-center sm:overflow-y-auto sm:p-8 sm:text-left">
               <div className="flex items-center justify-center gap-4 sm:justify-start">
-                <DialogTitle className="font-display text-4xl font-bold text-ink sm:text-5xl">
+                <DialogTitle className="text-[3rem] leading-none font-extrabold tracking-[-0.03em] text-ink-900 sm:text-[3.75rem]">
                   {letter.letter.toUpperCase()}/{letter.letter}
                 </DialogTitle>
                 <LetterSoundButton text={letter.soundName} label={letter.letter} color={color} />
               </div>
 
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-2.5">
                 {letter.words.map((word) => (
                   <WordRow key={word.vi} word={word} color={color} />
                 ))}
