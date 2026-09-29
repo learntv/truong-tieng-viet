@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
   BookOpenText,
   Check,
-  ChevronDown,
   Copy,
   Copyright,
   Heart,
@@ -18,113 +17,305 @@ import { SkyBackdrop } from "./SkyBackdrop";
 import { PressNews } from "./PressNews";
 import { SkyBox, SkyCard } from "@/components/ui/sky-box";
 import { skyButton } from "@/components/ui/sky-button";
-import { InfoCarousel } from "@/components/tabs/InfoCarousel";
 import congVienChuCai from "@/assets/cong-vien-chu-cai.jpg";
 import quyen1Cover from "@/assets/quyen_1_cover.jpg";
 import quyen2Cover from "@/assets/quyen_2_cover.jpg";
 import kidsAoDai from "@/assets/kids-aodai.jpg";
-import bangSoLieu from "@/assets/bang-so-lieu.png";
 import chimLac from "@/assets/symbols/chim-lac.png";
 import hoaSen from "@/assets/symbols/hoa-sen.png";
 import buffalo from "@/assets/buffalo-icon.png";
+import logoWordmark from "@/assets/logo-wordmark.png";
+import mascotRunning from "@/assets/mascot/running.png";
+import mascotWave from "@/assets/mascot/wave.png";
+import mascotReading from "@/assets/mascot/reading.png";
+import mascotFlag from "@/assets/mascot/flag.png";
+import mascotEatingPho from "@/assets/mascot/eating-pho.png";
+import mascotThumbsUp from "@/assets/mascot/thumbs-up.png";
+import mascotThinking from "@/assets/mascot/thinking.png";
+import mascotCheer from "@/assets/mascot/cheer.png";
+import mascotPointing from "@/assets/mascot/pointing.png";
+import caLopChupChung from "@/assets/gallery/ca-lop-chup-chung.webp";
+import beGioTheCo from "@/assets/gallery/be-gio-the-co.webp";
+import coGiaoKhaiMac from "@/assets/gallery/co-giao-khai-mac.webp";
+import ghepTheDayLa from "@/assets/gallery/ghep-the-day-la.webp";
+import lopHocTuongTac from "@/assets/gallery/lop-hoc-tuong-tac.webp";
+import timTheNguoiThan from "@/assets/gallery/tim-the-nguoi-than.webp";
+import choiTheTuVung from "@/assets/gallery/choi-the-tu-vung.webp";
 
-/* ── Hero: the three entry tiles ──────────────────────────────────────── */
+/* ── Hero: the logo, centred on the sky ───────────────────────────────── */
 
-const TILES = [
-  {
-    label: "Bảng chữ cái",
-    /* Each title takes one of the stage accents so the row reads as three
-       different places to go, not three copies of the same card. */
-    titleClass: "text-stage-3",
-    img: congVienChuCai,
-    alt: "Công viên chữ cái tiếng Việt",
-    to: "/hoc-tap/bang-chu-cai" as const,
-    params: undefined,
-  },
-  {
-    label: "Quyển 1",
-    titleClass: "text-stage-1",
-    img: quyen1Cover,
-    alt: "Bìa sách Vui học Tiếng Việt quyển 1",
-    to: "/hoc-tap/quyen-{$quyenNumber}" as const,
-    params: { quyenNumber: "1" },
-  },
-  {
-    label: "Quyển 2",
-    titleClass: "text-stage-4",
-    img: quyen2Cover,
-    alt: "Bìa sách Vui học Tiếng Việt quyển 2",
-    to: "/hoc-tap/quyen-{$quyenNumber}" as const,
-    params: { quyenNumber: "2" },
-  },
+/* A thin white sticker outline around the wordmark, so the red and navy
+   brush lettering holds up on the blue sky. Each drop-shadow copies the
+   result of the one before, so four offsets make a 2px outline all round. */
+const LOGO_OUTLINE =
+  "[filter:drop-shadow(2px_0_0_white)_drop-shadow(-2px_0_0_white)_drop-shadow(0_2px_0_white)_drop-shadow(0_-2px_0_white)]";
+
+function Hero() {
+  return (
+    <section aria-labelledby="hero-title" className="relative px-4 pt-12 sm:px-6 sm:pt-16 lg:pt-20">
+      {/* The wrapper is the logo's own width, so on lg the bubble can hang off
+        its right edge while the logo itself stays centred. */}
+      <div className="relative mx-auto w-full max-w-[30rem] text-center">
+        <h1 id="hero-title">
+          <img
+            src={logoWordmark}
+            alt="Trường Tiếng Việt Của Em"
+            width={1462}
+            height={589}
+            fetchPriority="high"
+            className={["block h-auto w-full", LOGO_OUTLINE].join(" ")}
+          />
+        </h1>
+        <SpellBubble />
+      </div>
+
+      <Gallery />
+    </section>
+  );
+}
+
+/* ── Spelling bubble: the logo "says" a word, letter by letter ───────── */
+
+/* Each word split the way a Vietnamese child spells it — "nh" is one sound,
+   so it is one tile — with the tone mark kept on its vowel. */
+const SPELL_WORDS = [
+  { parts: ["m", "è", "o"], word: "mèo" },
+  { parts: ["b", "à"], word: "bà" },
+  { parts: ["c", "á"], word: "cá" },
+  { parts: ["nh", "à"], word: "nhà" },
+  { parts: ["h", "o", "a"], word: "hoa" },
+  { parts: ["đ", "ỏ"], word: "đỏ" },
 ];
 
-function HeroTiles() {
+/* Tiles cycle through the stage accents — flat fills, no bevel. */
+const TILE_COLORS = ["bg-stage-5", "bg-stage-2", "bg-stage-4", "bg-stage-1", "bg-stage-3"];
+const WORD_COLORS = [
+  "text-stage-5",
+  "text-stage-2",
+  "text-stage-4",
+  "text-stage-1",
+  "text-stage-3",
+];
+
+const SPELL_INTERVAL_MS = 2800;
+
+/**
+ * A cartoon speech bubble beside the logo that spells a short word tile by
+ * tile, then shows it whole: m · è · o → mèo. It moves on to the next word
+ * every few seconds. Purely decorative (aria-hidden) — a live region that
+ * changes every three seconds would only be noise for a screen reader.
+ *
+ * lg+: it hangs off the logo's right edge. Below lg there is no room beside
+ * the logo, so it sits centred underneath. Either way the tail curls off its
+ * bottom-right corner.
+ */
+function SpellBubble() {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const id = window.setInterval(
+      () => setIndex((i) => (i + 1) % SPELL_WORDS.length),
+      SPELL_INTERVAL_MS,
+    );
+    return () => window.clearInterval(id);
+  }, []);
+
+  const { parts, word } = SPELL_WORDS[index];
+  const color = (i: number) => (index + i) % TILE_COLORS.length;
+
   return (
-    // Content-sized columns spread with space-between, not three equal thirds:
-    // equal columns centre each tile inside its third, so the outer two never
-    // reach the edge no matter how wide the gap gets. Auto columns + space-
-    // between pins the first tile to the left edge and the last to the right.
-    <div className="grid grid-cols-1 justify-items-center gap-6 sm:auto-cols-max sm:grid-flow-col sm:grid-cols-none sm:justify-between sm:gap-4">
-      {TILES.map((t) => (
-        <Link
-          key={t.label}
-          // The union of route paths here is narrower than Link's generic
-          // inference can follow through the array, so params is spread.
-          to={t.to}
-          {...(t.params ? { params: t.params } : {})}
-          className="group flex flex-col items-center gap-3"
-        >
-          {/* White stroke around the letterform, drawn behind the fill —
-            the reference's outlined arcade lettering. */}
+    <div
+      aria-hidden="true"
+      className="relative mx-auto mt-4 mb-20 w-[15rem] rotate-[6deg] rounded-[1.4rem] border-[3px] border-indigo-deep bg-white px-3.5 py-2.5 shadow-bevel-primary lg:absolute lg:top-[8%] lg:left-full lg:mt-0 lg:mb-0 lg:ml-2 xl:ml-5 xl:w-[17.5rem]"
+    >
+      {/* Tail: a curved comic-strip hook off the bottom-right. The SVG starts
+        4px up inside the bubble so its white fill paints over the bubble's
+        bottom border and bevel where they meet; only the two curved sides are
+        stroked, so the join reads as one continuous outline. */}
+      <svg
+        viewBox="0 0 40 36"
+        className="absolute top-[calc(100%-4px)] right-5 h-9 w-10 overflow-visible"
+      >
+        <path d="M6 0 C 8 14 20 26 37 33 C 28 22 26 12 26 0 Z" className="fill-white" />
+        <path
+          d="M6 0 C 8 14 20 26 37 33 C 28 22 26 12 26 0"
+          fill="none"
+          strokeWidth="3"
+          strokeLinejoin="round"
+          className="stroke-indigo-deep"
+        />
+      </svg>
+
+      {/* The speaker: Trâu con's head at the tip of the tail, counter-rotated
+        so it stays upright while the bubble tilts. */}
+      <img
+        src={buffalo}
+        alt=""
+        className={[
+          "absolute top-[calc(100%+0.75rem)] -right-10 h-14 w-14 -rotate-[6deg] object-contain xl:h-16 xl:w-16",
+          LOGO_OUTLINE,
+        ].join(" ")}
+      />
+
+      {/* Fixed-width bubble, content centred: it holds its size from word to
+        word instead of jumping as they change length. */}
+      <div key={index} className="relative flex items-center justify-center gap-1.5">
+        {parts.map((p, i) => (
           <span
+            key={i}
+            style={{ animationDelay: `${i * 140}ms` }}
             className={[
-              "font-display text-2xl font-extrabold sm:text-[1.6rem] lg:text-3xl",
-              "[-webkit-text-stroke:4px_white] [paint-order:stroke_fill]",
-              t.titleClass,
+              "grid h-9 min-w-9 animate-tile-pop place-items-center rounded-xl px-1.5 font-display text-xl leading-none font-extrabold text-white xl:h-11 xl:min-w-11 xl:text-[1.7rem]",
+              TILE_COLORS[color(i)],
             ].join(" ")}
           >
-            {t.label}
+            {p}
           </span>
-          {/* Explicit width rather than w-full + max-w: inside an auto-sized
-            grid column a percentage width would be circular. */}
-          <span className="block w-40 overflow-hidden rounded-[1.25rem] border-[6px] border-white transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.02] sm:w-44 sm:rounded-[1.5rem] lg:w-52">
-            <img
-              src={t.img}
-              alt={t.alt}
-              className="aspect-square w-full object-cover"
-              loading="eager"
-            />
-          </span>
-        </Link>
-      ))}
+        ))}
+        <span
+          style={{ animationDelay: `${parts.length * 140 + 120}ms` }}
+          className="ml-1 animate-tile-pop font-display text-xl font-extrabold text-indigo-deep"
+        >
+          →
+        </span>
+        <span
+          style={{ animationDelay: `${parts.length * 140 + 240}ms` }}
+          className={[
+            "animate-tile-pop font-display text-2xl leading-none font-extrabold xl:text-[2rem]",
+            WORD_COLORS[color(parts.length)],
+          ].join(" ")}
+        >
+          {word}
+        </span>
+      </div>
     </div>
   );
 }
 
-/* ── The stat ribbon under the tagline ────────────────────────────────── */
+/* ── Gallery: two rows of class photos under the logo ────────────────── */
+
+/* Four photos over three, each its own rounded, white-bordered tile on the
+   sky. It runs on a 12-column grid so both rows fill the width: the top four
+   take 3 columns each at 4:3, the bottom three take 4 columns each at 16:9,
+   which is the same height as the top row (a third wider, same height:
+   4/3 × 4/3 = 16/9). Every tile stands on a faint mirror-image reflection. */
+const PHOTOS = [
+  {
+    src: beGioTheCo,
+    alt: "Em bé mặc áo dài đỏ giơ cao thẻ cờ Việt Nam",
+  },
+  {
+    src: coGiaoKhaiMac,
+    alt: "Cô giáo cầm thẻ cờ Việt Nam trong buổi khai mạc lớp tiếng Việt tương tác, dịp Giỗ Tổ Hùng Vương",
+  },
+  {
+    src: caLopChupChung,
+    alt: "Cô giáo, tình nguyện viên và các em học sinh mặc áo dài chụp ảnh chung, tay cầm sách tiếng Việt",
+  },
+  {
+    src: ghepTheDayLa,
+    alt: "Các em nhỏ chơi ghép thẻ từ vựng “Đây là” quanh bàn",
+  },
+  {
+    src: lopHocTuongTac,
+    alt: "Học sinh, tình nguyện viên và phụ huynh trong buổi học tiếng Việt tương tác",
+  },
+  {
+    src: timTheNguoiThan,
+    alt: "Các em cùng tìm thẻ hình người thân trên bàn",
+  },
+  {
+    src: choiTheTuVung,
+    alt: "Nhóm học sinh cúi xem thẻ từ vựng trải trên bàn",
+  },
+];
+
+const TILE = "overflow-hidden rounded-lg border-2 border-white sm:rounded-xl sm:border-[3px]";
+
+function Gallery() {
+  return (
+    // mb leaves room for the bottom row's reflection before the divider.
+    <ul className="mx-auto mt-6 mb-8 grid max-w-4xl grid-cols-12 gap-2 sm:mt-8 sm:mb-10 sm:gap-3">
+      {PHOTOS.map((p, i) => {
+        const bottomRow = i >= 4;
+        const shape = bottomRow ? "aspect-[16/9]" : "aspect-[4/3]";
+        return (
+          <li
+            key={p.src}
+            className={["relative", bottomRow ? "col-span-4" : "col-span-3"].join(" ")}
+          >
+            <div className={[TILE, shape].join(" ")}>
+              <img
+                src={p.src}
+                alt={p.alt}
+                loading="lazy"
+                decoding="async"
+                className="h-full w-full object-cover"
+              />
+            </div>
+
+            {/* Reflection: a copy of the tile flipped upside down just under
+              it, masked from faint to clear so it fades out like a glossy
+              floor. Drawn with markup rather than -webkit-box-reflect so it
+              works in Firefox too. The top row's reflections fall behind
+              the bottom row: later list items paint over earlier ones, so
+              only a sliver shows in the gap. */}
+            <div
+              aria-hidden="true"
+              className={[
+                TILE,
+                shape,
+                "pointer-events-none absolute inset-x-0 top-full -scale-y-100 [mask-image:linear-gradient(to_top,rgb(0_0_0/0.18),transparent_35%)]",
+              ].join(" ")}
+            >
+              <img
+                src={p.src}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                className="h-full w-full object-cover"
+              />
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+/* ── Divider: a row of Trâu con poses ───────────────────────────────── */
+
+/* Nine full-body poses — crying and the two peeking crops don't stand on a
+   line. */
+const PARADE = [
+  mascotRunning,
+  mascotWave,
+  mascotReading,
+  mascotFlag,
+  mascotEatingPho,
+  mascotThumbsUp,
+  mascotThinking,
+  mascotCheer,
+  mascotPointing,
+];
 
 /**
- * Artwork, not markup: the banner already carries its own red-and-gold frame,
- * the three figures and the nón lá / Khuê Văn Các vignettes, so it is placed
- * flat on the sky rather than inside a SkyBox — a white-bordered box around it
- * would frame an illustration that is already framed. The source PNG shipped
- * with an opaque white background; it has been chroma-keyed to transparency
- * (border-connected white only, so the cream panel and book pages survive).
- *
- * It is the only place those three numbers appear, so the alt text has to
- * carry them; it is content, not decoration.
+ * Divider between the gallery and the content boxes: Trâu con in all his
+ * poses, standing in one still row spread across the content width. Phones
+ * only have room for the first six. Decorative.
  */
-function StatRibbon() {
+function BuffaloParade() {
   return (
-    <img
-      src={bangSoLieu}
-      alt="40+ bài học tiếng Việt · 8 chủ đề · 100% miễn phí"
-      width={1995}
-      height={361}
-      className="mx-auto block h-auto w-full max-w-2xl"
-      loading="eager"
-    />
+    <div aria-hidden="true" className="my-6 flex items-end justify-between sm:my-8">
+      {PARADE.map((src, i) => (
+        <img
+          key={i}
+          src={src}
+          alt=""
+          className={["h-12 w-auto sm:h-14 lg:h-16", i >= 6 ? "hidden sm:block" : ""].join(" ")}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -469,50 +660,17 @@ export function HomePage() {
     <div className="relative isolate overflow-hidden">
       <SkyBackdrop />
 
+      <Hero />
+
       {/* pb clears the grass band at the bottom of the backdrop, so the last
         box never overlaps the hills. */}
       <div className="relative w-full px-4 pt-8 pb-44 sm:px-6 sm:pt-10 sm:pb-56">
-        <div className="mx-auto w-full max-w-4xl">
-          <HeroTiles />
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-9 sm:gap-12">
+          <BuffaloParade />
 
-          {/* Tagline pill — the reference's single line of italic copy under the
-          tiles, in the same white-bordered language as everything else. */}
-          <p className="mx-auto mt-8 w-fit rounded-full border-[4px] border-white bg-white/80 px-5 py-1.5 text-center font-display text-sm font-bold text-sky-ink italic">
-            Nơi các em học tiếng Việt thật vui
-          </p>
-
-          <div className="mt-6">
-            <StatRibbon />
-          </div>
-
-          {/* Scroll cue — a bamboo-green disc, the one round accent between the
-          hero and the first content box. */}
-          <div className="mt-8 flex justify-center">
-            <button
-              type="button"
-              aria-label="Cuộn xuống phần giới thiệu"
-              onClick={() => {
-                document
-                  .getElementById("su-menh")
-                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
-              }}
-              className="grid h-12 w-12 cursor-pointer place-items-center rounded-full bg-nav-green shadow-btn transition-[transform,box-shadow] active:translate-y-[1px] active:shadow-btn-active"
-            >
-              <ChevronDown className="h-7 w-7 text-white" strokeWidth={3} />
-            </button>
-          </div>
-        </div>
-
-        <div className="mx-auto mt-10 flex w-full max-w-4xl flex-col gap-9 sm:mt-12 sm:gap-12">
           <div id="su-menh" className="scroll-mt-24">
             <MissionBox />
           </div>
-
-          {/* bodyClassName drops the body padding — the strip is meant to run
-            edge to edge and bleed past the box's sides. */}
-          <SkyBox tone="white" title="Hình ảnh Việt Nam" bodyClassName="px-0 sm:px-0">
-            <InfoCarousel />
-          </SkyBox>
 
           <div id="tin-tuc" className="scroll-mt-24">
             <PressNews />

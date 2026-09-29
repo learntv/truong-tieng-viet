@@ -851,3 +851,26 @@
     animation: none;
   }
 }
+
+/* Speech-bubble letter tiles pop in one by one — a quick overshoot scale, so
+   each word reads as being spelled out rather than swapped. */
+@keyframes tile-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.4) translateY(6px);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.12) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+@utility animate-tile-pop {
+  animation: tile-pop 0.36s cubic-bezier(0.3, 1.4, 0.6, 1) both;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
