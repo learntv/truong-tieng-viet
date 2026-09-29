@@ -5,6 +5,7 @@ import quyen1Cover from "@/assets/quyen_1_cover.jpg";
 import quyen2Cover from "@/assets/quyen_2_cover.jpg";
 import alphabetPark from "@/assets/cong-vien-chu-cai.jpg";
 import khaiMinhDucImg from "@/assets/khai-minh-duc-reading.png";
+import tapVietImg from "@/assets/tap-viet-tile.jpg";
 import { Mascot } from "@/components/Mascot";
 import { SkyBoxRibbon, type SkyBoxTone } from "@/components/ui/sky-box";
 
@@ -12,7 +13,8 @@ type LearnLink =
   | "/hoc-tap/quyen-{$quyenNumber}"
   | "/hoc-tap/bang-chu-cai"
   | "/hoc-tap/luyen-noi"
-  | "/hoc-tap/khai-minh-duc";
+  | "/hoc-tap/khai-minh-duc"
+  | "/hoc-tap/tap-viet";
 
 type BadgeTone = "red" | "blue";
 
@@ -41,7 +43,7 @@ type Item = {
    * Where the tile sits in the bento. Two columns on phones, four from sm up,
    * over rows of a fixed height — so a tile's size is just how many cells it
    * takes. The spans are written to leave no holes in either layout (phone
-   * packs 1+1 / 2 / 1+1, desktop 2+1+1 / 2+2) and to match each tile's art:
+   * packs 1+1 / 2 / 1+1 / 2, desktop 2+1+1 / 1+2+1) and to match each tile's art:
    * the book covers get tall portrait cells, the photos wide ones.
    */
   span: string;
@@ -80,7 +82,7 @@ const items: Item[] = [
     title: "Luyện nói",
     tone: "pink",
     art: <Mascot pose="listening" decorative className="h-full max-h-28 w-auto sm:max-h-36" />,
-    span: "col-span-1 row-span-2 sm:col-span-2",
+    span: "col-span-1 row-span-2",
   },
   {
     to: "/hoc-tap/khai-minh-duc",
@@ -90,6 +92,15 @@ const items: Item[] = [
     image: khaiMinhDucImg,
     imageFit: "cover",
     span: "col-span-1 row-span-2 sm:col-span-2",
+  },
+  {
+    to: "/hoc-tap/tap-viet",
+    title: "Tập viết",
+    badge: { text: "Mới", tone: "blue", icon: Sparkles },
+    tone: "cream",
+    image: tapVietImg,
+    imageFit: "contain",
+    span: "col-span-2 row-span-2 sm:col-span-1",
   },
 ];
 

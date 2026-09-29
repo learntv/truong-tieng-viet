@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, ChevronLeft, ChevronRight, Star, ThumbsUp, Undo2, Volume2 } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, ThumbsUp, Undo2, Volume2 } from "lucide-react";
 import {
   canRecordAudio,
   compareSentence,
@@ -16,6 +16,7 @@ import {
 import { useSpeakingProgress } from "@/hooks/useSpeakingProgress";
 import { STAGE_COLORS } from "@/components/learning/stageColors";
 import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
+import { StarRow } from "@/components/learning/StarRow";
 import { Mascot } from "@/components/Mascot";
 import { useSingletonAudio } from "@/hooks/useSingletonAudio";
 import { ttsSrc } from "@/lib/tts/text";
@@ -36,45 +37,6 @@ type GradeResult = {
 // helpful (or kind) — just encourage another try instead of a wall of red.
 // Higher = stricter (more attempts get the "try again" message instead of a diff).
 const TOO_WRONG_RATIO = 0.15;
-
-function StarRow({
-  stars,
-  size = "h-9 w-9",
-  animated = true,
-  loading = false,
-}: {
-  stars: Stars;
-  size?: string;
-  animated?: boolean;
-  loading?: boolean;
-}) {
-  return (
-    <div className="flex justify-center gap-1.5">
-      {([1, 2, 3] as const).map((i) => (
-        <Star
-          key={i}
-          className={[
-            size,
-            "transition-transform",
-            loading
-              ? "animate-pulse text-stone-300"
-              : i <= stars
-                ? ["fill-yellow-400 text-yellow-500", animated && "animate-hop"]
-                    .filter(Boolean)
-                    .join(" ")
-                : "text-stone-300",
-          ].join(" ")}
-          style={
-            !loading && animated && i <= stars
-              ? { animationDelay: `${(i - 1) * 120}ms` }
-              : undefined
-          }
-          strokeWidth={1.5}
-        />
-      ))}
-    </div>
-  );
-}
 
 export function SpeakingPractice({
   title,
