@@ -1,6 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Pencil, Play, Rabbit, RotateCcw, Turtle, X } from "lucide-react";
+import {
+  CaseLower,
+  Hash,
+  Link2,
+  Pencil,
+  Play,
+  Rabbit,
+  RotateCcw,
+  Spline,
+  Turtle,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { BackLink } from "@/components/BackLink";
 import { PageBanner } from "@/components/site/PageBanner";
@@ -58,6 +70,7 @@ function TapVietPage() {
   const [rate, setRate] = useState<number>(1.2);
 
   const category = TAP_VIET[categoryIndex];
+  const pageRef = useRef<HTMLDivElement>(null);
 
   return (
     <main className="pb-24">
@@ -68,36 +81,22 @@ function TapVietPage() {
       />
 
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
-        <div
-          role="tablist"
-          aria-label="Chọn bài tập viết"
-          className="mb-6 flex flex-wrap justify-center gap-2 sm:gap-3"
-        >
-          {TAP_VIET.map((c, i) => {
-            const selected = i === categoryIndex;
-            return (
-              <button
-                key={c.id}
-                type="button"
-                role="tab"
-                aria-selected={selected}
-                onClick={() => setCategoryIndex(i)}
-                className={skyButton(selected ? "primary" : "white")}
-              >
-                {c.label}
-              </button>
-            );
-          })}
-        </div>
+        <NotebookTabs selected={categoryIndex} onSelect={setCategoryIndex} pageRef={pageRef} />
 
         {/* One ô li page: the blank grid tile repeats as the background, one copy
           per tile slot, so the lines run on unbroken between items and a short
-          last row is still ruled paper. */}
+          last row is still ruled paper. Its top-left corner is square because
+          the first tab grows out of it. A 2px blue line (the grid's solid-line
+          colour, #1ea4dc) runs inside the white border; the open tab draws the
+          same line on its sides and top and covers the page's line under
+          itself, so one blue outline wraps tab and page together. */}
         <div
+          ref={pageRef}
+          id={`tap-viet-page-${category.id}`}
           role="tabpanel"
-          aria-label={category.label}
+          aria-labelledby={`tap-viet-tab-${category.id}`}
           className={[
-            "grid grid-cols-[repeat(var(--cols),minmax(0,1fr))] overflow-hidden rounded-[1.25rem] border-[6px] border-white bg-white bg-repeat shadow-[0_10px_28px_rgba(12,58,110,0.22)] [background-size:calc(100%/var(--cols))_auto] sm:rounded-[1.5rem]",
+            "relative z-10 grid grid-cols-[repeat(var(--cols),minmax(0,1fr))] overflow-hidden rounded-[1.25rem] rounded-tl-none border-[6px] border-white bg-white bg-repeat shadow-[inset_0_0_0_2px_#1ea4dc,0_10px_28px_rgba(12,58,110,0.22)] [background-size:calc(100%/var(--cols))_auto] sm:rounded-[1.5rem] sm:rounded-tl-none",
             PAGE_COLS[category.id],
           ].join(" ")}
           style={{ backgroundImage: `url(${tapVietGridTile(category.id)})` }}
@@ -121,6 +120,129 @@ function TapVietPage() {
         onIndexChange={setActiveIndex}
       />
     </main>
+  );
+}
+
+// The four sections as index tabs on the notebook page, like the coloured
+// dividers in a school binder. The tabs not in use are pastel and tucked a little
+// behind the page's top edge; the open one joins the page's white border with no
+// seam and carries the page's own grid, lined up so the ruling runs on up into
+// it — tab and page read as one sheet of paper.
+const TAB_LOOK: Record<TapVietCategoryId, { icon: LucideIcon; tone: string }> = {
+  net: { icon: Spline, tone: "bg-box-ice" },
+  chu: { icon: CaseLower, tone: "bg-box-mint" },
+  ghep: { icon: Link2, tone: "bg-box-lavender" },
+  so: { icon: Hash, tone: "bg-box-peach" },
+};
+
+function NotebookTabs({
+  selected,
+  onSelect,
+  pageRef,
+}: {
+  selected: number;
+  onSelect: (index: number) => void;
+  pageRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const openId = TAP_VIET[selected].id;
+
+  // The open tab's grid has to line up with the page's: the same tile size (the
+  // page's width over its --cols, which changes with the breakpoint) and shifted
+  // left by however far the tab sits from the page's left edge. Anchoring it to
+  // the tab's bottom — which is exactly where the page's grid starts — lines the
+  // rows up on its own. Re-measured whenever the page resizes.
+  const [grid, setGrid] = useState<{ size: number; x: number } | null>(null);
+  useEffect(() => {
+    const page = pageRef.current;
+    if (!page) return;
+    const measure = () => {
+      const tab = refs.current[selected];
+      if (!tab) return;
+      const cols = Number(getComputedStyle(page).getPropertyValue("--cols")) || 1;
+      setGrid({
+        size: page.clientWidth / cols,
+        x: page.getBoundingClientRect().left - tab.getBoundingClientRect().left,
+      });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(page);
+    return () => observer.disconnect();
+  }, [pageRef, selected]);
+
+  // Arrow keys move between tabs and open them, per the ARIA tabs pattern; only
+  // the open tab sits in the Tab order.
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const last = TAP_VIET.length - 1;
+    const next =
+      e.key === "ArrowRight"
+        ? (selected + 1) % TAP_VIET.length
+        : e.key === "ArrowLeft"
+          ? (selected - 1 + TAP_VIET.length) % TAP_VIET.length
+          : e.key === "Home"
+            ? 0
+            : e.key === "End"
+              ? last
+              : null;
+    if (next === null) return;
+    e.preventDefault();
+    onSelect(next);
+    refs.current[next]?.focus();
+  };
+
+  return (
+    <div
+      role="tablist"
+      aria-label="Chọn bài tập viết"
+      onKeyDown={onKeyDown}
+      className="flex items-end gap-1 sm:gap-2"
+    >
+      {TAP_VIET.map((c, i) => {
+        const isOpen = i === selected;
+        const { icon: Icon, tone } = TAB_LOOK[c.id];
+        return (
+          <button
+            key={c.id}
+            ref={(el) => {
+              refs.current[i] = el;
+            }}
+            id={`tap-viet-tab-${c.id}`}
+            type="button"
+            role="tab"
+            aria-selected={isOpen}
+            aria-controls={`tap-viet-page-${c.id}`}
+            tabIndex={isOpen ? 0 : -1}
+            onClick={() => onSelect(i)}
+            style={
+              isOpen && grid
+                ? {
+                    backgroundImage: `url(${tapVietGridTile(openId)})`,
+                    backgroundSize: `${grid.size}px auto`,
+                    // The tab runs 2px past the page's grid top (to cover the
+                    // page's blue line), so the grid is anchored 2px up from its foot.
+                    backgroundPosition: `left ${grid.x}px bottom 2px`,
+                  }
+                : undefined
+            }
+            className={[
+              "flex min-w-0 flex-1 cursor-pointer flex-col items-center gap-0.5 rounded-t-[1rem] border-[6px] border-b-0 border-white px-1.5 pt-1.5 font-display text-xs font-extrabold leading-tight text-sky-ink transition-[transform,padding] duration-200 ease-bounce sm:flex-none sm:flex-row sm:gap-2 sm:rounded-t-[1.25rem] sm:px-5 sm:text-base",
+              "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-ribbon",
+              isOpen
+                ? // In front of the page (z-20 over its z-10), hanging over its
+                  // 6px top border and 2px blue line so both disappear under the
+                  // open tab, with the blue line carried up its sides and top.
+                  "relative z-20 -mb-[8px] bg-white pb-3.5 shadow-[inset_2px_0_0_#1ea4dc,inset_-2px_0_0_#1ea4dc,inset_0_2px_0_#1ea4dc] sm:pb-4"
+                : // Behind the page, dropped so its foot tucks under the page edge.
+                  ["relative z-0 translate-y-1.5 pb-2 hover:translate-y-0.5", tone].join(" "),
+            ].join(" ")}
+          >
+            <Icon className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" strokeWidth={2.5} aria-hidden />
+            <span className="text-center sm:whitespace-nowrap">{c.label}</span>
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
