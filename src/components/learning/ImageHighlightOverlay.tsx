@@ -1,11 +1,14 @@
 import { useState } from "react";
 import type { HighlightTarget } from "@/data/lessonHighlights";
+import { useT } from "@/i18n";
 
 // Lớp vùng gợi ý tương tác đè lên hình bài học. Phần tử cha phải là
 // `position: relative` và ôm sát đúng kích thước hình, vì tọa độ target tính theo %.
 // Desktop: rê chuột vào vùng nào thì khung đỏ hiện quanh vùng đó, rời chuột thì tắt.
 // Mobile: chạm vào vùng để hiện khung, chạm vùng khác để chuyển, chạm nền hình để tắt.
 export function ImageHighlightOverlay({ targets }: { targets: HighlightTarget[] }) {
+  // Not `t`: that name is taken by the targets loop below.
+  const msg = useT();
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const boxStyle = (t: HighlightTarget): React.CSSProperties => ({
@@ -30,7 +33,7 @@ export function ImageHighlightOverlay({ targets }: { targets: HighlightTarget[] 
         <button
           key={t.id}
           type="button"
-          aria-label={t.label ? `Gợi ý: ${t.label}` : "Gợi ý"}
+          aria-label={t.label ? msg.learning.hintFor(t.label) : msg.learning.hint}
           aria-pressed={t.id === activeId}
           className={["absolute cursor-default bg-transparent outline-none", shapeClass(t)].join(" ")}
           style={boxStyle(t)}

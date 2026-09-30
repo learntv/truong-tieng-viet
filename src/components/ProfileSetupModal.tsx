@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/i18n";
 
 const AVATAR_OPTIONS = [
   "🐯", "🐼", "🐨", "🦊", "🐸",
@@ -78,6 +79,7 @@ interface ProfileSetupModalProps {
 }
 
 export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) {
+  const t = useT();
   const queryClient = useQueryClient();
   const defaultName =
     (user.user_metadata?.full_name as string | undefined) ||
@@ -127,7 +129,7 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
   const handleSave = async () => {
     const trimmedName = name.trim();
     if (!trimmedName) {
-      toast.error("Hãy nhập tên của em nhé!");
+      toast.error(t.profileSetup.nameRequired);
       return;
     }
     setSaving(true);
@@ -154,7 +156,7 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
     }
     setSaving(false);
     if (error) {
-      toast.error("Không thể lưu hồ sơ", { description: error.message });
+      toast.error(t.profileSetup.saveFailed, { description: error.message });
     } else {
       onComplete();
     }
@@ -169,11 +171,9 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
       >
         <DialogHeader>
           <DialogTitle className="font-display text-2xl font-bold text-navy text-center">
-            Chào mừng! 🎉
+            {t.profileSetup.title}
           </DialogTitle>
-          <p className="text-sm text-muted-foreground text-center mt-1">
-            Hãy tạo hồ sơ của em nhé
-          </p>
+          <p className="text-sm text-muted-foreground text-center mt-1">{t.profileSetup.intro}</p>
         </DialogHeader>
 
         <div className="space-y-5 mt-2">
@@ -182,17 +182,15 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
             <div className="flex items-center gap-3 rounded-xl bg-muted/40 p-3">
               <img
                 src={user.user_metadata?.avatar_url as string}
-                alt="Avatar"
+                alt={t.nav.avatarAlt}
                 referrerPolicy="no-referrer"
                 className="h-12 w-12 shrink-0 rounded-full object-cover ring-2 ring-white shadow-sm"
               />
-              <p className="text-sm text-muted-foreground">
-                Bọn mình sẽ dùng ảnh đại diện Google của em nhé 👍
-              </p>
+              <p className="text-sm text-muted-foreground">{t.profileSetup.googleAvatar}</p>
             </div>
           ) : (
             <div className="space-y-2">
-              <Label className="font-semibold text-navy">Chọn avatar của em</Label>
+              <Label className="font-semibold text-navy">{t.profileSetup.pickAvatar}</Label>
               <div className="grid grid-cols-5 gap-1.5">
                 {AVATAR_OPTIONS.map((emoji) => (
                   <button
@@ -216,13 +214,13 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
           {/* Name */}
           <div className="space-y-1.5">
             <Label htmlFor="setup-name" className="font-semibold text-navy">
-              Tên của em
+              {t.profileSetup.name}
             </Label>
             <Input
               id="setup-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Nhập tên..."
+              placeholder={t.profileSetup.namePlaceholder}
               className="rounded-xl"
               maxLength={40}
             />
@@ -230,7 +228,7 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
 
           {/* Country */}
           <div className="space-y-1.5">
-            <Label className="font-semibold text-navy">Em đang ở đâu?</Label>
+            <Label className="font-semibold text-navy">{t.profileSetup.where}</Label>
             {!showCountryPicker ? (
               <button
                 type="button"
@@ -246,7 +244,7 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
                       {selectedCountry.name}
                     </>
                   ) : (
-                    <span className="text-muted-foreground">Chọn quốc gia...</span>
+                    <span className="text-muted-foreground">{t.profileSetup.pickCountry}</span>
                   )}
                 </span>
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -254,7 +252,7 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
             ) : (
               <div className="space-y-2">
                 <Input
-                  placeholder="Tìm kiếm..."
+                  placeholder={t.profileSetup.search}
                   value={countrySearch}
                   onChange={(e) => setCountrySearch(e.target.value)}
                   className="rounded-xl"
@@ -284,7 +282,7 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
                   ))}
                   {filteredCountries.length === 0 && (
                     <p className="col-span-4 text-center text-xs text-muted-foreground py-3">
-                      Không tìm thấy
+                      {t.profileSetup.noResults}
                     </p>
                   )}
                 </div>
@@ -297,7 +295,7 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
             onClick={handleSave}
             disabled={saving}
           >
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Bắt đầu học! 🚀"}
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : t.profileSetup.start}
           </Button>
         </div>
       </DialogContent>

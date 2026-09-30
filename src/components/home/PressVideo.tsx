@@ -2,6 +2,24 @@ import { useEffect, useRef, useState } from "react";
 import { ExternalLink, Play } from "lucide-react";
 import poster from "@/assets/vna-ket-noi-coi-nguon-poster.webp";
 import vietnamMediaLogo from "@/assets/press/vietnam-media-logo.png";
+import { useLocale, useT } from "@/i18n";
+
+/**
+ * Press datelines. Vietnamese: "2026-09-07" → "07-09-2026", day first as the papers print it.
+ * English: "Sep 7, 2026", since a bare numeric date reads differently in the US and Canada.
+ * UTC so a date-only string never slips to the previous day in the Americas.
+ */
+export function usePressDate() {
+  const { locale, fmtDate } = useLocale();
+  return (iso: string) =>
+    locale === "vi"
+      ? iso.split("-").reverse().join("-")
+      : fmtDate(iso, { dateStyle: "medium", timeZone: "UTC" });
+}
+
+// The report's own headline, quoted as published (see PressNews on keeping press text verbatim).
+const VIDEO_TITLE = "Kết nối thế hệ trẻ kiều bào với cội nguồn";
+const VIDEO_DATE = "2026-07-26";
 
 /**
  * The VNA television report on the project's launch, played in place.
@@ -20,6 +38,7 @@ const STREAM_URL =
   "https://storageovp.vnews.gov.vn/mediacache/TS/2026_07/26/VNTNUZDWCOAB/hls/master.m3u8";
 
 function VnaPlayer() {
+  const t = useT();
   const [playing, setPlaying] = useState(false);
   const [failed, setFailed] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -67,16 +86,14 @@ function VnaPlayer() {
   if (failed) {
     return (
       <div className="grid aspect-video w-full place-items-center gap-3 bg-box-cream p-6 text-center">
-        <p className="text-sm leading-relaxed text-sky-ink-soft">
-          Không phát được video ở đây. Em có thể xem bản gốc trên trang của Thông tấn xã Việt Nam.
-        </p>
+        <p className="text-sm leading-relaxed text-sky-ink-soft">{t.home.press.videoFailed}</p>
         <a
           href={ARTICLE_URL}
           target="_blank"
           rel="noreferrer"
           className="font-display text-sm font-extrabold text-indigo hover:underline"
         >
-          Xem trên VNA
+          {t.home.press.watchOnVna}
         </a>
       </div>
     );
@@ -89,7 +106,7 @@ function VnaPlayer() {
       <button
         type="button"
         onClick={() => setPlaying(true)}
-        aria-label="Phát video: Kết nối thế hệ trẻ kiều bào với cội nguồn"
+        aria-label={t.home.press.playVideo(VIDEO_TITLE)}
         className="group relative block aspect-video w-full cursor-pointer overflow-hidden"
       >
         <img
@@ -140,6 +157,8 @@ function VnaPlayer() {
  * the player needs the full width to stay watchable.
  */
 export function PressVideo() {
+  const t = useT();
+  const formatDate = usePressDate();
   return (
     <article className="overflow-hidden rounded-2xl border-[3px] border-white bg-white lg:flex">
       {/* Navy behind the player so that if the text column ever runs taller
@@ -153,15 +172,15 @@ export function PressVideo() {
         <div className="flex min-h-8 items-center justify-between gap-3">
           <img src={vietnamMediaLogo} alt="VietNam Media (TTXVN)" className="h-5 w-auto" />
           <time
-            dateTime="2026-07-26"
+            dateTime={VIDEO_DATE}
             className="shrink-0 font-display text-xs font-bold text-sky-ink-soft"
           >
-            26-07-2026
+            {formatDate(VIDEO_DATE)}
           </time>
         </div>
 
         <h3 className="mt-3 font-display text-lg leading-snug font-extrabold text-sky-ink">
-          Kết nối thế hệ trẻ kiều bào với cội nguồn
+          {VIDEO_TITLE}
         </h3>
         <p className="mt-2 line-clamp-4 text-sm leading-relaxed text-sky-ink-soft">
           Một nền tảng học tiếng Việt trực tuyến có tên “Trường Tiếng Việt Online” dành riêng cho
@@ -175,7 +194,7 @@ export function PressVideo() {
           rel="noreferrer"
           className="mt-auto inline-flex w-fit items-center gap-1.5 pt-3 font-display text-sm font-extrabold text-indigo hover:text-indigo-deep hover:underline"
         >
-          Xem bài gốc
+          {t.home.press.readOriginal}
           <ExternalLink className="h-4 w-4" aria-hidden />
         </a>
       </div>

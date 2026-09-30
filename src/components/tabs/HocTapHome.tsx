@@ -9,70 +9,35 @@ import thumbTapViet from "@/assets/hoc-tap-thumb-tap-viet.jpg";
 import { Mascot } from "@/components/Mascot";
 import { PageBanner } from "@/components/site/PageBanner";
 import { BOX_TONES as TONES, type BoxTone as Tone } from "@/components/learning/boxTones";
+import { useT } from "@/i18n";
 
 type Book = {
   quyenNumber: string;
-  title: string;
-  body: string;
   cover: string;
   tone: Tone;
 };
 
 const books: Book[] = [
-  {
-    quyenNumber: "1",
-    title: "Quyển 1",
-    body: "Vui học Tiếng Việt, quyển 1, NXB ĐH Sư Phạm TP Hồ Chí Minh",
-    cover: quyen1Cover,
-    tone: "lavender",
-  },
-  {
-    quyenNumber: "2",
-    title: "Quyển 2",
-    body: "Vui học Tiếng Việt, quyển 2, NXB ĐH Sư Phạm TP Hồ Chí Minh",
-    cover: quyen2Cover,
-    tone: "peach",
-  },
+  { quyenNumber: "1", cover: quyen1Cover, tone: "lavender" },
+  { quyenNumber: "2", cover: quyen2Cover, tone: "peach" },
 ];
+
+type PracticeKey = "tapViet" | "kmd" | "luyenNoi" | "bangChuCai";
 
 type Practice = {
   to: "/hoc-tap/bang-chu-cai" | "/hoc-tap/luyen-noi" | "/hoc-tap/khai-minh-duc" | "/hoc-tap/tap-viet";
-  title: string;
-  body: string;
+  /** Picks `${key}Title` / `${key}Body` out of t.hocTap. */
+  key: PracticeKey;
   tone: Tone;
   /** A landscape illustration painted on the card's own tone, filling the art window. */
   image: string;
 };
 
 const practices: Practice[] = [
-  {
-    to: "/hoc-tap/tap-viet",
-    title: "Tập viết",
-    body: "Tô chữ theo nét trên trang vở.",
-    tone: "ice",
-    image: thumbTapViet,
-  },
-  {
-    to: "/hoc-tap/khai-minh-duc",
-    title: "Khai Minh Đức",
-    body: "Đánh vần từng âm, từng vần.",
-    tone: "pink",
-    image: thumbKhaiMinhDuc,
-  },
-  {
-    to: "/hoc-tap/luyen-noi",
-    title: "Luyện nói",
-    body: "Nghe cô đọc mẫu rồi nói theo nhé.",
-    tone: "mint",
-    image: thumbLuyenNoi,
-  },
-  {
-    to: "/hoc-tap/bang-chu-cai",
-    title: "Bảng chữ cái",
-    body: "Gặp bạn thú và nghe cách đọc từng chữ.",
-    tone: "sun",
-    image: thumbBangChuCai,
-  },
+  { to: "/hoc-tap/tap-viet", key: "tapViet", tone: "ice", image: thumbTapViet },
+  { to: "/hoc-tap/khai-minh-duc", key: "kmd", tone: "pink", image: thumbKhaiMinhDuc },
+  { to: "/hoc-tap/luyen-noi", key: "luyenNoi", tone: "mint", image: thumbLuyenNoi },
+  { to: "/hoc-tap/bang-chu-cai", key: "bangChuCai", tone: "sun", image: thumbBangChuCai },
 ];
 
 /**
@@ -82,11 +47,12 @@ const practices: Practice[] = [
  * their own — no white keylines, just a soft shadow and a deeper tone rim.
  */
 export function HocTapHome() {
+  const t = useT();
   return (
     <div className="pb-10 sm:pb-12">
       <PageBanner
-        title="Em muốn học gì hôm nay?"
-        crumb="Học tập"
+        title={t.hocTap.heading}
+        crumb={t.hocTap.crumb}
         art={
           // Mirrored so he faces into the banner, toward the heading.
           <Mascot pose="reading-sitting" decorative className="relative h-24 -scale-x-100 sm:h-36" />
@@ -94,7 +60,7 @@ export function HocTapHome() {
       />
 
       <section className="mt-10 px-4 sm:mt-12 sm:px-8">
-        <SectionHeading title="Học theo sách" />
+        <SectionHeading title={t.hocTap.byBook} />
         <div className="mt-5 grid gap-4 sm:grid-cols-2 sm:gap-5">
           {books.map((book) => (
             <BookCard key={book.quyenNumber} book={book} />
@@ -103,7 +69,7 @@ export function HocTapHome() {
       </section>
 
       <section className="mt-10 px-4 sm:mt-12 sm:px-8">
-        <SectionHeading title="Luyện thêm" />
+        <SectionHeading title={t.hocTap.practice} />
         <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {practices.map((practice) => (
             <PracticeCard key={practice.to} practice={practice} />
@@ -130,6 +96,7 @@ function SectionHeading({ title }: { title: string }) {
  * little. Hovering grows the card slightly in place and draws its outline.
  */
 function BookCard({ book }: { book: Book }) {
+  const t = useT();
   const tone = TONES[book.tone];
   return (
     <Link
@@ -151,15 +118,19 @@ function BookCard({ book }: { book: Book }) {
       </div>
 
       <div className="min-w-0 flex-1">
-        <h3 className="font-display text-xl font-bold text-sky-ink sm:text-2xl">{book.title}</h3>
-        <p className="mt-1.5 text-sm leading-relaxed text-sky-ink-soft">{book.body}</p>
+        <h3 className="font-display text-xl font-bold text-sky-ink sm:text-2xl">
+          {t.hocTap.bookTitle(book.quyenNumber)}
+        </h3>
+        <p className="mt-1.5 text-sm leading-relaxed text-sky-ink-soft">
+          {t.hocTap.bookBody(book.quyenNumber)}
+        </p>
         <span
           className={[
             "mt-4 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold text-sky-ink",
             tone.deep,
           ].join(" ")}
         >
-          Vào học
+          {t.hocTap.enter}
           <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
         </span>
       </div>
@@ -172,6 +143,7 @@ function BookCard({ book }: { book: Book }) {
  * tone that also holds the title and a one-line hint.
  */
 function PracticeCard({ practice }: { practice: Practice }) {
+  const t = useT();
   const tone = TONES[practice.tone];
   return (
     <Link
@@ -194,8 +166,12 @@ function PracticeCard({ practice }: { practice: Practice }) {
 
       <div className="flex flex-1 items-end gap-2 px-2 pb-1.5 pt-3">
         <div className="min-w-0 flex-1">
-          <h3 className="font-display text-base font-bold leading-tight text-sky-ink sm:text-lg">{practice.title}</h3>
-          <p className="mt-0.5 text-xs leading-snug text-sky-ink-soft sm:text-sm">{practice.body}</p>
+          <h3 className="font-display text-base font-bold leading-tight text-sky-ink sm:text-lg">
+            {t.hocTap[`${practice.key}Title`]}
+          </h3>
+          <p className="mt-0.5 text-xs leading-snug text-sky-ink-soft sm:text-sm">
+            {t.hocTap[`${practice.key}Body`]}
+          </p>
         </div>
         <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/80 text-sky-ink">
           <ArrowRight className="h-4 w-4" strokeWidth={2.5} />

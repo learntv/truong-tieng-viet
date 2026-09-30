@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { learningStructureQueryOptions } from "@/lib/learning";
 
 export type CountryCount = { code: string; count: number };
+/** `period` is "YYYY-MM" for monthly buckets and a bare week number for weekly ones; the chart
+ *  formats months for the interface language, so the cached stats stay locale-free. */
 export type GrowthPoint = { period: string; students: number };
 
 function bucketByMonth(dates: Date[]): GrowthPoint[] {
@@ -15,8 +17,7 @@ function bucketByMonth(dates: Date[]): GrowthPoint[] {
   let cumulative = 0;
   return sortedKeys.map((key) => {
     cumulative += counts.get(key)!;
-    const [y, m] = key.split("-");
-    return { period: `T${Number(m)}/${y}`, students: cumulative };
+    return { period: key, students: cumulative };
   });
 }
 

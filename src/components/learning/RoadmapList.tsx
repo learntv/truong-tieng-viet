@@ -6,6 +6,7 @@ import { STAGE_COLORS } from "./stageColors";
 import { Button } from "@/components/ui/button";
 import { locationForChuDe } from "@/data/scenes";
 import { landmarksForQuyen } from "@/data/overworld";
+import { useT, type Messages } from "@/i18n";
 
 // Per-topic accent, keyed by ChuDe.accent — tints the coming-soon emoji plate.
 const ACCENT_SOFT: Record<ChuDe["accent"], string> = {
@@ -17,13 +18,14 @@ const ACCENT_SOFT: Record<ChuDe["accent"], string> = {
 };
 
 function getLessonButtonLabel(
+  t: Messages,
   index: number,
   completedChangs: Set<number>,
   startedChangs: Set<number>,
 ): string {
-  if (completedChangs.has(index)) return "Ôn tập";
-  if (startedChangs.has(index)) return "Tiếp tục";
-  return "Bắt đầu";
+  if (completedChangs.has(index)) return t.learning.review;
+  if (startedChangs.has(index)) return t.learning.continue;
+  return t.learning.start;
 }
 
 /**
@@ -72,6 +74,7 @@ export function RoadmapList({
   onOpenLesson: (i: number) => void;
   changProgress: Map<number, { current: number; total: number }>;
 }) {
+  const t = useT();
   const accentSoft = ACCENT_SOFT[chuDe.accent] ?? ACCENT_SOFT.primary;
   const location = placeForChuDe(quyenNumber, chuDeIndex);
   const photo = location.photo;
@@ -93,9 +96,9 @@ export function RoadmapList({
           primary action on the left; a plain photo of the place on the right. ── */}
       <div className="w-full bg-sky-tint">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
-          <nav aria-label="breadcrumb" className="text-sm text-muted-foreground">
+          <nav aria-label={t.learning.breadcrumb} className="text-sm text-muted-foreground">
             <Link to="/hoc-tap" className="font-semibold text-ink hover:underline">
-              Học tập
+              {t.hocTap.crumb}
             </Link>
             <span className="px-1.5">&gt;</span>
             <Link
@@ -103,7 +106,7 @@ export function RoadmapList({
               params={{ quyenNumber: String(quyenNumber) }}
               className="font-semibold text-ink hover:underline"
             >
-              Quyển {quyenNumber}
+              {t.hocTap.bookTitle(String(quyenNumber))}
             </Link>
             <span className="px-1.5">&gt;</span>
             <span>{location.name}</span>
@@ -114,7 +117,7 @@ export function RoadmapList({
               {isLocked && (
                 <span className="mb-3 inline-flex items-center gap-1 bg-muted px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                   <Lock className="h-3 w-3" strokeWidth={2.5} />
-                  Sắp có
+                  {t.learning.comingSoon}
                 </span>
               )}
 
@@ -132,7 +135,11 @@ export function RoadmapList({
                   onClick={() => onOpenLesson(currentChangIndex)}
                   className="mt-7 cursor-pointer bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:text-base"
                 >
-                  {doneStages === 0 ? "Bắt đầu học" : allDone ? "Ôn tập lại" : "Tiếp tục học"}
+                  {doneStages === 0
+                    ? t.learning.startLearning
+                    : allDone
+                      ? t.learning.reviewAgain
+                      : t.learning.continueLearning}
                 </button>
               )}
             </div>
@@ -153,7 +160,7 @@ export function RoadmapList({
               <BookOpen className="h-6 w-6 shrink-0" strokeWidth={2} aria-hidden />
               <div className="min-w-0">
                 <div className="text-sm font-semibold sm:text-base">
-                  {doneStages}/{totalStages} chặng đã hoàn thành
+                  {t.learning.stagesDone(doneStages, totalStages)}
                 </div>
                 <div className="mt-1.5 h-1 w-full max-w-48 overflow-hidden bg-white/25">
                   <div
@@ -179,8 +186,7 @@ export function RoadmapList({
               {chuDe.emoji}
             </div>
             <p className="mx-auto mt-4 max-w-sm text-sm text-muted-foreground">
-              Các cô đang biên soạn chủ đề này. Em quay lại chủ đề trước để luyện tập trong lúc chờ
-              nhé!
+              {t.learning.topicInProgress}
             </p>
             <Button asChild className="mx-auto mt-5">
               <Link
@@ -188,14 +194,14 @@ export function RoadmapList({
                 params={{ quyenNumber: String(quyenNumber) }}
               >
                 <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
-                Về bản đồ
+                {t.learning.backToMap}
               </Link>
             </Button>
           </div>
         ) : (
           <>
             <h2 className="font-display text-xl font-bold text-ink sm:text-2xl">
-              Chủ đề: {titleName}
+              {t.learning.topicHeading(titleName)}
             </h2>
 
             <ul className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -251,7 +257,7 @@ export function RoadmapList({
                               color.bg,
                             ].join(" ")}
                           >
-                            Đang học
+                            {t.learning.studying}
                           </span>
                         )}
                         {isDone && (
@@ -268,20 +274,20 @@ export function RoadmapList({
                             color.text,
                           ].join(" ")}
                         >
-                          Chặng {i + 1}
+                          {t.learning.stageN(i + 1)}
                         </span>
                         <span className="mt-3 flex flex-col gap-2 text-sm text-muted-foreground">
                           <span className="flex items-center gap-2">
                             <BookOpen className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
-                            {total} bài học
+                            {t.learning.lessonsCount(total)}
                           </span>
                           <span className="flex items-center gap-2">
                             <CircleDot className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
                             {isDone
-                              ? "Đã hoàn thành"
+                              ? t.learning.completed
                               : prog
-                                ? `Đang học: ${prog.current}/${prog.total} bài`
-                                : "Chưa bắt đầu"}
+                                ? t.learning.inProgress(prog.current, prog.total)
+                                : t.learning.notStarted}
                           </span>
                         </span>
 
@@ -302,7 +308,7 @@ export function RoadmapList({
                             color.bg,
                           ].join(" ")}
                         >
-                          {getLessonButtonLabel(i, completedChangs, startedChangs)}
+                          {getLessonButtonLabel(t, i, completedChangs, startedChangs)}
                         </span>
                       </span>
                     </button>

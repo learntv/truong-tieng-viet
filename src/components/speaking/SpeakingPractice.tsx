@@ -23,6 +23,7 @@ import { skyButton } from "@/components/ui/sky-button";
 import { useSingletonAudio } from "@/hooks/useSingletonAudio";
 import { ttsSrc } from "@/lib/tts/text";
 import { RecordButton } from "./RecordButton";
+import { useT } from "@/i18n";
 
 type Stage = "ready" | "recording" | "review";
 
@@ -54,6 +55,7 @@ export function SpeakingPractice({
   sentences: SpeakingSentence[];
   colorIndex: number;
 }) {
+  const t = useT();
   // Same tone as this topic's tile on the Luyện nói list.
   const tone = toneAt(colorIndex);
 
@@ -166,8 +168,8 @@ export function SpeakingPractice({
     <PageBanner
       title={title}
       parents={[
-        { label: "Học tập", to: "/hoc-tap" },
-        { label: "Luyện nói", to: "/hoc-tap/luyen-noi" },
+        { label: t.hocTap.crumb, to: "/hoc-tap" },
+        { label: t.speaking.title, to: "/hoc-tap/luyen-noi" },
       ]}
       art={
         <span aria-hidden="true" className="relative text-6xl leading-none sm:text-8xl">
@@ -183,11 +185,11 @@ export function SpeakingPractice({
         {banner}
         <div className="px-4 py-16 text-center">
           <p className="mb-6 font-display text-lg font-bold text-sky-ink">
-            Chủ đề này chưa có câu luyện
+            {t.speaking.noSentences}
           </p>
           <Link to="/hoc-tap/luyen-noi" className={skyButton("primary")}>
             <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
-            Chọn chủ đề khác
+            {t.speaking.pickAnother}
           </Link>
         </div>
       </div>
@@ -206,7 +208,7 @@ export function SpeakingPractice({
         {/* Progress */}
         <div className="mb-5 flex items-center gap-3">
           <span className="shrink-0 text-xs font-extrabold uppercase tracking-[0.08em] text-sky-ink-soft">
-            Câu {index + 1}/{sentences.length}
+            {t.speaking.sentenceOf(index + 1, sentences.length)}
           </span>
           <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
             <div
@@ -233,7 +235,7 @@ export function SpeakingPractice({
                 {sentence?.imageUrl && (
                   <img
                     src={sentence.imageUrl}
-                    alt="Hình minh họa"
+                    alt={t.speaking.imageAlt}
                     className="mx-auto mb-5 max-h-52 rounded-xl bg-white object-contain"
                   />
                 )}
@@ -286,7 +288,7 @@ export function SpeakingPractice({
                       />
                       <button
                         onClick={modelAudio.play}
-                        aria-label="Nghe cô đọc"
+                        aria-label={t.speaking.listenModel}
                         className="ml-1 inline-grid h-10 w-10 shrink-0 cursor-pointer place-items-center rounded-full bg-white text-sky-ink shadow-btn transition-transform hover:scale-105 active:translate-y-[1px] active:shadow-btn-active"
                       >
                         <Volume2 className="h-5 w-5" strokeWidth={2.5} />
@@ -301,7 +303,7 @@ export function SpeakingPractice({
               <div className="my-5 flex min-h-[2.25rem] items-center justify-center text-center sm:min-h-[2.5rem]">
                 {tooWrong ? (
                   <p className="font-display text-base font-semibold text-amber-600 sm:text-lg">
-                    Cô nghe không rõ, em thử lại nhé! 🌼
+                    {t.speaking.tooWrong}
                   </p>
                 ) : (
                   showGraded &&
@@ -309,7 +311,7 @@ export function SpeakingPractice({
                     <div className="inline-flex max-w-full items-center gap-2 rounded-full bg-muted px-4 py-2 text-base font-semibold text-muted-foreground sm:text-lg">
                       <span aria-hidden>🎧</span>
                       <span>
-                        Con đã nói: “
+                        {t.speaking.youSaid} “
                         {result.spokenWords && result.spokenWords.length > 0 ? (
                           result.spokenWords.map((w, i) => (
                             <span key={i}>
@@ -369,20 +371,18 @@ export function SpeakingPractice({
         {!canRecord || micDenied ? (
           <div className="mx-auto max-w-sm rounded-2xl bg-box-white-deep p-4 text-center">
             <p className="text-sm font-semibold text-sky-ink">
-              {micDenied
-                ? "Micro chưa được bật. Không sao, em nghe cô đọc rồi đọc to theo nhé!"
-                : "Thiết bị này chưa ghi âm được. Em nghe cô đọc rồi đọc to theo nhé!"}
+              {micDenied ? t.speaking.micDenied : t.speaking.cantRecord}
             </p>
             <button onClick={handleRepeatedAloud} className={skyButton("primary", "mt-3")}>
               <ThumbsUp className="h-4 w-4" strokeWidth={2.5} />
-              Em đã đọc to theo cô!
+              {t.speaking.readAloud}
             </button>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-5">
             {isReviewing && showSelfAssess && !grading && (
               <button onClick={handleSelfAssessDone} className={skyButton("green")}>
-                😊 Giống rồi!
+                {t.speaking.sameAsModel}
               </button>
             )}
 
@@ -407,7 +407,7 @@ export function SpeakingPractice({
             className={skyButton("white", ["ring-1 ring-sky-ink/10", NAV_DISABLED].join(" "))}
           >
             <ChevronLeft className="h-4 w-4" strokeWidth={2.5} />
-            Câu trước
+            {t.speaking.prevSentence}
           </button>
 
           <button
@@ -415,7 +415,7 @@ export function SpeakingPractice({
             disabled={index >= sentences.length - 1}
             className={skyButton("primary", NAV_DISABLED)}
           >
-            Câu tiếp theo
+            {t.speaking.nextSentence}
             <ChevronRight className="h-4 w-4" strokeWidth={2.5} />
           </button>
         </div>

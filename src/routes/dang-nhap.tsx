@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,6 +13,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Logo } from "@/components/Logo";
+import { messagesFor, useT, type Messages } from "@/i18n";
+import { pageTitle } from "@/i18n/head";
 
 type AuthTab = "login" | "register";
 
@@ -28,38 +30,39 @@ export const Route = createFileRoute("/dang-nhap")({
         ? search.redirect
         : undefined,
   }),
-  head: () => ({
-    meta: [
-      { title: "Đăng nhập | Trường Tiếng Việt Của Em" },
-      {
-        name: "description",
-        content:
-          "Đăng nhập hoặc tạo tài khoản Trường Tiếng Việt Của Em để lưu tiến độ học tập của em.",
-      },
-      { property: "og:title", content: "Đăng nhập | Trường Tiếng Việt Của Em" },
-      {
-        property: "og:description",
-        content: "Đăng nhập để lưu tiến độ học tập của em.",
-      },
-      { property: "og:url", content: "/dang-nhap" },
-    ],
-    links: [{ rel: "canonical", href: "/dang-nhap" }],
-  }),
+  head: ({ match }) => {
+    const { locale } = match.context;
+    const m = messagesFor(locale).meta.signIn;
+    const title = pageTitle(locale, m.title);
+    return {
+      meta: [
+        { title },
+        { name: "description", content: m.description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: m.ogDescription },
+        { property: "og:url", content: "/dang-nhap" },
+      ],
+      links: [{ rel: "canonical", href: "/dang-nhap" }],
+    };
+  },
   component: AuthPage,
 });
 
-const emailPasswordSchema = z.object({
-  email: z.string().email("Email không hợp lệ"),
-  password: z.string().min(6, "Mật khẩu tối thiểu 6 ký tự"),
-});
-const emailOnlySchema = z.object({
-  email: z.string().email("Email không hợp lệ"),
-});
+const makeEmailPasswordSchema = (t: Messages) =>
+  z.object({
+    email: z.string().email(t.auth.invalidEmail),
+    password: z.string().min(6, t.auth.passwordTooShort),
+  });
+const makeEmailOnlySchema = (t: Messages) =>
+  z.object({
+    email: z.string().email(t.auth.invalidEmail),
+  });
 
-type EmailPasswordValues = z.infer<typeof emailPasswordSchema>;
-type EmailOnlyValues = z.infer<typeof emailOnlySchema>;
+type EmailPasswordValues = z.infer<ReturnType<typeof makeEmailPasswordSchema>>;
+type EmailOnlyValues = z.infer<ReturnType<typeof makeEmailOnlySchema>>;
 
 function GoogleButton({ onClick, loading }: { onClick: () => void; loading: boolean }) {
+  const t = useT();
   return (
     <button
       type="button"
@@ -89,20 +92,22 @@ function GoogleButton({ onClick, loading }: { onClick: () => void; loading: bool
           />
         </svg>
       )}
-      Tiếp tục với Google
+      {t.auth.google}
     </button>
   );
 }
 
 function ForgotPasswordView({ onBack }: { onBack: () => void }) {
+  const t = useT();
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const schema = useMemo(() => makeEmailOnlySchema(t), [t]);
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<EmailOnlyValues>({
-    resolver: zodResolver(emailOnlySchema),
+    resolver: zodResolver(schema),
   });
 
   const onSubmit = async ({ email }: EmailOnlyValues) => {
@@ -114,7 +119,7 @@ function ForgotPasswordView({ onBack }: { onBack: () => void }) {
     const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
     setLoading(false);
     if (error) {
-      toast.error("Không gửi được email", { description: error.message });
+      toast.error(t.auth.forgotSendFailed, { description: error.message });
     } else {
       setSent(true);
     }
@@ -126,16 +131,14 @@ function ForgotPasswordView({ onBack }: { onBack: () => void }) {
         <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-green/20 text-2xl">
           ✉️
         </div>
-        <p className="text-sm text-muted-foreground">
-          Email đặt lại mật khẩu đã được gửi. Kiểm tra hộp thư của bạn.
-        </p>
+        <p className="text-sm text-muted-foreground">{t.auth.forgotSent}</p>
         <button
           type="button"
           onClick={onBack}
           className="flex items-center gap-1 text-sm font-medium text-primary hover:underline mx-auto"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Quay lại đăng nhập
+          {t.auth.forgotBackToLogin}
         </button>
       </div>
     );
@@ -150,26 +153,24 @@ function ForgotPasswordView({ onBack }: { onBack: () => void }) {
           className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Quay lại
+          {t.auth.forgotBack}
         </button>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Nhập email của bạn và chúng tôi sẽ gửi liên kết đặt lại mật khẩu.
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">{t.auth.forgotIntro}</p>
       </div>
       <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-3">
         <div className="space-y-1.5">
-          <Label htmlFor="forgot-email">Email</Label>
+          <Label htmlFor="forgot-email">{t.auth.email}</Label>
           <Input
             id="forgot-email"
             type="email"
-            placeholder="em@example.com"
+            placeholder={t.auth.emailPlaceholder}
             {...register("email")}
           />
           {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
         </div>
         <Button type="submit" className="w-full" disabled={loading}>
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Gửi email đặt lại mật khẩu
+          {t.auth.forgotSubmit}
         </Button>
       </form>
     </div>
@@ -185,14 +186,16 @@ function EmailForm({
   onSuccess: () => void;
   onForgotPassword: () => void;
 }) {
+  const t = useT();
   const [loading, setLoading] = useState(false);
+  const schema = useMemo(() => makeEmailPasswordSchema(t), [t]);
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
   } = useForm<EmailPasswordValues>({
-    resolver: zodResolver(emailPasswordSchema),
+    resolver: zodResolver(schema),
   });
 
   useEffect(() => {
@@ -204,17 +207,17 @@ function EmailForm({
     if (mode === "login") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        toast.error("Đăng nhập thất bại", { description: error.message });
+        toast.error(t.auth.loginFailed, { description: error.message });
       } else {
-        toast.success("Đăng nhập thành công!");
+        toast.success(t.auth.loginSuccess);
         onSuccess();
       }
     } else {
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) {
-        toast.error("Đăng ký thất bại", { description: error.message });
+        toast.error(t.auth.registerFailed, { description: error.message });
       } else {
-        toast.success("Kiểm tra email để xác nhận tài khoản!");
+        toast.success(t.auth.registerCheckEmail);
       }
     }
     setLoading(false);
@@ -223,20 +226,25 @@ function EmailForm({
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-3">
       <div className="space-y-1.5">
-        <Label htmlFor="auth-email">Email</Label>
-        <Input id="auth-email" type="email" placeholder="em@example.com" {...register("email")} />
+        <Label htmlFor="auth-email">{t.auth.email}</Label>
+        <Input
+          id="auth-email"
+          type="email"
+          placeholder={t.auth.emailPlaceholder}
+          {...register("email")}
+        />
         {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
       </div>
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <Label htmlFor="auth-password">Mật khẩu</Label>
+          <Label htmlFor="auth-password">{t.auth.password}</Label>
           {mode === "login" && (
             <button
               type="button"
               onClick={onForgotPassword}
               className="text-xs font-medium text-primary hover:underline"
             >
-              Quên mật khẩu?
+              {t.auth.forgotPassword}
             </button>
           )}
         </div>
@@ -245,13 +253,14 @@ function EmailForm({
       </div>
       <Button type="submit" className="w-full" disabled={loading}>
         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        {mode === "login" ? "Đăng nhập" : "Đăng ký"}
+        {mode === "login" ? t.auth.submitLogin : t.auth.submitRegister}
       </Button>
     </form>
   );
 }
 
 function AuthPage() {
+  const t = useT();
   const { tab, redirect } = Route.useSearch();
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
@@ -276,7 +285,7 @@ function AuthPage() {
       },
     });
     if (error) {
-      toast.error("Không thể kết nối Google", { description: error.message });
+      toast.error(t.auth.googleFailed, { description: error.message });
       setGoogleLoading(false);
     }
   };
@@ -289,15 +298,13 @@ function AuthPage() {
     <div className="flex min-h-[calc(100svh-16rem)] items-center justify-center">
       <div className="w-full max-w-md border-[6px] border-white bg-white p-6 shadow-2xl sm:border-[8px] sm:p-8">
         <div className="mb-6 flex flex-col items-center text-center">
-          <Link to="/" aria-label="Về trang chủ">
+          <Link to="/" aria-label={t.auth.backHomeLabel}>
             <Logo size="md" variant="wordmark" />
           </Link>
           <h1 className="mt-4 font-display text-2xl font-bold text-navy">
-            {tab === "register" ? "Tạo tài khoản" : "Chào em trở lại!"}
+            {tab === "register" ? t.auth.registerHeading : t.auth.loginHeading}
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Đăng nhập để lưu tiến độ học tập của em.
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">{t.auth.intro}</p>
         </div>
 
         {forgotPassword ? (
@@ -314,8 +321,8 @@ function AuthPage() {
             }
           >
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Đăng nhập</TabsTrigger>
-              <TabsTrigger value="register">Đăng ký</TabsTrigger>
+              <TabsTrigger value="login">{t.auth.loginTab}</TabsTrigger>
+              <TabsTrigger value="register">{t.auth.registerTab}</TabsTrigger>
             </TabsList>
 
             {(["login", "register"] as const).map((mode) => (
@@ -324,7 +331,7 @@ function AuthPage() {
 
                 <div className="flex items-center gap-3">
                   <Separator className="flex-1" />
-                  <span className="text-xs text-muted-foreground">hoặc</span>
+                  <span className="text-xs text-muted-foreground">{t.auth.or}</span>
                   <Separator className="flex-1" />
                 </div>
 

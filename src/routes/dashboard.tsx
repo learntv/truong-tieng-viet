@@ -29,6 +29,8 @@ import { useDashboardStats, type CountryCount } from "@/hooks/useDashboardStats"
 import { StudentReport } from "@/components/dashboard/StudentReport";
 import { ISO_ALPHA2_TO_NUMERIC } from "@/lib/iso3166";
 import { FlagImg } from "@/components/FlagImg";
+import { messagesFor, useLocale, useT, type Locale, type Messages } from "@/i18n";
+import { pageTitle } from "@/i18n/head";
 
 export const Route = createFileRoute("/dashboard")({
   // UX gate — sends non-staff back to the homepage. The real protection is the
@@ -45,32 +47,42 @@ export const Route = createFileRoute("/dashboard")({
       .maybeSingle();
     if (!data) throw redirect({ to: "/" });
   },
-  head: () => ({
-    meta: [
-      { title: "Báo cáo tác động | Trường Tiếng Việt Của Em" },
-      {
-        name: "description",
-        content:
-          "Báo cáo tác động xã hội của Trường Tiếng Việt Của Em: quy mô, tăng trưởng và phân bổ địa lý.",
-      },
-      { property: "og:title", content: "Báo cáo tác động | Trường Tiếng Việt Của Em" },
-      { property: "og:description", content: "Quy mô, tăng trưởng và phân bổ địa lý của học sinh Trường Tiếng Việt Của Em." },
-      { name: "robots", content: "noindex" },
-      { property: "og:url", content: "/dashboard" },
-    ],
-    links: [{ rel: "canonical", href: "/dashboard" }],
-  }),
+  head: ({ match }) => {
+    const { locale } = match.context;
+    const m = messagesFor(locale).meta.dashboard;
+    const title = pageTitle(locale, m.title);
+    return {
+      meta: [
+        { title },
+        { name: "description", content: m.description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: m.ogDescription },
+        { name: "robots", content: "noindex" },
+        { property: "og:url", content: "/dashboard" },
+      ],
+      links: [{ rel: "canonical", href: "/dashboard" }],
+    };
+  },
   component: DashboardPage,
 });
 
-const REGION_NAMES = new Intl.DisplayNames(["vi"], { type: "region" });
+const REGION_NAMES: Record<Locale, Intl.DisplayNames> = {
+  vi: new Intl.DisplayNames(["vi"], { type: "region" }),
+  en: new Intl.DisplayNames(["en"], { type: "region" }),
+};
 
-function countryLabel(code: string): string {
+function countryLabel(locale: Locale, code: string): string {
   try {
-    return REGION_NAMES.of(code) ?? code;
+    return REGION_NAMES[locale].of(code) ?? code;
   } catch {
     return code;
   }
+}
+
+/** Monthly buckets arrive as "YYYY-MM"; weekly ones are a bare week number and pass through. */
+function formatPeriod(t: Messages, period: string): string {
+  const month = /^(\d{4})-(\d{2})$/.exec(period);
+  return month ? t.dashboard.monthLabel(Number(month[2]), Number(month[1])) : period;
 }
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
@@ -144,6 +156,8 @@ const MIN_MAP_ZOOM = 1;
 const MAX_MAP_ZOOM = 8;
 
 function MapView({ countryData, total }: { countryData: CountryCount[]; total: number }) {
+  const t = useT();
+  const { locale, fmtNumber } = useLocale();
   const [hovered, setHovered] = useState<CountryCount | null>(null);
   const [pointer, setPointer] = useState<{ x: number; y: number } | null>(null);
   const [zoom, setZoom] = useState(1);
@@ -177,9 +191,9 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
             style={{ left: pointer.x, top: pointer.y - 10 }}
           >
             <FlagImg code={hovered.code} size={18} />
-            <span>{countryLabel(hovered.code)}</span>
+            <span>{countryLabel(locale, hovered.code)}</span>
             <span className="font-semibold text-primary">
-              {hovered.count.toLocaleString("en-US")} học sinh
+              {t.dashboard.students(fmtNumber(hovered.count))}
             </span>
           </div>
         )}
@@ -239,7 +253,7 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
         <div className="absolute right-2 top-2 flex flex-col gap-1">
           <button
             type="button"
-            aria-label="Phóng to"
+            aria-label={t.dashboard.zoomIn}
             onClick={() => setZoom((z) => Math.min(MAX_MAP_ZOOM, z * 1.5))}
             className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card text-foreground shadow-sm hover:bg-muted"
           >
@@ -247,7 +261,7 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
           </button>
           <button
             type="button"
-            aria-label="Thu nhỏ"
+            aria-label={t.dashboard.zoomOut}
             onClick={() => setZoom((z) => Math.max(MIN_MAP_ZOOM, z / 1.5))}
             className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card text-foreground shadow-sm hover:bg-muted"
           >
@@ -255,7 +269,7 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
           </button>
           <button
             type="button"
-            aria-label="Đặt lại"
+            aria-label={t.dashboard.resetView}
             onClick={() => {
               setZoom(1);
               setCenter(DEFAULT_MAP_CENTER);
@@ -268,7 +282,7 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
       </div>
 
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <span>Ít hơn</span>
+        <span>{t.dashboard.less}</span>
         <div className="flex gap-0.5">
           {[0.2, 0.4, 0.6, 0.8, 1.0].map((frac) => (
             <div
@@ -278,14 +292,15 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
             />
           ))}
         </div>
-        <span>Nhiều hơn</span>
-        <span className="ml-auto">Tổng: {total.toLocaleString("en-US")} học sinh</span>
+        <span>{t.dashboard.more}</span>
+        <span className="ml-auto">{t.dashboard.total(fmtNumber(total))}</span>
       </div>
     </div>
   );
 }
 
 function TopCountries({ countryData, total }: { countryData: CountryCount[]; total: number }) {
+  const { locale, fmtNumber } = useLocale();
   const top = countryData.slice(0, 8);
   const max = countryData[0]?.count ?? 1;
   return (
@@ -294,7 +309,7 @@ function TopCountries({ countryData, total }: { countryData: CountryCount[]; tot
         <div key={c.code} className="flex items-center gap-2">
           <FlagImg code={c.code} size={18} />
           <span className="w-24 shrink-0 truncate text-xs text-foreground">
-            {countryLabel(c.code)}
+            {countryLabel(locale, c.code)}
           </span>
           <div className="h-1.5 flex-1 overflow-hidden rounded-sm bg-muted">
             <div
@@ -303,7 +318,7 @@ function TopCountries({ countryData, total }: { countryData: CountryCount[]; tot
             />
           </div>
           <span className="w-14 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
-            {c.count.toLocaleString("en-US")}
+            {fmtNumber(c.count)}
             <span className="ml-1 text-[10px]">
               {total > 0 ? `${((c.count / total) * 100).toFixed(0)}%` : ""}
             </span>
@@ -315,6 +330,8 @@ function TopCountries({ countryData, total }: { countryData: CountryCount[]; tot
 }
 
 function DashboardPage() {
+  const t = useT();
+  const { fmtNumber } = useLocale();
   const [growthView, setGrowthView] = useState<"monthly" | "weekly">("monthly");
   const { stats, isStatsLoading } = useDashboardStats();
   const growthData = stats
@@ -335,43 +352,56 @@ function DashboardPage() {
 
   const completionData = stats
     ? [
-        { name: "Đã hoàn thành", value: stats.completion.completed, color: "var(--stage-1)" },
-        { name: "Đang học", value: stats.completion.inProgress, color: "var(--stage-2)" },
-        { name: "Mới bắt đầu", value: stats.completion.notStarted, color: "var(--muted)" },
+        { name: t.dashboard.completed, value: stats.completion.completed, color: "var(--stage-1)" },
+        {
+          name: t.dashboard.inProgress,
+          value: stats.completion.inProgress,
+          color: "var(--stage-2)",
+        },
+        {
+          name: t.dashboard.justStarted,
+          value: stats.completion.notStarted,
+          color: "var(--muted)",
+        },
       ]
     : [];
 
   return (
     <main className="bg-muted/40">
-      <PageBanner title="Báo cáo tác động xã hội" />
+      <PageBanner title={t.dashboard.title} />
 
       <div className="mx-auto max-w-7xl space-y-4 px-4 py-6 sm:px-6">
         {isStatsLoading || !stats ? (
-          <p className="text-center text-sm text-muted-foreground">Đang tải dữ liệu...</p>
+          <p className="text-center text-sm text-muted-foreground">{t.dashboard.loading}</p>
         ) : (
           <>
             {/* KPI row — one merged card, columns divided by hairlines */}
             <KpiRow>
               <KpiCell
-                title="Tài khoản"
-                value={stats.totalRegistered.toLocaleString("en-US")}
-                sub={recentAdds > 0 ? `+${recentAdds} kỳ gần nhất` : "đã đăng ký"}
+                title={t.dashboard.accounts}
+                value={fmtNumber(stats.totalRegistered)}
+                sub={recentAdds > 0 ? t.dashboard.recentAdds(recentAdds) : t.dashboard.registered}
                 deltaTone={recentAdds > 0 ? "up" : undefined}
               />
               <KpiCell
-                title="Hoàn thành"
-                value={stats.completion.completed.toLocaleString("en-US")}
-                sub={`${stats.completionRate.toFixed(1)}% tỷ lệ`}
+                title={t.dashboard.completedKpi}
+                value={fmtNumber(stats.completion.completed)}
+                sub={t.dashboard.rate(
+                  fmtNumber(stats.completionRate, {
+                    minimumFractionDigits: 1,
+                    maximumFractionDigits: 1,
+                  }),
+                )}
               />
               <KpiCell
-                title="Đang học"
-                value={stats.completion.inProgress.toLocaleString("en-US")}
-                sub="đang trong tiến trình"
+                title={t.dashboard.inProgress}
+                value={fmtNumber(stats.completion.inProgress)}
+                sub={t.dashboard.inProgressSub}
               />
               <KpiCell
-                title="Quốc gia"
-                value={stats.countryData.length.toLocaleString("en-US")}
-                sub="có học sinh"
+                title={t.dashboard.countries}
+                value={fmtNumber(stats.countryData.length)}
+                sub={t.dashboard.withStudents}
               />
             </KpiRow>
 
@@ -381,11 +411,9 @@ function DashboardPage() {
                 <CardHeader className="flex flex-row items-start justify-between gap-3 px-4 pb-2 pt-4">
                   <div>
                     <CardTitle className="font-display text-sm">
-                      Tốc độ tăng trưởng người dùng
+                      {t.dashboard.growthTitle}
                     </CardTitle>
-                    <CardDescription className="text-xs">
-                      Tổng học sinh tích lũy theo thời gian đăng ký
-                    </CardDescription>
+                    <CardDescription className="text-xs">{t.dashboard.growthSub}</CardDescription>
                   </div>
                   <Tabs
                     value={growthView}
@@ -393,10 +421,10 @@ function DashboardPage() {
                   >
                     <TabsList className="h-8">
                       <TabsTrigger value="monthly" className="px-3 text-xs">
-                        Tháng
+                        {t.dashboard.monthly}
                       </TabsTrigger>
                       <TabsTrigger value="weekly" className="px-3 text-xs">
-                        Tuần
+                        {t.dashboard.weekly}
                       </TabsTrigger>
                     </TabsList>
                   </Tabs>
@@ -411,6 +439,7 @@ function DashboardPage() {
                       />
                       <XAxis
                         dataKey="period"
+                        tickFormatter={(p: string) => formatPeriod(t, p)}
                         tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
                         axisLine={false}
                         tickLine={false}
@@ -422,7 +451,11 @@ function DashboardPage() {
                         width={45}
                       />
                       <Tooltip
-                        formatter={(v: number) => [`${v.toLocaleString("en-US")} học sinh`, "Tổng"]}
+                        formatter={(v: number) => [
+                          t.dashboard.students(fmtNumber(v)),
+                          t.dashboard.totalShort,
+                        ]}
+                        labelFormatter={(p: string) => formatPeriod(t, p)}
                         contentStyle={TOOLTIP_STYLE}
                       />
                       <Line
@@ -440,7 +473,9 @@ function DashboardPage() {
 
               <Card className="rounded-lg shadow-sm">
                 <CardHeader className="px-4 pb-2 pt-4">
-                  <CardTitle className="font-display text-sm">Tỷ lệ hoàn thành</CardTitle>
+                  <CardTitle className="font-display text-sm">
+                    {t.dashboard.completionTitle}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 px-4 pb-4">
                   <ResponsiveContainer width="100%" height={120}>
@@ -459,7 +494,7 @@ function DashboardPage() {
                         ))}
                       </Pie>
                       <Tooltip
-                        formatter={(v: number) => [`${v.toLocaleString("en-US")} học sinh`]}
+                        formatter={(v: number) => [t.dashboard.students(fmtNumber(v))]}
                         contentStyle={TOOLTIP_STYLE}
                       />
                     </PieChart>
@@ -475,7 +510,7 @@ function DashboardPage() {
                           {entry.name}
                         </span>
                         <span className="font-semibold tabular-nums text-foreground">
-                          {entry.value.toLocaleString("en-US")}
+                          {fmtNumber(entry.value)}
                         </span>
                       </div>
                       <Progress
@@ -492,10 +527,14 @@ function DashboardPage() {
             <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
               <Card className="rounded-lg shadow-sm lg:col-span-2">
                 <CardHeader className="px-4 pb-2 pt-4">
-                  <CardTitle className="font-display text-sm">Học sinh theo quốc gia</CardTitle>
+                  <CardTitle className="font-display text-sm">
+                    {t.dashboard.byCountryTitle}
+                  </CardTitle>
                   <CardDescription className="text-xs">
-                    {stats.totalRegistered.toLocaleString("en-US")} học sinh tại{" "}
-                    {stats.countryData.length} quốc gia
+                    {t.dashboard.byCountrySub(
+                      fmtNumber(stats.totalRegistered),
+                      stats.countryData.length,
+                    )}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="px-4 pb-4">
@@ -505,7 +544,7 @@ function DashboardPage() {
 
               <Card className="rounded-lg shadow-sm">
                 <CardHeader className="px-4 pb-2 pt-4">
-                  <CardTitle className="font-display text-sm">Quốc gia dẫn đầu</CardTitle>
+                  <CardTitle className="font-display text-sm">{t.dashboard.topCountries}</CardTitle>
                 </CardHeader>
                 <CardContent className="px-4 pb-4">
                   <TopCountries

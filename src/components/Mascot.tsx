@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useT } from "@/i18n";
 import cheer from "@/assets/mascot/cheer.png";
 import crying from "@/assets/mascot/crying.png";
 import flying from "@/assets/mascot/flying.png";
@@ -12,23 +13,23 @@ import thinking from "@/assets/mascot/thinking.png";
 import thumbsUp from "@/assets/mascot/thumbs-up.png";
 import wave from "@/assets/mascot/wave.png";
 
-// Trâu con, the school mascot. Each pose carries its own alt text so screen
-// readers hear what he is doing, not just that he exists.
+// Trâu con, the school mascot. Each pose carries its own alt text (t.mascot) so
+// screen readers hear what he is doing, not just that he exists.
 const POSES = {
-  cheer: { src: cheer, alt: "Trâu con reo mừng" },
-  crying: { src: crying, alt: "Trâu con đang khóc" },
-  flying: { src: flying, alt: "Trâu con bay lên" },
-  hiking: { src: hiking, alt: "Trâu con đi leo núi" },
-  listening: { src: listening, alt: "Trâu con đang lắng nghe" },
-  peeking: { src: peeking, alt: "Trâu con ló đầu ra" },
+  cheer,
+  crying,
+  flying,
+  hiking,
+  listening,
+  peeking,
   // Cropped flat at the bottom — sits on an edge, so pair it with a container
   // border rather than floating it in open space.
-  "peeking-over": { src: peekingOver, alt: "Trâu con ló đầu lên nhìn" },
-  reading: { src: reading, alt: "Trâu con đang đọc sách" },
-  "reading-sitting": { src: readingSitting, alt: "Trâu con ngồi đọc sách" },
-  thinking: { src: thinking, alt: "Trâu con đang suy nghĩ" },
-  "thumbs-up": { src: thumbsUp, alt: "Trâu con giơ ngón tay cái" },
-  wave: { src: wave, alt: "Trâu con vẫy tay chào" },
+  "peeking-over": peekingOver,
+  reading,
+  "reading-sitting": readingSitting,
+  thinking,
+  "thumbs-up": thumbsUp,
+  wave,
 } as const;
 
 export type MascotPose = keyof typeof POSES;
@@ -53,11 +54,11 @@ export function Mascot({
   decorative?: boolean;
   className?: string;
 }) {
-  const { src, alt } = POSES[pose];
+  const t = useT();
   return (
     <img
-      src={src}
-      alt={decorative ? "" : alt}
+      src={POSES[pose]}
+      alt={decorative ? "" : t.mascot[pose]}
       aria-hidden={decorative || undefined}
       className={cn("w-auto shrink-0 object-contain", SIZES[size], bob && "animate-bob", className)}
     />

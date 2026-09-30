@@ -19,9 +19,13 @@ import { toast } from "sonner";
 import { deleteOwnAccount } from "@/lib/account.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { FlagImg } from "@/components/FlagImg";
+import { PageBanner } from "@/components/site/PageBanner";
 import { upsertProfile, generateUsername } from "@/lib/profile";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserProgress } from "@/hooks/useUserProgress";
+import { messagesFor, useLocale, useT } from "@/i18n";
+import { pageTitle } from "@/i18n/head";
+import { Rich } from "@/i18n/Rich";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -38,9 +42,11 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/u/$username")({
-  head: ({ params }) => {
-    const title = `Hồ sơ của ${params.username} | Trường Tiếng Việt Của Em`;
-    const description = `Xem hồ sơ và tiến trình học tiếng Việt của ${params.username} trên Trường Tiếng Việt Của Em.`;
+  head: ({ params, match }) => {
+    const { locale } = match.context;
+    const m = messagesFor(locale).meta.profile;
+    const title = pageTitle(locale, m.title(params.username));
+    const description = m.description(params.username);
     const url = `/u/${params.username}`;
     return {
       meta: [
@@ -145,6 +151,77 @@ function avatarColor(letter: string) {
   return AVATAR_COLORS[letter.charCodeAt(0) % AVATAR_COLORS.length];
 }
 
+// Same card language as the Học tập page: pastel box tones, a soft shadow, and
+// a hover rim in a deeper shade of the card's own tone.
+const CARD_SHADOW = "shadow-[0_6px_20px_rgba(12,58,110,0.14)]";
+
+const ACTION_TONES = {
+  lavender: "bg-box-lavender text-sky-ink hover:outline-[#8b74f0]",
+  peach: "bg-box-peach text-sky-ink hover:outline-[#e8903a]",
+  cream: "bg-box-cream text-sky-ink hover:outline-[#b8962e]",
+  danger: "bg-destructive/10 text-destructive hover:outline-destructive/60",
+} as const;
+
+function actionClass(tone: keyof typeof ACTION_TONES) {
+  return [
+    "flex h-14 w-full cursor-pointer items-center gap-3 rounded-2xl px-4 text-left font-display font-bold outline-4 outline-offset-0 outline-transparent transition-[outline-color] duration-150 disabled:pointer-events-none disabled:opacity-60",
+    ACTION_TONES[tone],
+  ].join(" ");
+}
+
+function ActionIcon({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/80">
+      {children}
+    </span>
+  );
+}
+
+/** A section title followed by a hairline, as on the Học tập page. */
+function SectionHeading({ title }: { title: string }) {
+  return (
+    <div className="flex items-center gap-4">
+      <h2 className="shrink-0 font-display text-xl font-bold leading-tight text-sky-ink sm:text-2xl">
+        {title}
+      </h2>
+      <div aria-hidden="true" className="h-px flex-1 bg-sky-ink/15" />
+    </div>
+  );
+}
+
+function ProfileAvatar({
+  url,
+  emoji,
+  letter,
+}: {
+  url: string | undefined | null;
+  emoji: string | undefined | null;
+  letter: string;
+}) {
+  const t = useT();
+  return (
+    <div
+      className={[
+        "flex h-24 w-24 items-center justify-center overflow-hidden rounded-full font-display font-semibold ring-4 ring-white sm:h-28 sm:w-28",
+        url || emoji ? "bg-white" : avatarColor(letter),
+      ].join(" ")}
+    >
+      {url ? (
+        <img
+          src={url}
+          alt={t.nav.avatarAlt}
+          className="h-full w-full object-cover"
+          referrerPolicy="no-referrer"
+        />
+      ) : emoji ? (
+        <span className="text-5xl sm:text-6xl">{emoji}</span>
+      ) : (
+        <span className="text-4xl">{letter}</span>
+      )}
+    </div>
+  );
+}
+
 
 function computeStreak(completedAts: string[]): { days: number; studiedToday: boolean } {
   const MS_PER_DAY = 86400_000;
@@ -186,6 +263,7 @@ function AvatarPickerDialog({
   onOpenChange: (v: boolean) => void;
   onSelect: (avatar: { emoji?: string; url?: string }) => void;
 }) {
+  const t = useT();
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -222,6 +300,8 @@ function AvatarPickerDialog({
         data: { user },
       } = await supabase.auth.getUser();
       if (user) {
+        // Stored as the profile's display_name (and slugged into its username), so this
+        // fallback is data and stays the same in every interface language.
         const name =
           (user.user_metadata?.full_name as string | undefined) ||
           user.email?.split("@")[0] ||
@@ -236,11 +316,11 @@ function AvatarPickerDialog({
       }
     }
     if (error) {
-      toast.error("Không thể lưu avatar", { description: error.message });
+      toast.error(t.profile.avatarSaveFailed, { description: error.message });
     } else {
       onSelect(avatar);
       onOpenChange(false);
-      toast.success("Đã lưu avatar!");
+      toast.success(t.profile.avatarSaved);
     }
   };
 
@@ -257,11 +337,11 @@ function AvatarPickerDialog({
     if (!file) return;
 
     if (!ACCEPTED_AVATAR_TYPES.includes(file.type)) {
-      toast.error("Ảnh phải là JPG, PNG, WebP hoặc GIF");
+      toast.error(t.profile.avatarBadType);
       return;
     }
     if (file.size > MAX_AVATAR_BYTES) {
-      toast.error("Ảnh phải nhỏ hơn 2MB");
+      toast.error(t.profile.avatarTooBig);
       return;
     }
 
@@ -270,7 +350,7 @@ function AvatarPickerDialog({
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      if (!session) throw new Error("Em cần đăng nhập lại");
+      if (!session) throw new Error(t.profile.signInAgain);
 
       const body = new FormData();
       body.append("file", file);
@@ -284,7 +364,7 @@ function AvatarPickerDialog({
       const { url } = (await res.json()) as { url: string };
       await save({ url });
     } catch (err) {
-      toast.error("Không thể tải ảnh lên", {
+      toast.error(t.profile.uploadFailed, {
         description: err instanceof Error ? err.message : undefined,
       });
     } finally {
@@ -296,8 +376,8 @@ function AvatarPickerDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="rounded-3xl max-w-xs p-5">
         <DialogHeader>
-          <DialogTitle className="font-display text-xl font-bold text-ink">
-            Chọn avatar của em 🎨
+          <DialogTitle className="font-display text-xl font-bold text-navy">
+            {t.profile.pickAvatar}
           </DialogTitle>
         </DialogHeader>
         <input
@@ -318,11 +398,9 @@ function AvatarPickerDialog({
           ) : (
             <ImagePlus className="h-4 w-4" />
           )}
-          Tải ảnh của em lên
+          {t.profile.uploadPhoto}
         </Button>
-        <p className="text-center text-xs text-muted-foreground">
-          JPG, PNG, WebP hoặc GIF, tối đa 2MB
-        </p>
+        <p className="text-center text-xs text-muted-foreground">{t.profile.uploadHint}</p>
         <div className="grid grid-cols-5 gap-2">
           {AVATAR_OPTIONS.map((emoji) => (
             <button
@@ -330,7 +408,7 @@ function AvatarPickerDialog({
               onClick={() => handleSelect(emoji)}
               disabled={saving}
               className={[
-                "h-12 w-full rounded-xl text-2xl flex items-center justify-center transition-all active:scale-90 disabled:opacity-50",
+                "h-12 w-full cursor-pointer rounded-xl text-2xl flex items-center justify-center transition-all active:scale-90 disabled:opacity-50",
                 current === emoji
                   ? "bg-sky/50 ring-2 ring-sky scale-110 shadow-sm"
                   : "bg-muted/40 hover:bg-sky/20",
@@ -364,6 +442,7 @@ function CountryPickerDialog({
   onOpenChange: (v: boolean) => void;
   onSelect: (code: string) => void;
 }) {
+  const t = useT();
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -392,11 +471,11 @@ function CountryPickerDialog({
     }
     setSaving(false);
     if (error) {
-      toast.error("Không thể lưu quốc gia", { description: error.message });
+      toast.error(t.profile.countrySaveFailed, { description: error.message });
     } else {
       onSelect(code);
       onOpenChange(false);
-      toast.success("Đã lưu quốc gia!");
+      toast.success(t.profile.countrySaved);
     }
   };
 
@@ -404,12 +483,12 @@ function CountryPickerDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="rounded-3xl max-w-sm p-5">
         <DialogHeader>
-          <DialogTitle className="font-display text-xl font-bold text-ink">
-            Chọn quốc gia của em 🌍
+          <DialogTitle className="font-display text-xl font-bold text-navy">
+            {t.profile.pickCountry}
           </DialogTitle>
         </DialogHeader>
         <Input
-          placeholder="Tìm kiếm..."
+          placeholder={t.profile.search}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="rounded-xl"
@@ -423,19 +502,19 @@ function CountryPickerDialog({
               disabled={saving}
               title={c.name}
               className={[
-                "flex flex-col items-center gap-0.5 rounded-xl p-2 transition-all text-center hover:bg-sky/30 active:scale-95",
+                "flex cursor-pointer flex-col items-center gap-0.5 rounded-xl p-2 transition-all text-center hover:bg-sky/30 active:scale-95",
                 current === c.code ? "bg-sky/40 ring-2 ring-sky" : "",
               ].join(" ")}
             >
               <FlagImg code={c.code} size={28} />
-              <span className="text-[9px] font-semibold text-ink leading-tight line-clamp-1">
+              <span className="text-[9px] font-semibold text-navy leading-tight line-clamp-1">
                 {c.name}
               </span>
             </button>
           ))}
           {filtered.length === 0 && (
             <p className="col-span-4 text-center text-sm text-muted-foreground py-4">
-              Không tìm thấy quốc gia
+              {t.profile.noCountry}
             </p>
           )}
         </div>
@@ -447,6 +526,8 @@ function CountryPickerDialog({
 // ─── Owner (editable) view ────────────────────────────────────────────────────
 
 function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
+  const t = useT();
+  const { fmtDate } = useLocale();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { progressMap, isProgressLoading } = useUserProgress(user.id);
@@ -481,16 +562,17 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
       } catch {
         /* ignore */
       }
-      toast.success("Tài khoản đã được xóa. Tạm biệt em! 👋");
+      toast.success(t.profile.accountDeleted);
       navigate({ to: "/", replace: true });
     } catch (err) {
       setIsDeleting(false);
-      toast.error("Không thể xóa tài khoản", {
-        description: err instanceof Error ? err.message : "Vui lòng thử lại.",
+      toast.error(t.profile.deleteFailed, {
+        description: err instanceof Error ? err.message : t.profile.tryAgain,
       });
     }
   };
 
+  // Written back to the profile row below, so the fallback is data: same in every language.
   const displayName =
     (user.user_metadata?.full_name as string | undefined) ||
     user.email?.split("@")[0] ||
@@ -562,13 +644,13 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
       });
       setSavingName(false);
       setEditingName(false);
-      toast.success("Đã lưu tên!");
+      toast.success(t.profile.nameSaved);
       navigate({ to: "/u/$username", params: { username }, replace: true });
       return;
     }
     setSavingName(false);
     if (error) {
-      toast.error("Không thể lưu tên", { description: error.message });
+      toast.error(t.profile.nameSaveFailed, { description: error.message });
     }
   };
 
@@ -580,9 +662,9 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
     });
     setIsSendingReset(false);
     if (error) {
-      toast.error("Không thể gửi email", { description: error.message });
+      toast.error(t.profile.resetEmailFailed, { description: error.message });
     } else {
-      toast.success("Email đặt lại mật khẩu đã được gửi! 📬");
+      toast.success(t.profile.resetEmailSent);
     }
   };
 
@@ -592,7 +674,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
     const { error } = await supabase.from("user_progress").delete().eq("user_id", user.id);
     if (error) {
       setIsRestarting(false);
-      toast.error("Không thể xóa tiến độ", { description: error.message });
+      toast.error(t.profile.progressResetFailed, { description: error.message });
       return;
     }
     localStorage.removeItem("vui-hoc-progress");
@@ -606,13 +688,10 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
     queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
     queryClient.invalidateQueries({ queryKey: ["public-profile"] });
     setIsRestarting(false);
-    toast.success("Tiến độ đã được đặt lại! Hãy bắt đầu lại nhé 🌱");
+    toast.success(t.profile.progressReset);
   };
 
-  const memberSince = new Date(user.created_at).toLocaleDateString("vi-VN", {
-    year: "numeric",
-    month: "long",
-  });
+  const memberSince = fmtDate(user.created_at, { year: "numeric", month: "long" });
   const completedCount = [...progressMap.values()].filter((p) => p.isCompleted).length;
   const inProgressCount = [...progressMap.values()].filter(
     (p) => !p.isCompleted && p.noiDungIndex > 0,
@@ -620,48 +699,24 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
   const isEmailUser = user.app_metadata?.provider !== "google";
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8 sm:px-6">
-        {/* Hero card */}
-        <div className="relative mb-6 overflow-hidden rounded-3xl border border-border bg-card shadow-card ring-1 ring-black/[0.02]">
-          {/* Red cover strip, same gradient and squircle motif as PageBanner.
-            The avatar below overlaps it, so the card reads as a profile header
-            without any of its edit controls needing to work on red. */}
-          <div className="relative h-28 overflow-hidden bg-gradient-to-br from-primary via-indigo to-indigo-deep">
-            <div aria-hidden className="pointer-events-none absolute inset-0">
-              <div className="absolute -right-16 -top-20 h-56 w-56 rotate-[20deg] rounded-[30%] bg-primary-glow/40 blur-[2px]" />
-              <div className="absolute -bottom-24 -left-16 h-44 w-44 rotate-[20deg] rounded-[30%] bg-gold/20 blur-[2px]" />
-            </div>
-          </div>
+    <main className="pb-10 sm:pb-12">
+      <PageBanner title={t.profile.title} />
 
-          <div className="relative flex flex-col items-center gap-4 p-8 pt-4 text-center sm:flex-row sm:items-start sm:text-left">
-            {/* Avatar — lifted so it straddles the cover strip's bottom edge. */}
-            <div className="relative -mt-16 shrink-0">
-              <div
-                className={[
-                  "h-24 w-24 rounded-full shadow-lg ring-4 ring-white overflow-hidden flex items-center justify-center font-semibold font-display",
-                  avatarUrl || avatarEmoji ? "bg-sky-100" : avatarColor(avatarLetter),
-                ].join(" ")}
-              >
-                {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt="Avatar"
-                    className="h-full w-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : avatarEmoji ? (
-                  <span className="text-5xl">{avatarEmoji}</span>
-                ) : (
-                  <span className="text-3xl">{avatarLetter}</span>
-                )}
-              </div>
+      <section className="mx-auto mt-8 max-w-3xl px-4 sm:mt-10 sm:px-8">
+        <div
+          className={[
+            "flex flex-col items-center gap-5 rounded-[1.5rem] bg-box-ice p-5 text-center sm:flex-row sm:gap-6 sm:p-6 sm:text-left",
+            CARD_SHADOW,
+          ].join(" ")}
+        >
+            <div className="relative shrink-0">
+              <ProfileAvatar url={avatarUrl} emoji={avatarEmoji} letter={avatarLetter} />
               <button
                 onClick={() => setAvatarPickerOpen(true)}
-                className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-white shadow-bevel-neutral flex items-center justify-center transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-neutral-active"
-                title="Đổi avatar"
+                className="absolute bottom-0 right-0 grid h-8 w-8 cursor-pointer place-items-center rounded-full bg-white text-sky-ink shadow-sm transition-transform hover:scale-110"
+                title={t.profile.changeAvatar}
               >
-                <Pencil className="h-3.5 w-3.5 text-ink" />
+                <Pencil className="h-4 w-4" />
               </button>
               <AvatarPickerDialog
                 current={avatarEmoji}
@@ -676,8 +731,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-primary/80">Trang cá nhân của em ♥</p>
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center justify-center gap-2 flex-wrap sm:justify-start">
                 {editingName ? (
                   <div className="flex items-center gap-2 flex-1 min-w-0">
                     <input
@@ -688,14 +742,14 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                         if (e.key === "Enter") handleSaveName();
                         if (e.key === "Escape") setEditingName(false);
                       }}
-                      className="font-display text-2xl font-bold text-ink bg-white/70 rounded-lg px-2 py-0.5 border border-sky outline-none min-w-0 w-full"
+                      className="font-display text-2xl font-bold text-sky-ink bg-white rounded-lg px-2 py-0.5 border-2 border-sky-ink/30 outline-none focus:border-sky-ink/60 min-w-0 w-full sm:text-3xl"
                       maxLength={40}
                       autoFocus
                     />
                     <button
                       onClick={handleSaveName}
                       disabled={savingName}
-                      className="shrink-0 h-8 w-8 rounded-full bg-green shadow-bevel-green flex items-center justify-center text-white transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-green-active disabled:opacity-50 disabled:pointer-events-none"
+                      className="shrink-0 h-8 w-8 cursor-pointer rounded-full bg-green shadow-bevel-stage-1 flex items-center justify-center text-white transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-stage-1-active disabled:opacity-50 disabled:pointer-events-none"
                     >
                       {savingName ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -705,7 +759,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                     </button>
                   </div>
                 ) : (
-                  <h1 className="font-display text-2xl font-bold text-ink leading-tight flex items-center gap-2 flex-wrap">
+                  <h2 className="font-display text-2xl font-bold text-sky-ink leading-tight flex items-center justify-center gap-2 flex-wrap sm:justify-start sm:text-3xl">
                     <span className="truncate">{displayName}</span>
                     <button
                       onClick={() => {
@@ -713,23 +767,23 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                         setEditingName(true);
                         setTimeout(() => nameInputRef.current?.select(), 0);
                       }}
-                      className="shrink-0 h-7 w-7 rounded-full bg-white shadow-bevel-neutral flex items-center justify-center transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-neutral-active"
-                      title="Đổi tên"
+                      className="grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-full bg-white/80 text-sky-ink transition-colors hover:bg-white"
+                      title={t.profile.changeName}
                     >
-                      <Pencil className="h-3.5 w-3.5 text-ink/60" />
+                      <Pencil className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => setCountryPickerOpen(true)}
-                      className="shrink-0 rounded-md border border-white/60 bg-white/50 shadow-sm ease-bounce transition-all hover:-translate-y-0.5 hover:bg-white hover:shadow-md active:translate-y-0 active:scale-95 overflow-hidden cursor-pointer"
-                      title="Chọn quốc gia"
+                      className="shrink-0 cursor-pointer overflow-hidden rounded-md bg-white/80 transition-transform hover:scale-105"
+                      title={t.profile.pickCountryTitle}
                     >
                       {countryCode ? (
                         <FlagImg code={countryCode} size={32} />
                       ) : (
-                        <Globe className="h-5 w-5 text-ink/50 m-1" />
+                        <Globe className="m-1 h-5 w-5 text-sky-ink" />
                       )}
                     </button>
-                  </h1>
+                  </h2>
                 )}
               </div>
               <CountryPickerDialog
@@ -741,136 +795,122 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                 onOpenChange={setCountryPickerOpen}
                 onSelect={setCountryCode}
               />
-              <p className="text-sm text-muted-foreground mt-0.5 truncate">{user.email}</p>
-              <p className="text-xs text-muted-foreground mt-1">Thành viên từ {memberSince}</p>
+              <p className="mt-1 truncate text-sm text-sky-ink-soft">{user.email}</p>
+              <p className="mt-0.5 text-sm text-sky-ink-soft">
+                {t.profile.memberSince(memberSince)}
+              </p>
             </div>
-          </div>
         </div>
 
-        {/* Stats row */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="mt-4 grid grid-cols-3 gap-3 sm:gap-4">
           {[
             {
               emoji: "🎯",
-              value: completedCount,
-              label: "Bài hoàn thành",
-              color: "bg-stage-1-soft text-stage-1-deep",
+              value: isProgressLoading ? "…" : completedCount,
+              label: t.profile.lessonsCompleted,
+              tone: "bg-box-mint",
+              note: null,
             },
             {
               emoji: "📖",
-              value: inProgressCount,
-              label: "Đang học",
-              color: "bg-stage-4-soft text-ink",
+              value: isProgressLoading ? "…" : inProgressCount,
+              label: t.profile.inProgress,
+              tone: "bg-box-peach",
+              note: null,
             },
-          ].map(({ emoji, value, label, color }) => (
+            {
+              emoji: "🔥",
+              value: streak.days,
+              label: t.profile.streak,
+              tone: "bg-box-pink",
+              note: streak.studiedToday ? t.profile.doneToday : t.profile.notToday,
+            },
+          ].map(({ emoji, value, label, tone, note }) => (
             <div
               key={label}
-              className={["rounded-2xl p-4 text-center ring-1 ring-border shadow-card", color].join(
-                " ",
-              )}
+              className={["rounded-[1.25rem] p-3 text-center sm:p-5", tone, CARD_SHADOW].join(" ")}
             >
-              <div className="text-2xl mb-1">{emoji}</div>
-              <div className="font-display text-2xl font-bold text-ink leading-none">
-                {isProgressLoading ? "—" : value}
+              <div className="text-2xl sm:text-3xl">{emoji}</div>
+              <div className="mt-2 font-display text-3xl font-bold leading-none text-sky-ink sm:text-4xl">
+                {value}
               </div>
-              <div className="text-xs font-semibold mt-1 text-muted-foreground leading-tight">
+              <div className="mt-1.5 text-xs font-semibold leading-tight text-sky-ink-soft sm:text-sm">
                 {label}
               </div>
+              {note && (
+                <div className="mt-1 text-[11px] leading-tight text-sky-ink-soft/80 sm:text-xs">
+                  {note}
+                </div>
+              )}
             </div>
           ))}
-          <div className="rounded-2xl bg-primary/8 p-4 text-center shadow-card ring-1 ring-border">
-            <div className="text-2xl mb-1">🔥</div>
-            <div className="font-display text-2xl font-bold text-ink leading-none">
-              {streak.days}
-            </div>
-            <div className="text-xs font-semibold mt-1 text-muted-foreground leading-tight">
-              Ngày liên tiếp
-            </div>
-            <div
-              className={[
-                "mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold",
-                streak.studiedToday
-                  ? "bg-stage-1-soft text-stage-1-deep"
-                  : "bg-muted text-muted-foreground",
-              ].join(" ")}
-            >
-              {streak.studiedToday ? "✓ Hôm nay xong" : "Chưa học hôm nay"}
-            </div>
-          </div>
         </div>
+      </section>
 
-        {/* Account actions */}
-        <div className="rounded-3xl bg-white ring-1 ring-border shadow-card p-6 space-y-3">
-          <h2 className="font-display text-lg font-bold text-ink mb-4">⚙️ Tài khoản</h2>
+      <section className="mx-auto mt-10 max-w-3xl px-4 sm:mt-12 sm:px-8">
+        <SectionHeading title={t.profile.account} />
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 sm:gap-4">
 
           {isEmailUser && (
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-3 rounded-xl h-12 font-medium text-ink border-border hover:bg-muted"
+            <button
+              className={actionClass("lavender")}
               onClick={handleResetPassword}
               disabled={isSendingReset}
             >
-              {isSendingReset ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <KeyRound className="h-4 w-4 text-primary" />
-              )}
-              Đổi mật khẩu
-            </Button>
+              <ActionIcon>
+                {isSendingReset ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <KeyRound className="h-4 w-4" />
+                )}
+              </ActionIcon>
+              {t.profile.changePassword}
+            </button>
           )}
 
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button
-                variant="outline"
-                className="h-12 w-full justify-start gap-3 rounded-xl border-stage-4/40 font-medium text-stage-4-deep hover:border-stage-4/60 hover:bg-stage-4-soft"
-                disabled={isRestarting}
-              >
-                {isRestarting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <RotateCcw className="h-4 w-4" />
-                )}
-                Bắt đầu lại từ đầu
-              </Button>
+              <button className={actionClass("peach")} disabled={isRestarting}>
+                <ActionIcon>
+                  {isRestarting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <RotateCcw className="h-4 w-4" />
+                  )}
+                </ActionIcon>
+                {t.profile.restart}
+              </button>
             </AlertDialogTrigger>
             <AlertDialogContent className="rounded-3xl">
               <AlertDialogHeader>
-                <AlertDialogTitle className="font-display text-xl font-bold text-ink">
-                  Bắt đầu lại từ đầu? 🔄
+                <AlertDialogTitle className="font-display text-xl font-bold text-navy">
+                  {t.profile.restartTitle}
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-base leading-relaxed">
-                  Tất cả tiến độ học tập của em sẽ bị xóa và em sẽ bắt đầu lại từ bài đầu tiên. Tài
-                  khoản của em vẫn được giữ lại.
+                  {t.profile.restartBody}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel className="rounded-xl font-medium">
-                  Thôi, giữ lại
+                  {t.profile.keep}
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleRestartProgress}
                   className="rounded-xl bg-stage-4 font-medium hover:brightness-95"
                 >
-                  Bắt đầu lại
+                  {t.profile.restartConfirm}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
 
-          <Button
-            variant="outline"
-            className="w-full justify-start gap-3 rounded-xl h-12 font-medium text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50"
-            onClick={signOut}
-          >
-            <LogOut className="h-4 w-4" />
-            Đăng xuất
-          </Button>
+          <button className={actionClass("cream")} onClick={signOut}>
+            <ActionIcon>
+              <LogOut className="h-4 w-4" />
+            </ActionIcon>
+            {t.nav.signOut}
+          </button>
 
-          <div className="pt-4 mt-2 border-t border-destructive/20">
-            <p className="text-xs font-semibold uppercase tracking-wide text-destructive/80 mb-2">
-              Vùng nguy hiểm
-            </p>
             <AlertDialog
               open={deleteOpen}
               onOpenChange={(open) => {
@@ -881,30 +921,30 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
               }}
             >
               <AlertDialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start gap-3 rounded-xl h-12 font-medium bg-destructive text-destructive-foreground border-destructive hover:bg-destructive/90 hover:text-destructive-foreground"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Xóa tài khoản
-                </Button>
+                <button className={actionClass("danger")}>
+                  <ActionIcon>
+                    <Trash2 className="h-4 w-4" />
+                  </ActionIcon>
+                  {t.profile.deleteAccount}
+                </button>
               </AlertDialogTrigger>
               <AlertDialogContent className="rounded-3xl">
                 <AlertDialogHeader>
                   <AlertDialogTitle className="font-display text-xl font-bold text-destructive">
-                    Xóa tài khoản vĩnh viễn? ⚠️
+                    {t.profile.deleteTitle}
                   </AlertDialogTitle>
                   <AlertDialogDescription className="text-base leading-relaxed">
-                    Toàn bộ hồ sơ và tiến độ học tập của em sẽ bị xóa
-                    vĩnh viễn và không thể khôi phục. Hãy gõ{" "}
-                    <span className="font-semibold text-destructive">XÓA</span> vào ô
-                    bên dưới để xác nhận.
+                    <Rich
+                      text={t.profile.deleteBody(t.profile.deleteWord)}
+                      as="span"
+                      className="font-semibold text-destructive"
+                    />
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <Input
                   value={deleteConfirm}
                   onChange={(e) => setDeleteConfirm(e.target.value)}
-                  placeholder="Gõ XÓA để xác nhận"
+                  placeholder={t.profile.deletePlaceholder(t.profile.deleteWord)}
                   className="rounded-xl"
                   disabled={isDeleting}
                 />
@@ -913,40 +953,42 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                     disabled={isDeleting}
                     className="rounded-xl font-medium"
                   >
-                    Hủy
+                    {t.profile.cancel}
                   </AlertDialogCancel>
                   <AlertDialogAction
                     onClick={(e) => {
                       e.preventDefault();
                       handleDeleteAccount();
                     }}
-                    disabled={isDeleting || deleteConfirm.trim().toUpperCase() !== "XÓA"}
+                    disabled={
+                      isDeleting || deleteConfirm.trim().toUpperCase() !== t.profile.deleteWord
+                    }
                     className="rounded-xl bg-destructive font-medium text-destructive-foreground hover:bg-destructive/90"
                   >
                     {isDeleting ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      "Xóa vĩnh viễn"
+                      t.profile.deleteForever
                     )}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-          </div>
         </div>
+      </section>
 
-
-        <p className="text-center text-xs text-muted-foreground mt-6 pb-4">
-          Phiên bản 1.0 · Trường Tiếng Việt Của Em 🇻🇳
-        </p>
-      </main>
-    </div>
+      <p className="mt-10 text-center text-xs text-muted-foreground">
+        {t.profile.version(t.site.name)}
+      </p>
+    </main>
   );
 }
 
 // ─── Public (read-only) view ──────────────────────────────────────────────────
 
 function PublicView({ username }: { username: string }) {
+  const t = useT();
+  const { fmtDate } = useLocale();
   const { data: profile, isLoading } = useQuery({
     queryKey: ["public-profile", username],
     queryFn: async () => {
@@ -976,18 +1018,22 @@ function PublicView({ username }: { username: string }) {
       <div className="min-h-screen">
         <main className="mx-auto max-w-lg px-4 py-20 text-center">
           <div className="text-6xl mb-4">🔍</div>
-          <h1 className="font-display text-2xl font-bold text-ink mb-2">
-            Không tìm thấy người dùng
+          <h1 className="font-display text-2xl font-bold text-navy mb-2">
+            {t.profile.userNotFound}
           </h1>
           <p className="text-muted-foreground mb-6">
-            Hồ sơ <span className="font-semibold text-ink">@{username}</span> không tồn tại.
+            <Rich
+              text={t.profile.userNotFoundBody(username)}
+              as="span"
+              className="font-semibold text-navy"
+            />
           </p>
           <Link
             to="/"
             className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-display text-sm font-extrabold text-white shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active"
           >
             <Home className="h-4 w-4" />
-            Về trang chủ
+            {t.errors.backHome}
           </Link>
         </main>
       </div>
@@ -995,80 +1041,57 @@ function PublicView({ username }: { username: string }) {
   }
 
   const avatarLetter = profile.display_name[0]?.toUpperCase() ?? "?";
-  const memberSince = new Date(profile.created_at).toLocaleDateString("vi-VN", {
-    year: "numeric",
-    month: "long",
-  });
+  const memberSince = fmtDate(profile.created_at, { year: "numeric", month: "long" });
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8 sm:px-6">
-        {/* Hero card */}
-        <div className="relative mb-6 overflow-hidden rounded-3xl border border-border bg-card shadow-card ring-1 ring-black/[0.02]">
-          {/* Red cover strip — matches the owner's own profile header. */}
-          <div className="relative h-28 overflow-hidden bg-gradient-to-br from-primary via-indigo to-indigo-deep">
-            <div aria-hidden className="pointer-events-none absolute inset-0">
-              <div className="absolute -right-16 -top-20 h-56 w-56 rotate-[20deg] rounded-[30%] bg-primary-glow/40 blur-[2px]" />
-              <div className="absolute -bottom-24 -left-16 h-44 w-44 rotate-[20deg] rounded-[30%] bg-gold/20 blur-[2px]" />
-            </div>
+    <main className="pb-10 sm:pb-12">
+      <PageBanner title={t.profile.title} />
+
+      <section className="mx-auto mt-8 max-w-3xl px-4 sm:mt-10 sm:px-8">
+        <div
+          className={[
+            "flex flex-col items-center gap-5 rounded-[1.5rem] bg-box-ice p-5 text-center sm:flex-row sm:gap-6 sm:p-6 sm:text-left",
+            CARD_SHADOW,
+          ].join(" ")}
+        >
+          <div className="shrink-0">
+            <ProfileAvatar
+              url={profile.avatar_url}
+              emoji={profile.avatar_emoji}
+              letter={avatarLetter}
+            />
           </div>
 
-          <div className="relative flex flex-col items-center gap-4 p-8 pt-4 text-center sm:flex-row sm:items-start sm:text-left">
-            {/* Lifted so it straddles the cover strip's bottom edge. */}
-            <div className="-mt-16 shrink-0">
-              <div
-                className={[
-                  "h-24 w-24 rounded-full shadow-lg ring-4 ring-white overflow-hidden flex items-center justify-center font-semibold font-display",
-                  profile.avatar_url || profile.avatar_emoji
-                    ? "bg-sky-100"
-                    : avatarColor(avatarLetter),
-                ].join(" ")}
-              >
-                {profile.avatar_url ? (
-                  <img
-                    src={profile.avatar_url}
-                    alt="Avatar"
-                    className="h-full w-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                ) : profile.avatar_emoji ? (
-                  <span className="text-5xl">{profile.avatar_emoji}</span>
-                ) : (
-                  <span className="text-3xl">{avatarLetter}</span>
-                )}
-              </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+              <h2 className="font-display text-2xl font-bold leading-tight text-sky-ink sm:text-3xl">
+                {profile.display_name}
+              </h2>
+              {profile.country && (
+                <span className="overflow-hidden rounded-md bg-white/80">
+                  <FlagImg code={profile.country} size={32} />
+                </span>
+              )}
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                <h1 className="font-display text-2xl font-bold text-ink">{profile.display_name}</h1>
-                {profile.country && (
-                  <span className="rounded-md border border-white/60 bg-white/50 shadow-sm overflow-hidden">
-                    <FlagImg code={profile.country} size={28} />
-                  </span>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground mt-0.5">@{profile.username}</p>
-              <p className="text-xs text-muted-foreground mt-1">Thành viên từ {memberSince}</p>
-            </div>
+            <p className="mt-1 text-sm text-sky-ink-soft">@{profile.username}</p>
+            <p className="mt-0.5 text-sm text-sky-ink-soft">
+              {t.profile.memberSince(memberSince)}
+            </p>
           </div>
-        </div>
 
-        {/* Stats */}
-        <div className="mb-6">
-          <div className="rounded-2xl p-4 text-center ring-1 ring-border shadow-card bg-stage-1-soft">
-            <div className="text-2xl mb-1">🎯</div>
-            <div className="font-display text-2xl font-bold text-ink leading-none">
+          <div className="shrink-0 rounded-[1.25rem] bg-box-mint px-6 py-4 text-center">
+            <div className="font-display text-3xl font-bold leading-none text-sky-ink sm:text-4xl">
               {profile.completed_count}
             </div>
-            <div className="text-xs font-semibold mt-1 text-muted-foreground">Bài hoàn thành</div>
+            <div className="mt-1.5 text-xs font-semibold text-sky-ink-soft sm:text-sm">
+              {t.profile.lessonsCompleted}
+            </div>
           </div>
         </div>
+      </section>
 
-        <p className="text-center text-xs text-muted-foreground pb-4">
-          Trường Tiếng Việt Của Em 🇻🇳
-        </p>
-      </main>
-    </div>
+      <p className="mt-10 text-center text-xs text-muted-foreground">{t.site.name} 🇻🇳</p>
+    </main>
   );
 }
 
@@ -1088,6 +1111,7 @@ function ProfilePage() {
     );
   }
 
+  // Untranslated on purpose: it's slugged into the username, which is part of the URL.
   const myDisplayName =
     (user?.user_metadata?.full_name as string | undefined) ||
     user?.email?.split("@")[0] ||

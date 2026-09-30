@@ -9,25 +9,23 @@ import toronto4 from "@/assets/mission/toronto-4.webp";
 import toronto5 from "@/assets/mission/toronto-5.webp";
 import toronto6 from "@/assets/mission/toronto-6.webp";
 import toronto7 from "@/assets/mission/toronto-7.webp";
+import { useT, type Messages } from "@/i18n";
 
 /* The project's class photos, as the classes posted them: each is already a
    framed square carrying the class name and the site's address, so they are
    shown whole rather than cropped. */
-const SLIDES = [
-  { src: pei1, alt: "Lớp Cô Hà, PEI, Canada: các em làm bài tập tiếng Việt quanh bàn" },
-  { src: pei2, alt: "Lớp Cô Hà, PEI, Canada: các em chăm chú viết bài" },
-  { src: pei3, alt: "Lớp Cô Hà, PEI, Canada: cả lớp ngồi học quanh bàn dài" },
-  { src: pei4, alt: "Lớp Cô Hà, PEI, Canada: giày dép của các em xếp ở cửa lớp" },
-  { src: toronto1, alt: "Lớp Cô Trang, Toronto, Canada: cô giáo và các em mặc áo dài trong lớp" },
-  { src: toronto2, alt: "Lớp Cô Trang, Toronto, Canada: các em chơi ghép thẻ “Đây là”" },
-  { src: toronto3, alt: "Lớp Cô Trang, Toronto, Canada: các em tìm thẻ hình trên bàn" },
-  {
-    src: toronto4,
-    alt: "Lớp Cô Trang, Toronto, Canada: cô giáo, tình nguyện viên và các em chụp ảnh chung",
-  },
-  { src: toronto5, alt: "Lớp Cô Trang, Toronto, Canada: thẻ từ vựng “Đây là” và lá cờ Việt Nam" },
-  { src: toronto6, alt: "Lớp Cô Trang, Toronto, Canada: buổi học tiếng Việt tương tác" },
-  { src: toronto7, alt: "Lớp Cô Trang, Toronto, Canada: em bé giơ cao thẻ cờ Việt Nam" },
+const SLIDES: { src: string; alt: keyof Messages["home"]["mission"]["slides"] }[] = [
+  { src: pei1, alt: "pei1" },
+  { src: pei2, alt: "pei2" },
+  { src: pei3, alt: "pei3" },
+  { src: pei4, alt: "pei4" },
+  { src: toronto1, alt: "toronto1" },
+  { src: toronto2, alt: "toronto2" },
+  { src: toronto3, alt: "toronto3" },
+  { src: toronto4, alt: "toronto4" },
+  { src: toronto5, alt: "toronto5" },
+  { src: toronto6, alt: "toronto6" },
+  { src: toronto7, alt: "toronto7" },
 ];
 
 /**
@@ -47,6 +45,7 @@ const SLIDES = [
  * clipped off to the side, and they would slide in blank.
  */
 export function MissionCarousel() {
+  const t = useT();
   return (
     <div className="overflow-hidden motion-reduce:overflow-x-auto">
       <div className="flex w-max animate-marquee [animation-duration:70s]">
@@ -56,7 +55,7 @@ export function MissionCarousel() {
               <li key={s.src} className="w-60 shrink-0 pr-3 sm:w-64 sm:pr-4 lg:w-72">
                 <img
                   src={s.src}
-                  alt={copy ? "" : s.alt}
+                  alt={copy ? "" : t.home.mission.slides[s.alt]}
                   width={720}
                   height={720}
                   decoding="async"

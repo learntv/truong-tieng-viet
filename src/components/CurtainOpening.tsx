@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useT } from "@/i18n";
 
 /**
  * Grand-opening theatrical curtain. Two full-screen velvet panels start closed
@@ -11,6 +12,7 @@ import { useEffect, useState } from "react";
  * reads as a stage curtain rather than two sliding blocks.
  */
 export function CurtainOpening() {
+  const t = useT();
   const [phase, setPhase] = useState<"hidden" | "closed" | "open">("hidden");
 
   useEffect(() => {
@@ -58,7 +60,7 @@ export function CurtainOpening() {
       style={{ pointerEvents: isOpen ? "none" : "auto", cursor: isOpen ? "default" : "pointer" }}
       role="button"
       tabIndex={isOpen ? -1 : 0}
-      aria-label="Vén màn khai trương"
+      aria-label={t.home.curtain.label}
       onClick={() => setPhase("open")}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -112,7 +114,7 @@ export function CurtainOpening() {
             className="mt-2 animate-pulse text-base font-medium tracking-widest md:text-lg"
             style={{ color: "var(--gold)", opacity: 0.9 }}
           >
-            CHẠM ĐỂ VÉN MÀN
+            {t.home.curtain.tap}
           </span>
         </div>
       )}

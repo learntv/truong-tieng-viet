@@ -1,14 +1,15 @@
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useT, type Messages } from "@/i18n";
 
 // Deduped via a fixed toast id: repeated failures (e.g. flipping through slides
 // while offline) replace the existing toast instead of stacking.
-function notifySaveFailed() {
-  toast.error("Chưa lưu được tiến độ", {
+function notifySaveFailed(t: Messages) {
+  toast.error(t.progress.saveFailed, {
     id: "progress-save-failed",
-    description: "Em kiểm tra kết nối mạng rồi thử lại nhé!",
+    description: t.progress.saveFailedHint,
   });
 }
 
@@ -20,6 +21,10 @@ function progressQueryKey(userId: string) {
 
 export function useUserProgress(userId: string | null) {
   const queryClient = useQueryClient();
+  // Read through a ref so a language switch doesn't give the callbacks below a new identity.
+  const t = useT();
+  const tRef = useRef(t);
+  tRef.current = t;
 
   const { data: progressMap, isLoading } = useQuery({
     queryKey: userId ? progressQueryKey(userId) : ["user-progress-disabled"],
@@ -64,7 +69,7 @@ export function useUserProgress(userId: string | null) {
       if (error) {
         queryClient.setQueryData(key, snapshot);
         console.error("Failed to save completion:", error);
-        notifySaveFailed();
+        notifySaveFailed(tRef.current);
         return false;
       }
       // DB trigger updates profiles.completed_count — invalidate dependent caches
@@ -96,7 +101,7 @@ export function useUserProgress(userId: string | null) {
       if (error) {
         queryClient.setQueryData(key, snapshot);
         console.error("Failed to save position:", error);
-        notifySaveFailed();
+        notifySaveFailed(tRef.current);
       }
     },
     [userId, queryClient],
@@ -142,8 +147,8 @@ export function useUserProgress(userId: string | null) {
       }
       await Promise.all(ops);
       if (mergeFailed) {
-        toast.error("Một phần tiến độ cũ chưa lưu được vào tài khoản", {
-          description: "Em kiểm tra mạng rồi tải lại trang nhé!",
+        toast.error(tRef.current.progress.mergeFailed, {
+          description: tRef.current.progress.mergeFailedHint,
         });
       }
       // Refetch progress and invalidate dependent caches

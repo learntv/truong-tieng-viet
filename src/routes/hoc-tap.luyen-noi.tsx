@@ -7,21 +7,25 @@ import { useSpeakingProgress } from "@/hooks/useSpeakingProgress";
 import { toneAt } from "@/components/learning/boxTones";
 import { Mascot } from "@/components/Mascot";
 import { PageBanner } from "@/components/site/PageBanner";
+import { messagesFor, useT } from "@/i18n";
+import { pageTitle } from "@/i18n/head";
 
 export const Route = createFileRoute("/hoc-tap/luyen-noi")({
-  head: () => ({
-    meta: [
-      { title: "Luyện nói | Trường Tiếng Việt Của Em" },
-      {
-        name: "description",
-        content: "Luyện nói tiếng Việt cùng Trâu con: nghe mẫu, ghi âm và nhận sao khích lệ.",
-      },
-      { property: "og:title", content: "Luyện nói | Trường Tiếng Việt Của Em" },
-      { property: "og:description", content: "Luyện nói tiếng Việt cùng Trâu con: nghe mẫu, ghi âm và nhận sao khích lệ." },
-      { property: "og:url", content: "/hoc-tap/luyen-noi" },
-    ],
-    links: [{ rel: "canonical", href: "/hoc-tap/luyen-noi" }],
-  }),
+  head: ({ match }) => {
+    const { locale } = match.context;
+    const m = messagesFor(locale).meta.speaking;
+    const title = pageTitle(locale, m.title);
+    return {
+      meta: [
+        { title },
+        { name: "description", content: m.description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: m.description },
+        { property: "og:url", content: "/hoc-tap/luyen-noi" },
+      ],
+      links: [{ rel: "canonical", href: "/hoc-tap/luyen-noi" }],
+    };
+  },
   component: LuyenNoiTab,
 });
 
@@ -47,6 +51,7 @@ function countPerfect(sentences: { id: string }[], progress: SpeakingProgress): 
 }
 
 function TopicPicker() {
+  const t = useT();
   const {
     data: speakingTopics,
     isLoading: speakingContentLoading,
@@ -70,8 +75,8 @@ function TopicPicker() {
   return (
     <div>
       <PageBanner
-        title="Luyện nói"
-        parents={[{ label: "Học tập", to: "/hoc-tap" }]}
+        title={t.speaking.title}
+        parents={[{ label: t.hocTap.crumb, to: "/hoc-tap" }]}
         art={<Mascot pose="listening" decorative className="relative h-24 sm:h-36" />}
       />
 
@@ -84,7 +89,7 @@ function TopicPicker() {
 
         {speakingContentError != null && !speakingContentLoading && (
           <p className="py-16 text-center text-sm font-semibold text-muted-foreground">
-            Chưa tải được chủ đề luyện nói, em thử lại sau nhé!
+            {t.speaking.loadFailed}
           </p>
         )}
 

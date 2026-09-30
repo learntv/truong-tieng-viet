@@ -4,11 +4,15 @@ import { useSpeakingContent } from "@/hooks/useSpeakingContent";
 import { SpeakingPractice } from "@/components/speaking/SpeakingPractice";
 import { PageBanner } from "@/components/site/PageBanner";
 import { skyButton } from "@/components/ui/sky-button";
+import { messagesFor, useT } from "@/i18n";
+import { pageTitle } from "@/i18n/head";
 
 export const Route = createFileRoute("/hoc-tap/luyen-noi/$chuDeId")({
-  head: ({ params }) => {
-    const title = `Luyện nói: ${params.chuDeId} | Trường Tiếng Việt Của Em`;
-    const description = `Luyện nói tiếng Việt theo chủ đề "${params.chuDeId}": nghe câu mẫu, ghi âm và nhận sao khích lệ cùng Trâu con.`;
+  head: ({ params, match }) => {
+    const { locale } = match.context;
+    const m = messagesFor(locale).meta.speakingTopic;
+    const title = pageTitle(locale, m.title(params.chuDeId));
+    const description = m.description(params.chuDeId);
     const url = `/hoc-tap/luyen-noi/${params.chuDeId}`;
     return {
       meta: [
@@ -25,6 +29,7 @@ export const Route = createFileRoute("/hoc-tap/luyen-noi/$chuDeId")({
 });
 
 function SpeakingRoute() {
+  const t = useT();
   const { chuDeId } = Route.useParams();
   const { data: speakingTopics, isLoading: speakingContentLoading } = useSpeakingContent();
 
@@ -36,7 +41,7 @@ function SpeakingRoute() {
     );
   }
 
-  const staticIndex = speakingTopics?.findIndex((t) => t.id === chuDeId) ?? -1;
+  const staticIndex = speakingTopics?.findIndex((topic) => topic.id === chuDeId) ?? -1;
   if (staticIndex !== -1 && speakingTopics) {
     const staticTopic = speakingTopics[staticIndex];
     return (
@@ -52,17 +57,17 @@ function SpeakingRoute() {
   return (
     <div>
       <PageBanner
-        title="Không tìm thấy chủ đề"
+        title={t.speaking.topicNotFound}
         parents={[
-          { label: "Học tập", to: "/hoc-tap" },
-          { label: "Luyện nói", to: "/hoc-tap/luyen-noi" },
+          { label: t.hocTap.crumb, to: "/hoc-tap" },
+          { label: t.speaking.title, to: "/hoc-tap/luyen-noi" },
         ]}
       />
       <div className="px-4 py-16 text-center">
-        <p className="mb-6 text-sky-ink-soft">Chủ đề này không tồn tại hoặc đã bị đổi.</p>
+        <p className="mb-6 text-sky-ink-soft">{t.speaking.topicNotFoundBody}</p>
         <Link to="/hoc-tap/luyen-noi" className={skyButton("primary")}>
           <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
-          Chọn chủ đề khác
+          {t.speaking.pickAnother}
         </Link>
       </div>
     </div>

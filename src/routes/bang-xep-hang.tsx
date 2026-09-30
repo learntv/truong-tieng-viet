@@ -4,6 +4,8 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Mascot } from "@/components/Mascot";
 import { PageBanner } from "@/components/site/PageBanner";
+import { messagesFor, useT } from "@/i18n";
+import { pageTitle } from "@/i18n/head";
 
 const leaderboardQueryOptions = {
   queryKey: ["leaderboard"],
@@ -20,24 +22,21 @@ const leaderboardQueryOptions = {
 };
 
 export const Route = createFileRoute("/bang-xep-hang")({
-  head: () => ({
-    meta: [
-      { title: "Bảng xếp hạng | Trường Tiếng Việt Của Em" },
-      {
-        name: "description",
-        content:
-          "Xem bảng xếp hạng học sinh chăm chỉ nhất Trường Tiếng Việt Của Em và theo dõi tiến độ học tập.",
-      },
-      { property: "og:title", content: "Bảng xếp hạng | Trường Tiếng Việt Của Em" },
-      {
-        property: "og:description",
-        content:
-          "Xem bảng xếp hạng học sinh chăm chỉ nhất Trường Tiếng Việt Của Em và theo dõi tiến độ học tập.",
-      },
-      { property: "og:url", content: "/bang-xep-hang" },
-    ],
-    links: [{ rel: "canonical", href: "/bang-xep-hang" }],
-  }),
+  head: ({ match }) => {
+    const { locale } = match.context;
+    const m = messagesFor(locale).meta.leaderboard;
+    const title = pageTitle(locale, m.title);
+    return {
+      meta: [
+        { title },
+        { name: "description", content: m.description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: m.description },
+        { property: "og:url", content: "/bang-xep-hang" },
+      ],
+      links: [{ rel: "canonical", href: "/bang-xep-hang" }],
+    };
+  },
   loader: ({ context }) => context.queryClient.ensureQueryData(leaderboardQueryOptions),
   component: BangXepHang,
 });
@@ -83,11 +82,12 @@ const PODIUM: Record<1 | 2 | 3, { step: string; height: string; badge: string }>
 const PODIUM_ORDER = [2, 1, 3] as const;
 
 function BangXepHang() {
+  const t = useT();
   const { data: profiles, isLoading } = useQuery(leaderboardQueryOptions);
 
   return (
     <main>
-      <PageBanner title="Bảng xếp hạng" />
+      <PageBanner title={t.leaderboard.title} />
 
       <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6">
         {isLoading ? (
@@ -97,10 +97,8 @@ function BangXepHang() {
         ) : !profiles || profiles.length === 0 ? (
           <div className="p-12 text-center">
             <Mascot pose="wave" decorative className="mx-auto mb-3 h-24" />
-            <p className="font-display text-lg font-bold text-navy">Chưa có học sinh nào!</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              Hãy là người đầu tiên bắt đầu học nhé.
-            </p>
+            <p className="font-display text-lg font-bold text-navy">{t.leaderboard.empty}</p>
+            <p className="text-sm text-muted-foreground mt-1">{t.leaderboard.emptyHint}</p>
           </div>
         ) : (
           <>
@@ -134,6 +132,7 @@ function BangXepHang() {
 }
 
 function PodiumPlace({ profile, rank }: { profile: Profile; rank: 1 | 2 | 3 }) {
+  const t = useT();
   const look = PODIUM[rank];
   return (
     <Link
@@ -162,7 +161,9 @@ function PodiumPlace({ profile, rank }: { profile: Profile; rank: 1 | 2 | 3 }) {
         </span>
         <Flag country={profile.country} />
       </div>
-      <p className="text-xs text-muted-foreground">{profile.completed_count} bài xong</p>
+      <p className="text-xs text-muted-foreground">
+        {t.leaderboard.lessonsDone(profile.completed_count)}
+      </p>
 
       <div className={["mt-3 w-full rounded-t-3xl", look.step, look.height].join(" ")} />
     </Link>
@@ -170,6 +171,7 @@ function PodiumPlace({ profile, rank }: { profile: Profile; rank: 1 | 2 | 3 }) {
 }
 
 function RankRow({ profile, rank }: { profile: Profile; rank: number }) {
+  const t = useT();
   return (
     <Link
       to="/u/$username"
@@ -197,7 +199,7 @@ function RankRow({ profile, rank }: { profile: Profile; rank: number }) {
           {profile.completed_count}
         </div>
         <div className="text-[10px] font-semibold leading-tight text-muted-foreground">
-          bài xong
+          {t.leaderboard.lessonsDoneLabel}
         </div>
       </div>
     </Link>
@@ -206,6 +208,7 @@ function RankRow({ profile, rank }: { profile: Profile; rank: number }) {
 
 /** Photo, then emoji, then a coloured initial. `className` sets size and emoji size. */
 function Avatar({ profile, className }: { profile: Profile; className: string }) {
+  const t = useT();
   const letter = profile.display_name[0]?.toUpperCase() ?? "?";
   const hasPicture = profile.avatar_url || profile.avatar_emoji;
   return (
@@ -219,7 +222,7 @@ function Avatar({ profile, className }: { profile: Profile; className: string })
       {profile.avatar_url ? (
         <img
           src={profile.avatar_url}
-          alt={`Ảnh đại diện của ${profile.display_name}`}
+          alt={t.leaderboard.avatarOf(profile.display_name)}
           className="h-full w-full object-cover"
           referrerPolicy="no-referrer"
         />

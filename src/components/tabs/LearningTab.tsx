@@ -15,6 +15,7 @@ import { buildSlides } from "@/components/learning/LessonPage";
 import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/i18n";
 
 export const BUFFALO_POS_KEY = "vui-hoc-buffalo-pos";
 
@@ -65,6 +66,7 @@ export function LearningTab({
   quyenNumber: QuyenNumber;
   chuDeIndex: number;
 }) {
+  const t = useT();
   const { data: allChuDes, isLoading, error } = useQuery(learningStructureQueryOptions);
   const navigate = useNavigate();
 
@@ -277,7 +279,7 @@ export function LearningTab({
     return (
       <section className="flex min-h-[60vh] w-full items-center justify-center px-4 text-center text-navy">
         <div>
-          <p className="font-display text-lg font-bold">Chưa có dữ liệu bài học.</p>
+          <p className="font-display text-lg font-bold">{t.hocTap.noData}</p>
           {error ? (
             <p className="mt-2 text-sm text-muted-foreground">{(error as Error).message}</p>
           ) : null}
@@ -313,10 +315,10 @@ export function LearningTab({
               }}
             />
             <p className="font-display text-xl font-bold text-navy sm:text-2xl">
-              🎉 Em đã hoàn thành cả lộ trình! Em giỏi lắm!
+              {t.hocTap.finishedAll}
             </p>
             <Button variant="bevel" tone="stage-4" onClick={dismissCelebration} className="mt-6">
-              Ôn tập lại
+              {t.hocTap.reviewAgain}
             </Button>
           </div>
         </div>

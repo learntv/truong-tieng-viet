@@ -19,7 +19,8 @@ import { Link, useCanGoBack, useNavigate, useRouter } from "@tanstack/react-rout
 import { useLearningContent } from "@/hooks/useLearningContent";
 import { useSingletonAudio } from "@/hooks/useSingletonAudio";
 import type { Bai, Hinh, NoiDung, QuyenNumber } from "@/lib/learning";
-import { chuDesOfQuyen } from "@/lib/learning";
+import { chuDeShortTitle, chuDesOfQuyen } from "@/lib/learning";
+import { useT, type Messages } from "@/i18n";
 import { joinForSpeech, ttsSrc } from "@/lib/tts/text";
 import { STAGE_COLORS } from "./stageColors";
 import { ConfettiBurst } from "./ConfettiBurst";
@@ -47,6 +48,7 @@ function BackToMapButton({
   arrowClassName: string;
   iconClassName: string;
 }) {
+  const t = useT();
   const router = useRouter();
   const canGoBack = useCanGoBack();
 
@@ -67,7 +69,7 @@ function BackToMapButton({
         e.preventDefault();
         router.history.back();
       }}
-      aria-label="Quay lại bản đồ"
+      aria-label={t.learning.backToMapLabel}
       className={[className, color.bgSoft, color.bevel, color.bevelActive].join(" ")}
     >
       <ArrowLeft className={[arrowClassName, color.text].join(" ")} strokeWidth={3} />
@@ -87,6 +89,7 @@ function toYouTubeEmbed(url: string): string | null {
 }
 
 function AudioButton({ src }: { src: string }) {
+  const t = useT();
   const { playing, play, pause, audioRef, onEnded, onPause, onError } = useSingletonAudio(src);
   return (
     <>
@@ -100,7 +103,7 @@ function AudioButton({ src }: { src: string }) {
       />
       <button
         onClick={playing ? pause : play}
-        aria-label={playing ? "Dừng" : "Nghe"}
+        aria-label={playing ? t.learning.stop : t.learning.listen}
         className={[
           "cursor-pointer grid h-8 w-8 shrink-0 place-items-center rounded-full transition-[transform,box-shadow,background-color] ease-bounce active:translate-y-[1px]",
           playing
@@ -115,6 +118,7 @@ function AudioButton({ src }: { src: string }) {
 }
 
 function VideoEmbed({ url }: { url: string }) {
+  const t = useT();
   const embedUrl = toYouTubeEmbed(url);
   if (embedUrl) {
     return (
@@ -136,7 +140,7 @@ function VideoEmbed({ url }: { url: string }) {
           className="inline-flex shrink-0 items-center gap-1 self-start text-xs font-medium text-primary hover:underline"
         >
           <ExternalLink className="h-3.5 w-3.5" />
-          Video không phát được? Mở trên YouTube
+          {t.learning.videoFallback}
         </a>
       </div>
     );
@@ -149,6 +153,7 @@ function VideoEmbed({ url }: { url: string }) {
 }
 
 function CloudWord({ text, color }: { text: string; color: StageColor }) {
+  const t = useT();
   const { playing, play, audioRef, src, onEnded, onPause, onError } = useSingletonAudio(
     ttsSrc(text),
   );
@@ -168,7 +173,7 @@ function CloudWord({ text, color }: { text: string; color: StageColor }) {
       />
       <button
         onClick={play}
-        aria-label={`Nghe đọc: ${text}`}
+        aria-label={t.learning.listenTo(text)}
         className={[
           "relative cursor-pointer overflow-hidden rounded-full border-2 px-3 py-1.5 font-display text-base leading-tight transition-[transform,box-shadow,background-color,color] ease-bounce",
           playing
@@ -203,6 +208,7 @@ function HinhBlock({
   isSingle: boolean;
   colorIndex: number;
 }) {
+  const t = useT();
   const [isLandscape, setIsLandscape] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const highlightTargets = hinh.highlightTargets ?? [];
@@ -248,7 +254,7 @@ function HinhBlock({
             <div className="relative mx-auto w-full sm:flex sm:h-full sm:items-center sm:justify-center">
               <img
                 src={hinh.url}
-                alt={captions[0] || "Hình minh họa"}
+                alt={captions[0] || t.learning.imageFallbackAlt}
                 loading="eager"
                 decoding="async"
                 onLoad={(e) => {
@@ -265,7 +271,7 @@ function HinhBlock({
           </div>
         ) : (
           <div className="grid min-h-0 flex-1 place-items-center rounded-none bg-stone-50 text-xs text-muted-foreground ring-1 ring-border/60 sm:rounded-xl">
-            (Không tải được hình)
+            {t.learning.imageFailed}
           </div>
         )}
       </div>
@@ -315,9 +321,9 @@ function slideIcon(slide: Slide) {
   return PenLine;
 }
 
-function slideLabel(slide: Slide, index: number): string {
+function slideLabel(t: Messages, slide: Slide, index: number): string {
   const title = slide.nd.title?.trim();
-  const base = title || `Trang ${index + 1}`;
+  const base = title || t.learning.pageN(index + 1);
   return slide.baiCount > 1 ? `${base} (${slide.baiIndex + 1}/${slide.baiCount})` : base;
 }
 
@@ -339,6 +345,7 @@ function ChangProgressHeader({
   isCompleted: boolean;
   className: string;
 }) {
+  const t = useT();
   return (
     <div className={["shrink-0 items-center gap-3 p-3", className].join(" ")}>
       <BackToMapButton
@@ -352,7 +359,7 @@ function ChangProgressHeader({
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-2">
           <span className="truncate text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
-            {isCompleted ? "Đã hoàn thành" : "Tiến độ chặng"}
+            {isCompleted ? t.learning.completed : t.learning.stageProgress}
           </span>
           <span className="shrink-0 text-xs font-semibold text-navy">
             {slideIndex + 1}/{total}
@@ -404,6 +411,7 @@ function LessonSidebar({
   onSelect: (i: number) => void;
   onGoChang: (id: string) => void;
 }) {
+  const t = useT();
   const activeRef = useRef<HTMLButtonElement | null>(null);
 
   // Keep the current item in view when arriving mid-lesson or jumping with the footer nav.
@@ -429,7 +437,7 @@ function LessonSidebar({
       <div className="shrink-0 border-b border-border px-3 py-2.5">
         {/* Quyển › Chủ đề, each crumb its own link. */}
         <nav
-          aria-label="Đường dẫn"
+          aria-label={t.learning.breadcrumb}
           className="flex items-center justify-center gap-1 text-[11px] font-bold uppercase tracking-wide"
         >
           <Link
@@ -437,7 +445,7 @@ function LessonSidebar({
             params={{ quyenNumber: String(quyenNumber) }}
             className={["shrink-0 hover:underline", color.text].join(" ")}
           >
-            Quyển {quyenNumber}
+            {t.hocTap.bookTitle(String(quyenNumber))}
           </Link>
           <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground" strokeWidth={3} />
           <Link
@@ -445,14 +453,14 @@ function LessonSidebar({
             params={{ quyenNumber: String(quyenNumber), chuDeIndex: String(chuDeIndex + 1) }}
             className={["min-w-0 truncate hover:underline", color.text].join(" ")}
           >
-            {chuDe.title}
+            {t.learning.topicTitle(chuDeIndex + 1, chuDeShortTitle(chuDe.title))}
           </Link>
         </nav>
         <div className="mt-1 flex items-center gap-1">
           <button
             onClick={() => prevChang && onGoChang(prevChang.id)}
             disabled={!prevChang}
-            aria-label="Chặng trước"
+            aria-label={t.learning.prevStage}
             className={[
               "grid h-7 w-7 shrink-0 place-items-center rounded-full text-navy transition",
               prevChang ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed opacity-30",
@@ -461,12 +469,12 @@ function LessonSidebar({
             <ChevronLeft className="h-4 w-4" strokeWidth={3} />
           </button>
           <p className="min-w-0 flex-1 truncate text-center font-display text-sm font-bold text-navy">
-            Chặng {changIndex + 1}/{changCount}: {chang.title}
+            {t.learning.stageOf(changIndex + 1, changCount, chang.title)}
           </p>
           <button
             onClick={() => nextChang && onGoChang(nextChang.id)}
             disabled={!nextChang}
-            aria-label="Chặng kế tiếp"
+            aria-label={t.learning.nextStage}
             className={[
               "grid h-7 w-7 shrink-0 place-items-center rounded-full text-navy transition",
               nextChang ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed opacity-30",
@@ -525,10 +533,14 @@ function LessonSidebar({
                     isActive ? color.text : "text-navy",
                   ].join(" ")}
                 >
-                  {slideLabel(s, i)}
+                  {slideLabel(t, s, i)}
                 </span>
                 <span className="block truncate text-[11px] text-muted-foreground">
-                  {isActive ? "Đang học" : isDone ? "Đã học" : "Chưa học"}
+                  {isActive
+                    ? t.learning.studying
+                    : isDone
+                      ? t.learning.slideDone
+                      : t.learning.slideTodo}
                 </span>
               </span>
             </button>
@@ -546,6 +558,7 @@ export function LessonPage({
   quyenNumber: QuyenNumber;
   changId: string;
 }) {
+  const t = useT();
   const { data, isLoading, error } = useLearningContent();
   const navigate = useNavigate();
   const {
@@ -700,13 +713,13 @@ export function LessonPage({
       <div className="flex h-dvh w-full flex-col items-center justify-center bg-background px-4 text-center">
         <div className="mb-4 text-6xl">🔍</div>
         <h1 className="mb-2 font-display text-2xl font-bold text-navy">
-          Không tìm thấy bài học
+          {t.learning.notFoundTitle}
         </h1>
-        <p className="mb-6 text-muted-foreground">Chặng học này không tồn tại hoặc đã bị xóa.</p>
+        <p className="mb-6 text-muted-foreground">{t.learning.notFoundBody}</p>
         <Button variant="bevel" tone="primary" asChild>
           <Link to="/hoc-tap/quyen-{$quyenNumber}" params={{ quyenNumber: String(quyenNumber) }}>
             <ArrowLeft className="h-4 w-4" />
-            Quay lại lộ trình
+            {t.learning.backToRoadmap}
           </Link>
         </Button>
       </div>
@@ -765,8 +778,8 @@ export function LessonPage({
     const ok = await markChangComplete(chang.id, currentSlide?.ndIndex ?? 0);
     setShowConfetti(true);
     if (ok) {
-      toast.success(`Chặng ${changIndex + 1} hoàn thành! 🎉`, {
-        description: "Tiếp tục giỏi nhé!",
+      toast.success(t.learning.stageComplete(changIndex + 1), {
+        description: t.learning.keepItUp,
         duration: 3000,
       });
     }
@@ -878,7 +891,7 @@ export function LessonPage({
           {/* Collapse handle: an oval tab riding the lesson panel's own left edge. */}
           <button
             onClick={() => setRailOpen((v) => !v)}
-            aria-label={railOpen ? "Ẩn danh sách bài" : "Hiện danh sách bài"}
+            aria-label={railOpen ? t.learning.hideLessonList : t.learning.showLessonList}
             // Flush D-tab: square against the panel's own left edge (no radius, no border
             // there), rounded only on the side that pokes into the content.
             className="absolute left-0 top-1/2 z-20 hidden h-11 w-7 -translate-y-1/2 cursor-pointer place-items-center rounded-l-none rounded-r-full border border-l-0 border-border bg-card text-navy shadow-[1px_1px_4px_rgba(0,0,0,0.10)] transition hover:bg-muted lg:grid"
@@ -896,7 +909,7 @@ export function LessonPage({
           <div className="flex shrink-0 items-center gap-2 border-b border-border bg-secondary/15 px-3 py-2 sm:gap-3 sm:px-4">
             <button
               onClick={() => setMobileRailOpen(true)}
-              aria-label="Danh sách bài"
+              aria-label={t.learning.lessonList}
               className="grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-full text-navy transition hover:bg-muted lg:hidden"
             >
               <Menu className="h-4 w-4" strokeWidth={2.5} />
@@ -1014,7 +1027,7 @@ export function LessonPage({
                 })()
               ) : (
                 <p className="text-center text-sm text-muted-foreground">
-                  Nội dung đang được cập nhật.
+                  {t.learning.contentComing}
                 </p>
               )}
             </div>
@@ -1026,19 +1039,19 @@ export function LessonPage({
             <button
               onClick={() => goTo(slideIndex - 1)}
               disabled={!canPrev}
-              aria-label="Bài trước"
+              aria-label={t.learning.prevLesson}
               className={[
                 "flex shrink-0 items-center gap-1.5 rounded-none px-2.5 py-2 text-sm font-medium text-navy transition sm:px-3",
                 canPrev ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed opacity-40",
               ].join(" ")}
             >
               <ChevronLeft className="h-4 w-4" strokeWidth={2.5} />
-              <span className="hidden sm:inline">Bài trước</span>
+              <span className="hidden sm:inline">{t.learning.prevLesson}</span>
             </button>
 
             <div className="flex min-w-0 flex-1 items-center justify-center">
               <span className="truncate text-sm font-semibold text-navy">
-                Trang {slideIndex + 1} / {total}
+                {t.learning.pageOf(slideIndex + 1, total)}
               </span>
             </div>
 
@@ -1059,7 +1072,7 @@ export function LessonPage({
                     <span className="pointer-events-none absolute inset-0 animate-shine bg-gradient-to-r from-transparent via-white/50 to-transparent" />
                   )}
                   <Check className="h-4 w-4" strokeWidth={3} />
-                  {isCompleted ? "Đã hoàn thành" : "Hoàn thành"}
+                  {isCompleted ? t.learning.completed : t.learning.finish}
                 </button>
               </>
             ) : (
@@ -1072,7 +1085,7 @@ export function LessonPage({
                   canNext ? "cursor-pointer hover:brightness-110" : "cursor-not-allowed opacity-40",
                 ].join(" ")}
               >
-                Tiếp tục
+                {t.learning.continue}
                 <ChevronRight className="h-4 w-4" strokeWidth={3} />
               </button>
             )}
@@ -1088,7 +1101,7 @@ export function LessonPage({
           <div className="relative flex items-stretch overflow-hidden rounded-3xl border border-border bg-card shadow-card">
             <button
               onClick={() => setShowNextPrompt(false)}
-              aria-label="Đóng"
+              aria-label={t.learning.close}
               className="absolute right-1.5 top-1.5 grid h-6 w-6 cursor-pointer place-items-center rounded-full text-muted-foreground transition hover:bg-muted"
             >
               <X className="h-3.5 w-3.5" strokeWidth={2.5} />
@@ -1107,7 +1120,7 @@ export function LessonPage({
               </span>
               <span className="min-w-0">
                 <span className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Bài kế tiếp
+                  {t.learning.nextLesson}
                 </span>
                 <span className="block truncate font-display text-sm font-semibold text-navy">
                   {nextChang.title}

@@ -7,6 +7,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useHasRole } from "@/hooks/useHasRole";
 import { generateUsername } from "@/lib/profile";
 import { Logo } from "@/components/Logo";
+import { LanguageSwitcher, LanguageSwitcherList } from "@/components/LanguageSwitcher";
+import { useT, type Messages } from "@/i18n";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,15 +20,16 @@ import {
 
 const tabs: {
   to: "/" | "/hoc-tap" | "/san-pham-cua-em" | "/bang-xep-hang";
-  label: string;
+  label: (t: Messages) => string;
 }[] = [
-  { to: "/", label: "Trang chủ" },
-  { to: "/hoc-tap", label: "Học tập" },
-  { to: "/san-pham-cua-em", label: "Sản phẩm của em" },
-  { to: "/bang-xep-hang", label: "Xếp hạng" },
+  { to: "/", label: (t) => t.nav.home },
+  { to: "/hoc-tap", label: (t) => t.nav.learn },
+  { to: "/san-pham-cua-em", label: (t) => t.nav.myCorner },
+  { to: "/bang-xep-hang", label: (t) => t.nav.leaderboard },
 ];
 
 export function Navbar() {
+  const t = useT();
   const { location } = useRouterState();
   const pathname = location.pathname;
   const { user, isLoading, signOut } = useAuth();
@@ -39,10 +42,9 @@ export function Navbar() {
     redirect: pathname === "/dang-nhap" ? undefined : pathname,
   };
 
-  const displayName =
-    (user?.user_metadata?.full_name as string | undefined) ||
-    user?.email?.split("@")[0] ||
-    "Học sinh";
+  const accountName =
+    (user?.user_metadata?.full_name as string | undefined) || user?.email?.split("@")[0] || "";
+  const displayName = accountName || t.nav.studentFallback;
   const avatarLetter = displayName[0]?.toUpperCase() ?? "?";
   // The profiles row is the source of truth — user_metadata gets overwritten by the OAuth
   // provider (e.g. Google's picture) on every login, so it can't be trusted for a saved avatar.
@@ -65,7 +67,9 @@ export function Navbar() {
   const avatarEmoji = ownProfile
     ? ownProfile.avatar_emoji
     : (user?.user_metadata?.avatar_emoji as string | undefined);
-  const myUsername = user ? generateUsername(displayName, user.id) : null;
+  // Built from the untranslated name: the username is a URL and must not change with the
+  // interface language (an empty name falls back to "hoc-sinh" inside generateUsername).
+  const myUsername = user ? generateUsername(accountName, user.id) : null;
   // Any profile page lights the avatar, not just your own — the ring marks
   // "you are in the profile section", the same way the tab pills do.
   const onProfile = pathname.startsWith("/u/");
@@ -87,7 +91,7 @@ export function Navbar() {
             {/* Desktop links — hairline white rules between them, as in the
               reference. Each rule belongs to the item that follows it, and the
               last item adds a trailing one so the row is bracketed. */}
-            <nav aria-label="Global" className="hidden items-center min-[900px]:flex">
+            <nav aria-label={t.nav.mainNav} className="hidden items-center min-[900px]:flex">
               {tabs.map(({ to, label }, index) => {
                 const isActive = to === "/" ? pathname === "/" : pathname.startsWith(to);
 
@@ -101,7 +105,7 @@ export function Navbar() {
                         isActive ? "text-gold" : "text-white hover:text-gold-soft",
                       ].join(" ")}
                     >
-                      {label}
+                      {label(t)}
                     </Link>
                     {index === tabs.length - 1 && (
                       <span className="mx-4 h-5 w-px bg-white/40" aria-hidden="true" />
@@ -110,6 +114,8 @@ export function Navbar() {
                 );
               })}
             </nav>
+
+            <LanguageSwitcher className="hidden sm:flex" />
 
             {isLoading && (
               <div className="h-9 w-9 animate-pulse rounded-full bg-white/30 sm:w-28" />
@@ -121,7 +127,7 @@ export function Navbar() {
                 search={authSearch}
                 className="shrink-0 px-1 font-display text-sm font-bold text-white transition-colors hover:text-gold-soft"
               >
-                Đăng nhập
+                {t.nav.signIn}
               </Link>
             )}
 
@@ -139,7 +145,7 @@ export function Navbar() {
                       {avatarUrl ? (
                         <img
                           src={avatarUrl}
-                          alt="Avatar"
+                          alt={t.nav.avatarAlt}
                           className="h-full w-full object-cover"
                           referrerPolicy="no-referrer"
                         />
@@ -176,7 +182,7 @@ export function Navbar() {
                         className="flex cursor-pointer items-center"
                       >
                         <UserCircle className="mr-2 h-4 w-4" />
-                        Trang cá nhân
+                        {t.nav.profile}
                       </Link>
                     </DropdownMenuItem>
                   )}
@@ -184,7 +190,7 @@ export function Navbar() {
                     <DropdownMenuItem asChild>
                       <Link to="/dashboard" className="flex cursor-pointer items-center">
                         <BarChart3 className="mr-2 h-4 w-4" />
-                        Báo cáo
+                        {t.nav.report}
                       </Link>
                     </DropdownMenuItem>
                   )}
@@ -194,7 +200,7 @@ export function Navbar() {
                     className="cursor-pointer text-destructive focus:text-destructive"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
-                    Đăng xuất
+                    {t.nav.signOut}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -205,7 +211,7 @@ export function Navbar() {
             <button
               onClick={() => setSidebarOpen(true)}
               className="ml-1 grid h-10 w-10 shrink-0 place-items-center rounded-lg text-white transition hover:bg-white/20"
-              aria-label="Mở menu"
+              aria-label={t.nav.openMenu}
             >
               <Menu className="h-5 w-5" strokeWidth={3} />
             </button>
@@ -235,7 +241,7 @@ export function Navbar() {
           <button
             onClick={closeSidebar}
             className="grid h-9 w-9 place-items-center rounded-lg text-white transition hover:bg-white/20"
-            aria-label="Đóng menu"
+            aria-label={t.nav.closeMenu}
           >
             <X className="h-5 w-5" strokeWidth={3} />
           </button>
@@ -257,7 +263,7 @@ export function Navbar() {
                       isActive ? "text-gold" : "text-white hover:text-gold-soft",
                     ].join(" ")}
                   >
-                    {label}
+                    {label(t)}
                   </Link>
                 </li>
               );
@@ -278,7 +284,7 @@ export function Navbar() {
                     onClick={closeSidebar}
                     className="block py-3.5 font-display text-base font-bold text-white transition-colors hover:text-gold-soft"
                   >
-                    Trang cá nhân
+                    {t.nav.profile}
                   </Link>
                 )}
                 <button
@@ -288,7 +294,7 @@ export function Navbar() {
                   }}
                   className="py-3.5 text-left font-display text-base font-bold text-white transition-colors hover:text-gold-soft"
                 >
-                  Đăng xuất
+                  {t.nav.signOut}
                 </button>
               </div>
             ) : (
@@ -298,9 +304,10 @@ export function Navbar() {
                 onClick={closeSidebar}
                 className="block py-3.5 text-left font-display text-base font-bold text-white transition-colors hover:text-gold-soft"
               >
-                Đăng nhập
+                {t.nav.signIn}
               </Link>
             ))}
+          <LanguageSwitcherList />
         </div>
       </aside>
     </>

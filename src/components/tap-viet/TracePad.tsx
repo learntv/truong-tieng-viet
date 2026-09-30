@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useT } from "@/i18n";
 import { Check, Eraser } from "lucide-react";
 import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
 import { StarRow } from "@/components/learning/StarRow";
@@ -102,16 +103,10 @@ function score(canvas: HTMLCanvasElement, mask: Mask): Stars {
   return 0;
 }
 
-const MESSAGES: Record<Stars, string> = {
-  3: "Giỏi quá! Em viết đẹp lắm!",
-  2: "Tốt lắm! Gần giống mẫu rồi.",
-  1: "Cố lên! Em tô sát nét xám hơn nhé.",
-  0: "Em thử lại nhé, em làm được mà!",
-};
-
 /** The child traces the grey guide with a finger, stylus or mouse, then gets 0–3 stars.
  *  Mount with `key={id}` so switching items starts from a clean page. */
 export function TracePad({ id }: { id: string }) {
+  const t = useT();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   // The pointer drawing the current stroke; other fingers (a resting palm) are ignored.
@@ -204,7 +199,7 @@ export function TracePad({ id }: { id: string }) {
   return (
     // Laid out by the popup's grid: the square and the buttons are its items
     // (display: contents), so the square matches the video's size exactly.
-    <div role="group" aria-label="Em tô theo" className="contents">
+    <div role="group" aria-label={t.tapViet.traceLabel} className="contents">
       {confetti && <ConfettiBurst onDone={hideConfetti} />}
 
       <SquareStage className="overflow-hidden rounded-2xl bg-white ring-1 ring-black/10">
@@ -218,7 +213,7 @@ export function TracePad({ id }: { id: string }) {
           ref={canvasRef}
           width={SIZE}
           height={SIZE}
-          aria-label="Chỗ để em tô theo nét xám"
+          aria-label={t.tapViet.traceArea}
           className="absolute inset-0 h-full w-full cursor-crosshair touch-none"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
@@ -238,17 +233,17 @@ export function TracePad({ id }: { id: string }) {
                 className="h-12"
               />
               <StarRow stars={stars} size="h-8 w-8" />
-              <p className="sr-only">{MESSAGES[stars]}</p>
+              <p className="sr-only">{t.tapViet.feedback[stars]}</p>
             </div>
           )}
         </div>
       </SquareStage>
 
       <div className="flex flex-wrap items-center justify-center gap-3">
-        <IconButton label="Xoá" onClick={clear} disabled={!hasInk}>
+        <IconButton label={t.tapViet.clear} onClick={clear} disabled={!hasInk}>
           <Eraser />
         </IconButton>
-        <IconButton label="Xong rồi" tone="green" onClick={check} disabled={!hasInk || !mask}>
+        <IconButton label={t.tapViet.done} tone="green" onClick={check} disabled={!hasInk || !mask}>
           <Check />
         </IconButton>
       </div>
