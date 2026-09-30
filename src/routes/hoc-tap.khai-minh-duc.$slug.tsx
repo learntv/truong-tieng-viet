@@ -10,7 +10,7 @@ import { useKmdLessons } from "@/hooks/useKmdLessons";
 
 export const Route = createFileRoute("/hoc-tap/khai-minh-duc/$slug")({
   head: ({ params }) => {
-    const title = `Khai Minh Đức: ${params.slug} — Trường Tiếng Việt Của Em`;
+    const title = `Khai Minh Đức: ${params.slug} | Trường Tiếng Việt Của Em`;
     const description = "Học đánh vần cùng chương trình Khai Minh Đức, cùng Trâu con.";
     const url = `/hoc-tap/khai-minh-duc/${params.slug}`;
     return {

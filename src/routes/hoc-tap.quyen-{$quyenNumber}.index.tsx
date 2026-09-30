@@ -10,7 +10,7 @@ import { OverworldMap } from "@/components/learning/OverworldMap";
 export const Route = createFileRoute("/hoc-tap/quyen-{$quyenNumber}/")({
   head: ({ params }) => {
     const n = params.quyenNumber;
-    const title = `Bản đồ Quyển ${n} — Trường Tiếng Việt Của Em`;
+    const title = `Bản đồ Quyển ${n} | Trường Tiếng Việt Của Em`;
     const description = `Bản đồ Việt Nam với các chủ đề của Quyển ${n}: chọn địa danh để bắt đầu hành trình học tiếng Việt cùng con.`;
     const url = `/hoc-tap/quyen-${n}`;
     return {

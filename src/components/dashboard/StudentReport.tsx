@@ -307,7 +307,7 @@ function StuckPoints({ funnel }: { funnel: ChangFunnelRow[] }) {
       <CardHeader className="px-4 pb-3 pt-4">
         <CardTitle className="font-display text-sm">Chặng học sinh dễ mắc kẹt</CardTitle>
         <CardDescription className="text-xs">
-          Tỷ lệ hoàn thành thấp nhất trong số các chặng đã có nhiều em bắt đầu — nơi nên xem lại nội
+          Tỷ lệ hoàn thành thấp nhất trong số các chặng đã có nhiều em bắt đầu, nơi nên xem lại nội
           dung hoặc hỗ trợ thêm.
         </CardDescription>
       </CardHeader>

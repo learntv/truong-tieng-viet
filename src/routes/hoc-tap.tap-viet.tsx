@@ -39,9 +39,9 @@ const DESCRIPTION =
 export const Route = createFileRoute("/hoc-tap/tap-viet")({
   head: () => ({
     meta: [
-      { title: "Tập viết — Trường Tiếng Việt Của Em" },
+      { title: "Tập viết | Trường Tiếng Việt Của Em" },
       { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: "Tập viết — Trường Tiếng Việt Của Em" },
+      { property: "og:title", content: "Tập viết | Trường Tiếng Việt Của Em" },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:url", content: "/hoc-tap/tap-viet" },
     ],

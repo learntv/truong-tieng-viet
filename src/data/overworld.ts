@@ -85,8 +85,8 @@ export const QUYEN1_LANDMARKS: Landmark[] = [
         heading: "Bí mật trong lòng đảo đá",
         teaser: "Trong các hòn đảo có một thứ mà tàu thuyền đi bên ngoài không nhìn thấy được…",
         paragraphs: [
-          "Bên trong những hòn đảo là cả một thế giới hang động. Hang Sửng Sốt rộng tới mười nghìn mét vuông, trần hang cao vút với hàng nghìn khối thạch nhũ rủ xuống như rèm đá. Mỗi xăng-ti-mét thạch nhũ ấy phải mất khoảng một trăm năm mới hình thành — nghĩa là có khối thạch nhũ đã lớn lên từ trước khi ông bà của ông bà em ra đời rất lâu.",
-          "Người xưa kể rằng khi giặc tràn tới, Ngọc Hoàng sai đàn rồng bay xuống giúp dân. Rồng phun ra vô số viên ngọc, ngọc rơi xuống biển hoá thành các hòn đảo chắn đường thuyền giặc. Vì đàn rồng hạ xuống đây nên vịnh mang tên Hạ Long — 'rồng đáp xuống'.",
+          "Bên trong những hòn đảo là cả một thế giới hang động. Hang Sửng Sốt rộng tới mười nghìn mét vuông, trần hang cao vút với hàng nghìn khối thạch nhũ rủ xuống như rèm đá. Mỗi xăng-ti-mét thạch nhũ ấy phải mất khoảng một trăm năm mới hình thành, nghĩa là có khối thạch nhũ đã lớn lên từ trước khi ông bà của ông bà em ra đời rất lâu.",
+          "Người xưa kể rằng khi giặc tràn tới, Ngọc Hoàng sai đàn rồng bay xuống giúp dân. Rồng phun ra vô số viên ngọc, ngọc rơi xuống biển hoá thành các hòn đảo chắn đường thuyền giặc. Vì đàn rồng hạ xuống đây nên vịnh mang tên Hạ Long, nghĩa là 'rồng đáp xuống'.",
           "Ngày nay vẫn còn những làng chài nổi trên vịnh, nơi các bạn nhỏ chèo thuyền thúng đi học thay vì đi bộ tới trường.",
         ],
       },
@@ -119,7 +119,7 @@ export const QUYEN1_LANDMARKS: Landmark[] = [
         teaser: "Vì sao một phố nhỏ ở Việt Nam lại có cả chùa Nhật và hội quán Hoa?",
         paragraphs: [
           "Bốn trăm năm trước, Hội An là một thương cảng sầm uất bậc nhất Đông Nam Á. Thuyền buôn từ Nhật Bản, Trung Hoa, Bồ Đào Nha, Hà Lan đều ghé vào đây đổi tơ lụa, gốm sứ và hương liệu. Các thương nhân ở lại nhiều tháng chờ gió mùa đổi chiều mới về được, nên họ dựng nhà, dựng chùa ngay tại phố.",
-          "Chùa Cầu — cây cầu gỗ có mái che in trên tờ tiền hai mươi nghìn đồng — do các thương nhân Nhật Bản xây từ thế kỷ XVII để nối khu phố Nhật với khu phố Hoa. Hai đầu cầu có tượng chó và tượng khỉ canh giữ.",
+          "Chùa Cầu, cây cầu gỗ có mái che in trên tờ tiền hai mươi nghìn đồng, do các thương nhân Nhật Bản xây từ thế kỷ XVII để nối khu phố Nhật với khu phố Hoa. Hai đầu cầu có tượng chó và tượng khỉ canh giữ.",
           "Đến ngày rằm hằng tháng, người Hội An thả hoa đăng xuống sông Hoài. Mỗi chiếc đèn hoa mang theo một điều ước, trôi lấp lánh trên mặt nước tới tận cuối phố.",
         ],
       },
@@ -133,7 +133,7 @@ export const QUYEN1_LANDMARKS: Landmark[] = [
     photo: landmark81Photo,
     blurb: "Toà nhà cao nhất Việt Nam, đứng bên sông Sài Gòn ở Thành phố Hồ Chí Minh.",
     description:
-      "Toà nhà Landmark 81 đứng bên sông Sài Gòn ở Thành phố Hồ Chí Minh, cao 81 tầng và hơn bốn trăm sáu mươi mét — cao nhất Việt Nam. Nhìn từ xa, toà nhà trông như một bó tre vươn thẳng lên trời. Trên tầng cao nhất có đài quan sát để ngắm cả thành phố.",
+      "Toà nhà Landmark 81 đứng bên sông Sài Gòn ở Thành phố Hồ Chí Minh, cao 81 tầng và hơn bốn trăm sáu mươi mét, cao nhất Việt Nam. Nhìn từ xa, toà nhà trông như một bó tre vươn thẳng lên trời. Trên tầng cao nhất có đài quan sát để ngắm cả thành phố.",
     discovery: {
       facts: [
         { icon: "🏢", label: "Số tầng", value: "81 tầng" },
@@ -153,7 +153,7 @@ export const QUYEN1_LANDMARKS: Landmark[] = [
         paragraphs: [
           "Các kiến trúc sư đã lấy cảm hứng từ bó tre để tạo hình toà nhà. Từng khối nhà bó chặt vào nhau rồi cùng vươn lên, giống hệt những cây tre mọc thành bụi. Người Việt mình vẫn bảo một cây tre thì dễ gãy, nhưng cả bó tre thì không ai bẻ nổi.",
           "Để đỡ được toà nhà cao như vậy, người ta phải đổ móng thật sâu xuống lòng đất và làm việc suốt nhiều ngày đêm không nghỉ, vì bê tông phần móng phải được đổ liên tục một mạch cho thật chắc.",
-          "Buổi tối, toà nhà bật đèn sáng rực và trở thành thứ dễ nhận ra nhất trên bầu trời thành phố — ai đi xa về, chỉ cần nhìn thấy Landmark 81 là biết mình đã tới Sài Gòn.",
+          "Buổi tối, toà nhà bật đèn sáng rực và trở thành thứ dễ nhận ra nhất trên bầu trời thành phố. Ai đi xa về, chỉ cần nhìn thấy Landmark 81 là biết mình đã tới Sài Gòn.",
         ],
       },
     },

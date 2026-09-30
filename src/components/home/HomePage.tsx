@@ -343,7 +343,7 @@ function MissionBox() {
           {/* --indigo, not --primary, for every accent that sits straight on a
             box tone: the tones carry enough chroma now that --primary only
             reaches 2.8:1 on them, while --indigo clears 5:1. */}
-          Giúp mọi trẻ em kiều bào <span className="text-indigo">giữ tiếng Việt</span> — miễn phí
+          Giúp mọi trẻ em kiều bào <span className="text-indigo">giữ tiếng Việt</span>, miễn phí
         </>
       }
     >
@@ -443,7 +443,7 @@ function ThanksBox() {
       <SkyBox tone="pink" title="Lời cảm ơn">
         <SkyCard className="mx-auto max-w-2xl">
           <p className="text-sm leading-relaxed text-sky-ink-soft sm:text-base">
-            — Ban quản lý dự án xin được gửi lời cảm ơn chân thành tới{" "}
+            Ban quản lý dự án xin được gửi lời cảm ơn chân thành tới{" "}
             <strong className="text-indigo">
               Ủy ban Nhà nước về người Việt Nam ở nước ngoài – Bộ Ngoại giao
             </strong>{" "}

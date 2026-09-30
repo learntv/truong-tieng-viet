@@ -239,7 +239,7 @@ export function InfoTab() {
             giúp chúng tôi gìn giữ và lan tỏa ngôn ngữ, văn hóa Việt đến với thế hệ trẻ tại Canada
             nói riêng và trên toàn thế giới nói chung.
           </p>
-          <p className="mt-6 text-sm font-semibold text-gold-soft">— Ban quản lý dự án</p>
+          <p className="mt-6 text-sm font-semibold text-gold-soft">Ban quản lý dự án</p>
         </div>
       </div>
 

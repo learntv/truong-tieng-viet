@@ -30,13 +30,13 @@ export const Route = createFileRoute("/dang-nhap")({
   }),
   head: () => ({
     meta: [
-      { title: "Đăng nhập — Trường Tiếng Việt Của Em" },
+      { title: "Đăng nhập | Trường Tiếng Việt Của Em" },
       {
         name: "description",
         content:
           "Đăng nhập hoặc tạo tài khoản Trường Tiếng Việt Của Em để lưu tiến độ học tập của em.",
       },
-      { property: "og:title", content: "Đăng nhập — Trường Tiếng Việt Của Em" },
+      { property: "og:title", content: "Đăng nhập | Trường Tiếng Việt Của Em" },
       {
         property: "og:description",
         content: "Đăng nhập để lưu tiến độ học tập của em.",

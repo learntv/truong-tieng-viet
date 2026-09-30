@@ -76,14 +76,14 @@ const LETTER_IMAGES: Record<string, string> = {
 export const Route = createFileRoute("/hoc-tap/bang-chu-cai")({
   head: () => ({
     meta: [
-      { title: "Bảng chữ cái — Trường Tiếng Việt Của Em" },
+      { title: "Bảng chữ cái | Trường Tiếng Việt Của Em" },
       {
         name: "description",
         content:
-          "Khám phá bảng chữ cái tiếng Việt cùng các bạn thú vui nhộn — nghe phát âm và học từ mới.",
+          "Khám phá bảng chữ cái tiếng Việt cùng các bạn thú vui nhộn: nghe phát âm và học từ mới.",
       },
-      { property: "og:title", content: "Bảng chữ cái — Trường Tiếng Việt Của Em" },
-      { property: "og:description", content: "Khám phá bảng chữ cái tiếng Việt cùng các bạn thú vui nhộn — nghe phát âm và học từ mới." },
+      { property: "og:title", content: "Bảng chữ cái | Trường Tiếng Việt Của Em" },
+      { property: "og:description", content: "Khám phá bảng chữ cái tiếng Việt cùng các bạn thú vui nhộn: nghe phát âm và học từ mới." },
       { property: "og:url", content: "/hoc-tap/bang-chu-cai" },
     ],
     links: [{ rel: "canonical", href: "/hoc-tap/bang-chu-cai" }],

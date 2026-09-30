@@ -4,7 +4,7 @@ import { QuyenRoadmap } from "@/components/tabs/LoTrinhTab";
 
 export const Route = createFileRoute("/hoc-tap/quyen-{$quyenNumber}/chu-de-{$chuDeIndex}")({
   head: ({ params }) => {
-    const title = `Chủ đề ${params.chuDeIndex} — Quyển ${params.quyenNumber} — Trường Tiếng Việt Của Em`;
+    const title = `Chủ đề ${params.chuDeIndex}, Quyển ${params.quyenNumber} | Trường Tiếng Việt Của Em`;
     const description = `Lộ trình các chặng học của chủ đề ${params.chuDeIndex} trong Quyển ${params.quyenNumber}: bài học, hình ảnh và bài tập cho trẻ em kiều bào.`;
     const url = `/hoc-tap/quyen-${params.quyenNumber}/chu-de-${params.chuDeIndex}`;
     return {

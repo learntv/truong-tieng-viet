@@ -22,13 +22,13 @@ const leaderboardQueryOptions = {
 export const Route = createFileRoute("/bang-xep-hang")({
   head: () => ({
     meta: [
-      { title: "Bảng xếp hạng — Trường Tiếng Việt Của Em" },
+      { title: "Bảng xếp hạng | Trường Tiếng Việt Của Em" },
       {
         name: "description",
         content:
           "Xem bảng xếp hạng học sinh chăm chỉ nhất Trường Tiếng Việt Của Em và theo dõi tiến độ học tập.",
       },
-      { property: "og:title", content: "Bảng xếp hạng — Trường Tiếng Việt Của Em" },
+      { property: "og:title", content: "Bảng xếp hạng | Trường Tiếng Việt Của Em" },
       {
         property: "og:description",
         content:

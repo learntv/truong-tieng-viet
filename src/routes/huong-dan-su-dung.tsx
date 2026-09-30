@@ -4,13 +4,13 @@ import { PageBanner } from "@/components/site/PageBanner";
 export const Route = createFileRoute("/huong-dan-su-dung")({
   head: () => ({
     meta: [
-      { title: "Hướng dẫn sử dụng — Trường Tiếng Việt Của Em" },
+      { title: "Hướng dẫn sử dụng | Trường Tiếng Việt Của Em" },
       {
         name: "description",
         content:
           "Hướng dẫn sử dụng Trường Tiếng Việt Của Em: cách tạo tài khoản, học bảng chữ cái, làm bài học, luyện nói và theo dõi tiến trình.",
       },
-      { property: "og:title", content: "Hướng dẫn sử dụng — Trường Tiếng Việt Của Em" },
+      { property: "og:title", content: "Hướng dẫn sử dụng | Trường Tiếng Việt Của Em" },
       {
         property: "og:description",
         content: "Cách bắt đầu học tiếng Việt cùng con trên Trường Tiếng Việt Của Em.",

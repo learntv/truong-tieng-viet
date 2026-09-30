@@ -15,12 +15,12 @@ export const Route = createFileRoute("/hoc-tap/quyen-{$quyenNumber}")({
   },
   head: ({ params }) => {
     const n = params.quyenNumber;
-    const title = `Học Tiếng Việt Quyển ${n} — Trường Tiếng Việt Của Em`;
+    const title = `Học Tiếng Việt Quyển ${n} | Trường Tiếng Việt Của Em`;
     const description = `Lộ trình học tiếng Việt Quyển ${n} qua các chủ đề dành cho trẻ em kiều bào.`;
     const url = `/hoc-tap/quyen-${n}`;
     return {
       meta: [
-        { title: "Học Tiếng Việt — Trường Tiếng Việt Của Em" },
+        { title: "Học Tiếng Việt | Trường Tiếng Việt Của Em" },
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },

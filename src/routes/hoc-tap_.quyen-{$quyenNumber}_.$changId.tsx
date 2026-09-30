@@ -4,7 +4,7 @@ import { parseQuyenNumber } from "@/lib/learning";
 
 export const Route = createFileRoute("/hoc-tap_/quyen-{$quyenNumber}_/$changId")({
   head: ({ params }) => {
-    const title = `Bài học ${params.changId} — Quyển ${params.quyenNumber} — Trường Tiếng Việt Của Em`;
+    const title = `Bài học ${params.changId}, Quyển ${params.quyenNumber} | Trường Tiếng Việt Của Em`;
     const description = `Bài học tiếng Việt (chặng ${params.changId}) thuộc Quyển ${params.quyenNumber}: nội dung, hình ảnh và luyện tập cho trẻ em kiều bào.`;
     const url = `/hoc-tap/quyen-${params.quyenNumber}/${params.changId}`;
     return {

@@ -4,13 +4,13 @@ import { PageBanner } from "@/components/site/PageBanner";
 export const Route = createFileRoute("/dieu-khoan-su-dung")({
   head: () => ({
     meta: [
-      { title: "Điều khoản sử dụng — Trường Tiếng Việt Của Em" },
+      { title: "Điều khoản sử dụng | Trường Tiếng Việt Của Em" },
       {
         name: "description",
         content:
           "Điều khoản sử dụng của Trường Tiếng Việt Của Em: quyền và trách nhiệm khi sử dụng nền tảng học tiếng Việt.",
       },
-      { property: "og:title", content: "Điều khoản sử dụng — Trường Tiếng Việt Của Em" },
+      { property: "og:title", content: "Điều khoản sử dụng | Trường Tiếng Việt Của Em" },
       { property: "og:description", content: "Điều khoản sử dụng của Trường Tiếng Việt Của Em: quyền và trách nhiệm khi sử dụng nền tảng học tiếng Việt." },
       { property: "og:url", content: "/dieu-khoan-su-dung" },
     ],

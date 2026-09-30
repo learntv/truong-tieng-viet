@@ -164,7 +164,7 @@ export function OverworldMap({
       <BackLink to="/hoc-tap" label="Quay lại học tập" />
       <div className="w-full px-3 pb-8 pt-20 sm:px-4 sm:pt-24">
         <p className="mx-auto mb-4 flex max-w-7xl items-center justify-center gap-2 text-center text-xs text-muted-foreground sm:text-sm">
-          <span>Mỗi địa danh là một chủ đề — chạm vào địa danh để vừa khám phá vừa học nhé!</span>
+          <span>Mỗi địa danh là một chủ đề. Chạm vào địa danh để vừa khám phá vừa học nhé!</span>
           {/* Reopens the three-step tutorial for a child who dismissed it and wants it back. */}
           <button
             type="button"
@@ -238,7 +238,7 @@ export function OverworldMap({
                 const stats = changStats[lm.chuDeIndex];
                 // A chủ đề with no content yet has no title of its own — name it after the place.
                 const title = cd ? chuDeShortTitle(cd.title) : lm.name;
-                const label = `Chủ đề ${lm.chuDeIndex + 1}: ${title} — ${
+                const label = `Chủ đề ${lm.chuDeIndex + 1}: ${title}, ${
                   status === "completed"
                     ? "đã hoàn thành"
                     : status === "current"
@@ -410,7 +410,7 @@ export function OverworldMap({
           >
             <img
               src={cachHocBanner}
-              alt="Ba bước học: 1. Khám phá địa danh — 2. Hoàn thành bài học — 3. Nhận con dấu"
+              alt="Ba bước học: 1. Khám phá địa danh, 2. Hoàn thành bài học, 3. Nhận con dấu"
               className="w-full rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.45)]"
             />
             <Button

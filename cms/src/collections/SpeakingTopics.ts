@@ -35,7 +35,7 @@ export const SpeakingTopics: CollectionConfig = {
       required: true,
       admin: {
         description:
-          "Mã chủ đề dùng trong URL, ví dụ 'noi-chao-hoi'. Không đổi sau khi tạo — tiến độ học của học sinh gắn với mã này.",
+          "Mã chủ đề dùng trong URL, ví dụ 'noi-chao-hoi'. Không đổi sau khi tạo, vì tiến độ học của học sinh gắn với mã này.",
       },
     },
     {

@@ -4,13 +4,13 @@ import { PageBanner } from "@/components/site/PageBanner";
 export const Route = createFileRoute("/cau-hoi-thuong-gap")({
   head: () => ({
     meta: [
-      { title: "Câu hỏi thường gặp — Trường Tiếng Việt Của Em" },
+      { title: "Câu hỏi thường gặp | Trường Tiếng Việt Của Em" },
       {
         name: "description",
         content:
           "Câu hỏi thường gặp về Trường Tiếng Việt Của Em: chi phí, độ tuổi phù hợp, luyện nói, quyền riêng tư của trẻ và cách được hỗ trợ.",
       },
-      { property: "og:title", content: "Câu hỏi thường gặp — Trường Tiếng Việt Của Em" },
+      { property: "og:title", content: "Câu hỏi thường gặp | Trường Tiếng Việt Của Em" },
       {
         property: "og:description",
         content: "Giải đáp những thắc mắc thường gặp của phụ huynh và học sinh.",

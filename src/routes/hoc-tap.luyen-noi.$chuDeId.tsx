@@ -7,7 +7,7 @@ import { skyButton } from "@/components/ui/sky-button";
 
 export const Route = createFileRoute("/hoc-tap/luyen-noi/$chuDeId")({
   head: ({ params }) => {
-    const title = `Luyện nói: ${params.chuDeId} — Trường Tiếng Việt Của Em`;
+    const title = `Luyện nói: ${params.chuDeId} | Trường Tiếng Việt Của Em`;
     const description = `Luyện nói tiếng Việt theo chủ đề "${params.chuDeId}": nghe câu mẫu, ghi âm và nhận sao khích lệ cùng Trâu con.`;
     const url = `/hoc-tap/luyen-noi/${params.chuDeId}`;
     return {

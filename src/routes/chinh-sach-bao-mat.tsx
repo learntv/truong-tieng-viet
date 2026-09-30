@@ -4,13 +4,13 @@ import { PageBanner } from "@/components/site/PageBanner";
 export const Route = createFileRoute("/chinh-sach-bao-mat")({
   head: () => ({
     meta: [
-      { title: "Chính sách bảo mật — Trường Tiếng Việt Của Em" },
+      { title: "Chính sách bảo mật | Trường Tiếng Việt Của Em" },
       {
         name: "description",
         content:
           "Chính sách bảo mật của Trường Tiếng Việt Của Em: dữ liệu chúng tôi thu thập, cách sử dụng, và quyền của phụ huynh/học sinh.",
       },
-      { property: "og:title", content: "Chính sách bảo mật — Trường Tiếng Việt Của Em" },
+      { property: "og:title", content: "Chính sách bảo mật | Trường Tiếng Việt Của Em" },
       { property: "og:description", content: "Dữ liệu chúng tôi thu thập, cách sử dụng, và quyền của phụ huynh/học sinh." },
       { property: "og:url", content: "/chinh-sach-bao-mat" },
     ],
@@ -152,8 +152,8 @@ function PrivacyPolicy() {
           </p>
           <ul className="list-disc space-y-2 pl-5">
             <li>
-              Nhà cung cấp hạ tầng kỹ thuật (Supabase, Cloudflare, Google Cloud text-to-speech)
-              — chỉ trong phạm vi cần thiết để vận hành Dịch vụ.
+              Nhà cung cấp hạ tầng kỹ thuật (Supabase, Cloudflare, Google Cloud text-to-speech),
+              chỉ trong phạm vi cần thiết để vận hành Dịch vụ.
             </li>
             <li>Cơ quan pháp luật, nếu được yêu cầu theo quy định pháp luật hiện hành.</li>
           </ul>
@@ -297,7 +297,7 @@ function PrivacyPolicy() {
           <p>We do not sell or rent personal data. Information is only shared with:</p>
           <ul className="list-disc space-y-2 pl-5">
             <li>
-              Infrastructure providers (Supabase, Cloudflare, Google Cloud text-to-speech) —
+              Infrastructure providers (Supabase, Cloudflare, Google Cloud text-to-speech),
               only as needed to operate the Service.
             </li>
             <li>Law enforcement, if required by applicable law.</li>

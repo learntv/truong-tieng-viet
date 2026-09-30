@@ -13,14 +13,14 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
-      { title: "Đặt lại mật khẩu — Trường Tiếng Việt Của Em" },
+      { title: "Đặt lại mật khẩu | Trường Tiếng Việt Của Em" },
       {
         name: "description",
         content:
           "Đặt lại mật khẩu tài khoản Trường Tiếng Việt Của Em sau khi nhận liên kết khôi phục qua email.",
       },
       { name: "robots", content: "noindex" },
-      { property: "og:title", content: "Đặt lại mật khẩu — Trường Tiếng Việt Của Em" },
+      { property: "og:title", content: "Đặt lại mật khẩu | Trường Tiếng Việt Của Em" },
       {
         property: "og:description",
         content: "Đặt mật khẩu mới cho tài khoản của bạn.",

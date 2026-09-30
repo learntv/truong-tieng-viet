@@ -11,12 +11,12 @@ import { PageBanner } from "@/components/site/PageBanner";
 export const Route = createFileRoute("/hoc-tap/luyen-noi")({
   head: () => ({
     meta: [
-      { title: "Luyện nói — Trường Tiếng Việt Của Em" },
+      { title: "Luyện nói | Trường Tiếng Việt Của Em" },
       {
         name: "description",
         content: "Luyện nói tiếng Việt cùng Trâu con: nghe mẫu, ghi âm và nhận sao khích lệ.",
       },
-      { property: "og:title", content: "Luyện nói — Trường Tiếng Việt Của Em" },
+      { property: "og:title", content: "Luyện nói | Trường Tiếng Việt Của Em" },
       { property: "og:description", content: "Luyện nói tiếng Việt cùng Trâu con: nghe mẫu, ghi âm và nhận sao khích lệ." },
       { property: "og:url", content: "/hoc-tap/luyen-noi" },
     ],

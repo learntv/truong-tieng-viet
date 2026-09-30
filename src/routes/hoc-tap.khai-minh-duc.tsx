@@ -7,12 +7,12 @@ import { PageBanner } from "@/components/site/PageBanner";
 export const Route = createFileRoute("/hoc-tap/khai-minh-duc")({
   head: () => ({
     meta: [
-      { title: "Khai Minh Đức — Trường Tiếng Việt Của Em" },
+      { title: "Khai Minh Đức | Trường Tiếng Việt Của Em" },
       {
         name: "description",
         content: "Học đánh vần cùng chương trình Khai Minh Đức: từng bài âm, vần cùng Trâu con.",
       },
-      { property: "og:title", content: "Khai Minh Đức — Trường Tiếng Việt Của Em" },
+      { property: "og:title", content: "Khai Minh Đức | Trường Tiếng Việt Của Em" },
       {
         property: "og:description",
         content: "Học đánh vần cùng chương trình Khai Minh Đức: từng bài âm, vần cùng Trâu con.",
@@ -51,7 +51,7 @@ function KhaiMinhDucIndex() {
 
         {error != null && !isLoading && (
           <p className="py-16 text-center text-sm font-semibold text-muted-foreground">
-            Chưa tải được danh sách bài học — em thử lại sau nhé!
+            Chưa tải được danh sách bài học, em thử lại sau nhé!
           </p>
         )}
 

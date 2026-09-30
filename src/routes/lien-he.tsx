@@ -5,13 +5,13 @@ import { PageBanner } from "@/components/site/PageBanner";
 export const Route = createFileRoute("/lien-he")({
   head: () => ({
     meta: [
-      { title: "Liên hệ — Trường Tiếng Việt Của Em" },
+      { title: "Liên hệ | Trường Tiếng Việt Của Em" },
       {
         name: "description",
         content:
           "Liên hệ với Trường Tiếng Việt Của Em và Canada Vietnam Cultural & Educational Council (CVCEC) qua email, WhatsApp, mạng xã hội hoặc địa chỉ tại Toronto, Canada.",
       },
-      { property: "og:title", content: "Liên hệ — Trường Tiếng Việt Của Em" },
+      { property: "og:title", content: "Liên hệ | Trường Tiếng Việt Của Em" },
       {
         property: "og:description",
         content: "Kết nối với chúng tôi qua email, WhatsApp, mạng xã hội hoặc địa chỉ tại Toronto.",

@@ -40,7 +40,7 @@ const getLesson = cache(async (id: string) => {
 
 export const generateMetadata = async ({ params }: Args): Promise<Metadata> => {
   const lesson = await getLesson((await params).id)
-  return { title: lesson ? `Xem trước — ${lesson.title}` : 'Xem trước bài học' }
+  return { title: lesson ? `Xem trước: ${lesson.title}` : 'Xem trước bài học' }
 }
 
 const LessonPreviewPage = async ({ params }: Args) => {

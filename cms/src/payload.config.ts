@@ -154,7 +154,7 @@ export default buildConfig({
     // name at the end of the tab title.
     meta: {
       icons: [{ rel: 'icon', type: 'image/png', url: '/brand/favicon-32.png' }],
-      titleSuffix: '— Trường Tiếng Việt Của Em',
+      titleSuffix: '| Trường Tiếng Việt Của Em',
     },
   },
   collections: [Users, Media, SpeakingTopics, Quyen, ChuDe, BaiKMD],

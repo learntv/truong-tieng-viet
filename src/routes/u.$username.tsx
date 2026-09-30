@@ -39,7 +39,7 @@ import {
 
 export const Route = createFileRoute("/u/$username")({
   head: ({ params }) => {
-    const title = `Hồ sơ của ${params.username} — Trường Tiếng Việt Của Em`;
+    const title = `Hồ sơ của ${params.username} | Trường Tiếng Việt Của Em`;
     const description = `Xem hồ sơ và tiến trình học tiếng Việt của ${params.username} trên Trường Tiếng Việt Của Em.`;
     const url = `/u/${params.username}`;
     return {
@@ -321,7 +321,7 @@ function AvatarPickerDialog({
           Tải ảnh của em lên
         </Button>
         <p className="text-center text-xs text-muted-foreground">
-          JPG, PNG, WebP hoặc GIF — tối đa 2MB
+          JPG, PNG, WebP hoặc GIF, tối đa 2MB
         </p>
         <div className="grid grid-cols-5 gap-2">
           {AVATAR_OPTIONS.map((emoji) => (

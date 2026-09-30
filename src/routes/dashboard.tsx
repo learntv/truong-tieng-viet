@@ -47,13 +47,13 @@ export const Route = createFileRoute("/dashboard")({
   },
   head: () => ({
     meta: [
-      { title: "Báo cáo tác động — Trường Tiếng Việt Của Em" },
+      { title: "Báo cáo tác động | Trường Tiếng Việt Của Em" },
       {
         name: "description",
         content:
           "Báo cáo tác động xã hội của Trường Tiếng Việt Của Em: quy mô, tăng trưởng và phân bổ địa lý.",
       },
-      { property: "og:title", content: "Báo cáo tác động — Trường Tiếng Việt Của Em" },
+      { property: "og:title", content: "Báo cáo tác động | Trường Tiếng Việt Của Em" },
       { property: "og:description", content: "Quy mô, tăng trưởng và phân bổ địa lý của học sinh Trường Tiếng Việt Của Em." },
       { name: "robots", content: "noindex" },
       { property: "og:url", content: "/dashboard" },
