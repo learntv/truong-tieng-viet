@@ -6,6 +6,7 @@ import * as migration_20260821_082037_bai_audio_upload from './20260821_082037_b
 import * as migration_20260906_093223_kmd_lessons from './20260906_093223_kmd_lessons';
 import * as migration_20260907_120010_kmd_lesson_slug_visibility from './20260907_120010_kmd_lesson_slug_visibility';
 import * as migration_20260907_133024_remove_kmd_lesson_visibility from './20260907_133024_remove_kmd_lesson_visibility';
+import * as migration_20260930_053759_remove_kmd_am_van from './20260930_053759_remove_kmd_am_van';
 
 export const migrations = [
   {
@@ -46,6 +47,11 @@ export const migrations = [
   {
     up: migration_20260907_133024_remove_kmd_lesson_visibility.up,
     down: migration_20260907_133024_remove_kmd_lesson_visibility.down,
-    name: '20260907_133024_remove_kmd_lesson_visibility'
+    name: '20260907_133024_remove_kmd_lesson_visibility',
+  },
+  {
+    up: migration_20260930_053759_remove_kmd_am_van.up,
+    down: migration_20260930_053759_remove_kmd_am_van.down,
+    name: '20260930_053759_remove_kmd_am_van'
   },
 ];

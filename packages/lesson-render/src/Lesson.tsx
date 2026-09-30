@@ -121,15 +121,6 @@ export const Lesson: React.FC<{ lesson: LessonDoc }> = ({ lesson }) => {
     <article className={styles.lesson}>
       <header className={styles.header}>
         <h1 className={styles.title}>{lesson.title}</h1>
-        {lesson.amVan && lesson.amVan.length > 0 && (
-          <ul className={styles.amVan}>
-            {lesson.amVan.map((amVan) => (
-              <li className={styles.amVanItem} key={amVan}>
-                {amVan}
-              </li>
-            ))}
-          </ul>
-        )}
       </header>
 
       {sections.length === 0 ? (

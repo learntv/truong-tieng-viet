@@ -4,10 +4,8 @@
   align-items: flex-start;
 }
 
-/* Narrower than before, and the rail item below is shorter too (see .railThumb) — this rail's
-   job is picking a section, not previewing it, so it only needs enough room for that. Both
-   changes are in service of the same thing: less of the panel spent on the rail, more on
-   .editor, where the actual work happens. */
+/* Narrow, so most of the panel goes to .editor, where the actual work happens; the miniatures
+   only need to be big enough to recognise a section by. */
 .rail {
   display: flex;
   flex-direction: column;
@@ -22,87 +20,99 @@
   background: var(--theme-elevation-50);
 }
 
+/* Clipped so a thumbnail dragged past either end (or sideways) is cut off at the list's edge
+   instead of growing the rail's scrollable area, which made its scrollbar flicker in and out
+   mid-drag. */
+.railList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  overflow: clip;
+}
+
 .railItem {
   position: relative;
-  display: flex;
   flex-shrink: 0;
-  flex-direction: column;
   border: 2px solid transparent;
   border-radius: 4px;
   background: var(--theme-bg);
   overflow: hidden;
+  touch-action: manipulation;
 }
 
 .railItem[data-active='true'] {
   border-color: var(--theme-success-500, #2563eb);
 }
 
-.railItemButton {
-  display: block;
-  width: 100%;
-  padding: 0;
-  border: none;
-  background: none;
-  cursor: pointer;
-  text-align: left;
+/* Lifted above its neighbours while it is being dragged past them. */
+.railItem[data-dragging] {
+  z-index: 1;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 25%);
 }
 
+.railItem:focus-visible {
+  outline: 2px solid var(--theme-elevation-500);
+  outline-offset: 1px;
+}
+
+/* A slide-shaped window onto the section, on the lesson's own white surface so the miniature
+   reads the way the slide will. */
 .railThumb {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  height: 56px;
-  border-bottom: 1px solid var(--theme-elevation-150);
-  background: var(--theme-elevation-0);
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--ttv-surface, #fff);
+  color: var(--ttv-ink);
 }
 
-.railThumbIcon {
-  width: 24px;
-  height: 24px;
-  color: var(--theme-elevation-250);
-}
-
-.railMeta {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.4rem;
-  font-size: 0.75rem;
+/* The real content, shrunk with a transform rather than redrawn — same technique as the public
+   rail (packages/lesson-render/src/Lesson.module.css). `width` is the inverse of the `scale`
+   (1 / 0.22), so the box the transform leaves behind is exactly as wide as `.railThumb`. Anchored
+   at the top rather than centred: a long section shows its opening, which is how it is recognised. */
+.railThumbScale {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 454%;
+  padding: 0.75rem 1rem;
+  transform: scale(0.22);
+  transform-origin: top left;
+  pointer-events: none;
 }
 
 .railIndex {
-  font-weight: 700;
-  color: var(--theme-elevation-400);
-}
-
-.railLabel {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.railControls {
-  display: flex;
-  gap: 0.2rem;
-  padding: 0 0.4rem 0.3rem;
-}
-
-.railControls button {
-  border: 1px solid var(--theme-elevation-150);
-  background: var(--theme-bg);
+  position: absolute;
+  bottom: 0.25rem;
+  left: 0.25rem;
+  min-width: 1.25rem;
+  padding: 0 0.3rem;
   border-radius: 3px;
+  background: var(--theme-elevation-800);
+  color: var(--theme-elevation-0);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.railRemove {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  padding: 0 0.3rem;
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: 3px;
+  background: var(--theme-bg);
   font-size: 0.7rem;
   line-height: 1.4;
   cursor: pointer;
-  padding: 0.1rem 0.35rem;
+  opacity: 0;
 }
 
-.railControls button:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
+.railItem:hover .railRemove,
+.railItem:focus-within .railRemove,
+.railItem[data-active='true'] .railRemove {
+  opacity: 1;
 }
 
 .addWrap {
@@ -115,6 +125,8 @@
   padding: 0.4rem;
   border: 1px dashed var(--theme-elevation-250);
   border-radius: 4px;
+  background: none;
+  color: inherit;
   cursor: pointer;
   font-size: 0.8rem;
   text-align: center;

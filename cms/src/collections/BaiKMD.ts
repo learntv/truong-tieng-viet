@@ -20,7 +20,7 @@ export const BaiKMD: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'amVan'],
+    defaultColumns: ['title', 'slug'],
     // The external-link button in the save bar. Same destination as the "Xem trước" control in
     // the section header (KmdBlocksField.tsx) — this one is Payload's own, in the place a
     // Payload user looks for it.
@@ -74,18 +74,6 @@ export const BaiKMD: CollectionConfig = {
             return deriveSlug(title)
           },
         ],
-      },
-    },
-    {
-      // Not a `select`: the full inventory of âm/vần across 50+ lessons isn't known up front,
-      // and a lesson can teach one, a pair, or several (see design.md — "amVan").
-      name: 'amVan',
-      type: 'text',
-      hasMany: true,
-      label: 'Âm/Vần',
-      admin: {
-        description: 'Âm hoặc vần bài học dạy, mỗi âm/vần một mục.',
-        placeholder: 'Nhập rồi nhấn Enter để thêm',
       },
     },
     {

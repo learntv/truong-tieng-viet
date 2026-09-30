@@ -4,14 +4,12 @@ export type KmdLessonSummary = {
   id: string;
   slug: string;
   title: string;
-  amVan: string[];
 };
 
 type CmsKmdLessonSummary = {
   id: string | number;
   slug: string;
   title: string;
-  amVan?: string[] | null;
 };
 
 // Khai Minh Đức lessons are managed in the Payload CMS (cms/ workspace, "bai-kmd" collection)
@@ -26,7 +24,6 @@ async function fetchKmdLessons(): Promise<KmdLessonSummary[]> {
     ["pagination", "false"],
     ["select[title]", "true"],
     ["select[slug]", "true"],
-    ["select[amVan]", "true"],
   ]);
   const res = await fetch(`${CMS_URL}/api/bai-kmd?${params}`);
   if (!res.ok) throw new Error(`CMS bai-kmd request failed: ${res.status}`);
@@ -36,7 +33,6 @@ async function fetchKmdLessons(): Promise<KmdLessonSummary[]> {
     id: String(doc.id),
     slug: doc.slug,
     title: doc.title,
-    amVan: doc.amVan ?? [],
   }));
 }
 

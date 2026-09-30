@@ -13,6 +13,5 @@ export type LessonSection = {
 
 export type LessonDoc = {
   title: string;
-  amVan?: null | string[];
   blocks?: LessonSection[] | null;
 };

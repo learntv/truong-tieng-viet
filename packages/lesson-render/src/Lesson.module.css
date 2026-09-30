@@ -68,30 +68,6 @@
   line-height: 1.15;
 }
 
-/* The âm/vần a lesson teaches, as chips beside the title — the one piece of the
- * document's own metadata that belongs on the page, since it is what the lesson
- * is about. In the ribbon yellow, so what the lesson is about is the brightest
- * thing on the page after the slide itself. */
-.amVan {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.amVanItem {
-  padding: 0.2rem 0.9rem;
-  border: 3px solid #fff;
-  border-radius: 999px;
-  background: var(--ttv-ribbon);
-  box-shadow: var(--ttv-sky-shadow);
-  color: var(--ttv-indigo-deep);
-  font-size: 1.05rem;
-  font-weight: 700;
-}
-
 /* --- the slide deck ------------------------------------------------------ */
 
 /* Rail on the left, one slide on the right — the same powerpoint-style split the lesson editor

@@ -266,10 +266,6 @@ export interface BaiKmd {
    * Địa chỉ công khai của bài học (vd: ong-ong-ung-ung). Để trống để tự tạo từ tên bài. Đổi tên bài không làm đổi đường dẫn.
    */
   slug: string;
-  /**
-   * Âm hoặc vần bài học dạy, mỗi âm/vần một mục.
-   */
-  amVan?: string[] | null;
   blocks?:
     | {
         content?: {
@@ -511,7 +507,6 @@ export interface BaiKmdSelect<T extends boolean = true> {
   _order?: T;
   title?: T;
   slug?: T;
-  amVan?: T;
   blocks?:
     | T
     | {

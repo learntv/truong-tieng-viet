@@ -143,18 +143,6 @@ function LessonRow({ lesson, index }: { lesson: KmdLessonSummary; index: number 
             <h2 className="mt-1 font-display text-base font-bold leading-tight text-sky-ink sm:text-lg">
               {lesson.title}
             </h2>
-            {lesson.amVan.length > 0 && (
-              <ul className="mt-2 flex flex-wrap gap-1.5">
-                {lesson.amVan.map((amVan) => (
-                  <li
-                    key={amVan}
-                    className="rounded-full bg-white/70 px-2.5 py-0.5 text-xs font-bold text-sky-ink"
-                  >
-                    {amVan}
-                  </li>
-                ))}
-              </ul>
-            )}
           </div>
 
           <ArrowRight

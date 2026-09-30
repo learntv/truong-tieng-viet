@@ -3,11 +3,15 @@
 import type { ClientBlock } from 'payload'
 import type { BlocksFieldClientComponent } from 'payload'
 
+import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
+
 import { getTranslation } from '@payloadcms/translations'
+import { RichText } from '@payloadcms/richtext-lexical/react'
 import {
+  DraggableSortable,
+  DraggableSortableItem,
   FieldDescription,
   FieldLabel,
-  Pill,
   Popup,
   PopupList,
   RenderFields,
@@ -15,22 +19,38 @@ import {
   useDocumentInfo,
   useField,
   useForm,
+  useFormFields,
   useTranslation,
 } from '@payloadcms/ui'
+import { lessonConverters } from '@ttv/lesson-render'
+import contentStyles from '@ttv/lesson-render/lessonContent.module.css'
+import '@ttv/lesson-render/tokens.css'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import styles from './KmdBlocksField.module.css'
 
-// A literal placeholder, not a rendering of the section's real content — the rail's job is to
-// let an editor jump between sections, not to reproduce what `RenderFields` already shows for
-// the selected one on the right.
-const RailThumbPlaceholder: React.FC = () => (
-  <svg aria-hidden="true" className={styles.railThumbIcon} viewBox="0 0 24 24">
-    <rect fill="none" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" width="20" x="2" y="4" />
-    <circle cx="8" cy="9.5" fill="currentColor" r="1.5" />
-    <path d="M3 16l5-4 4 3 3-2.5 6 4.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
-  </svg>
-)
+const isEditorState = (value: unknown): value is SerializedEditorState =>
+  Boolean(value && typeof value === 'object' && 'root' in value)
+
+/**
+ * A miniature of the section, read live from the form rather than from the saved document, so it
+ * follows the editor as they type. Same `RichText`/`lessonConverters` the site's own rail uses,
+ * shrunk with a CSS transform (see the public `Lesson` in packages/lesson-render). `inert` keeps
+ * its links and checkboxes out of the tab order: it is a picture of the section, not a copy of it.
+ */
+const RailThumb: React.FC<{ contentPath: string }> = ({ contentPath }) => {
+  const content = useFormFields(([fields]) => fields[contentPath]?.value)
+
+  return (
+    <div className={styles.railThumb}>
+      {isEditorState(content) && (
+        <div className={styles.railThumbScale} inert>
+          <RichText className={contentStyles.content} converters={lessonConverters} data={content} />
+        </div>
+      )}
+    </div>
+  )
+}
 
 /**
  * Opens the lesson as a reader sees it (see app/(preview)/xem-truoc/bai-kmd/[id]), scrolled to the
@@ -72,8 +92,8 @@ const getBlockPermissions = (permissions: unknown, blockType: string): unknown =
 }
 
 /**
- * A "slide editor" for the lesson's `blocks` field: a left rail listing every section by type
- * and position (a placeholder thumbnail, not its real content), and a right pane editing
+ * A "slide editor" for the lesson's `blocks` field: a left rail of live miniatures of every
+ * section, reordered by dragging them, and a right pane editing
  * whichever section is selected — the powerpoint-style layout requested in place of Payload's
  * default stacked-accordion blocks UI. Built directly on `useField`/`useForm`/`RenderFields`,
  * the same public hooks the default `BlocksField` uses, so row storage, validation and the
@@ -154,19 +174,23 @@ export const KmdBlocksField: BlocksFieldClientComponent = (props) => {
     [path, removeFieldRow],
   )
 
+  // The selection follows the section it was on, wherever the drag put it — and slides along one
+  // place when a section is dragged across it.
   const moveBlock = useCallback(
-    (rowIndex: number, direction: -1 | 1) => {
-      const moveToIndex = rowIndex + direction
-      if (moveToIndex < 0 || moveToIndex > rows.length - 1) return
-      moveFieldRow({ moveFromIndex: rowIndex, moveToIndex, path })
+    (moveFromIndex: number, moveToIndex: number) => {
+      if (moveFromIndex < 0 || moveToIndex < 0 || moveFromIndex === moveToIndex) return
+      moveFieldRow({ moveFromIndex, moveToIndex, path })
       setActiveIndex((current) => {
-        if (current === rowIndex) return moveToIndex
-        if (current === moveToIndex) return rowIndex
+        if (current === moveFromIndex) return moveToIndex
+        if (moveFromIndex < current && current <= moveToIndex) return current - 1
+        if (moveToIndex <= current && current < moveFromIndex) return current + 1
         return current
       })
     },
-    [moveFieldRow, path, rows.length],
+    [moveFieldRow, path],
   )
+
+  const rowIds = useMemo(() => rows.map((row) => row.id), [rows])
 
   const activeRow = rows[activeIndex]
   const activeBlock = activeRow?.blockType ? blockBySlug(activeRow.blockType) : undefined
@@ -177,59 +201,69 @@ export const KmdBlocksField: BlocksFieldClientComponent = (props) => {
       <FieldDescription description={fieldAdmin?.description} path={path} />
       <div className={styles.layout}>
         <div className={styles.rail}>
-          {rows.map((row, index) => {
-            const block = row.blockType ? blockBySlug(row.blockType) : undefined
-            return (
-              <div className={styles.railItem} data-active={index === activeIndex} key={row.id}>
-                <button
-                  className={styles.railItemButton}
-                  onClick={() => setActiveIndex(index)}
-                  type="button"
-                >
-                  <div className={styles.railThumb}>
-                    <RailThumbPlaceholder />
-                  </div>
-                  <div className={styles.railMeta}>
-                    <span className={styles.railIndex}>{String(index + 1).padStart(2, '0')}</span>
-                    <span className={styles.railLabel}>
-                      {block ? getTranslation(block.labels?.singular ?? block.slug, i18n) : row.blockType}
-                    </span>
-                  </div>
-                </button>
-                {!readOnly && (
-                  <div className={styles.railControls}>
-                    <button
-                      disabled={index === 0}
-                      onClick={() => moveBlock(index, -1)}
-                      title="Di chuyển lên"
-                      type="button"
-                    >
-                      ↑
-                    </button>
-                    <button
-                      disabled={index === rows.length - 1}
-                      onClick={() => moveBlock(index, 1)}
-                      title="Di chuyển xuống"
-                      type="button"
-                    >
-                      ↓
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (window.confirm('Xoá mục này khỏi bài học?')) removeBlock(index)
-                      }}
-                      title="Xoá"
-                      type="button"
-                    >
-                      ✕
-                    </button>
+          <DraggableSortable
+            className={styles.railList}
+            ids={rowIds}
+            onDragEnd={({ moveFromIndex, moveToIndex }) => moveBlock(moveFromIndex, moveToIndex)}
+          >
+            {rows.map((row, index) => (
+              <DraggableSortableItem disabled={readOnly} id={row.id} key={row.id}>
+                {({ attributes, isDragging, listeners, setNodeRef, transform, transition }) => (
+                  // The whole thumbnail is the drag handle: a press that moves under 5px is still a
+                  // click (Payload's sensor threshold), so picking a section and dragging it are
+                  // the same gesture, the way a slide sorter works.
+                  <div
+                    {...attributes}
+                    {...listeners}
+                    aria-label={`Mục ${index + 1}`}
+                    className={styles.railItem}
+                    data-active={index === activeIndex}
+                    data-dragging={isDragging || undefined}
+                    onClick={() => setActiveIndex(index)}
+                    // Enter selects; Space picks the section up for a keyboard drag.
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') setActiveIndex(index)
+                      else listeners?.onKeyDown?.(event)
+                    }}
+                    ref={setNodeRef}
+                    style={{ ...attributes.style, transform, transition }}
+                  >
+                    <RailThumb contentPath={`${path}.${index}.content`} />
+                    <span className={styles.railIndex}>{index + 1}</span>
+                    {!readOnly && (
+                      <button
+                        className={styles.railRemove}
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          if (window.confirm('Xoá mục này khỏi bài học?')) removeBlock(index)
+                        }}
+                        // Keeps Enter/Space on this button from reaching the item's keyboard drag.
+                        onKeyDown={(event) => event.stopPropagation()}
+                        title="Xoá"
+                        type="button"
+                      >
+                        ✕
+                      </button>
+                    )}
                   </div>
                 )}
-              </div>
-            )
-          })}
+              </DraggableSortableItem>
+            ))}
+          </DraggableSortable>
 
-          {!readOnly && (
+          {!readOnly && clientBlocks.length === 1 && (
+            <div className={styles.addWrap}>
+              <button
+                className={styles.addButton}
+                onClick={() => addBlock(clientBlocks[0].slug)}
+                type="button"
+              >
+                + Thêm mục
+              </button>
+            </div>
+          )}
+
+          {!readOnly && clientBlocks.length > 1 && (
             <div className={styles.addWrap}>
               <Popup
                 button={<span className={styles.addButton}>+ Thêm mục</span>}
@@ -260,9 +294,6 @@ export const KmdBlocksField: BlocksFieldClientComponent = (props) => {
           {activeRow && activeBlock ? (
             <>
               <div className={styles.editorHeader}>
-                <Pill pillStyle="white" size="small">
-                  {getTranslation(activeBlock.labels?.singular ?? activeBlock.slug, i18n)}
-                </Pill>
                 <span className={styles.editorHeaderIndex}>
                   Mục {activeIndex + 1} / {rows.length}
                 </span>
