@@ -37,10 +37,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function PrivacyPolicy() {
   return (
     <main className="">
-      <PageBanner
-        title="Chính sách bảo mật"
-        subtitle={`Cập nhật lần cuối: ${LAST_UPDATED}`}
-      />
+      <PageBanner title="Chính sách bảo mật" />
 
       <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
         <p className="mb-10 text-sm leading-relaxed text-muted-foreground sm:text-base">

@@ -22,10 +22,7 @@ export const Route = createFileRoute("/san-pham-cua-em")({
 function SanPhamCuaEm() {
   return (
     <main className="">
-      <PageBanner
-        title="Sản phẩm của em"
-        subtitle="Nơi trưng bày những bài làm và tác phẩm của các bạn nhỏ."
-      />
+      <PageBanner title="Sản phẩm của em" />
       <ComingSoonTab />
     </main>
   );

@@ -99,6 +99,13 @@
   --color-box-red-deep: var(--box-red-deep);
   --color-box-white-deep: var(--box-white-deep);
 
+  /* Page banner (PageBanner): the bamboo-green band every sub-page opens with. */
+  --color-bamboo-tint: var(--bamboo-tint);
+  --color-bamboo-stalk: var(--bamboo-stalk);
+  --color-bamboo-leaf: var(--bamboo-leaf);
+  --color-bamboo-ink: var(--bamboo-ink);
+  --color-bamboo-ink-soft: var(--bamboo-ink-soft);
+
   --font-display: "Arimo", Arial, sans-serif;
   --font-sans: "Arimo", Arial, sans-serif;
 }
@@ -271,6 +278,15 @@
   /* The exception: this is the *white* box's body, so its identity is
      near-white. It takes the family's blue at a fraction of the chroma. */
   --box-white-deep: #e5efff;
+  /* The page banner's bamboo palette: warm yellow-greens rather than mint's
+     blue-greens. A pale band, two decorative circles (bamboo stalk, young
+     leaf), and two inks. Both inks clear AA on the band — ink 8.4:1,
+     ink-soft 5.3:1. */
+  --bamboo-tint: #e4efc9;
+  --bamboo-stalk: #a5cf6a;
+  --bamboo-leaf: #d3e58a;
+  --bamboo-ink: #2b4a14;
+  --bamboo-ink-soft: #46691f;
   /* The solid lines of the Tập viết ô li grid images (public/tap-viet/grid). */
   --oli-line: #1ea4dc;
 

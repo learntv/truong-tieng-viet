@@ -5,7 +5,6 @@ import { type SpeakingProgress } from "@/lib/speaking-progress";
 import { useSpeakingContent } from "@/hooks/useSpeakingContent";
 import { useSpeakingProgress } from "@/hooks/useSpeakingProgress";
 import { STAGE_COLORS } from "@/components/learning/stageColors";
-import { BackLink } from "@/components/BackLink";
 import { PageBanner } from "@/components/site/PageBanner";
 
 export const Route = createFileRoute("/hoc-tap/luyen-noi")({
@@ -134,8 +133,8 @@ function TopicPicker() {
     <div>
       <PageBanner
         title="Luyện nói cùng Trâu con 🎤"
-        subtitle="Em chọn một chủ đề, nghe cô đọc mẫu rồi nói theo nhé. Nói hay sẽ được sao đấy!"
-        back={<BackLink to="/hoc-tap" label="Quay lại học tập" />}
+        crumb="Luyện nói"
+        parents={[{ label: "Học tập", to: "/hoc-tap" }]}
       />
 
       <div className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6">

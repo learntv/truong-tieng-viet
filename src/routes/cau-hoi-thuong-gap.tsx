@@ -88,10 +88,7 @@ const FAQS: { q: string; a: React.ReactNode }[] = [
 function FAQ() {
   return (
     <main>
-      <PageBanner
-        title="Câu hỏi thường gặp"
-        subtitle="Những thắc mắc phổ biến của phụ huynh và học sinh."
-      />
+      <PageBanner title="Câu hỏi thường gặp" />
 
       <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
         <div className="flex flex-col gap-4">

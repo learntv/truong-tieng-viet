@@ -53,10 +53,7 @@ const SOCIALS = [
 function Contact() {
   return (
     <main>
-      <PageBanner
-        title="Liên hệ"
-        subtitle="Chúng tôi luôn sẵn lòng lắng nghe và hỗ trợ bạn."
-      />
+      <PageBanner title="Liên hệ" />
 
       <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
         <p className="mb-10 text-sm leading-relaxed text-muted-foreground sm:text-base">

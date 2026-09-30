@@ -343,10 +343,7 @@ function DashboardPage() {
 
   return (
     <main className="bg-muted/40">
-      <PageBanner
-        title="Báo cáo tác động xã hội"
-        subtitle="Trường Tiếng Việt Của Em · Dành cho Bộ Ngoại Giao & Ban Quản Lý"
-      />
+      <PageBanner title="Báo cáo tác động xã hội" />
 
       <div className="mx-auto max-w-7xl space-y-4 px-4 py-6 sm:px-6">
         {isStatsLoading || !stats ? (

@@ -37,7 +37,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function TermsOfService() {
   return (
     <main className="">
-      <PageBanner title="Điều khoản sử dụng" subtitle={`Cập nhật lần cuối: ${LAST_UPDATED}`} />
+      <PageBanner title="Điều khoản sử dụng" />
 
       <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
         <p className="mb-10 text-sm leading-relaxed text-muted-foreground sm:text-base">

@@ -43,10 +43,7 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
 function UserGuide() {
   return (
     <main>
-      <PageBanner
-        title="Hướng dẫn sử dụng"
-        subtitle="Chỉ vài bước đơn giản để bé bắt đầu hành trình học tiếng Việt."
-      />
+      <PageBanner title="Hướng dẫn sử dụng" />
 
       <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
         <Step n={1} title="Tạo tài khoản">

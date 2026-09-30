@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Mascot } from "@/components/Mascot";
-import { BackLink } from "@/components/BackLink";
 import { PageBanner } from "@/components/site/PageBanner";
 import { ALPHABET, type AlphabetLetter, type AlphabetWord } from "@/data/alphabet";
 import { loadAlphabetProgress, markLetterSeen } from "@/lib/alphabet-progress";
@@ -116,8 +115,8 @@ function BangChuCaiTab() {
     <main className="pb-24">
       <PageBanner
         title="Bảng chữ cái 🎈"
-        subtitle="Bấm vào từng chữ để gặp bạn thú, nghe cách đọc và học từ mới nhé!"
-        back={<BackLink to="/hoc-tap" label="Quay lại học tập" />}
+        crumb="Bảng chữ cái"
+        parents={[{ label: "Học tập", to: "/hoc-tap" }]}
       />
 
       <div className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6">

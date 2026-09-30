@@ -2,7 +2,6 @@ import { createFileRoute, Link, Outlet, useChildMatches } from "@tanstack/react-
 import { ArrowRight, Loader2 } from "lucide-react";
 import kmdCover from "@/assets/khai-minh-duc-reading.png";
 import { useKmdLessons, type KmdLessonSummary } from "@/hooks/useKmdLessons";
-import { BackLink } from "@/components/BackLink";
 import { PageBanner } from "@/components/site/PageBanner";
 import type { SkyBoxTone } from "@/components/ui/sky-box";
 
@@ -41,10 +40,10 @@ function KhaiMinhDucIndex() {
     <div>
       <PageBanner
         title="Khai Minh Đức"
-        back={<BackLink to="/hoc-tap" label="Quay lại học tập" />}
+        parents={[{ label: "Học tập", to: "/hoc-tap" }]}
       />
 
-      <div className="relative mx-auto max-w-3xl px-4 pb-10 sm:px-6">
+      <div className="relative mx-auto max-w-3xl px-4 pb-10 pt-8 sm:px-6">
         {isLoading && (
           <div className="flex justify-center py-16">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
