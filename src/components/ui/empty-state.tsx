@@ -1,8 +1,11 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
+/**
+ * A centred "nothing here yet" message. Unframed: it sits straight on the
+ * page's white card rather than in a box of its own.
+ */
 export function EmptyState({
   icon: Icon,
   illustration,
@@ -20,7 +23,7 @@ export function EmptyState({
   className?: string;
 }) {
   return (
-    <Card className={cn("flex flex-col items-center gap-4 px-8 py-14 text-center", className)}>
+    <div className={cn("flex flex-col items-center gap-4 px-8 py-6 text-center", className)}>
       {illustration ?? (
         <span className="grid h-16 w-16 place-items-center rounded-full bg-primary/10 text-primary">
           <Icon className="h-8 w-8" strokeWidth={2} />
@@ -35,6 +38,6 @@ export function EmptyState({
         )}
       </div>
       {action}
-    </Card>
+    </div>
   );
 }

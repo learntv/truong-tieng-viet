@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Trophy } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Mascot } from "@/components/Mascot";
 import { PageBanner } from "@/components/site/PageBanner";
@@ -54,138 +54,193 @@ function avatarColor(letter: string) {
   return AVATAR_COLORS[letter.charCodeAt(0) % AVATAR_COLORS.length];
 }
 
-const RANK_STYLES: Record<number, { emoji: string }> = {
-  1: { emoji: "🥇" },
-  2: { emoji: "🥈" },
-  3: { emoji: "🥉" },
+type Profile = Awaited<ReturnType<typeof leaderboardQueryOptions.queryFn>>[number];
+
+/**
+ * The three podium steps. The winner stands in the middle on the tallest step,
+ * second on the left, third on the right; each place has its own medal colour
+ * for the rank badge and a pale version of it for the step.
+ */
+const PODIUM: Record<1 | 2 | 3, { step: string; height: string; badge: string }> = {
+  1: {
+    step: "bg-amber-100",
+    height: "h-28 sm:h-36",
+    badge: "bg-amber-400 text-sky-ink",
+  },
+  2: {
+    step: "bg-slate-100",
+    height: "h-20 sm:h-28",
+    badge: "bg-slate-300 text-sky-ink",
+  },
+  3: {
+    step: "bg-orange-100",
+    height: "h-14 sm:h-20",
+    badge: "bg-orange-500 text-white",
+  },
 };
+
+/** Left-to-right order of the podium: 2nd, 1st, 3rd. */
+const PODIUM_ORDER = [2, 1, 3] as const;
 
 function BangXepHang() {
   const { data: profiles, isLoading } = useQuery(leaderboardQueryOptions);
 
   return (
     <main>
-      <PageBanner title="Bảng xếp hạng" subtitle="Những học sinh chăm chỉ nhất trường." />
+      <PageBanner title="Bảng xếp hạng" />
 
-      <div className="mx-auto w-full max-w-2xl px-4 py-12 sm:px-6">
-        {/* Card */}
-        <div className="relative">
-          {/* Trâu con cheers the board on from the side. Hidden on narrow screens,
-          where there is no room beside the card for him to sit. */}
-          <Mascot
-            pose="cheer"
-            decorative
-            bob
-            className="pointer-events-none absolute left-full top-16 ml-6 hidden h-32 lg:block"
-          />
-          <div className="overflow-hidden rounded-3xl border border-border/60 bg-card shadow-card">
-            {/* Trophy badge, straddling the card's top edge now that the title
-            itself lives up in the PageBanner. */}
-            <div className="flex justify-center pt-6">
-              <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                <Trophy className="h-8 w-8 text-primary" strokeWidth={2.5} />
-              </div>
+      <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6">
+        {isLoading ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : !profiles || profiles.length === 0 ? (
+          <div className="p-12 text-center">
+            <Mascot pose="wave" decorative className="mx-auto mb-3 h-24" />
+            <p className="font-display text-lg font-bold text-navy">Chưa có học sinh nào!</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Hãy là người đầu tiên bắt đầu học nhé.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-3 items-end gap-2 sm:gap-3">
+              {PODIUM_ORDER.map((rank) => {
+                const profile = profiles[rank - 1];
+                // With fewer than three students the empty places keep their column,
+                // so the winner still stands in the middle.
+                return profile ? (
+                  <PodiumPlace key={rank} profile={profile} rank={rank} />
+                ) : (
+                  <div key={rank} />
+                );
+              })}
             </div>
 
-            {/* List */}
-            {isLoading ? (
-              <div className="flex justify-center py-20">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : !profiles || profiles.length === 0 ? (
-              <div className="p-12 text-center">
-                <Mascot pose="wave" decorative className="mx-auto mb-3 h-24" />
-                <p className="font-display text-lg font-bold text-navy">Chưa có học sinh nào!</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Hãy là người đầu tiên bắt đầu học nhé.
-                </p>
-              </div>
-            ) : (
-              <div className="divide-y divide-border/60 px-2 py-2 sm:px-3">
-                {profiles.map((profile, index) => {
-                  const rank = index + 1;
-                  const rankStyle = RANK_STYLES[rank];
-                  const avatarLetter = profile.display_name[0]?.toUpperCase() ?? "?";
-
-                  return (
-                    <Link
-                      key={profile.username}
-                      to="/u/$username"
-                      params={{ username: profile.username }}
-                      className="flex items-center gap-4 rounded-2xl px-3 py-3 transition-colors hover:bg-muted/40 active:scale-[0.99]"
-                    >
-                      {/* Rank */}
-                      <div className="w-8 shrink-0 text-center">
-                        {rankStyle ? (
-                          <span className="text-2xl leading-none">{rankStyle.emoji}</span>
-                        ) : (
-                          <span className="font-display text-sm font-semibold text-muted-foreground">
-                            {rank}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Avatar */}
-                      <div
-                        className={[
-                          "h-10 w-10 shrink-0 rounded-full overflow-hidden flex items-center justify-center font-semibold font-display shadow-sm ring-2 ring-white",
-                          profile.avatar_url || profile.avatar_emoji
-                            ? "bg-sky/30"
-                            : avatarColor(avatarLetter),
-                        ].join(" ")}
-                      >
-                        {profile.avatar_url ? (
-                          <img
-                            src={profile.avatar_url}
-                            alt={`Ảnh đại diện của ${profile.display_name}`}
-                            className="h-full w-full object-cover"
-                            referrerPolicy="no-referrer"
-                          />
-                        ) : profile.avatar_emoji ? (
-                          <span className="text-xl">{profile.avatar_emoji}</span>
-                        ) : (
-                          <span className="text-base">{avatarLetter}</span>
-                        )}
-                      </div>
-
-                      {/* Name + username */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className="font-display font-semibold text-navy truncate">
-                            {profile.display_name}
-                          </span>
-                          {profile.country && (
-                            <img
-                              src={`https://flagcdn.com/w40/${profile.country.toLowerCase()}.png`}
-                              width={20}
-                              height={15}
-                              alt={profile.country}
-                              className="block shrink-0 object-cover rounded-sm"
-                            />
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground truncate">
-                          @{profile.username}
-                        </p>
-                      </div>
-
-                      {/* Score */}
-                      <div className="shrink-0 text-right">
-                        <div className="font-display text-lg font-bold text-navy leading-none">
-                          {profile.completed_count}
-                        </div>
-                        <div className="text-[10px] font-semibold text-muted-foreground leading-tight">
-                          bài xong
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
+            {profiles.length > 3 && (
+              <ol className="mt-6 space-y-3" start={4}>
+                {profiles.slice(3).map((profile, i) => (
+                  <li key={profile.username}>
+                    <RankRow profile={profile} rank={i + 4} />
+                  </li>
+                ))}
+              </ol>
             )}
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </main>
+  );
+}
+
+function PodiumPlace({ profile, rank }: { profile: Profile; rank: 1 | 2 | 3 }) {
+  const look = PODIUM[rank];
+  return (
+    <Link
+      to="/u/$username"
+      params={{ username: profile.username }}
+      className="group flex min-w-0 flex-col items-center"
+    >
+      <div className="relative">
+        <Avatar
+          profile={profile}
+          className={rank === 1 ? "h-20 w-20 text-4xl" : "h-16 w-16 text-3xl"}
+        />
+        <span
+          className={[
+            "absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full font-display text-sm font-bold ring-2 ring-white",
+            look.badge,
+          ].join(" ")}
+        >
+          {rank}
+        </span>
+      </div>
+
+      <div className="mt-3 flex w-full min-w-0 items-center justify-center gap-1.5 px-1">
+        <span className="truncate font-display font-bold text-navy group-hover:underline">
+          {profile.display_name}
+        </span>
+        <Flag country={profile.country} />
+      </div>
+      <p className="text-xs text-muted-foreground">{profile.completed_count} bài xong</p>
+
+      <div className={["mt-3 w-full rounded-t-3xl", look.step, look.height].join(" ")} />
+    </Link>
+  );
+}
+
+function RankRow({ profile, rank }: { profile: Profile; rank: number }) {
+  return (
+    <Link
+      to="/u/$username"
+      params={{ username: profile.username }}
+      className="flex items-center gap-4 rounded-2xl border border-border/60 bg-white px-4 py-3 shadow-sm transition-colors hover:bg-muted/40"
+    >
+      <span className="w-6 shrink-0 text-center font-display text-sm font-semibold text-muted-foreground">
+        {rank}
+      </span>
+
+      <Avatar profile={profile} className="h-10 w-10 text-xl" />
+
+      <div className="min-w-0 flex-1">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="truncate font-display font-semibold text-navy">
+            {profile.display_name}
+          </span>
+          <Flag country={profile.country} />
+        </div>
+        <p className="truncate text-xs text-muted-foreground">@{profile.username}</p>
+      </div>
+
+      <div className="shrink-0 text-right">
+        <div className="font-display text-lg font-bold leading-none text-navy">
+          {profile.completed_count}
+        </div>
+        <div className="text-[10px] font-semibold leading-tight text-muted-foreground">
+          bài xong
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+/** Photo, then emoji, then a coloured initial. `className` sets size and emoji size. */
+function Avatar({ profile, className }: { profile: Profile; className: string }) {
+  const letter = profile.display_name[0]?.toUpperCase() ?? "?";
+  const hasPicture = profile.avatar_url || profile.avatar_emoji;
+  return (
+    <div
+      className={[
+        "flex shrink-0 items-center justify-center overflow-hidden rounded-full font-display font-semibold",
+        hasPicture ? "bg-sky-tint" : avatarColor(letter),
+        className,
+      ].join(" ")}
+    >
+      {profile.avatar_url ? (
+        <img
+          src={profile.avatar_url}
+          alt={`Ảnh đại diện của ${profile.display_name}`}
+          className="h-full w-full object-cover"
+          referrerPolicy="no-referrer"
+        />
+      ) : profile.avatar_emoji ? (
+        <span>{profile.avatar_emoji}</span>
+      ) : (
+        <span className="text-[0.5em]">{letter}</span>
+      )}
+    </div>
+  );
+}
+
+function Flag({ country }: { country: string | null }) {
+  if (!country) return null;
+  return (
+    <img
+      src={`https://flagcdn.com/w40/${country.toLowerCase()}.png`}
+      width={20}
+      height={15}
+      alt={country}
+      className="block shrink-0 rounded-sm object-cover"
+    />
   );
 }
