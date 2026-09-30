@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Loader2, Mic, Square } from "lucide-react";
+import { useT } from "@/i18n";
 
 const MAX_RECORDING_MS = 10_000;
 // RMS (0–1) below this counts as silence. Mic noise floor is usually well under this.
@@ -23,6 +24,7 @@ export function RecordButton({
   onMicDenied: () => void;
   disabled?: boolean;
 }) {
+  const t = useT();
   const [phase, setPhase] = useState<Phase>("idle");
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -188,7 +190,7 @@ export function RecordButton({
       <button
         onClick={isRecording ? stopRecording : startRecording}
         disabled={disabled || phase === "starting"}
-        aria-label={isRecording ? "Dừng ghi âm" : "Bắt đầu ghi âm"}
+        aria-label={isRecording ? t.speaking.stopRecording : t.speaking.startRecording}
         className={[
           "grid h-20 w-20 cursor-pointer place-items-center rounded-full text-white",
           "transition-[transform,box-shadow,background-color] duration-150",
@@ -207,7 +209,7 @@ export function RecordButton({
         )}
       </button>
       <span className="font-display text-sm font-semibold text-sky-ink">
-        {isRecording ? "Đang nghe em nói… bấm để xong" : "Em nói nào!"}
+        {isRecording ? t.speaking.listening : t.speaking.speakNow}
       </span>
     </div>
   );

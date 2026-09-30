@@ -1,5 +1,6 @@
 import { Link, type LinkProps } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { useT } from "@/i18n";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -34,7 +35,8 @@ export function PageBanner({
   /** Optional picture on the right of the band. */
   art?: ReactNode;
 }) {
-  const trail: Crumb[] = [{ label: "Trang chủ", to: "/" }, ...parents];
+  const t = useT();
+  const trail: Crumb[] = [{ label: t.nav.home, to: "/" }, ...parents];
 
   return (
     <div className="px-4 pt-6 sm:px-8 sm:pt-8">

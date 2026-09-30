@@ -1,9 +1,16 @@
-export function renderErrorPage(): string {
+// Catalogs imported directly rather than through "@/i18n": this page is rendered when the app
+// itself may have failed, so it keeps its dependencies to plain data.
+import en from "../i18n/messages/en";
+import vi from "../i18n/messages/vi";
+import { DEFAULT_LOCALE, type Locale } from "../i18n/locale";
+
+export function renderErrorPage(locale: Locale = DEFAULT_LOCALE): string {
+  const t = (locale === "en" ? en : vi).errors;
   return `<!doctype html>
-<html lang="vi">
+<html lang="${locale}">
   <head>
     <meta charset="utf-8" />
-    <title>Trang này chưa tải được</title>
+    <title>${t.genericTitle}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       body { font: 15px/1.5 system-ui, -apple-system, sans-serif; background: #fafafa; color: #111; display: grid; place-items: center; min-height: 100vh; margin: 0; padding: 1.5rem; }
@@ -18,11 +25,11 @@ export function renderErrorPage(): string {
   </head>
   <body>
     <div class="card">
-      <h1>Trang này chưa tải được</h1>
-      <p>Có lỗi xảy ra từ phía chúng tôi. Em hãy thử tải lại, hoặc quay về trang chủ nhé.</p>
+      <h1>${t.genericTitle}</h1>
+      <p>${t.genericBody}</p>
       <div class="actions">
-        <button class="primary" onclick="location.reload()">Thử lại</button>
-        <a class="secondary" href="/">Về trang chủ</a>
+        <button class="primary" onclick="location.reload()">${t.retry}</button>
+        <a class="secondary" href="/">${t.backHome}</a>
       </div>
     </div>
   </body>

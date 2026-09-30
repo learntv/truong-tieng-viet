@@ -1,11 +1,15 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { chuDesOfQuyen, learningStructureQueryOptions, parseQuyenNumber } from "@/lib/learning";
 import { QuyenRoadmap } from "@/components/tabs/LoTrinhTab";
+import { messagesFor } from "@/i18n";
+import { pageTitle } from "@/i18n/head";
 
 export const Route = createFileRoute("/hoc-tap/quyen-{$quyenNumber}/chu-de-{$chuDeIndex}")({
-  head: ({ params }) => {
-    const title = `Chủ đề ${params.chuDeIndex}, Quyển ${params.quyenNumber} | Trường Tiếng Việt Của Em`;
-    const description = `Lộ trình các chặng học của chủ đề ${params.chuDeIndex} trong Quyển ${params.quyenNumber}: bài học, hình ảnh và bài tập cho trẻ em kiều bào.`;
+  head: ({ params, match }) => {
+    const { locale } = match.context;
+    const m = messagesFor(locale).meta.chuDe;
+    const title = pageTitle(locale, m.title(params.chuDeIndex, params.quyenNumber));
+    const description = m.description(params.chuDeIndex, params.quyenNumber);
     const url = `/hoc-tap/quyen-${params.quyenNumber}/chu-de-${params.chuDeIndex}`;
     return {
       meta: [

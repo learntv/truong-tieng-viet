@@ -1,6 +1,8 @@
 import { ExternalLink } from "lucide-react";
 import { SkyBox } from "@/components/ui/sky-box";
-import { PressVideo } from "./PressVideo";
+import { PressVideo, usePressDate } from "./PressVideo";
+import { useT } from "@/i18n";
+import { Rich } from "@/i18n/Rich";
 import daiDoanKetCover from "@/assets/press/dai-doan-ket-cover.webp";
 import daiDoanKetLogo from "@/assets/press/dai-doan-ket-logo.png";
 import baoAnhVietNamCover from "@/assets/press/bao-anh-viet-nam-cover.webp";
@@ -59,22 +61,15 @@ const ARTICLES = [
   },
 ];
 
-/** "2026-09-07" → "07-09-2026", the day-first form the featured report's dateline uses too. */
-const formatDate = (iso: string) => iso.split("-").reverse().join("-");
-
 export function PressNews() {
+  const t = useT();
+  const formatDate = usePressDate();
   return (
     <SkyBox
       tone="cream"
-      ribbon="Tin tức"
-      title="Báo chí viết về chúng tôi"
-      lede={
-        <>
-          Nền tảng học tiếng Việt, các lớp học, tủ sách và hoạt động của{" "}
-          <strong>Hội đồng Văn hóa Giáo dục Canada–Việt Nam</strong> qua góc nhìn của báo chí trong
-          nước.
-        </>
-      }
+      ribbon={t.home.press.ribbon}
+      title={t.home.press.title}
+      lede={<Rich text={t.home.press.lede} />}
     >
       <PressVideo />
 
@@ -120,7 +115,7 @@ export function PressNews() {
                 </span>
 
                 <span className="mt-auto inline-flex items-center gap-1.5 pt-3 font-display text-sm font-extrabold text-indigo">
-                  Đọc bài
+                  {t.home.press.readArticle}
                   <ExternalLink className="h-4 w-4" aria-hidden />
                 </span>
               </span>

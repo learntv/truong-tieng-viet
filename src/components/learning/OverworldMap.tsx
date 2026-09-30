@@ -12,6 +12,7 @@ import { ConfettiBurst } from "./ConfettiBurst";
 import { BuffaloMascot } from "./BuffaloMascot";
 import { BackLink } from "@/components/BackLink";
 import { loadBuffaloPos } from "@/components/tabs/LearningTab";
+import { useT } from "@/i18n";
 import overworldArt from "@/assets/quyen1-overworld.jpg";
 import cachHocBanner from "@/assets/cach-hoc-3-buoc.png";
 
@@ -59,6 +60,7 @@ export function OverworldMap({
   chuDes: ChuDeWithChangs[];
   progressMap: Map<string, ChangProgress>;
 }) {
+  const t = useT();
   const navigate = useNavigate();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [celebrating, setCelebrating] = useState(false);
@@ -161,16 +163,16 @@ export function OverworldMap({
 
   return (
     <section className="relative w-full">
-      <BackLink to="/hoc-tap" label="Quay lại học tập" />
+      <BackLink to="/hoc-tap" label={t.learning.backToLearn} />
       <div className="w-full px-3 pb-8 pt-20 sm:px-4 sm:pt-24">
         <p className="mx-auto mb-4 flex max-w-7xl items-center justify-center gap-2 text-center text-xs text-muted-foreground sm:text-sm">
-          <span>Mỗi địa danh là một chủ đề. Chạm vào địa danh để vừa khám phá vừa học nhé!</span>
+          <span>{t.learning.mapHint}</span>
           {/* Reopens the three-step tutorial for a child who dismissed it and wants it back. */}
           <button
             type="button"
             onClick={() => setShowTutorial(true)}
-            aria-label="Xem lại hướng dẫn"
-            title="Xem lại hướng dẫn"
+            aria-label={t.learning.replayTutorial}
+            title={t.learning.replayTutorial}
             className="grid h-6 w-6 shrink-0 cursor-pointer place-items-center rounded-full bg-primary/10 text-primary transition hover:bg-primary/20 active:translate-y-[1px]"
           >
             <HelpCircle className="h-4 w-4" strokeWidth={2.75} />
@@ -189,13 +191,13 @@ export function OverworldMap({
                   so the whole painting is always visible — nothing gets cropped off the top. */}
               <img
                 src={overworldArt}
-                alt="Bản đồ Việt Nam với các địa danh"
+                alt={t.learning.mapAlt}
                 className="absolute inset-0 h-full w-full object-contain"
               />
 
               {/* Journey progress, kept on the map itself rather than in a header bar. */}
               <div className="absolute right-3 top-3 z-30 rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-semibold text-navy shadow-card">
-                {doneCount}/{landmarks.length} chủ đề
+                {t.learning.topicsDone(doneCount, landmarks.length)}
               </div>
 
               {/* Route between landmarks */}
@@ -238,14 +240,8 @@ export function OverworldMap({
                 const stats = changStats[lm.chuDeIndex];
                 // A chủ đề with no content yet has no title of its own — name it after the place.
                 const title = cd ? chuDeShortTitle(cd.title) : lm.name;
-                const label = `Chủ đề ${lm.chuDeIndex + 1}: ${title}, ${
-                  status === "completed"
-                    ? "đã hoàn thành"
-                    : status === "current"
-                      ? "đang học"
-                      : status === "coming-soon"
-                        ? "sắp có"
-                        : "chưa mở khoá"
+                const label = `${t.learning.topicTitle(lm.chuDeIndex + 1, title)}, ${
+                  t.learning.pinStatus[status]
                 }`;
                 return (
                   <div
@@ -334,7 +330,9 @@ export function OverworldMap({
                               status === "coming-soon" ? "text-muted-foreground" : accent.text,
                             ].join(" ")}
                           >
-                            {status === "coming-soon" ? "Sắp có" : `Chủ đề ${lm.chuDeIndex + 1}`}
+                            {status === "coming-soon"
+                              ? t.learning.comingSoon
+                              : t.learning.topicN(lm.chuDeIndex + 1)}
                           </p>
                           <h2 className="mt-0.5 font-display text-base font-bold leading-tight text-navy">
                             {lm.name}
@@ -345,19 +343,16 @@ export function OverworldMap({
 
                           {status === "coming-soon" ? (
                             <p className="mt-3 border-t border-black/10 pt-3 text-xs leading-snug text-muted-foreground">
-                              Các cô đang biên soạn chủ đề này. Em học các chủ đề trước trong lúc
-                              chờ nhé! ✨
+                              {t.learning.pinComingSoon}
                             </p>
                           ) : status === "locked" ? (
                             <p className="mt-3 border-t border-black/10 pt-3 text-xs leading-snug text-muted-foreground">
-                              Em hoàn thành chủ đề trước để mở khoá địa danh này nhé! ✨
+                              {t.learning.pinLocked}
                             </p>
                           ) : (
                             <>
                               <div className="mt-3 flex items-center justify-between text-[11px] font-semibold text-navy/70">
-                                <span>
-                                  {stats.done}/{stats.total} chặng
-                                </span>
+                                <span>{t.learning.stagesCount(stats.done, stats.total)}</span>
                                 <span className={accent.text}>
                                   {stats.total ? Math.round((stats.done / stats.total) * 100) : 0}%
                                 </span>
@@ -377,7 +372,7 @@ export function OverworldMap({
                                 className="mt-4 w-full font-display font-bold shadow-none"
                                 onClick={() => openChuDe(lm.chuDeIndex)}
                               >
-                                Khám phá ngay
+                                {t.learning.explore}
                               </Button>
                             </>
                           )}
@@ -400,7 +395,7 @@ export function OverworldMap({
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="Cách học ba bước"
+          aria-label={t.learning.tutorialLabel}
           className="animate-modal-overlay-in fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4"
           onClick={dismissTutorial}
         >
@@ -410,7 +405,7 @@ export function OverworldMap({
           >
             <img
               src={cachHocBanner}
-              alt="Ba bước học: 1. Khám phá địa danh, 2. Hoàn thành bài học, 3. Nhận con dấu"
+              alt={t.learning.tutorialAlt}
               className="w-full rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.45)]"
             />
             <Button
@@ -419,7 +414,7 @@ export function OverworldMap({
               onClick={dismissTutorial}
               className="mt-6 px-8 text-base"
             >
-              Em đã hiểu
+              {t.learning.tutorialDone}
             </Button>
           </div>
         </div>

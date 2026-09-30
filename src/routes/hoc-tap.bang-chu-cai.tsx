@@ -40,6 +40,8 @@ import uHornImg from "@/assets/alphabet/u-horn.png";
 import vImg from "@/assets/alphabet/v.png";
 import xImg from "@/assets/alphabet/x.png";
 import yImg from "@/assets/alphabet/y.png";
+import { messagesFor, useT } from "@/i18n";
+import { pageTitle } from "@/i18n/head";
 
 const LETTER_IMAGES: Record<string, string> = {
   a: aImg,
@@ -74,26 +76,28 @@ const LETTER_IMAGES: Record<string, string> = {
 };
 
 export const Route = createFileRoute("/hoc-tap/bang-chu-cai")({
-  head: () => ({
-    meta: [
-      { title: "Bảng chữ cái | Trường Tiếng Việt Của Em" },
-      {
-        name: "description",
-        content:
-          "Khám phá bảng chữ cái tiếng Việt cùng các bạn thú vui nhộn: nghe phát âm và học từ mới.",
-      },
-      { property: "og:title", content: "Bảng chữ cái | Trường Tiếng Việt Của Em" },
-      { property: "og:description", content: "Khám phá bảng chữ cái tiếng Việt cùng các bạn thú vui nhộn: nghe phát âm và học từ mới." },
-      { property: "og:url", content: "/hoc-tap/bang-chu-cai" },
-    ],
-    links: [{ rel: "canonical", href: "/hoc-tap/bang-chu-cai" }],
-  }),
+  head: ({ match }) => {
+    const { locale } = match.context;
+    const m = messagesFor(locale).meta.alphabet;
+    const title = pageTitle(locale, m.title);
+    return {
+      meta: [
+        { title },
+        { name: "description", content: m.description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: m.description },
+        { property: "og:url", content: "/hoc-tap/bang-chu-cai" },
+      ],
+      links: [{ rel: "canonical", href: "/hoc-tap/bang-chu-cai" }],
+    };
+  },
   component: BangChuCaiTab,
 });
 
 const ALPHABET_PDF_URL = "https://bucket.bambootech.fi/misc/bang-chu-cai-tieng-viet-v2.pdf";
 
 function BangChuCaiTab() {
+  const t = useT();
   const [progress, setProgress] = useState<Record<string, true>>({});
   const [activeLetter, setActiveLetter] = useState<AlphabetLetter | null>(null);
 
@@ -112,8 +116,8 @@ function BangChuCaiTab() {
   return (
     <div className="pb-10 sm:pb-12">
       <PageBanner
-        title="Bảng chữ cái"
-        parents={[{ label: "Học tập", to: "/hoc-tap" }]}
+        title={t.alphabet.title}
+        parents={[{ label: t.hocTap.crumb, to: "/hoc-tap" }]}
         art={<Mascot pose="reading" decorative className="relative h-24 sm:h-36" />}
       />
 
@@ -123,10 +127,10 @@ function BangChuCaiTab() {
           <div className="min-w-0 flex-1">
             <div className="mb-2 flex items-baseline justify-between gap-2">
               <span className="text-xs font-extrabold uppercase tracking-[0.08em] text-sky-ink-soft">
-                Đã khám phá
+                {t.alphabet.explored}
               </span>
               <span className="font-display text-sm font-bold text-sky-ink">
-                {seenCount}/{total} chữ
+                {t.alphabet.lettersCount(seenCount, total)}
               </span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-muted">
@@ -143,7 +147,7 @@ function BangChuCaiTab() {
             className={skyButton("white", "shrink-0 self-start ring-1 ring-sky-ink/10 sm:self-auto")}
           >
             <Download className="h-4 w-4" strokeWidth={2.5} />
-            Tải PDF bảng chữ cái
+            {t.alphabet.downloadPdf}
           </a>
         </div>
 
@@ -186,6 +190,7 @@ function LetterCard({
   isSeen: boolean;
   onClick: () => void;
 }) {
+  const t = useT();
   const tone = toneAt(index);
   return (
     <button
@@ -199,12 +204,12 @@ function LetterCard({
       {isSeen && (
         <span className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-white text-green">
           <Check className="h-3.5 w-3.5" strokeWidth={3} />
-          <span className="sr-only">Đã xem</span>
+          <span className="sr-only">{t.alphabet.seen}</span>
         </span>
       )}
       <img
         src={LETTER_IMAGES[letter.id]}
-        alt={`Bạn thú chữ ${letter.letter}`}
+        alt={t.alphabet.animalAlt(letter.letter)}
         className="h-1/2 w-auto object-contain"
       />
       <span className="font-display text-xl font-bold text-sky-ink sm:text-2xl">
@@ -215,6 +220,7 @@ function LetterCard({
 }
 
 function LetterSoundButton({ text, label }: { text: string; label: string }) {
+  const t = useT();
   const { play, audioRef, src, onEnded, onPause, onError } = useSingletonAudio(ttsSrc(text));
   return (
     <>
@@ -228,7 +234,7 @@ function LetterSoundButton({ text, label }: { text: string; label: string }) {
       />
       <button
         onClick={play}
-        aria-label={`Nghe đọc chữ ${label}`}
+        aria-label={t.alphabet.listenLetter(label)}
         className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full bg-primary text-white shadow-btn transition-[transform,box-shadow,background-color] hover:bg-primary-glow active:translate-y-[1px] active:shadow-btn-active"
       >
         <Volume2 className="h-5 w-5" strokeWidth={2.5} />
@@ -238,6 +244,7 @@ function LetterSoundButton({ text, label }: { text: string; label: string }) {
 }
 
 function WordRow({ word, tone }: { word: AlphabetWord; tone: Tone }) {
+  const t = useT();
   const { play, audioRef, src, onEnded, onPause, onError } = useSingletonAudio(ttsSrc(word.vi));
   return (
     <>
@@ -251,7 +258,7 @@ function WordRow({ word, tone }: { word: AlphabetWord; tone: Tone }) {
       />
       <button
         onClick={play}
-        aria-label={`Nghe đọc: ${word.vi}`}
+        aria-label={t.learning.listenTo(word.vi)}
         className="group flex cursor-pointer items-center gap-4 rounded-2xl border border-border/70 bg-card p-2.5 pr-4 text-left shadow-[0_2px_10px_rgba(15,23,42,0.05)] transition-shadow duration-150 hover:shadow-[0_6px_20px_rgba(15,23,42,0.09)]"
       >
         <span
@@ -279,6 +286,7 @@ function LetterDetailDialog({
   letter: AlphabetLetter | null;
   onOpenChange: (open: boolean) => void;
 }) {
+  const t = useT();
   // Same tone as the letter's tile in the grid.
   const tone = useMemo(
     () => toneAt(letter ? ALPHABET.findIndex((l) => l.id === letter.id) : 0),
@@ -293,7 +301,7 @@ function LetterDetailDialog({
       >
         <DialogClose className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white text-sky-ink shadow-btn transition-transform hover:scale-105 active:translate-y-[1px] active:shadow-btn-active">
           <X className="h-5 w-5" strokeWidth={2.5} />
-          <span className="sr-only">Đóng</span>
+          <span className="sr-only">{t.learning.close}</span>
         </DialogClose>
         {letter && (
           <div className="flex max-h-[92vh] flex-col overflow-y-auto sm:flex-row sm:overflow-hidden">
@@ -306,7 +314,7 @@ function LetterDetailDialog({
             >
               <img
                 src={LETTER_IMAGES[letter.id]}
-                alt={`Bạn thú chữ ${letter.letter}`}
+                alt={t.alphabet.animalAlt(letter.letter)}
                 className="h-40 w-auto animate-breathe object-contain sm:h-64"
               />
             </div>

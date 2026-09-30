@@ -1,14 +1,21 @@
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { Stars } from "@/lib/speech";
 import type { SpeakingProgress, SpeakingStat } from "@/lib/speaking-progress";
+import { useT, type Messages } from "@/i18n";
 
-function notifySaveFailed() {
-  toast.error("Chưa lưu được tiến độ nói", {
+function notifySaveFailed(t: Messages) {
+  toast.error(t.speaking.saveFailed, {
     id: "speaking-progress-save-failed",
-    description: "Em kiểm tra kết nối mạng rồi thử lại nhé!",
+    description: t.speaking.saveFailedHint,
+  });
+}
+
+function notifyMergeFailed(t: Messages) {
+  toast.error(t.speaking.mergeFailed, {
+    description: t.speaking.mergeFailedHint,
   });
 }
 
@@ -18,6 +25,11 @@ function progressQueryKey(userId: string) {
 
 export function useSpeakingUserProgress(userId: string | null) {
   const queryClient = useQueryClient();
+  // Read through a ref so a language switch doesn't give the callbacks below a new identity
+  // (mergeLocalProgress runs from an effect keyed on it).
+  const t = useT();
+  const tRef = useRef(t);
+  tRef.current = t;
 
   const { data: progressMap, isLoading } = useQuery({
     queryKey: userId ? progressQueryKey(userId) : ["speaking-progress-disabled"],
@@ -66,7 +78,7 @@ export function useSpeakingUserProgress(userId: string | null) {
       if (error) {
         queryClient.setQueryData(key, snapshot);
         console.error("Failed to save speaking attempt:", error);
-        notifySaveFailed();
+        notifySaveFailed(tRef.current);
       }
     },
     [userId, queryClient],
@@ -88,9 +100,7 @@ export function useSpeakingUserProgress(userId: string | null) {
         .in("sentence_id", ids);
       if (fetchError) {
         console.error("Speaking progress merge fetch error:", fetchError);
-        toast.error("Một phần tiến độ nói cũ chưa lưu được vào tài khoản", {
-          description: "Em kiểm tra mạng rồi tải lại trang nhé!",
-        });
+        notifyMergeFailed(tRef.current);
         return false;
       }
       const existingBySentence = new Map((existingRows ?? []).map((r) => [r.sentence_id, r]));
@@ -112,9 +122,7 @@ export function useSpeakingUserProgress(userId: string | null) {
         .upsert(rows, { onConflict: "user_id,sentence_id" });
       if (error) {
         console.error("Speaking progress merge upsert error:", error);
-        toast.error("Một phần tiến độ nói cũ chưa lưu được vào tài khoản", {
-          description: "Em kiểm tra mạng rồi tải lại trang nhé!",
-        });
+        notifyMergeFailed(tRef.current);
         return false;
       }
 

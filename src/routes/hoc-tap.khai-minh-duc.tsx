@@ -3,24 +3,25 @@ import { ArrowRight, Loader2 } from "lucide-react";
 import { KmdThumb } from "@/components/kmd/KmdThumb";
 import { useKmdLessons, type KmdLessonSummary } from "@/hooks/useKmdLessons";
 import { PageBanner } from "@/components/site/PageBanner";
+import { messagesFor, useT } from "@/i18n";
+import { pageTitle } from "@/i18n/head";
 
 export const Route = createFileRoute("/hoc-tap/khai-minh-duc")({
-  head: () => ({
-    meta: [
-      { title: "Khai Minh Đức | Trường Tiếng Việt Của Em" },
-      {
-        name: "description",
-        content: "Học đánh vần cùng chương trình Khai Minh Đức: từng bài âm, vần cùng Trâu con.",
-      },
-      { property: "og:title", content: "Khai Minh Đức | Trường Tiếng Việt Của Em" },
-      {
-        property: "og:description",
-        content: "Học đánh vần cùng chương trình Khai Minh Đức: từng bài âm, vần cùng Trâu con.",
-      },
-      { property: "og:url", content: "/hoc-tap/khai-minh-duc" },
-    ],
-    links: [{ rel: "canonical", href: "/hoc-tap/khai-minh-duc" }],
-  }),
+  head: ({ match }) => {
+    const { locale } = match.context;
+    const m = messagesFor(locale).meta.kmd;
+    const title = pageTitle(locale, m.title);
+    return {
+      meta: [
+        { title },
+        { name: "description", content: m.description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: m.description },
+        { property: "og:url", content: "/hoc-tap/khai-minh-duc" },
+      ],
+      links: [{ rel: "canonical", href: "/hoc-tap/khai-minh-duc" }],
+    };
+  },
   component: KhaiMinhDucLayout,
 });
 
@@ -33,14 +34,12 @@ function KhaiMinhDucLayout() {
 }
 
 function KhaiMinhDucIndex() {
+  const t = useT();
   const { data: lessons, isLoading, error } = useKmdLessons();
 
   return (
     <div>
-      <PageBanner
-        title="Khai Minh Đức"
-        parents={[{ label: "Học tập", to: "/hoc-tap" }]}
-      />
+      <PageBanner title={t.kmd.title} parents={[{ label: t.hocTap.crumb, to: "/hoc-tap" }]} />
 
       <div className="relative mx-auto max-w-4xl px-4 pb-10 pt-8 sm:px-6">
         {isLoading && (
@@ -51,13 +50,13 @@ function KhaiMinhDucIndex() {
 
         {error != null && !isLoading && (
           <p className="py-16 text-center text-sm font-semibold text-muted-foreground">
-            Chưa tải được danh sách bài học, em thử lại sau nhé!
+            {t.kmd.loadFailed}
           </p>
         )}
 
         {!isLoading && !error && lessons != null && lessons.length === 0 && (
           <p className="py-16 text-center text-sm font-semibold text-muted-foreground">
-            Chưa có bài học nào.
+            {t.kmd.empty}
           </p>
         )}
 
@@ -81,6 +80,7 @@ function KhaiMinhDucIndex() {
  * right.
  */
 function LessonRow({ lesson, index }: { lesson: KmdLessonSummary; index: number }) {
+  const t = useT();
   return (
     <Link
       to="/hoc-tap/khai-minh-duc/$slug"
@@ -91,7 +91,7 @@ function LessonRow({ lesson, index }: { lesson: KmdLessonSummary; index: number 
 
       <div className="min-w-0 flex-1">
         <p className="text-[0.6875rem] font-extrabold uppercase tracking-[0.08em] text-green">
-          Bài {index + 1}
+          {t.kmd.lessonN(index + 1)}
         </p>
         <h2 className="mt-1 font-display text-base font-bold leading-snug text-foreground">
           {lesson.title}

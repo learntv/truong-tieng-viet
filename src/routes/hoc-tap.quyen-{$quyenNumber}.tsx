@@ -1,5 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { parseQuyenNumber } from "@/lib/learning";
+import { messagesFor } from "@/i18n";
+import { pageTitle } from "@/i18n/head";
 
 // One route serves every quyển: the number in the URL picks which book's chủ đề are read out of
 // the CMS. Quyển 2 is not a separate page — it is this page with `quyenNumber` = 2, so a book
@@ -13,14 +15,16 @@ export const Route = createFileRoute("/hoc-tap/quyen-{$quyenNumber}")({
       throw redirect({ to: "/hoc-tap", replace: true });
     }
   },
-  head: ({ params }) => {
+  head: ({ params, match }) => {
+    const { locale } = match.context;
+    const m = messagesFor(locale).meta.quyen;
     const n = params.quyenNumber;
-    const title = `Học Tiếng Việt Quyển ${n} | Trường Tiếng Việt Của Em`;
-    const description = `Lộ trình học tiếng Việt Quyển ${n} qua các chủ đề dành cho trẻ em kiều bào.`;
+    const title = pageTitle(locale, m.ogTitle(n));
+    const description = m.description(n);
     const url = `/hoc-tap/quyen-${n}`;
     return {
       meta: [
-        { title: "Học Tiếng Việt | Trường Tiếng Việt Của Em" },
+        { title: pageTitle(locale, m.title) },
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },

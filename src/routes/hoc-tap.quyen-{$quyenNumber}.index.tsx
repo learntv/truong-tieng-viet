@@ -3,15 +3,19 @@ import { useQuery } from "@tanstack/react-query";
 import { chuDesOfQuyen, learningStructureQueryOptions, parseQuyenNumber } from "@/lib/learning";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
 import { OverworldMap } from "@/components/learning/OverworldMap";
+import { messagesFor, useT } from "@/i18n";
+import { pageTitle } from "@/i18n/head";
 
 // "/hoc-tap/quyen-N" is the hub of the book: an overworld map of Việt Nam with one landmark per
 // chủ đề. Moving between chủ đề goes through this map rather than a stepper, so the child always
 // sees where they are in the journey.
 export const Route = createFileRoute("/hoc-tap/quyen-{$quyenNumber}/")({
-  head: ({ params }) => {
+  head: ({ params, match }) => {
+    const { locale } = match.context;
+    const m = messagesFor(locale).meta.quyenMap;
     const n = params.quyenNumber;
-    const title = `Bản đồ Quyển ${n} | Trường Tiếng Việt Của Em`;
-    const description = `Bản đồ Việt Nam với các chủ đề của Quyển ${n}: chọn địa danh để bắt đầu hành trình học tiếng Việt cùng con.`;
+    const title = pageTitle(locale, m.title(n));
+    const description = m.description(n);
     const url = `/hoc-tap/quyen-${n}`;
     return {
       meta: [
@@ -29,6 +33,7 @@ export const Route = createFileRoute("/hoc-tap/quyen-{$quyenNumber}/")({
 });
 
 function RouteComponent() {
+  const t = useT();
   const { quyenNumber } = Route.useParams();
   const { data, error } = useQuery(learningStructureQueryOptions);
   // Progress isn't awaited here — the map (background art + pins) renders as soon as the
@@ -48,7 +53,7 @@ function RouteComponent() {
     return (
       <section className="flex min-h-[60vh] w-full items-center justify-center px-4 text-center text-navy">
         <div>
-          <p className="font-display text-lg font-bold">Chưa có dữ liệu bài học.</p>
+          <p className="font-display text-lg font-bold">{t.hocTap.noData}</p>
           {error ? (
             <p className="mt-2 text-sm text-muted-foreground">{(error as Error).message}</p>
           ) : null}

@@ -1,48 +1,49 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Facebook, Linkedin, Mail, MapPin, MessageCircle, Youtube } from "lucide-react";
 import { PageBanner } from "@/components/site/PageBanner";
+import { messagesFor, useT } from "@/i18n";
+import { pageTitle } from "@/i18n/head";
+import { Rich } from "@/i18n/Rich";
 
 export const Route = createFileRoute("/lien-he")({
-  head: () => ({
-    meta: [
-      { title: "Liên hệ | Trường Tiếng Việt Của Em" },
-      {
-        name: "description",
-        content:
-          "Liên hệ với Trường Tiếng Việt Của Em và Canada Vietnam Cultural & Educational Council (CVCEC) qua email, WhatsApp, mạng xã hội hoặc địa chỉ tại Toronto, Canada.",
-      },
-      { property: "og:title", content: "Liên hệ | Trường Tiếng Việt Của Em" },
-      {
-        property: "og:description",
-        content: "Kết nối với chúng tôi qua email, WhatsApp, mạng xã hội hoặc địa chỉ tại Toronto.",
-      },
-      { property: "og:url", content: "/lien-he" },
-    ],
-    links: [{ rel: "canonical", href: "/lien-he" }],
-  }),
+  head: ({ match }) => {
+    const { locale } = match.context;
+    const m = messagesFor(locale).meta.contact;
+    const title = pageTitle(locale, m.title);
+    return {
+      meta: [
+        { title },
+        { name: "description", content: m.description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: m.ogDescription },
+        { property: "og:url", content: "/lien-he" },
+      ],
+      links: [{ rel: "canonical", href: "/lien-he" }],
+    };
+  },
   component: Contact,
 });
 
 const CHANNELS = [
   {
     Icon: Mail,
-    label: "Email",
+    label: "email",
     value: "contact@cvcec.org",
     href: "mailto:contact@cvcec.org",
   },
   {
     Icon: MessageCircle,
-    label: "WhatsApp",
+    label: "whatsapp",
     value: "+1 647-897-2358",
     href: "https://api.whatsapp.com/send?phone=16478972358",
   },
   {
     Icon: MapPin,
-    label: "Địa chỉ",
+    label: "address",
     value: "192 Spadina Ave., Toronto, ON M5T 2C2, Canada",
     href: "https://maps.google.com/?q=192+Spadina+Ave,+Toronto,+ON+M5T+2C2",
   },
-];
+] as const;
 
 const SOCIALS = [
   { Icon: Facebook, label: "Facebook", href: "https://facebook.com/cvcec.org" },
@@ -51,23 +52,17 @@ const SOCIALS = [
 ];
 
 function Contact() {
+  const { contact } = useT().pages;
   return (
     <main>
-      <PageBanner title="Liên hệ" />
+      <PageBanner title={contact.title} />
 
       <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
         <p className="mb-10 text-sm leading-relaxed text-muted-foreground sm:text-base">
-          Trường Tiếng Việt Của Em được vận hành bởi{" "}
-          <a
-            href="https://www.cvcec.org/"
-            target="_blank"
-            rel="noreferrer"
-            className="font-semibold text-primary underline underline-offset-2"
-          >
-            Canada Vietnam Cultural &amp; Educational Council (CVCEC)
-          </a>
-          . Nếu bạn có câu hỏi, góp ý hoặc mong muốn hợp tác, hãy liên hệ với chúng tôi qua các
-          kênh dưới đây.
+          <Rich
+            text={contact.intro}
+            linkClassName="font-semibold text-primary underline underline-offset-2"
+          />
         </p>
 
         <div className="flex flex-col gap-3">
@@ -84,7 +79,7 @@ function Contact() {
               </span>
               <span>
                 <span className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  {label}
+                  {contact[label]}
                 </span>
                 <span className="font-display font-semibold text-foreground">{value}</span>
               </span>
@@ -93,7 +88,7 @@ function Contact() {
         </div>
 
         <h2 className="mb-4 mt-10 font-display text-xl font-bold text-foreground">
-          Theo dõi chúng tôi
+          {contact.follow}
         </h2>
         <div className="flex items-center gap-3">
           {SOCIALS.map(({ Icon, label, href }) => (

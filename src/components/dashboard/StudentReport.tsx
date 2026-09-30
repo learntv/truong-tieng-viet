@@ -25,48 +25,43 @@ import {
   type StudentStatus,
   useStudentReport,
 } from "@/hooks/useStudentReport";
+import { useLocale, useT, type Locale, type Messages } from "@/i18n";
 
-const REGION_NAMES = new Intl.DisplayNames(["vi"], { type: "region" });
+const REGION_NAMES: Record<Locale, Intl.DisplayNames> = {
+  vi: new Intl.DisplayNames(["vi"], { type: "region" }),
+  en: new Intl.DisplayNames(["en"], { type: "region" }),
+};
 
-function countryLabel(code: string | null): string {
+function countryLabel(locale: Locale, code: string | null): string {
   if (!code) return "—";
   try {
-    return REGION_NAMES.of(code.toUpperCase()) ?? code;
+    return REGION_NAMES[locale].of(code.toUpperCase()) ?? code;
   } catch {
     return code;
   }
 }
 
-function relativeTime(d: Date | null): string {
-  if (!d) return "Chưa hoạt động";
+function relativeTime(t: Messages, d: Date | null): string {
+  if (!d) return t.dashboard.neverActive;
   const days = Math.floor((Date.now() - d.getTime()) / 86_400_000);
-  if (days <= 0) return "Hôm nay";
-  if (days === 1) return "Hôm qua";
-  if (days < 30) return `${days} ngày trước`;
-  if (days < 365) return `${Math.floor(days / 30)} tháng trước`;
-  return `${Math.floor(days / 365)} năm trước`;
+  if (days <= 0) return t.dashboard.today;
+  if (days === 1) return t.dashboard.yesterday;
+  if (days < 30) return t.dashboard.daysAgo(days);
+  if (days < 365) return t.dashboard.monthsAgo(Math.floor(days / 30));
+  return t.dashboard.yearsAgo(Math.floor(days / 365));
 }
 
-const STATUS_META: Record<
-  StudentStatus,
-  { label: string; className: string }
-> = {
-  completed: { label: "Hoàn thành", className: "bg-[var(--stage-1)]/15 text-[var(--stage-1)]" },
-  active: { label: "Đang học", className: "bg-primary/10 text-primary" },
-  attention: { label: "Cần hỗ trợ", className: "bg-amber-500/15 text-amber-600 dark:text-amber-400" },
-  new: { label: "Mới", className: "bg-muted text-muted-foreground" },
+const STATUS_CLASS: Record<StudentStatus, string> = {
+  completed: "bg-[var(--stage-1)]/15 text-[var(--stage-1)]",
+  active: "bg-primary/10 text-primary",
+  attention: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
+  new: "bg-muted text-muted-foreground",
 };
 
 type SortKey = "name" | "completion" | "stars" | "active";
 type StatusFilter = "all" | StudentStatus;
 
-const FILTERS: { key: StatusFilter; label: string }[] = [
-  { key: "all", label: "Tất cả" },
-  { key: "active", label: "Đang học" },
-  { key: "attention", label: "Cần hỗ trợ" },
-  { key: "completed", label: "Hoàn thành" },
-  { key: "new", label: "Mới" },
-];
+const FILTERS: StatusFilter[] = ["all", "active", "attention", "completed", "new"];
 
 function ProgressBar({ pct }: { pct: number }) {
   return (
@@ -98,6 +93,8 @@ function SummaryStat({ label, value, tone }: { label: string; value: string; ton
 }
 
 function StudentTable({ students }: { students: StudentRow[] }) {
+  const t = useT();
+  const { locale } = useLocale();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [sort, setSort] = useState<{ key: SortKey; dir: "asc" | "desc" }>({
@@ -114,12 +111,13 @@ function StudentTable({ students }: { students: StudentRow[] }) {
         (s) =>
           s.displayName.toLowerCase().includes(q) ||
           s.username.toLowerCase().includes(q) ||
-          countryLabel(s.country).toLowerCase().includes(q),
+          countryLabel(locale, s.country).toLowerCase().includes(q),
       );
     const dir = sort.dir === "asc" ? 1 : -1;
     return [...list].sort((a, b) => {
       switch (sort.key) {
         case "name":
+          // Names are Vietnamese whatever the interface language, so collate them as such.
           return dir * a.displayName.localeCompare(b.displayName, "vi");
         case "completion":
           return dir * (a.completionPct - b.completionPct);
@@ -129,7 +127,7 @@ function StudentTable({ students }: { students: StudentRow[] }) {
           return dir * ((a.lastActive?.getTime() ?? 0) - (b.lastActive?.getTime() ?? 0));
       }
     });
-  }, [students, query, filter, sort]);
+  }, [students, query, filter, sort, locale]);
 
   const toggleSort = (key: SortKey) =>
     setSort((s) =>
@@ -158,10 +156,8 @@ function StudentTable({ students }: { students: StudentRow[] }) {
     <Card className="rounded-lg shadow-sm">
       <CardHeader className="gap-3 px-4 pb-3 pt-4">
         <div className="flex flex-col gap-0.5">
-          <CardTitle className="font-display text-sm">Danh sách học sinh</CardTitle>
-          <CardDescription className="text-xs">
-            Nhấp tiêu đề cột để sắp xếp, lọc theo trạng thái để tìm em cần hỗ trợ.
-          </CardDescription>
+          <CardTitle className="font-display text-sm">{t.dashboard.studentList}</CardTitle>
+          <CardDescription className="text-xs">{t.dashboard.studentListHint}</CardDescription>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative max-w-xs flex-1">
@@ -169,24 +165,24 @@ function StudentTable({ students }: { students: StudentRow[] }) {
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Tìm theo tên, quốc gia…"
+              placeholder={t.dashboard.searchPlaceholder}
               className="pl-9"
             />
           </div>
           <div className="flex flex-wrap gap-1.5">
             {FILTERS.map((f) => (
               <button
-                key={f.key}
+                key={f}
                 type="button"
-                onClick={() => setFilter(f.key)}
+                onClick={() => setFilter(f)}
                 className={[
                   "rounded-full px-3 py-1 text-xs font-medium transition-colors",
-                  filter === f.key
+                  filter === f
                     ? "bg-primary text-white"
                     : "bg-muted text-muted-foreground hover:bg-muted/70",
                 ].join(" ")}
               >
-                {f.label}
+                {f === "all" ? t.dashboard.all : t.dashboard.status[f]}
               </button>
             ))}
           </div>
@@ -197,17 +193,17 @@ function StudentTable({ students }: { students: StudentRow[] }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <SortHead label="Học sinh" k="name" />
-                <TableHead>Quốc gia</TableHead>
-                <SortHead label="Tiến độ" k="completion" />
-                <SortHead label="Sao nói" k="stars" className="text-right" />
-                <SortHead label="Hoạt động" k="active" />
-                <TableHead>Trạng thái</TableHead>
+                <SortHead label={t.dashboard.colStudent} k="name" />
+                <TableHead>{t.dashboard.colCountry}</TableHead>
+                <SortHead label={t.dashboard.colProgress} k="completion" />
+                <SortHead label={t.dashboard.colStars} k="stars" className="text-right" />
+                <SortHead label={t.dashboard.colActive} k="active" />
+                <TableHead>{t.dashboard.colStatus}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {rows.map((s) => {
-                const meta = STATUS_META[s.status];
+                const statusClass = STATUS_CLASS[s.status];
                 return (
                   <TableRow key={s.id}>
                     <TableCell>
@@ -237,7 +233,7 @@ function StudentTable({ students }: { students: StudentRow[] }) {
                             {s.displayName}
                           </span>
                           <span className="block truncate text-xs text-muted-foreground">
-                            {s.completedChang}/{s.totalChang} chặng
+                            {t.dashboard.stagesOf(s.completedChang, s.totalChang)}
                           </span>
                         </span>
                       </Link>
@@ -247,7 +243,7 @@ function StudentTable({ students }: { students: StudentRow[] }) {
                         {s.country && s.country.length === 2 && (
                           <FlagImg code={s.country} size={16} />
                         )}
-                        {countryLabel(s.country)}
+                        {countryLabel(locale, s.country)}
                       </span>
                     </TableCell>
                     <TableCell>
@@ -261,14 +257,14 @@ function StudentTable({ students }: { students: StudentRow[] }) {
                       )}
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
-                      {relativeTime(s.lastActive)}
+                      {relativeTime(t, s.lastActive)}
                     </TableCell>
                     <TableCell>
                       <Badge
                         variant="secondary"
-                        className={`${meta.className} hover:${meta.className} border-0`}
+                        className={`${statusClass} hover:${statusClass} border-0`}
                       >
-                        {meta.label}
+                        {t.dashboard.status[s.status]}
                       </Badge>
                     </TableCell>
                   </TableRow>
@@ -277,7 +273,7 @@ function StudentTable({ students }: { students: StudentRow[] }) {
               {rows.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6} className="py-10 text-center text-sm text-muted-foreground">
-                    Không có học sinh nào khớp bộ lọc.
+                    {t.dashboard.noMatches}
                   </TableCell>
                 </TableRow>
               )}
@@ -291,6 +287,7 @@ function StudentTable({ students }: { students: StudentRow[] }) {
 
 // Chặng that students reach but don't finish — the curriculum's sticking points.
 function StuckPoints({ funnel }: { funnel: ChangFunnelRow[] }) {
+  const t = useT();
   const hardest = useMemo(
     () =>
       funnel
@@ -305,11 +302,8 @@ function StuckPoints({ funnel }: { funnel: ChangFunnelRow[] }) {
   return (
     <Card className="rounded-lg shadow-sm">
       <CardHeader className="px-4 pb-3 pt-4">
-        <CardTitle className="font-display text-sm">Chặng học sinh dễ mắc kẹt</CardTitle>
-        <CardDescription className="text-xs">
-          Tỷ lệ hoàn thành thấp nhất trong số các chặng đã có nhiều em bắt đầu, nơi nên xem lại nội
-          dung hoặc hỗ trợ thêm.
-        </CardDescription>
+        <CardTitle className="font-display text-sm">{t.dashboard.stuckTitle}</CardTitle>
+        <CardDescription className="text-xs">{t.dashboard.stuckHint}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2 px-4 pb-4">
         {hardest.map((f) => (
@@ -330,10 +324,8 @@ function StuckPoints({ funnel }: { funnel: ChangFunnelRow[] }) {
             </div>
             <div className="w-28 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
               <span className="font-semibold text-foreground">{f.completionPct.toFixed(0)}%</span>{" "}
-              hoàn thành
-              <div className="text-[11px]">
-                {f.dropoff} / {f.reached} còn dở
-              </div>
+              {t.dashboard.completedWord}
+              <div className="text-[11px]">{t.dashboard.unfinished(f.dropoff, f.reached)}</div>
             </div>
           </div>
         ))}
@@ -351,15 +343,15 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 }
 
 export function StudentReport() {
+  const t = useT();
+  const { fmtNumber } = useLocale();
   const { report, isReportLoading, reportError } = useStudentReport();
 
   if (reportError) {
     return (
       <section className="space-y-4">
-        <SectionHeading>Báo Cáo Học Sinh</SectionHeading>
-        <p className="text-sm text-muted-foreground">
-          Không tải được báo cáo học sinh. Vui lòng thử lại.
-        </p>
+        <SectionHeading>{t.dashboard.reportTitle}</SectionHeading>
+        <p className="text-sm text-muted-foreground">{t.dashboard.reportFailed}</p>
       </section>
     );
   }
@@ -367,8 +359,8 @@ export function StudentReport() {
   if (isReportLoading || !report) {
     return (
       <section className="space-y-4">
-        <SectionHeading>Báo Cáo Học Sinh</SectionHeading>
-        <p className="text-sm text-muted-foreground">Đang tải báo cáo học sinh…</p>
+        <SectionHeading>{t.dashboard.reportTitle}</SectionHeading>
+        <p className="text-sm text-muted-foreground">{t.dashboard.reportLoading}</p>
       </section>
     );
   }
@@ -377,22 +369,22 @@ export function StudentReport() {
 
   return (
     <section className="space-y-3">
-      <SectionHeading>Báo Cáo Học Sinh</SectionHeading>
+      <SectionHeading>{t.dashboard.reportTitle}</SectionHeading>
       <Card className="rounded-lg py-0 shadow-sm">
         <div className="grid grid-cols-2 divide-y divide-border sm:grid-cols-4 sm:divide-y-0 sm:divide-x">
-          <SummaryStat label="Tổng học sinh" value={summary.totalStudents.toLocaleString("en-US")} />
+          <SummaryStat label={t.dashboard.totalStudents} value={fmtNumber(summary.totalStudents)} />
           <SummaryStat
-            label="Hoạt động trong 7 ngày"
-            value={summary.activeWeek.toLocaleString("en-US")}
+            label={t.dashboard.activeWeek}
+            value={fmtNumber(summary.activeWeek)}
             tone="text-primary"
           />
           <SummaryStat
-            label="Cần hỗ trợ"
-            value={summary.needAttention.toLocaleString("en-US")}
+            label={t.dashboard.needAttention}
+            value={fmtNumber(summary.needAttention)}
             tone="text-amber-600 dark:text-amber-400"
           />
           <SummaryStat
-            label="Tiến độ TB (đã bắt đầu)"
+            label={t.dashboard.avgProgress}
             value={`${summary.avgCompletion.toFixed(0)}%`}
           />
         </div>

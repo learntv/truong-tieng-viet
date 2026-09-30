@@ -16,8 +16,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { ProfileSetupModal } from "@/components/ProfileSetupModal";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { LanguageWelcome } from "@/components/LanguageWelcome";
 import { SkyPage } from "@/components/layout/SkyPage";
 import { logCmsHealth } from "@/lib/cms-health";
+import { I18nProvider } from "@/i18n";
+import { getLocale } from "@/i18n/get-locale";
+import { siteMeta } from "@/i18n/head";
 
 const SITE_URL = "https://truongtiengviet.cvcec.org";
 const OG_IMAGE =
@@ -49,27 +53,16 @@ const structuredData = JSON.stringify({
 });
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
+  // The interface language comes from the `locale` cookie, read here on the server and on the
+  // client alike, so SSR already renders the right language. The HTML therefore varies by
+  // cookie: if SSR responses are ever cached at the edge, the cache must honour `Vary: Cookie`
+  // (or skip requests carrying a `locale` cookie), or visitors will get each other's language.
+  beforeLoad: () => ({ locale: getLocale() }),
+  head: ({ match }) => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "Trường Tiếng Việt Của Em" },
-      {
-        name: "description",
-        content: "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào.",
-      },
-      { property: "og:title", content: "Trường Tiếng Việt Của Em" },
-      {
-        property: "og:description",
-        content: "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "Trường Tiếng Việt Của Em" },
-      {
-        name: "twitter:description",
-        content: "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào.",
-      },
+      ...siteMeta(match.context.locale),
       {
         property: "og:image",
         content: OG_IMAGE,
@@ -106,8 +99,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const locale = Route.useRouteContext({ select: (c) => c.locale });
   return (
-    <html lang="vi">
+    <html lang={locale}>
       <head>
         <HeadContent />
       </head>
@@ -136,7 +130,7 @@ const BARE_SKY_ROUTES = [
 ];
 
 function RootComponent() {
-  const { queryClient } = Route.useRouteContext();
+  const { queryClient, locale } = Route.useRouteContext();
   const matches = useRouterState({ select: (s) => s.matches });
 
   // Debug: one line in the console saying whether the CMS answered.
@@ -155,23 +149,26 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {isFullScreen || isHome || isDashboard ? (
-        <>
-          {!isFullScreen && <Navbar />}
-          <Outlet />
-          {!isFullScreen && <Footer />}
-        </>
-      ) : (
-        <>
-          <Navbar />
-          <SkyPage card={!isBareSky}>
+      <I18nProvider locale={locale}>
+        {isFullScreen || isHome || isDashboard ? (
+          <>
+            {!isFullScreen && <Navbar />}
             <Outlet />
-          </SkyPage>
-          <Footer />
-        </>
-      )}
-      <NewUserSetup />
-      <Toaster richColors position="top-center" />
+            {!isFullScreen && <Footer />}
+          </>
+        ) : (
+          <>
+            <Navbar />
+            <SkyPage card={!isBareSky}>
+              <Outlet />
+            </SkyPage>
+            <Footer />
+          </>
+        )}
+        <NewUserSetup />
+        <LanguageWelcome />
+        <Toaster richColors position="top-center" />
+      </I18nProvider>
     </QueryClientProvider>
   );
 }

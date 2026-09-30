@@ -21,6 +21,8 @@ import { SquareStage } from "@/components/tap-viet/SquareStage";
 import { SkyBoxRibbon } from "@/components/ui/sky-box";
 import { TracePad } from "@/components/tap-viet/TracePad";
 import { skyButton } from "@/components/ui/sky-button";
+import { messagesFor, useT } from "@/i18n";
+import { pageTitle } from "@/i18n/head";
 import * as SwitchPrimitive from "@radix-ui/react-switch";
 import {
   TAP_VIET,
@@ -33,20 +35,22 @@ import {
   type TapVietItem,
 } from "@/data/tap-viet";
 
-const DESCRIPTION =
-  "Xem cô viết mẫu từng nét, chữ cái, chữ ghép và chữ số, rồi tô theo bằng ngón tay.";
-
 export const Route = createFileRoute("/hoc-tap/tap-viet")({
-  head: () => ({
-    meta: [
-      { title: "Tập viết | Trường Tiếng Việt Của Em" },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: "Tập viết | Trường Tiếng Việt Của Em" },
-      { property: "og:description", content: DESCRIPTION },
-      { property: "og:url", content: "/hoc-tap/tap-viet" },
-    ],
-    links: [{ rel: "canonical", href: "/hoc-tap/tap-viet" }],
-  }),
+  head: ({ match }) => {
+    const { locale } = match.context;
+    const m = messagesFor(locale).meta.tapViet;
+    const title = pageTitle(locale, m.title);
+    return {
+      meta: [
+        { title },
+        { name: "description", content: m.description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: m.description },
+        { property: "og:url", content: "/hoc-tap/tap-viet" },
+      ],
+      links: [{ rel: "canonical", href: "/hoc-tap/tap-viet" }],
+    };
+  },
   component: TapVietPage,
 });
 
@@ -58,6 +62,7 @@ const SLOW_RATE = 1;
 const FAST_RATE = 2;
 
 function TapVietPage() {
+  const t = useT();
   const [categoryIndex, setCategoryIndex] = useState(1); // Chữ cái first — it's what most kids come for
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [rate, setRate] = useState<number>(SLOW_RATE);
@@ -77,13 +82,13 @@ function TapVietPage() {
           className="mb-3 inline-flex items-center gap-2 self-start rounded-full border-[3px] border-white bg-white/85 px-4 py-1.5 font-display text-sm font-extrabold text-sky-ink shadow-[0_4px_12px_rgba(12,58,110,0.2)] transition hover:bg-ribbon hover:text-indigo-deep"
         >
           <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
-          Học tập
+          {t.hocTap.crumb}
         </Link>
         <h1>
-          <SkyBoxRibbon size="lg">Tập viết</SkyBoxRibbon>
+          <SkyBoxRibbon size="lg">{t.tapViet.title}</SkyBoxRibbon>
         </h1>
         <p className="max-w-md font-display text-base font-bold text-white drop-shadow-[0_2px_4px_rgba(12,58,110,0.45)] sm:text-lg">
-          Xem cô viết mẫu, rồi em lấy ngón tay tô theo nhé!
+          {t.tapViet.intro}
         </p>
       </header>
 
@@ -183,6 +188,7 @@ function NotebookTabs({
   onSelect: (index: number) => void;
   pageRef: React.RefObject<HTMLDivElement | null>;
 }) {
+  const t = useT();
   const listRef = useRef<HTMLDivElement>(null);
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -236,7 +242,7 @@ function NotebookTabs({
     <div
       ref={listRef}
       role="tablist"
-      aria-label="Chọn bài tập viết"
+      aria-label={t.tapViet.tabsLabel}
       onKeyDown={onKeyDown}
       // A fixed height, so the row doesn't grow or shrink with whichever tab is
       // open (on phones some labels wrap to two lines).
@@ -285,7 +291,7 @@ function NotebookTabs({
             ].join(" ")}
           >
             <Icon className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" strokeWidth={2.5} aria-hidden />
-            <span className="text-center sm:whitespace-nowrap">{c.label}</span>
+            <span className="text-center sm:whitespace-nowrap">{t.tapViet.categories[c.id]}</span>
           </button>
         );
       })}
@@ -365,6 +371,7 @@ function WritingDialog({
   onRateChange: (rate: number) => void;
   onIndexChange: (index: number | null) => void;
 }) {
+  const t = useT();
   const open = index !== null;
   // Keep showing the last item while the dialog animates closed.
   const lastItem = useRef<TapVietItem | null>(null);
@@ -379,7 +386,7 @@ function WritingDialog({
       >
         <DialogClose className="absolute right-3 top-3 z-10 grid h-10 w-10 cursor-pointer place-items-center rounded-[0.6rem] bg-white text-indigo-deep shadow-btn transition-[colors,box-shadow] hover:bg-box-white-deep active:shadow-btn-active">
           <X className="h-5 w-5" strokeWidth={2.5} />
-          <span className="sr-only">Đóng</span>
+          <span className="sr-only">{t.learning.close}</span>
         </DialogClose>
 
         {item && (
@@ -415,6 +422,7 @@ function WatchPanel({
   rate: number;
   onRateChange: (rate: number) => void;
 }) {
+  const t = useT();
   const videoRef = useRef<HTMLVideoElement>(null);
   // Set by onPlay, not assumed: some browsers block even muted autoplay.
   const [playing, setPlaying] = useState(false);
@@ -442,7 +450,7 @@ function WatchPanel({
   };
 
   return (
-    <div role="group" aria-label="Xem cô viết" className="contents">
+    <div role="group" aria-label={t.tapViet.watchLabel} className="contents">
       <SquareStage>
         <video
           ref={videoRef}
@@ -466,10 +474,10 @@ function WatchPanel({
           fast={rate === FAST_RATE}
           onChange={(fast) => onRateChange(fast ? FAST_RATE : SLOW_RATE)}
         />
-        <IconButton label={playing ? "Tạm dừng" : "Phát"} onClick={togglePlay}>
+        <IconButton label={playing ? t.tapViet.pause : t.tapViet.play} onClick={togglePlay}>
           {playing ? <Pause /> : <Play />}
         </IconButton>
-        <IconButton label="Xem lại từ đầu" onClick={replay}>
+        <IconButton label={t.tapViet.replay} onClick={replay}>
           <RotateCcw />
         </IconButton>
       </div>
@@ -480,6 +488,7 @@ function WatchPanel({
 /** Turtle – switch – rabbit. Big enough for a child's thumb, and the icon on
  *  the side that's on lights up. */
 function SpeedSwitch({ fast, onChange }: { fast: boolean; onChange: (fast: boolean) => void }) {
+  const t = useT();
   return (
     <div className="flex items-center gap-2">
       <Turtle
@@ -492,7 +501,7 @@ function SpeedSwitch({ fast, onChange }: { fast: boolean; onChange: (fast: boole
       <SwitchPrimitive.Root
         checked={fast}
         onCheckedChange={onChange}
-        aria-label="Chạy nhanh"
+        aria-label={t.tapViet.fast}
         className="relative h-9 w-16 shrink-0 cursor-pointer rounded-full bg-grass-deep shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ribbon data-[state=checked]:bg-primary"
       >
         <SwitchPrimitive.Thumb className="block h-7 w-7 translate-x-1 rounded-full bg-white shadow-btn transition-transform duration-200 ease-bounce data-[state=checked]:translate-x-8" />

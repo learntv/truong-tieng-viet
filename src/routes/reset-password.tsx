@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,42 +9,45 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { messagesFor, useT, type Messages } from "@/i18n";
+import { pageTitle } from "@/i18n/head";
 
 export const Route = createFileRoute("/reset-password")({
-  head: () => ({
-    meta: [
-      { title: "Đặt lại mật khẩu | Trường Tiếng Việt Của Em" },
-      {
-        name: "description",
-        content:
-          "Đặt lại mật khẩu tài khoản Trường Tiếng Việt Của Em sau khi nhận liên kết khôi phục qua email.",
-      },
-      { name: "robots", content: "noindex" },
-      { property: "og:title", content: "Đặt lại mật khẩu | Trường Tiếng Việt Của Em" },
-      {
-        property: "og:description",
-        content: "Đặt mật khẩu mới cho tài khoản của bạn.",
-      },
-      { property: "og:url", content: "/reset-password" },
-    ],
-    links: [{ rel: "canonical", href: "/reset-password" }],
-  }),
+  head: ({ match }) => {
+    const { locale } = match.context;
+    const m = messagesFor(locale).meta.resetPassword;
+    const title = pageTitle(locale, m.title);
+    return {
+      meta: [
+        { title },
+        { name: "description", content: m.description },
+        { name: "robots", content: "noindex" },
+        { property: "og:title", content: title },
+        { property: "og:description", content: m.ogDescription },
+        { property: "og:url", content: "/reset-password" },
+      ],
+      links: [{ rel: "canonical", href: "/reset-password" }],
+    };
+  },
   component: ResetPassword,
 });
 
-const schema = z
-  .object({
-    password: z.string().min(6, "Mật khẩu tối thiểu 6 ký tự"),
-    confirm: z.string(),
-  })
-  .refine((d) => d.password === d.confirm, {
-    message: "Mật khẩu không khớp",
-    path: ["confirm"],
-  });
+const makeSchema = (t: Messages) =>
+  z
+    .object({
+      password: z.string().min(6, t.auth.passwordTooShort),
+      confirm: z.string(),
+    })
+    .refine((d) => d.password === d.confirm, {
+      message: t.resetPassword.mismatch,
+      path: ["confirm"],
+    });
 
-type FormValues = z.infer<typeof schema>;
+type FormValues = z.infer<ReturnType<typeof makeSchema>>;
 
 function ResetPassword() {
+  const t = useT();
+  const schema = useMemo(() => makeSchema(t), [t]);
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -56,10 +59,12 @@ function ResetPassword() {
       if (session) {
         setReady(true);
       } else {
-        toast.error("Liên kết không hợp lệ hoặc đã hết hạn.");
+        toast.error(t.resetPassword.invalidLink);
         navigate({ to: "/" });
       }
     });
+    // Runs once on arrival; a language switch must not re-check the recovery session.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
@@ -71,9 +76,9 @@ function ResetPassword() {
     const { error } = await supabase.auth.updateUser({ password });
     setLoading(false);
     if (error) {
-      toast.error("Không thể đặt lại mật khẩu", { description: error.message });
+      toast.error(t.resetPassword.failed, { description: error.message });
     } else {
-      toast.success("Mật khẩu đã được cập nhật!");
+      toast.success(t.resetPassword.success);
       navigate({ to: "/" });
     }
   };
@@ -83,25 +88,25 @@ function ResetPassword() {
       <main className="flex flex-1 items-center justify-center px-4">
         <div className="w-full max-w-sm space-y-6">
           <div className="text-center">
-            <h1 className="font-display text-2xl font-bold text-navy">Đặt lại mật khẩu</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Nhập mật khẩu mới cho tài khoản của bạn.</p>
+            <h1 className="font-display text-2xl font-bold text-navy">{t.resetPassword.heading}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{t.resetPassword.intro}</p>
           </div>
 
           {ready && (
             <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-1.5">
-                <Label htmlFor="new-password">Mật khẩu mới</Label>
+                <Label htmlFor="new-password">{t.resetPassword.newPassword}</Label>
                 <Input id="new-password" type="password" placeholder="••••••" {...register("password")} />
                 {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="confirm-password">Xác nhận mật khẩu</Label>
+                <Label htmlFor="confirm-password">{t.resetPassword.confirmPassword}</Label>
                 <Input id="confirm-password" type="password" placeholder="••••••" {...register("confirm")} />
                 {errors.confirm && <p className="text-xs text-destructive">{errors.confirm.message}</p>}
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Cập nhật mật khẩu
+                {t.resetPassword.submit}
               </Button>
             </form>
           )}
