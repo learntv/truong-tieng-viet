@@ -308,7 +308,10 @@
   html,
   body {
     font-family: var(--font-sans);
-    overflow-x: hidden;
+    /* clip, not hidden: hidden on both html and body makes body a scroll
+       container, and the sticky navbar would then stick to body (which never
+       scrolls) and scroll away with the page. */
+    overflow-x: clip;
   }
 
   body {
