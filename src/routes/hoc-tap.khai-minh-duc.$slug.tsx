@@ -3,7 +3,10 @@ import "@ttv/lesson-render/tokens.css";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Lesson } from "@ttv/lesson-render";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { KmdThumb } from "@/components/kmd/KmdThumb";
+import { Mascot } from "@/components/Mascot";
 import { useKmdLesson } from "@/hooks/useKmdLesson";
+import { useKmdLessons } from "@/hooks/useKmdLessons";
 
 export const Route = createFileRoute("/hoc-tap/khai-minh-duc/$slug")({
   head: ({ params }) => {
@@ -27,6 +30,10 @@ export const Route = createFileRoute("/hoc-tap/khai-minh-duc/$slug")({
 function KhaiMinhDucLessonRoute() {
   const { slug } = Route.useParams();
   const { data: lesson, isLoading, error } = useKmdLesson(slug);
+  // The lesson's place in the list, for its "Bài n" and thumbnail colour. Usually already cached
+  // from the list page; until it arrives the title card simply shows neither.
+  const { data: lessons } = useKmdLessons();
+  const position = lessons?.findIndex((l) => l.slug === slug) ?? -1;
 
   if (isLoading) {
     return (
@@ -55,22 +62,23 @@ function KhaiMinhDucLessonRoute() {
   }
 
   // The lesson is a deck of already-framed pieces on the bare sky (see __root's
-  // BARE_SKY_ROUTES), so the only chrome the route adds is the way back — a
-  // floating white pill rather than BackLink's folded corner, which needs a
-  // white card corner to fold out of and there is none here.
+  // BARE_SKY_ROUTES). The way back is a floating white pill rather than
+  // BackLink's folded corner, which needs a white card corner to fold out of.
   return (
-    <div className="mx-auto w-full max-w-[90rem]">
-      {/* sm:ml-4 lines the pill up with the lesson's own 1rem gutter below it; on a phone
-          the lesson drops that gutter (the page already has one), and so does the pill. */}
-      <Link
-        to="/hoc-tap/khai-minh-duc"
-        className="inline-flex items-center gap-2 rounded-full border-[3px] border-white bg-white/85 px-4 py-1.5 font-display text-sm font-extrabold text-sky-ink shadow-[0_4px_12px_rgba(12,58,110,0.2)] transition hover:bg-ribbon hover:text-indigo-deep sm:ml-4"
-      >
-        <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
-        Danh sách bài học
-      </Link>
-
-      <Lesson lesson={lesson} />
-    </div>
+    <Lesson
+      lesson={lesson}
+      back={
+        <Link
+          to="/hoc-tap/khai-minh-duc"
+          className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border-[3px] border-white bg-white/85 px-4 py-1.5 font-display text-sm font-extrabold text-sky-ink shadow-[0_4px_12px_rgba(12,58,110,0.2)] transition hover:bg-ribbon hover:text-indigo-deep"
+        >
+          <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
+          Danh sách bài học
+        </Link>
+      }
+      thumbnail={position >= 0 ? <KmdThumb index={position} /> : undefined}
+      eyebrow={position >= 0 ? `Bài ${position + 1}` : undefined}
+      aside={<Mascot pose="reading-sitting" decorative className="h-20 -scale-x-100" />}
+    />
   );
 }

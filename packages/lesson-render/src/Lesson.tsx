@@ -10,7 +10,7 @@ import contentStyles from "./lessonContent.module.css";
 import styles from "./Lesson.module.css";
 
 /**
- * A KMD lesson as a reader sees it: the title and the âm/vần it teaches above a slide deck — one
+ * A KMD lesson as a reader sees it: a title card above a slide deck — one
  * section showing at a time, a "Mục n" rail on the left to jump between them, and prev/next arrows
  * on the right — the same powerpoint-style layout the editor already composes in
  * (cms/src/components/admin/kmd/KmdBlocksField.tsx), so a reader browses a lesson the way an
@@ -41,7 +41,18 @@ const SWIPE_DOMINANCE = 1.5;
 // Breathing room kept between the active thumbnail and the rail's edge when the rail scrolls to it.
 const RAIL_SCROLL_PADDING = 8;
 
-export const Lesson: React.FC<{ lesson: LessonDoc }> = ({ lesson }) => {
+/**
+ * The title card's extras are the host's to supply, and all optional (the CMS preview passes none):
+ * `thumbnail` on the card's left, `eyebrow` over the title, `aside` on the card's right, and
+ * `back` beside the card, over the rail.
+ */
+export const Lesson: React.FC<{
+  lesson: LessonDoc;
+  thumbnail?: React.ReactNode;
+  eyebrow?: React.ReactNode;
+  aside?: React.ReactNode;
+  back?: React.ReactNode;
+}> = ({ lesson, thumbnail, eyebrow, aside, back }) => {
   const sections = lesson.blocks ?? [];
   const [rawIndex, setRawIndex] = useState(0);
 
@@ -119,9 +130,17 @@ export const Lesson: React.FC<{ lesson: LessonDoc }> = ({ lesson }) => {
 
   return (
     <article className={styles.lesson}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>{lesson.title}</h1>
-      </header>
+      <div className={styles.headerRow}>
+        {back != null && <div className={styles.headerBack}>{back}</div>}
+        <header className={styles.header}>
+          {thumbnail != null && <div className={styles.headerThumb}>{thumbnail}</div>}
+          <div className={styles.headerText}>
+            {eyebrow != null && <p className={styles.eyebrow}>{eyebrow}</p>}
+            <h1 className={styles.title}>{lesson.title}</h1>
+          </div>
+          {aside != null && <div className={styles.headerAside}>{aside}</div>}
+        </header>
+      </div>
 
       {sections.length === 0 ? (
         <p className={styles.empty}>Bài học này chưa có mục nào.</p>

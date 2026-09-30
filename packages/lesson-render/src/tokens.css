@@ -17,6 +17,7 @@
   /* One step darker than `--ttv-border`, for the boxes in a tạo tiếng chain: a hairline that
    * disappears at the size those are drawn. Not a site token — the site has no equivalent yet. */
   --ttv-border-strong: oklch(0.84 0.01 250);
+  --ttv-green: oklch(0.52 0.11 155);
   --ttv-primary: oklch(0.52 0.213 29.2); /* #cc0000 — the step that clears 4.5:1 on white */
   --ttv-primary-deep: oklch(0.42 0.176 29.2); /* #a30000 */
   --ttv-primary-soft: oklch(0.968 0.014 29.2); /* #fff2f0 */

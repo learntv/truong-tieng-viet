@@ -16,7 +16,13 @@
  * it. The phone queries use the `width <` range form
  * so they end exactly where `sm:` (`width >= 40rem`) begins. */
 
+/* The deck's horizontal furniture is named so the title card can line up over
+ * the slide: the rail's width, the gap between pieces, and the round nav buttons. */
 .lesson {
+  --rail-width: 9rem;
+  --deck-gap: 0.75rem;
+  --nav-size: 3.25rem;
+
   max-width: 90rem;
   margin: 0 auto;
   padding: 1rem 1rem 2.5rem;
@@ -30,40 +36,128 @@
   }
 }
 
-/* The title rides in its own framed band rather than sitting loose on the blue:
- * the sky has white clouds drifting through it, and white type on a cloud is
- * type that disappears. The band is mint — the tone the Khai Minh Đức tile
- * carries on the học tập bento — so arriving here lands on the colour you
- * clicked, in the dark ink the site uses on every coloured box.
+/* The title rides on a clean white card rather than loose on the blue (the sky
+ * has white clouds drifting through it, and type on a cloud disappears), laid
+ * out like a row of the lesson list: the thumbnail on the left, the "Bài n"
+ * line and the title beside it.
  *
- * Title and âm/vần chips share the band, so the header costs one bar of height
- * rather than three stacked lines. */
+ * It spans exactly the slide's width, not the whole deck's: inset past the rail
+ * and the previous arrow on the left and the next arrow on the right. The host's
+ * `back` link sits in that left inset, level with the card. Only when a deck
+ * follows, though; over the "no sections" message the card spans the page. */
+.headerRow {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--deck-gap);
+  margin-bottom: 0.75rem;
+}
+
+.headerRow:has(+ .deck) {
+  padding-left: calc(var(--rail-width) + var(--nav-size) + 2 * var(--deck-gap));
+  padding-right: calc(var(--nav-size) + var(--deck-gap));
+}
+
+.headerRow:has(+ .deck) .headerBack {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Stacked deck: the rail moves above the slide, so only the arrows flank it,
+ * and that inset is too narrow for the back link, which moves above the card. */
+@media (max-width: 48rem) {
+  .headerRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .headerRow:has(+ .deck) {
+    padding-left: calc(var(--nav-size) + var(--deck-gap));
+  }
+
+  .headerRow:has(+ .deck) .headerBack {
+    position: static;
+    align-self: flex-start;
+  }
+}
+
+/* Phone: the arrows move under the slide, which then takes the full width. */
+@media (width < 40rem) {
+  .headerRow:has(+ .deck) {
+    padding-inline: 0;
+  }
+}
+
+.headerBack {
+  flex-shrink: 0;
+}
+
 .header {
   display: flex;
-  flex-wrap: wrap;
+  flex: 1;
   align-items: center;
-  gap: 0.5rem 1.25rem;
-  margin-bottom: 0.75rem;
-  padding: 0.6rem 1.25rem;
-  border: 5px solid #fff;
-  border-radius: 999px;
-  background: var(--ttv-box-mint-deep);
+  gap: 1rem;
+  min-width: 0;
+  padding: 0.6rem;
+  border-radius: 20px;
+  background: var(--ttv-surface);
   box-shadow: var(--ttv-sky-shadow);
+}
+
+.header:not(:has(.headerThumb)) {
+  padding: 1rem 1.25rem;
 }
 
 @media (width < 40rem) {
   .header {
-    gap: 0.5rem 0.75rem;
-    padding: 0.6rem 1rem;
-    border-width: 4px;
-    border-radius: 22px;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    border-radius: 18px;
   }
+}
+
+.headerThumb {
+  flex-shrink: 0;
+  width: 7.5rem;
+}
+
+@media (width < 40rem) {
+  .headerThumb {
+    width: 5.5rem;
+  }
+}
+
+.headerText {
+  min-width: 0;
+  flex: 1;
+}
+
+.headerAside {
+  flex-shrink: 0;
+  margin-right: 0.5rem;
+}
+
+/* Decoration only; on a phone the title needs the card's whole width. */
+@media (width < 40rem) {
+  .headerAside {
+    display: none;
+  }
+}
+
+.eyebrow {
+  margin: 0 0 0.3rem;
+  color: var(--ttv-green);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .title {
   margin: 0;
-  color: var(--ttv-sky-ink);
-  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  color: var(--ttv-ink);
+  font-size: clamp(1.35rem, 2.6vw, 1.9rem);
   font-weight: 700;
   line-height: 1.15;
 }
@@ -76,7 +170,7 @@
 .deck {
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
+  gap: var(--deck-gap);
 }
 
 /* Stretch, not the row's flex-start: in a column that would size the slide to
@@ -98,7 +192,8 @@
   flex-direction: column;
   flex-shrink: 0;
   gap: 0.45rem;
-  width: 9rem;
+  box-sizing: border-box;
+  width: var(--rail-width);
   /* The same height budget as the slide it stands beside, so the two columns
    * end on one line instead of the rail running past the deck. */
   max-height: clamp(32rem, calc(100vh - 7rem), 72rem);
@@ -212,7 +307,7 @@
 .slideRow {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--deck-gap);
 }
 
 /* On a phone the arrows beside the slide would cost it a quarter of the screen's
@@ -237,8 +332,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 3.25rem;
-  height: 3.25rem;
+  width: var(--nav-size);
+  height: var(--nav-size);
   flex-shrink: 0;
   border: none;
   border-radius: 999px;
