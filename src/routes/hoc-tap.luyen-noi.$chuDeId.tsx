@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useSpeakingContent } from "@/hooks/useSpeakingContent";
 import { SpeakingPractice } from "@/components/speaking/SpeakingPractice";
+import { PageBanner } from "@/components/site/PageBanner";
+import { skyButton } from "@/components/ui/sky-button";
 
 export const Route = createFileRoute("/hoc-tap/luyen-noi/$chuDeId")({
   head: ({ params }) => {
@@ -48,19 +50,21 @@ function SpeakingRoute() {
   }
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-20 text-center">
-      <div className="mb-4 text-6xl">🔍</div>
-      <h1 className="mb-2 font-display text-2xl font-bold text-foreground">
-        Không tìm thấy chủ đề
-      </h1>
-      <p className="mb-6 text-muted-foreground">Chủ đề này không tồn tại hoặc đã bị đổi.</p>
-      <Link
-        to="/hoc-tap/luyen-noi"
-        className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-display font-extrabold text-white shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Chọn chủ đề khác
-      </Link>
+    <div>
+      <PageBanner
+        title="Không tìm thấy chủ đề"
+        parents={[
+          { label: "Học tập", to: "/hoc-tap" },
+          { label: "Luyện nói", to: "/hoc-tap/luyen-noi" },
+        ]}
+      />
+      <div className="px-4 py-16 text-center">
+        <p className="mb-6 text-sky-ink-soft">Chủ đề này không tồn tại hoặc đã bị đổi.</p>
+        <Link to="/hoc-tap/luyen-noi" className={skyButton("primary")}>
+          <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
+          Chọn chủ đề khác
+        </Link>
+      </div>
     </div>
   );
 }

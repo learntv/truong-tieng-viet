@@ -2,14 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Check, Download, Volume2, X } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Mascot } from "@/components/Mascot";
 import { PageBanner } from "@/components/site/PageBanner";
+import { skyButton } from "@/components/ui/sky-button";
 import { ALPHABET, type AlphabetLetter, type AlphabetWord } from "@/data/alphabet";
 import { loadAlphabetProgress, markLetterSeen } from "@/lib/alphabet-progress";
-import { STAGE_COLORS } from "@/components/learning/stageColors";
+import { toneAt } from "@/components/learning/boxTones";
 import { useSingletonAudio } from "@/hooks/useSingletonAudio";
 import { ttsSrc } from "@/lib/tts/text";
 
@@ -112,50 +110,49 @@ function BangChuCaiTab() {
   };
 
   return (
-    <main className="pb-24">
+    <div className="pb-10 sm:pb-12">
       <PageBanner
-        title="Bảng chữ cái 🎈"
-        crumb="Bảng chữ cái"
+        title="Bảng chữ cái"
         parents={[{ label: "Học tập", to: "/hoc-tap" }]}
+        art={<Mascot pose="reading" decorative className="relative h-24 sm:h-36" />}
       />
 
-      <div className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        {/* Progress — the title that used to head this card now lives in the
-          PageBanner, so the card carries the counter alone. */}
-        <Card className="mx-auto mb-8 max-w-2xl p-6 sm:p-8">
-          <div className="flex items-center gap-4">
-            <Mascot pose="reading" decorative className="h-16 sm:h-20" />
-            <div className="min-w-0 flex-1">
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Đã khám phá
-                </span>
-                <Badge variant="stage-1">
-                  {seenCount}/{total} chữ
-                </Badge>
-              </div>
-              <Progress tone="stage-1" value={total > 0 ? (seenCount / total) * 100 : 0} />
+      <div className="px-4 pt-8 sm:px-8">
+        {/* Progress on the left, the printable chart on the right. */}
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-8">
+          <div className="min-w-0 flex-1">
+            <div className="mb-2 flex items-baseline justify-between gap-2">
+              <span className="text-xs font-extrabold uppercase tracking-[0.08em] text-sky-ink-soft">
+                Đã khám phá
+              </span>
+              <span className="font-display text-sm font-bold text-sky-ink">
+                {seenCount}/{total} chữ
+              </span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-green transition-[width] duration-500 ease-out"
+                style={{ width: `${total > 0 ? (seenCount / total) * 100 : 0}%` }}
+              />
             </div>
           </div>
 
-          <div className="mt-4 flex justify-end">
-            <a
-              href={ALPHABET_PDF_URL}
-              download
-              className="flex cursor-pointer items-center gap-2 rounded-full bg-stage-1 px-4 py-2 text-sm font-medium text-white shadow-card transition hover:brightness-110 active:translate-y-[1px]"
-            >
-              <Download className="h-4 w-4" />
-              Tải PDF bảng chữ cái
-            </a>
-          </div>
-        </Card>
+          <a
+            href={ALPHABET_PDF_URL}
+            download
+            className={skyButton("white", "shrink-0 self-start ring-1 ring-sky-ink/10 sm:self-auto")}
+          >
+            <Download className="h-4 w-4" strokeWidth={2.5} />
+            Tải PDF bảng chữ cái
+          </a>
+        </div>
 
-        {/* Letter grid */}
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 md:grid-cols-5">
-          {ALPHABET.map((letter) => (
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4 md:grid-cols-5 lg:grid-cols-6">
+          {ALPHABET.map((letter, i) => (
             <LetterCard
               key={letter.id}
               letter={letter}
+              index={i}
               isSeen={!!progress[letter.id]}
               onClick={() => openLetter(letter)}
             />
@@ -167,58 +164,57 @@ function BangChuCaiTab() {
         letter={activeLetter}
         onOpenChange={(open) => !open && setActiveLetter(null)}
       />
-    </main>
+    </div>
   );
 }
 
+type Tone = ReturnType<typeof toneAt>;
+
+/**
+ * A letter's tile: its animal friend and the letter on a tone, cycled by
+ * position like the Học tập practice cards, growing slightly on hover with
+ * a deeper rim of its own tone.
+ */
 function LetterCard({
   letter,
+  index,
   isSeen,
   onClick,
 }: {
   letter: AlphabetLetter;
+  index: number;
   isSeen: boolean;
   onClick: () => void;
 }) {
+  const tone = toneAt(index);
   return (
-    <Card
-      asChild
-      interactive
-      className="group relative aspect-square transition-[transform,box-shadow] ease-bounce hover:-translate-y-1 active:translate-y-0"
+    <button
+      onClick={onClick}
+      className={[
+        "relative flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-[1.25rem] p-2 shadow-[0_4px_14px_rgba(12,58,110,0.12)] outline-4 outline-offset-0 outline-transparent transition-[outline-color,scale] duration-150 hover:z-10 hover:scale-[1.04]",
+        tone.light,
+        tone.outline,
+      ].join(" ")}
     >
-      <button
-        onClick={onClick}
-        className="flex cursor-pointer flex-col items-center justify-center gap-1 p-1.5 sm:p-2"
-      >
-        {isSeen && (
-          <span className="absolute -right-1.5 -top-1.5 grid h-6 w-6 place-items-center rounded-full border-2 border-card bg-stage-1 shadow-card">
-            <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />
-          </span>
-        )}
-        <img
-          src={LETTER_IMAGES[letter.id]}
-          alt={`Bạn thú chữ ${letter.letter}`}
-          className="h-1/2 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-        />
-        <span className="font-display text-xl font-extrabold text-ink sm:text-2xl">
-          {letter.letter.toUpperCase()}/{letter.letter}
+      {isSeen && (
+        <span className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-white text-green">
+          <Check className="h-3.5 w-3.5" strokeWidth={3} />
+          <span className="sr-only">Đã xem</span>
         </span>
-      </button>
-    </Card>
+      )}
+      <img
+        src={LETTER_IMAGES[letter.id]}
+        alt={`Bạn thú chữ ${letter.letter}`}
+        className="h-1/2 w-auto object-contain"
+      />
+      <span className="font-display text-xl font-bold text-sky-ink sm:text-2xl">
+        {letter.letter.toUpperCase()}/{letter.letter}
+      </span>
+    </button>
   );
 }
 
-type StageColor = (typeof STAGE_COLORS)[number];
-
-function LetterSoundButton({
-  text,
-  label,
-  color,
-}: {
-  text: string;
-  label: string;
-  color: StageColor;
-}) {
+function LetterSoundButton({ text, label }: { text: string; label: string }) {
   const { play, audioRef, src, onEnded, onPause, onError } = useSingletonAudio(ttsSrc(text));
   return (
     <>
@@ -233,20 +229,15 @@ function LetterSoundButton({
       <button
         onClick={play}
         aria-label={`Nghe đọc chữ ${label}`}
-        className={[
-          "grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full text-white",
-          "transition-[transform,box-shadow,filter] duration-150 ease-bounce hover:brightness-110 active:translate-y-[2px]",
-          color.gradient,
-          "shadow-card",
-        ].join(" ")}
+        className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full bg-primary text-white shadow-btn transition-[transform,box-shadow,background-color] hover:bg-primary-glow active:translate-y-[1px] active:shadow-btn-active"
       >
-        <Volume2 className="h-5 w-5" />
+        <Volume2 className="h-5 w-5" strokeWidth={2.5} />
       </button>
     </>
   );
 }
 
-function WordRow({ word, color }: { word: AlphabetWord; color: StageColor }) {
+function WordRow({ word, tone }: { word: AlphabetWord; tone: Tone }) {
   const { play, audioRef, src, onEnded, onPause, onError } = useSingletonAudio(ttsSrc(word.vi));
   return (
     <>
@@ -261,17 +252,21 @@ function WordRow({ word, color }: { word: AlphabetWord; color: StageColor }) {
       <button
         onClick={play}
         aria-label={`Nghe đọc: ${word.vi}`}
-        className={[
-          "group flex cursor-pointer items-center gap-4 rounded-2xl p-3.5 text-left",
-          "transition-[transform,filter] duration-150 ease-bounce hover:brightness-95 active:translate-y-[2px]",
-          color.bgSoft,
-        ].join(" ")}
+        className="group flex cursor-pointer items-center gap-4 rounded-2xl border border-border/70 bg-card p-2.5 pr-4 text-left shadow-[0_2px_10px_rgba(15,23,42,0.05)] transition-shadow duration-150 hover:shadow-[0_6px_20px_rgba(15,23,42,0.09)]"
       >
-        <span className="text-3xl transition-transform group-hover:scale-110">{word.emoji}</span>
-        <span className="flex-1">
-          <span className="block font-display text-base font-extrabold text-ink">{word.vi}</span>
-          <span className="block text-sm text-muted-foreground">{word.en}</span>
+        <span
+          className={[
+            "grid h-12 w-12 shrink-0 place-items-center rounded-xl text-3xl",
+            tone.light,
+          ].join(" ")}
+        >
+          <span className="transition-transform group-hover:scale-110">{word.emoji}</span>
         </span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-display text-base font-bold text-sky-ink">{word.vi}</span>
+          <span className="block text-sm text-sky-ink-soft">{word.en}</span>
+        </span>
+        <Volume2 className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-sky-ink" strokeWidth={2.5} />
       </button>
     </>
   );
@@ -284,29 +279,29 @@ function LetterDetailDialog({
   letter: AlphabetLetter | null;
   onOpenChange: (open: boolean) => void;
 }) {
-  const color = useMemo(() => {
-    if (!letter) return STAGE_COLORS[0];
-    const index = ALPHABET.findIndex((l) => l.id === letter.id);
-    return STAGE_COLORS[index % STAGE_COLORS.length];
-  }, [letter]);
+  // Same tone as the letter's tile in the grid.
+  const tone = useMemo(
+    () => toneAt(letter ? ALPHABET.findIndex((l) => l.id === letter.id) : 0),
+    [letter],
+  );
 
   return (
     <Dialog open={!!letter} onOpenChange={onOpenChange}>
       <DialogContent
         hideCloseButton
-        className="max-h-[92vh] w-[calc(100%-1.5rem)] max-w-3xl gap-0 overflow-hidden border-0 bg-card p-0"
+        className="max-h-[92vh] w-[calc(100%-1.5rem)] max-w-3xl gap-0 overflow-hidden rounded-[1.75rem] border-[6px] border-white bg-white p-0 shadow-2xl sm:rounded-[2rem] sm:border-[8px]"
       >
-        <DialogClose className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white/90 text-ink shadow-[0_2px_0_0_rgba(0,0,0,0.15)] ring-1 ring-black/10 transition hover:scale-105">
+        <DialogClose className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white text-sky-ink shadow-btn transition-transform hover:scale-105 active:translate-y-[1px] active:shadow-btn-active">
           <X className="h-5 w-5" strokeWidth={2.5} />
           <span className="sr-only">Đóng</span>
         </DialogClose>
         {letter && (
           <div className="flex max-h-[92vh] flex-col overflow-y-auto sm:flex-row sm:overflow-hidden">
-            {/* Left: the letter's animal friend on a soft stage-colored panel */}
+            {/* Left: the letter's animal friend on its tile's tone */}
             <div
               className={[
-                "flex shrink-0 items-center justify-center p-8 sm:w-2/5 sm:p-10",
-                color.bgSoft,
+                "flex shrink-0 items-center justify-center rounded-[1.25rem] p-8 sm:w-2/5 sm:rounded-[1.5rem] sm:p-10",
+                tone.light,
               ].join(" ")}
             >
               <img
@@ -319,15 +314,15 @@ function LetterDetailDialog({
             {/* Right: letter + sound button, then the word list */}
             <div className="flex flex-1 flex-col gap-6 p-6 text-center sm:overflow-y-auto sm:p-8 sm:text-left">
               <div className="flex items-center justify-center gap-4 sm:justify-start">
-                <DialogTitle className="font-display text-4xl font-bold text-ink sm:text-5xl">
+                <DialogTitle className="font-display text-4xl font-bold text-sky-ink sm:text-5xl">
                   {letter.letter.toUpperCase()}/{letter.letter}
                 </DialogTitle>
-                <LetterSoundButton text={letter.soundName} label={letter.letter} color={color} />
+                <LetterSoundButton text={letter.soundName} label={letter.letter} />
               </div>
 
               <div className="flex flex-col gap-3">
                 {letter.words.map((word) => (
-                  <WordRow key={word.vi} word={word} color={color} />
+                  <WordRow key={word.vi} word={word} tone={tone} />
                 ))}
               </div>
             </div>

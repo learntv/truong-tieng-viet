@@ -1,10 +1,11 @@
 import { createFileRoute, Link, Outlet, useChildMatches } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { Loader2, Mic, Star } from "lucide-react";
+import { ArrowRight, Loader2, Star } from "lucide-react";
 import { type SpeakingProgress } from "@/lib/speaking-progress";
 import { useSpeakingContent } from "@/hooks/useSpeakingContent";
 import { useSpeakingProgress } from "@/hooks/useSpeakingProgress";
-import { STAGE_COLORS } from "@/components/learning/stageColors";
+import { toneAt } from "@/components/learning/boxTones";
+import { Mascot } from "@/components/Mascot";
 import { PageBanner } from "@/components/site/PageBanner";
 
 export const Route = createFileRoute("/hoc-tap/luyen-noi")({
@@ -29,11 +30,7 @@ function LuyenNoiTab() {
   // /hoc-tap/luyen-noi/$chuDeId; when a child route matched, render only the child.
   const hasChild = useChildMatches().length > 0;
 
-  return (
-    <main className="flex-1">
-      {hasChild ? <Outlet /> : <TopicPicker />}
-    </main>
-  );
+  return hasChild ? <Outlet /> : <TopicPicker />;
 }
 
 type TopicCardData = {
@@ -41,71 +38,12 @@ type TopicCardData = {
   emoji: string;
   label: string;
   total: number;
-  practiced: number;
   perfect: number;
-  colorIndex: number;
+  index: number;
 };
 
-function countStats(
-  sentences: { id: string }[],
-  progress: SpeakingProgress,
-): { practiced: number; perfect: number } {
-  return {
-    practiced: sentences.filter((s) => (progress[s.id]?.attempts ?? 0) > 0).length,
-    perfect: sentences.filter((s) => progress[s.id]?.bestStars === 3).length,
-  };
-}
-
-function TopicCard({ card }: { card: TopicCardData }) {
-  const color = STAGE_COLORS[card.colorIndex % STAGE_COLORS.length];
-  return (
-    <Link
-      to="/hoc-tap/luyen-noi/$chuDeId"
-      params={{ chuDeId: card.id }}
-      className={[
-        "group overflow-hidden rounded-2xl border-2 border-black/10 text-center",
-        "transition-[transform,box-shadow,filter] duration-150 ease-bounce hover:brightness-110",
-        "active:translate-y-[3px]",
-        color.bg,
-        color.bevel,
-        color.bevelActive,
-      ].join(" ")}
-    >
-      <div className="px-3 pb-2 pt-5">
-        <div className="text-4xl leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] transition-transform group-hover:scale-110 group-active:scale-95">
-          {card.emoji}
-        </div>
-      </div>
-
-      <div className="px-4 pb-4 pt-1">
-        <p className="font-display text-base font-extrabold leading-tight text-white drop-shadow-sm">
-          {card.label}
-        </p>
-        <p className="mt-1 text-xs font-semibold text-white/80">{card.total} câu luyện nói</p>
-
-        <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-black/15 shadow-[inset_0_1px_2px_rgba(0,0,0,0.25)]">
-          <div
-            className="h-full rounded-full bg-white"
-            style={{ width: card.total > 0 ? `${(card.perfect / card.total) * 100}%` : "0%" }}
-          />
-        </div>
-        <div className="mt-2 flex items-center justify-center gap-3 text-xs font-semibold">
-          <span className="inline-flex items-center gap-1 text-accent-soft">
-            <Star className="h-3.5 w-3.5 fill-accent text-accent" />
-            {card.perfect} tròn
-          </span>
-          <span className="inline-flex items-center gap-1 text-white/80">
-            <Mic className="h-3.5 w-3.5" />
-            {card.practiced} đã luyện
-          </span>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-function SectionHeading({ children }: { children: React.ReactNode }) {
-  return <h2 className="mb-4 font-display text-lg font-bold text-ink sm:text-xl">{children}</h2>;
+function countPerfect(sentences: { id: string }[], progress: SpeakingProgress): number {
+  return sentences.filter((s) => progress[s.id]?.bestStars === 3).length;
 }
 
 function TopicPicker() {
@@ -116,15 +54,15 @@ function TopicPicker() {
   } = useSpeakingContent();
   const { progress } = useSpeakingProgress();
 
-  const staticCards = useMemo<TopicCardData[]>(
+  const cards = useMemo<TopicCardData[]>(
     () =>
       (speakingTopics ?? []).map((topic, i) => ({
         id: topic.id,
         emoji: topic.emoji,
         label: topic.title,
         total: topic.sentences.length,
-        colorIndex: i,
-        ...countStats(topic.sentences, progress),
+        perfect: countPerfect(topic.sentences, progress),
+        index: i,
       })),
     [speakingTopics, progress],
   );
@@ -132,34 +70,82 @@ function TopicPicker() {
   return (
     <div>
       <PageBanner
-        title="Luyện nói cùng Trâu con 🎤"
-        crumb="Luyện nói"
+        title="Luyện nói"
         parents={[{ label: "Học tập", to: "/hoc-tap" }]}
+        art={<Mascot pose="listening" decorative className="relative h-24 sm:h-36" />}
       />
 
-      <div className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        {/* Curated topics */}
-        <section className="mb-10">
-          <SectionHeading>🎈 Chủ đề luyện nói</SectionHeading>
-          {speakingContentLoading && (
-            <div className="flex justify-center py-10">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          )}
-          {speakingContentError != null && !speakingContentLoading && (
-            <p className="py-8 text-center text-sm font-semibold text-muted-foreground">
-              Chưa tải được chủ đề luyện nói — em thử lại sau nhé!
-            </p>
-          )}
-          {!speakingContentLoading && !speakingContentError && (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {staticCards.map((card) => (
-                <TopicCard key={card.id} card={card} />
-              ))}
-            </div>
-          )}
-        </section>
+      <div className="relative mx-auto max-w-4xl px-4 pb-10 pt-8 sm:px-6">
+        {speakingContentLoading && (
+          <div className="flex justify-center py-16">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        )}
+
+        {speakingContentError != null && !speakingContentLoading && (
+          <p className="py-16 text-center text-sm font-semibold text-muted-foreground">
+            Chưa tải được chủ đề luyện nói, em thử lại sau nhé!
+          </p>
+        )}
+
+        {!speakingContentLoading && !speakingContentError && (
+          <ul className="grid gap-3 sm:grid-cols-2 sm:gap-4">
+            {cards.map((card) => (
+              <li key={card.id}>
+                <TopicCard card={card} />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
+  );
+}
+
+/**
+ * One topic in the grid, built like a Khai Minh Đức lesson row: a white card
+ * with the topic's emoji on a tone tile, the title and how many of its
+ * sentences have three stars, and a round arrow button.
+ */
+function TopicCard({ card }: { card: TopicCardData }) {
+  const tone = toneAt(card.index);
+  const done = card.total > 0 ? card.perfect / card.total : 0;
+  return (
+    <Link
+      to="/hoc-tap/luyen-noi/$chuDeId"
+      params={{ chuDeId: card.id }}
+      className="group flex h-full items-center gap-3 rounded-2xl border border-border/70 bg-card p-2.5 shadow-[0_2px_10px_rgba(15,23,42,0.05)] transition-shadow duration-150 hover:shadow-[0_6px_20px_rgba(15,23,42,0.09)] sm:gap-4"
+    >
+      <div
+        className={[
+          "grid aspect-square w-20 shrink-0 place-items-center rounded-xl sm:w-24",
+          tone.light,
+        ].join(" ")}
+      >
+        <span className="text-4xl leading-none transition-transform duration-200 group-hover:scale-110 sm:text-5xl">
+          {card.emoji}
+        </span>
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <h2 className="font-display text-base font-bold leading-snug text-foreground">{card.label}</h2>
+        <div className="mt-2 flex items-center gap-2">
+          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+            <div className={["h-full rounded-full", tone.bar].join(" ")} style={{ width: `${done * 100}%` }} />
+          </div>
+          <span className="inline-flex shrink-0 items-center gap-1 text-xs font-bold text-muted-foreground">
+            <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-500" strokeWidth={1.5} />
+            {card.perfect}/{card.total}
+          </span>
+        </div>
+      </div>
+
+      <span className="mr-1.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors group-hover:bg-green group-hover:text-white">
+        <ArrowRight
+          className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+          strokeWidth={2}
+        />
+      </span>
+    </Link>
   );
 }

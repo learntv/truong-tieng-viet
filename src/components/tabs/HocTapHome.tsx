@@ -8,22 +8,7 @@ import thumbLuyenNoi from "@/assets/hoc-tap-thumb-luyen-noi.jpg";
 import thumbTapViet from "@/assets/hoc-tap-thumb-tap-viet.jpg";
 import { Mascot } from "@/components/Mascot";
 import { PageBanner } from "@/components/site/PageBanner";
-import type { SkyBoxTone } from "@/components/ui/sky-box";
-
-/** The SkyBox tones, plus a pastel yellow livelier than cream. */
-type Tone = Exclude<SkyBoxTone, "white" | "red"> | "sun";
-
-/** `outline` is the hover rim: a deeper, more saturated shade of the card's own tone. */
-const TONES: Record<Tone, { light: string; deep: string; outline: string }> = {
-  lavender: { light: "bg-box-lavender", deep: "bg-box-lavender-deep", outline: "hover:outline-[#8b74f0]" },
-  peach: { light: "bg-box-peach", deep: "bg-box-peach-deep", outline: "hover:outline-[#e8903a]" },
-  ice: { light: "bg-box-ice", deep: "bg-box-ice-deep", outline: "hover:outline-[#3fa9e6]" },
-  pink: { light: "bg-box-pink", deep: "bg-box-pink-deep", outline: "hover:outline-[#e8629a]" },
-  mint: { light: "bg-box-mint", deep: "bg-box-mint-deep", outline: "hover:outline-[#3fa561]" },
-  cream: { light: "bg-box-cream", deep: "bg-box-cream-deep", outline: "hover:outline-[#b8962e]" },
-  // Same lightness and saturation as peach, turned to yellow.
-  sun: { light: "bg-[#f9d77e]", deep: "bg-[#f6cd62]", outline: "hover:outline-[#e0a820]" },
-};
+import { BOX_TONES as TONES, type BoxTone as Tone } from "@/components/learning/boxTones";
 
 type Book = {
   quyenNumber: string;

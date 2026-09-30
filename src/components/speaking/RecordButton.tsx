@@ -190,12 +190,12 @@ export function RecordButton({
         disabled={disabled || phase === "starting"}
         aria-label={isRecording ? "Dừng ghi âm" : "Bắt đầu ghi âm"}
         className={[
-          "grid h-20 w-20 place-items-center rounded-full border-2 border-black/10 text-white ring-4 ring-white/70",
-          "transition-[transform,box-shadow,filter] duration-150 ease-bounce hover:brightness-110",
+          "grid h-20 w-20 cursor-pointer place-items-center rounded-full text-white",
+          "transition-[transform,box-shadow,background-color] duration-150",
           "disabled:cursor-not-allowed disabled:opacity-50 disabled:active:translate-y-0",
           isRecording
-            ? "animate-pulse-glow bg-destructive translate-y-[3px] shadow-bevel-primary-active"
-            : "bg-gradient-primary shadow-bevel-primary active:translate-y-[3px] active:shadow-bevel-primary-active",
+            ? "animate-pulse-glow bg-destructive translate-y-[1px] shadow-btn-active"
+            : "bg-primary shadow-btn hover:bg-primary-glow active:translate-y-[1px] active:shadow-btn-active",
         ].join(" ")}
       >
         {phase === "starting" ? (
@@ -206,7 +206,7 @@ export function RecordButton({
           <Mic className="h-9 w-9" strokeWidth={2.5} />
         )}
       </button>
-      <span className="font-display text-sm font-semibold text-navy">
+      <span className="font-display text-sm font-semibold text-sky-ink">
         {isRecording ? "Đang nghe em nói… bấm để xong" : "Em nói nào!"}
       </span>
     </div>
