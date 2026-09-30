@@ -147,12 +147,14 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.28 0.045 260);
 
-  /* Brand blue — the button fill from the reference art. `primary` is the
-     #4f63e8 step (4.9:1 under white, so bold white type on it passes AA);
-     `primary-glow` is the lighter bloom used for hovers and decoration. */
-  --primary: #4f63e8;
+  /* Brand blue — the sky's own hue (--sky-top, H ≈ 240) taken down to a
+     button-weight step, so the buttons belong to the sky instead of sitting
+     on it as a separate violet-blue. `primary` is oklch(0.55 0.13 242), 4.8:1
+     under white, so bold white type on it passes AA; `primary-glow` is the
+     lighter bloom of the same hue used for hovers and decoration. */
+  --primary: #0278b6;
   --primary-foreground: oklch(1 0 0);
-  --primary-glow: #6b7cf5;
+  --primary-glow: #2b8ecd;
 
   /* Deep indigo bands + gold. These were maroon/#a30000 under the old red
      theme; the artwork is green/blue now, so they carry the deep end of the
@@ -164,7 +166,7 @@
   --ribbon: #ffee00;
   --gold: oklch(0.86 0.174 92); /* #ffd400 */
   --gold-soft: oklch(0.96 0.084 97); /* #fff3b0 */
-  --sky-tint: #eef2fe; /* alternating pale blue band (was --rose-tint) */
+  --sky-tint: #e9f4fd; /* alternating pale blue band, a tint of --primary's hue (was --rose-tint) */
 
   /* Deep green-teal, the cool counterweight to the red bands — used for the chủ đề stat strip.
      Dark enough (L 0.38) that white text on it clears AAA. */

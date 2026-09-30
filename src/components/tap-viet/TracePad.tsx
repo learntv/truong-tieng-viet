@@ -139,7 +139,7 @@ export function TracePad({ id }: { id: string }) {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
-    ctx.strokeStyle = getComputedStyle(canvas).getPropertyValue("--primary").trim() || "#4f63e8";
+    ctx.strokeStyle = getComputedStyle(canvas).getPropertyValue("--primary").trim() || "#0278b6";
     ctx.lineWidth = INK_WIDTH;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
