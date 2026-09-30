@@ -15,12 +15,9 @@ import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { SkyBackdrop } from "./SkyBackdrop";
 import { PressNews } from "./PressNews";
+import { MissionCarousel } from "./MissionCarousel";
 import { SkyBox, SkyCard } from "@/components/ui/sky-box";
 import { skyButton } from "@/components/ui/sky-button";
-import congVienChuCai from "@/assets/cong-vien-chu-cai.jpg";
-import quyen1Cover from "@/assets/quyen_1_cover.jpg";
-import quyen2Cover from "@/assets/quyen_2_cover.jpg";
-import kidsAoDai from "@/assets/kids-aodai.jpg";
 import chimLac from "@/assets/symbols/chim-lac.png";
 import hoaSen from "@/assets/symbols/hoa-sen.png";
 import buffalo from "@/assets/buffalo-icon.png";
@@ -334,30 +331,7 @@ function BuffaloParade() {
   );
 }
 
-/* ── Mission box: the four steps of the journey ───────────────────────── */
-
-const STEPS = [
-  {
-    title: "Bảng chữ cái",
-    img: congVienChuCai,
-    body: "Làm quen với bảng chữ cái tiếng Việt qua hình ảnh, âm thanh và trò chơi.",
-  },
-  {
-    title: "Quyển 1",
-    img: quyen1Cover,
-    body: "Bốn chủ đề đầu tiên: gia đình, trường lớp và những người bạn quanh em.",
-  },
-  {
-    title: "Quyển 2",
-    img: quyen2Cover,
-    body: "Bốn chủ đề tiếp theo: quê hương, thiên nhiên và văn hóa Việt Nam.",
-  },
-  {
-    title: "Luyện nói",
-    img: kidsAoDai,
-    body: "Nghe, nhắc lại và ghi âm để nói tiếng Việt tự tin, rõ ràng hơn mỗi ngày.",
-  },
-];
+/* ── Mission box: the classes the project serves ─────────────────────── */
 
 function MissionBox() {
   return (
@@ -372,30 +346,8 @@ function MissionBox() {
           Giúp mọi trẻ em kiều bào <span className="text-indigo">giữ tiếng Việt</span> — miễn phí
         </>
       }
-      lede={
-        <>
-          Trường Tiếng Việt Của Em số hóa bộ sách <strong>Vui học Tiếng Việt</strong> thành một hành
-          trình bốn bước: chữ cái, quyển 1, quyển 2 và luyện nói. Miễn phí, trọn đời, cho mọi em
-          nhỏ.
-        </>
-      }
     >
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {STEPS.map((s, i) => (
-          <SkyCard key={s.title} className="relative flex flex-col">
-            <span className="absolute -top-3 -left-3 grid h-9 w-9 place-items-center rounded-full border-[3px] border-white bg-primary font-display text-sm font-extrabold text-primary-foreground">
-              {i + 1}
-            </span>
-            <h3 className="text-center font-display text-base font-extrabold text-sky-ink">
-              {s.title}
-            </h3>
-            <span className="mt-3 block overflow-hidden rounded-xl border-[3px] border-white">
-              <img src={s.img} alt="" className="aspect-4/3 w-full object-cover" loading="lazy" />
-            </span>
-            <p className="mt-3 flex-1 text-sm leading-relaxed text-sky-ink-soft">{s.body}</p>
-          </SkyCard>
-        ))}
-      </div>
+      <MissionCarousel />
     </SkyBox>
   );
 }
@@ -491,7 +443,7 @@ function ThanksBox() {
       <SkyBox tone="pink" title="Lời cảm ơn">
         <SkyCard className="mx-auto max-w-2xl">
           <p className="text-sm leading-relaxed text-sky-ink-soft sm:text-base">
-            Ban quản lý dự án xin được gửi lời cảm ơn chân thành tới{" "}
+            — Ban quản lý dự án xin được gửi lời cảm ơn chân thành tới{" "}
             <strong className="text-indigo">
               Ủy ban Nhà nước về người Việt Nam ở nước ngoài – Bộ Ngoại giao
             </strong>{" "}
@@ -504,7 +456,7 @@ function ThanksBox() {
             trên toàn thế giới nói chung.
           </p>
           <p className="mt-4 text-right font-display text-sm font-extrabold text-indigo">
-            — Ban quản lý dự án
+            Ban quản lý dự án
           </p>
         </SkyCard>
       </SkyBox>
