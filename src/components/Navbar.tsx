@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BarChart3, ChevronDown, Flame, LogOut, Menu, Star, UserCircle, X } from "lucide-react";
+import { BarChart3, ChevronDown, LogOut, Menu, UserCircle, X } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -154,24 +154,8 @@ export function Navbar() {
                       )}
                     </span>
 
-                    <span className="hidden items-center gap-1.5 sm:flex">
-                      <span className="hidden items-center gap-1 rounded-full bg-white px-2 py-0.5 text-xs font-bold text-amber-700 min-[900px]:flex">
-                        <Star
-                          className="h-3.5 w-3.5 fill-amber-400 text-amber-500"
-                          strokeWidth={2}
-                        />
-                        240
-                      </span>
-                      <span className="hidden items-center gap-1 rounded-full bg-white px-2 py-0.5 text-xs font-bold text-orange-700 min-[900px]:flex">
-                        <Flame
-                          className="h-3.5 w-3.5 fill-orange-400 text-orange-500"
-                          strokeWidth={2}
-                        />
-                        12
-                      </span>
-                      <span className="max-w-[10rem] truncate font-display text-sm font-bold text-white">
-                        {displayName}
-                      </span>
+                    <span className="hidden max-w-[10rem] truncate font-display text-sm font-bold text-white sm:block">
+                      {displayName}
                     </span>
 
                     <ChevronDown
