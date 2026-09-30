@@ -23,7 +23,7 @@ import { TopBarLink } from './TopBarLink'
  */
 export const TopBar: React.FC<ServerProps> = async ({ payload, user }) => {
   const adminRoute = payload.config.routes.admin
-  const entries = await adminNavEntries(payload)
+  const entries = await adminNavEntries(payload, undefined, user ?? null)
 
   return (
     <header className={styles.bar} data-testid="ttv-top-bar">

@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { emptyBaiCounts } from '@/endpoints/emptyBaiCounts'
+import { hiddenFromNonAdmins, isAdmin } from '@/lib/access'
 
 // A chủ đề (topic) and everything under it:
 //
@@ -23,10 +24,15 @@ export const ChuDe: CollectionConfig = {
   },
   access: {
     read: () => true,
+    // Admins only; a KMD editor can't touch the quyển tree (see lib/access.ts).
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'quyen'],
+    hidden: hiddenFromNonAdmins,
   },
   // How many bài hold nothing, per chủ đề, for one quyển — read by the grid on the quyển page.
   // A custom endpoint rather than a deeper REST `select`: the grid asks for `title` alone so

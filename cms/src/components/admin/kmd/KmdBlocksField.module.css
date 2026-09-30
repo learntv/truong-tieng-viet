@@ -14,6 +14,11 @@
   flex-shrink: 0;
   max-height: 70vh;
   overflow-y: auto;
+  /* The thumbnails are 16:10, so their height follows the rail's width. Without a reserved
+     gutter the scrollbar fed back into itself: showing it narrowed every thumbnail enough that
+     the list no longer overflowed, hiding it made them tall enough to overflow again, and any
+     re-layout (hovering a thumbnail fades in its ✕) flipped between the two. */
+  scrollbar-gutter: stable;
   padding: 0.25rem;
   border: 1px solid var(--theme-elevation-150);
   border-radius: 4px;
@@ -35,7 +40,7 @@
   flex-shrink: 0;
   border: 2px solid transparent;
   border-radius: 4px;
-  background: var(--theme-bg);
+  background: var(--theme-elevation-0);
   overflow: hidden;
   touch-action: manipulation;
 }
@@ -102,7 +107,7 @@
   padding: 0 0.3rem;
   border: 1px solid var(--theme-elevation-150);
   border-radius: 3px;
-  background: var(--theme-bg);
+  background: var(--theme-elevation-0);
   font-size: 0.7rem;
   line-height: 1.4;
   cursor: pointer;
@@ -178,30 +183,4 @@
   text-align: center;
   color: var(--theme-elevation-400);
   font-style: italic;
-}
-
-/* "Xem trước", at the far end of the section header — a link out of the panel, so it sits apart
-   from the pill and counter that describe the section rather than beside them. */
-.previewLink {
-  margin-left: auto;
-  padding: 0.15rem 0.6rem;
-  border: 1px solid var(--theme-elevation-200);
-  border-radius: 4px;
-  color: var(--theme-elevation-700);
-  font-size: 0.8rem;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.previewLink:hover {
-  border-color: var(--theme-elevation-400);
-  background: var(--theme-elevation-50);
-}
-
-/* Unsaved lessons have no id to preview; the control stays visible and explains itself in its
-   tooltip rather than vanishing, so it does not look like the button moved. */
-.previewLink[data-disabled] {
-  border-style: dashed;
-  color: var(--theme-elevation-400);
-  cursor: not-allowed;
 }

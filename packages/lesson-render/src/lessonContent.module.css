@@ -224,6 +224,53 @@
   }
 }
 
+/* --- hình tương tác ----------------------------------------------------- */
+
+/* The picture at its own size, capped at the column; the boxes are positioned in percentages
+ * of this wrapper, which is exactly the image's box. */
+.hotspots {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  line-height: 0;
+}
+
+.hotspotsImage {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 16px;
+}
+
+/* Visible at rest, since a phone has no hover to discover them by: a dashed white line with a
+ * dark halo reads on both light and dark parts of a photo. */
+.hotspot {
+  position: absolute;
+  padding: 0;
+  border: 2px dashed rgb(255 255 255 / 90%);
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: 0 0 0 1px rgb(12 58 110 / 35%);
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+
+.hotspot:hover,
+.hotspot:focus-visible {
+  border-style: solid;
+  background: rgb(255 255 255 / 22%);
+  outline: none;
+}
+
+.hotspot[data-playing="true"] {
+  border-style: solid;
+  border-color: var(--ttv-ribbon);
+  background: rgb(255 238 0 / 22%);
+}
+
 /* --- tạo tiếng ---------------------------------------------------------- */
 
 .chain {

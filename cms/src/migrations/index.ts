@@ -7,6 +7,8 @@ import * as migration_20260906_093223_kmd_lessons from './20260906_093223_kmd_le
 import * as migration_20260907_120010_kmd_lesson_slug_visibility from './20260907_120010_kmd_lesson_slug_visibility';
 import * as migration_20260907_133024_remove_kmd_lesson_visibility from './20260907_133024_remove_kmd_lesson_visibility';
 import * as migration_20260930_053759_remove_kmd_am_van from './20260930_053759_remove_kmd_am_van';
+import * as migration_20260930_064054_kmd_images_to_hotspots from './20260930_064054_kmd_images_to_hotspots';
+import * as migration_20260930_065623_user_roles from './20260930_065623_user_roles';
 
 export const migrations = [
   {
@@ -52,6 +54,16 @@ export const migrations = [
   {
     up: migration_20260930_053759_remove_kmd_am_van.up,
     down: migration_20260930_053759_remove_kmd_am_van.down,
-    name: '20260930_053759_remove_kmd_am_van'
+    name: '20260930_053759_remove_kmd_am_van',
+  },
+  {
+    up: migration_20260930_064054_kmd_images_to_hotspots.up,
+    down: migration_20260930_064054_kmd_images_to_hotspots.down,
+    name: '20260930_064054_kmd_images_to_hotspots',
+  },
+  {
+    up: migration_20260930_065623_user_roles.up,
+    down: migration_20260930_065623_user_roles.down,
+    name: '20260930_065623_user_roles'
   },
 ];

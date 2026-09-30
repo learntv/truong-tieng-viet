@@ -1,6 +1,7 @@
 import type { BasePayload } from 'payload'
 
 import { QUYEN_ROSTER } from '@/collections/Quyen'
+import { isAdminUser } from '@/lib/access'
 
 /**
  * What the top bar lists.
@@ -66,9 +67,16 @@ export const adminNavEntries = async (
   /* Injectable only so a test can assert that a longer roster produces a longer bar without
    * editing this file. Production always uses the shipped roster. */
   roster: Roster = QUYEN_ROSTER,
-): Promise<NavEntry[]> => [
-  { href: '', label: 'Trang chính' },
-  ...(await quyenEntries(payload, roster)),
-  { href: '/collections/speaking-topics', label: 'Luyện nói' },
-  { href: '/collections/media', label: 'Thư viện hình' },
-]
+  /* The signed-in user. A KMD editor (lib/access.ts) gets only what they can edit: no quyển,
+   * no Luyện nói, since those collections are hidden from them anyway. Omitted = full bar. */
+  user?: { role?: null | string } | null,
+): Promise<NavEntry[]> => {
+  const full = user === undefined || isAdminUser(user)
+  return [
+    { href: '', label: 'Trang chính' },
+    ...(full ? await quyenEntries(payload, roster) : []),
+    { href: '/collections/bai-kmd', label: 'Khai Minh Đức' },
+    ...(full ? [{ href: '/collections/speaking-topics', label: 'Luyện nói' }] : []),
+    { href: '/collections/media', label: 'Thư viện hình' },
+  ]
+}

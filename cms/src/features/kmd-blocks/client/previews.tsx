@@ -50,11 +50,21 @@ const VocabularyPreview: React.FC = () => (
   </span>
 )
 
+const HotspotsPreview: React.FC = () => (
+  <span aria-hidden className="kmd-block-preview kmd-block-preview--hotspots">
+    <span className="kmd-block-preview__picture">
+      <span className="kmd-block-preview__spot" />
+      <span className="kmd-block-preview__spot kmd-block-preview__spot--second" />
+    </span>
+  </span>
+)
+
 /**
  * Keyed by block slug. A block missing from here keeps whatever icon Payload gave it, so adding a
  * block to FreeText.ts without a preview degrades to the old menu entry rather than breaking.
  */
 export const BLOCK_PREVIEWS: Record<string, React.FC> = {
+  imageHotspots: HotspotsPreview,
   syllableBlend: BlendPreview,
   syllableChain: ChainPreview,
   vocabularyCard: VocabularyPreview,

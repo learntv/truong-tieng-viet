@@ -14,6 +14,7 @@ import { KmdBlocksFeatureClient as KmdBlocksFeatureClient_85985b427e8e295250d2ae
 import { VocabularyCardBlock as VocabularyCardBlock_2e9f31f9256fe6cd36bc9678fb19e932 } from '@/components/admin/blocks/VocabularyCardBlock'
 import { SyllableChainBlock as SyllableChainBlock_24b9780cdb8c353b05e7f0b056f51325 } from '@/components/admin/blocks/SyllableChainBlock'
 import { SyllableBlendBlock as SyllableBlendBlock_17a5d558227e4b7fa0b8e5adfd36e3c6 } from '@/components/admin/blocks/SyllableBlendBlock'
+import { ImageHotspotsBlock as ImageHotspotsBlock_1cd5b3c3daa787547a28a3fc4989d27e } from '@/components/admin/blocks/ImageHotspotsBlock'
 import { JsonViewFeatureClient as JsonViewFeatureClient_11485349990b1300462e7296f41cee61 } from '@/features/json-view/client'
 import { TextColorFeatureClient as TextColorFeatureClient_972efb1e70e22b3d1ff96876419cda0c } from '@/features/text-color/client'
 import { ColumnsFeatureClient as ColumnsFeatureClient_a99f4bfd8642aa9e8a44a3b97369d9f7 } from '@/features/columns/client'
@@ -35,10 +36,10 @@ import { ChecklistFeatureClient as ChecklistFeatureClient_e70f5e05f09f93e00b997e
 import { LinkFeatureClient as LinkFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { RelationshipFeatureClient as RelationshipFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BlockquoteFeatureClient as BlockquoteFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
-import { UploadFeatureClient as UploadFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { InlineToolbarFeatureClient as InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { KmdBlocksField as KmdBlocksField_79258febc18f4190cc4042a2bbc2949c } from '@/components/admin/kmd/KmdBlocksField'
+import { KmdDocTitle as KmdDocTitle_f2d9206d83a80a99f44a0acf850cef0c } from '@/components/admin/kmd/KmdDocTitle'
 import { EmptyNav as EmptyNav_a82e377c29d8377d989153e41e075fbf } from '@/components/admin/shell/EmptyNav'
 import { TopBar as TopBar_0a8079b0afb6e8ab0e66a39f19713044 } from '@/components/admin/shell/TopBar'
 import { SchoolIcon as SchoolIcon_356a740e0611c873e709c341b25a6af9 } from '@/components/admin/shell/SchoolIcon'
@@ -65,6 +66,7 @@ export const importMap = {
   "@/components/admin/blocks/VocabularyCardBlock#VocabularyCardBlock": VocabularyCardBlock_2e9f31f9256fe6cd36bc9678fb19e932,
   "@/components/admin/blocks/SyllableChainBlock#SyllableChainBlock": SyllableChainBlock_24b9780cdb8c353b05e7f0b056f51325,
   "@/components/admin/blocks/SyllableBlendBlock#SyllableBlendBlock": SyllableBlendBlock_17a5d558227e4b7fa0b8e5adfd36e3c6,
+  "@/components/admin/blocks/ImageHotspotsBlock#ImageHotspotsBlock": ImageHotspotsBlock_1cd5b3c3daa787547a28a3fc4989d27e,
   "@/features/json-view/client#JsonViewFeatureClient": JsonViewFeatureClient_11485349990b1300462e7296f41cee61,
   "@/features/text-color/client#TextColorFeatureClient": TextColorFeatureClient_972efb1e70e22b3d1ff96876419cda0c,
   "@/features/columns/client#ColumnsFeatureClient": ColumnsFeatureClient_a99f4bfd8642aa9e8a44a3b97369d9f7,
@@ -86,10 +88,10 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#LinkFeatureClient": LinkFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#RelationshipFeatureClient": RelationshipFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BlockquoteFeatureClient": BlockquoteFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  "@payloadcms/richtext-lexical/client#UploadFeatureClient": UploadFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient": HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#InlineToolbarFeatureClient": InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@/components/admin/kmd/KmdBlocksField#KmdBlocksField": KmdBlocksField_79258febc18f4190cc4042a2bbc2949c,
+  "@/components/admin/kmd/KmdDocTitle#KmdDocTitle": KmdDocTitle_f2d9206d83a80a99f44a0acf850cef0c,
   "@/components/admin/shell/EmptyNav#EmptyNav": EmptyNav_a82e377c29d8377d989153e41e075fbf,
   "@/components/admin/shell/TopBar#TopBar": TopBar_0a8079b0afb6e8ab0e66a39f19713044,
   "@/components/admin/shell/SchoolIcon#SchoolIcon": SchoolIcon_356a740e0611c873e709c341b25a6af9,

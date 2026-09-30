@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
+import { hiddenFromNonAdmins, isAdmin } from '@/lib/access'
+
 // A quyển (workbook) is the top of the learning tree:
 //
 //   quyển → chủ đề → chặng → nội dung → bài → hình
@@ -31,10 +33,13 @@ export const Quyen: CollectionConfig = {
     read: () => true,
     create: () => false,
     delete: () => false,
+    // Admins only; a KMD editor can't touch the quyển tree (see lib/access.ts).
+    update: isAdmin,
   },
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title'],
+    hidden: hiddenFromNonAdmins,
   },
   // Duplicating would mint a quyển outside the roster; hide the button.
   disableDuplicate: true,

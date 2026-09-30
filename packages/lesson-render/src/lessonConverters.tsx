@@ -14,7 +14,7 @@ import styles from "./lessonContent.module.css";
  * Payload's default converters cover the ordinary nodes (paragraphs, headings, lists, links,
  * images) and the core already applies alignment and indent, so only what this editor adds on top
  * is written here: the colours the text-colour feature stores as an inline style, the column rows
- * (features/columns in the CMS), and the three lesson blocks. Between them these are the whole
+ * (features/columns in the CMS), and the four lesson blocks. Between them these are the whole
  * difference between the stored JSON and a lesson slide.
  *
  * The blocks are drawn to match their admin editors (cms/src/components/admin/blocks/*) — same
@@ -153,6 +153,83 @@ const SyllableBlend: React.FC<{ fields: Record<string, unknown> }> = ({ fields }
   );
 };
 
+type Hotspot = { h: number; id: string; text: string; w: number; x: number; y: number };
+
+const asHotspots = (value: unknown): Hotspot[] =>
+  Array.isArray(value)
+    ? value.filter(
+        (spot): spot is Hotspot =>
+          !!spot &&
+          typeof spot === "object" &&
+          typeof spot.text === "string" &&
+          spot.text.trim() !== "" &&
+          ["x", "y", "w", "h"].every((key) => typeof spot[key] === "number"),
+      )
+    : [];
+
+// Same URL shape as the site's `ttsSrc` (src/lib/tts/text.ts), which this package can't import.
+// Relative on purpose: the site serves /api/tts itself, and the CMS forwards its own /api/tts
+// there (cms/src/app/(payload)/api/tts/route.ts), so the preview speaks too.
+const ttsSrc = (text: string): string => `/api/tts?text=${encodeURIComponent(text)}`;
+
+// One player for every hotspot on the page, so tapping a second box cuts the first one off
+// instead of the two talking over each other.
+let player: HTMLAudioElement | null = null;
+
+const speak = (text: string, onEnd: () => void) => {
+  player?.pause();
+  const audio = new Audio(ttsSrc(text));
+  player = audio;
+  const done = () => {
+    if (player === audio) player = null;
+    onEnd();
+  };
+  audio.addEventListener("ended", done);
+  audio.addEventListener("error", done);
+  audio.addEventListener("pause", done);
+  audio.play().catch(done);
+};
+
+/** A picture whose boxes read their text aloud when tapped — ImageHotspotsBlock.tsx's canvas. */
+const ImageHotspots: React.FC<{ fields: Record<string, unknown> }> = ({ fields }) => {
+  const image = asMedia(fields.image);
+  const hotspots = asHotspots(fields.hotspots);
+  const [playing, setPlaying] = React.useState<null | string>(null);
+
+  if (!image?.url) return null;
+
+  return (
+    <div className={styles.hotspots}>
+      <img
+        alt={image.alt ?? ""}
+        className={styles.hotspotsImage}
+        height={image.height ?? undefined}
+        src={image.url}
+        width={image.width ?? undefined}
+      />
+      {hotspots.map((spot) => (
+        <button
+          aria-label={spot.text}
+          className={styles.hotspot}
+          data-playing={playing === spot.id}
+          key={spot.id}
+          onClick={() => {
+            setPlaying(spot.id);
+            speak(spot.text, () => setPlaying((current) => (current === spot.id ? null : current)));
+          }}
+          style={{
+            height: `${spot.h}%`,
+            left: `${spot.x}%`,
+            top: `${spot.y}%`,
+            width: `${spot.w}%`,
+          }}
+          type="button"
+        />
+      ))}
+    </div>
+  );
+};
+
 /** A block node's stored values. Typed off the node rather than off `payload-types` because the
  * converter map is keyed by block slug and hands every block the same loosely-typed node. */
 const fieldsOf = ({ node }: JSXConverterArgs): Record<string, unknown> =>
@@ -164,6 +241,7 @@ const childrenOf = ({ node }: JSXConverterArgs): SerializedElementNode["children
 export const lessonConverters: JSXConvertersFunction = ({ defaultConverters }) => ({
   ...defaultConverters,
   blocks: {
+    imageHotspots: (args: JSXConverterArgs) => <ImageHotspots fields={fieldsOf(args)} />,
     syllableBlend: (args: JSXConverterArgs) => <SyllableBlend fields={fieldsOf(args)} />,
     syllableChain: (args: JSXConverterArgs) => <SyllableChain fields={fieldsOf(args)} />,
     vocabularyCard: (args: JSXConverterArgs) => <VocabularyCard fields={fieldsOf(args)} />,

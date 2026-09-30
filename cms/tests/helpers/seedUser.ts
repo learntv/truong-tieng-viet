@@ -22,10 +22,11 @@ export async function seedTestUser(): Promise<void> {
     },
   })
 
-  // Create fresh test user
+  // Create fresh test user — an admin, since the e2e tests walk the quyển screens a KMD
+  // editor can't open.
   await payload.create({
     collection: 'users',
-    data: testUser,
+    data: { ...testUser, role: 'admin' },
   })
 }
 

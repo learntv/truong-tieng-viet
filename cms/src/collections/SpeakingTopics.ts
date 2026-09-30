@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
+import { hiddenFromNonAdmins, isAdmin } from '@/lib/access'
+
 // Speaking-practice topics for the app's /hoc-tap/luyen-noi screens. The app reads this
 // collection over the public REST API (src/hooks/useSpeakingContent.ts in the root workspace).
 //
@@ -12,10 +14,15 @@ export const SpeakingTopics: CollectionConfig = {
   slug: 'speaking-topics',
   access: {
     read: () => true,
+    // Admins only; a KMD editor can't touch Luyện nói (see lib/access.ts).
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['id', 'emoji', 'title'],
+    hidden: hiddenFromNonAdmins,
   },
   // Drag-to-reorder in the list view; display order lives in the hidden _order
   // fractional-index field, which the app's fetch sorts by.

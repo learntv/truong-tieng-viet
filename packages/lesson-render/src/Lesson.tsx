@@ -21,8 +21,8 @@ import styles from "./Lesson.module.css";
  * document. Deliberately built out of this component plus `lessonConverters` and nothing
  * admin-specific.
  *
- * The section number is the editor's own "Mục n" from the slide rail, and the admin's "Xem trước"
- * link (KmdBlocksField.tsx's `PreviewLink`) points at `#muc-<n>` to open a lesson straight at the
+ * The section number is the editor's own "Mục n" from the slide rail, and a link to `#muc-<n>`
+ * opens a lesson straight at the
  * section being edited — read on mount below, since only the active slide is ever in the DOM.
  */
 export const SECTION_ID_PREFIX = "muc-";

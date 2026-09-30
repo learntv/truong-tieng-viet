@@ -131,6 +131,7 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
+  role: 'admin' | 'kmd';
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -262,9 +263,6 @@ export interface BaiKmd {
   id: number;
   _order?: string | null;
   title: string;
-  /**
-   * Địa chỉ công khai của bài học (vd: ong-ong-ung-ung). Để trống để tự tạo từ tên bài. Đổi tên bài không làm đổi đường dẫn.
-   */
   slug: string;
   blocks?:
     | {
@@ -386,6 +384,7 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  role?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

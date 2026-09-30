@@ -7,6 +7,7 @@ import { JsonViewFeature } from '@/features/json-view'
 import { KmdBlocksFeature } from '@/features/kmd-blocks'
 import { TextColorFeature } from '@/features/text-color'
 
+import { ImageHotspots } from './ImageHotspots'
 import { SyllableBlend } from './SyllableBlend'
 import { SyllableChain } from './SyllableChain'
 import { VocabularyCard } from './VocabularyCard'
@@ -32,12 +33,15 @@ export const FreeText: Block = {
           hideDraggableBlockElement: true,
         },
         features: ({ defaultFeatures }) => [
-          ...defaultFeatures,
+          // Payload's own image (the `upload` node) is left out: a picture in a lesson is always
+          // an ImageHotspots block, which is the same picture plus boxes that can be drawn on
+          // it. Existing images were converted by the 20260930_064054 migration.
+          ...defaultFeatures.filter((feature) => feature.key !== 'upload'),
           FixedToolbarFeature(),
           ColumnsFeature(),
           TextColorFeature(),
           JsonViewFeature(),
-          KmdBlocksFeature({ blocks: [VocabularyCard, SyllableChain, SyllableBlend] }),
+          KmdBlocksFeature({ blocks: [VocabularyCard, SyllableChain, SyllableBlend, ImageHotspots] }),
         ],
       }),
       label: 'Nội dung',

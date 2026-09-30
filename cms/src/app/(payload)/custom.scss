@@ -126,8 +126,11 @@
    * `--theme-bg: var(--theme-elevation-0)` and both `.template-default` and
    * `.template-default__wrap` paint it, so redefining this one variable moves the ground
    * without touching a single white card.
+   *
+   * A light brand blue rather than the near-white neutral, so the white cards stand out from
+   * it clearly. Between blue-50 and blue-100 on the same hue-250 ramp.
    */
-  --theme-bg: var(--color-base-50);
+  --theme-bg: #e1eefd; /* oklch(0.945 0.025 250) */
 
   /* Inputs stay on the card's own white, not on the ground. */
   --theme-input-bg: var(--color-base-0);
@@ -324,6 +327,30 @@ html {
    * top border — Payload only ever gave `.doc-header` a `margin-top`, which sat fine against
    * the bare page ground but reads as a card with no headroom now that the border is real. */
   padding-top: calc(var(--base) * 1.25);
+}
+
+/* A KMD lesson's edit view header is a single row: the title (KmdDocTitle, rendered inside the
+ * save bar) on the left, Lưu and ⋮ on the right. So Payload's own title row goes, taking the tab
+ * strip with it (just "Chỉnh sửa" once the API tab is off, see collections/BaiKMD.ts), and so do
+ * the timestamps. The save bar then becomes the card's top edge. `:has` because the header isn't
+ * inside `.collection-edit--bai-kmd` in every Payload layout. */
+body:has(.collection-edit--bai-kmd) {
+  .doc-header,
+  .doc-controls__content {
+    display: none;
+  }
+
+  .doc-controls {
+    border-top: 1px solid var(--color-base-150);
+    border-top-left-radius: var(--ttv-card-radius);
+    border-top-right-radius: var(--ttv-card-radius);
+  }
+
+  .doc-controls__controls-wrapper,
+  .doc-controls__controls {
+    flex: 1;
+    min-width: 0;
+  }
 }
 
 .document-fields {
@@ -1003,4 +1030,33 @@ html {
 
 .kmd-block-preview__example {
   font-style: italic;
+}
+
+/* A sky-coloured "picture" with two of the dashed boxes the block draws on it. */
+.kmd-block-preview__picture {
+  position: relative;
+  width: 100%;
+  height: 2.6rem;
+  border-radius: 4px;
+  background: #b4e4ff;
+}
+
+.kmd-block-preview__spot {
+  position: absolute;
+  top: 18%;
+  left: 12%;
+  width: 30%;
+  height: 50%;
+  border: 1.5px dashed #fff;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px rgba(12, 58, 110, 0.35);
+}
+
+.kmd-block-preview__spot--second {
+  top: 35%;
+  left: 58%;
+  width: 26%;
+  height: 45%;
+  border-style: solid;
+  border-color: #ffee00;
 }

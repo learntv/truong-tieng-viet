@@ -9,8 +9,8 @@ import React, { cache } from 'react'
 import styles from './page.module.css'
 
 /**
- * A KMD lesson rendered the way the site will render it, opened from the "Xem trước" button in the
- * lesson editor (see components/admin/kmd/KmdBlocksField.tsx).
+ * A KMD lesson rendered the way the site will render it, at /xem-truoc/bai-kmd/<id>. The editor
+ * no longer links here (see collections/BaiKMD.ts), but the page still works when opened by hand.
  *
  * It reads the *saved* document — the editor's unsaved changes live in a form on another tab and
  * are not reachable from here — which the banner says out loud, because "I changed that" followed

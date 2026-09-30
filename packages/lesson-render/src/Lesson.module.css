@@ -121,14 +121,16 @@
   flex-shrink: 0;
   border-radius: 14px;
   cursor: pointer;
-  transition: transform 0.15s ease;
 }
 
 /* Hover only where there is a real pointer — on a touch screen the last tapped
- * thumbnail would otherwise stay enlarged. */
+ * thumbnail would otherwise stay highlighted. A deeper shadow rather than a
+ * scale: a transformed thumbnail counts toward the rail's scrollable area, so
+ * growing one by even a pixel past the edge flashed a scrollbar in and out on
+ * every hover. A shadow never does. */
 @media (hover: hover) {
-  .railItem:hover {
-    transform: scale(1.04);
+  .railItem:hover .railThumb {
+    box-shadow: 0 6px 18px rgb(12 58 110 / 38%);
   }
 }
 
@@ -143,6 +145,7 @@
   border-radius: 14px;
   background: var(--ttv-surface);
   box-shadow: 0 4px 12px rgb(12 58 110 / 20%);
+  transition: box-shadow 0.15s ease;
 }
 
 .railItem[data-active='true'] .railThumb {

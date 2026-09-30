@@ -20,20 +20,14 @@ export const BaiKMD: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'slug'],
-    // The external-link button in the save bar. Same destination as the "Xem trước" control in
-    // the section header (KmdBlocksField.tsx) — this one is Payload's own, in the place a
-    // Payload user looks for it.
-    //
-    // SITE_URL is the site's own origin, unset locally where the two apps share no domain, so
-    // the button falls back to the internal preview route rather than ever building a broken
-    // link.
-    preview: (doc) => {
-      const siteUrl = process.env.SITE_URL?.replace(/\/+$/, '')
-      if (typeof doc?.slug === 'string' && siteUrl) {
-        return `${siteUrl}/hoc-tap/khai-minh-duc/${doc.slug}`
-      }
-      return doc?.id ? `/xem-truoc/bai-kmd/${doc.id}` : null
+    defaultColumns: ['title'],
+    // The edit view's header is one row: the title, Lưu and the ⋮ menu. No API tab, and no
+    // preview button (`admin.preview`), which editors didn't use. The title is drawn inside the
+    // save bar by KmdDocTitle; hiding Payload's own title row, the lone "Chỉnh sửa" tab and the
+    // timestamps is CSS in custom.scss, since Payload has no option for those.
+    hideAPIURL: true,
+    components: {
+      edit: { beforeDocumentControls: ['@/components/admin/kmd/KmdDocTitle#KmdDocTitle'] },
     },
   },
   // Drag-to-reorder in the list view; display order lives in the hidden _order
@@ -50,9 +44,10 @@ export const BaiKMD: CollectionConfig = {
       admin: { placeholder: 'VD: ONG – ÔNG – UNG – ƯNG' },
     },
     {
-      // The lesson's public address — the URL segment at /hoc-tap/khai-minh-duc/<slug>. Derived
-      // from the title when left blank, and never re-derived once set (even if the title later
-      // changes): the slug is a shared, bookmarkable address, not a display of the current title.
+      // The lesson's public address — the URL segment at /hoc-tap/khai-minh-duc/<slug>. Always
+      // derived from the title, never typed: hidden from the editor, filled on the first save,
+      // and never re-derived after that (even if the title later changes): the slug is a shared,
+      // bookmarkable address, not a display of the current title.
       // See openspec/changes/display-kmd-lessons/design.md — "Slug: derived on write, never
       // re-derived".
       name: 'slug',
@@ -61,17 +56,32 @@ export const BaiKMD: CollectionConfig = {
       unique: true,
       index: true,
       label: 'Đường dẫn',
-      admin: {
-        description:
-          'Địa chỉ công khai của bài học (vd: ong-ong-ung-ung). Để trống để tự tạo từ tên bài. Đổi tên bài không làm đổi đường dẫn.',
-        placeholder: 'Để trống để tự tạo từ tên bài',
-      },
+      admin: { hidden: true },
+      // Replaces the default required check, which the admin form runs against its own state
+      // before any hook has filled the field, and so would refuse every new lesson's first save
+      // over a field the editor can't see. The hook below always leaves a value.
+      validate: () => true as const,
       hooks: {
         beforeValidate: [
-          ({ value, siblingData }) => {
+          async ({ originalDoc, req, siblingData, value }) => {
             if (typeof value === 'string' && value.trim().length > 0) return value
             const title = typeof siblingData?.title === 'string' ? siblingData.title : ''
-            return deriveSlug(title)
+            const base = deriveSlug(title) || 'bai'
+
+            // No field to fix a clash in any more, so two lessons with the same title get
+            // `-2`, `-3`… instead of a unique-constraint error about a hidden field.
+            for (let n = 1; ; n++) {
+              const candidate = n === 1 ? base : `${base}-${n}`
+              const { totalDocs } = await req.payload.count({
+                collection: 'bai-kmd',
+                req,
+                where: {
+                  slug: { equals: candidate },
+                  ...(originalDoc?.id ? { id: { not_equals: originalDoc.id } } : {}),
+                },
+              })
+              if (totalDocs === 0) return candidate
+            }
           },
         ],
       },
