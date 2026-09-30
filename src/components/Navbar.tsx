@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { BarChart3, ChevronDown, Flame, LogOut, Menu, Star, UserCircle, X } from "lucide-react";
+import { BarChart3, ChevronDown, LogOut, Menu, UserCircle, X } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "use-intl";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useHasRole } from "@/hooks/useHasRole";
 import { generateUsername } from "@/lib/profile";
 import { Logo } from "@/components/Logo";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,15 +20,16 @@ import {
 
 const tabs: {
   to: "/" | "/hoc-tap" | "/san-pham-cua-em" | "/bang-xep-hang";
-  label: string;
+  label: "home" | "learn" | "products" | "leaderboard";
 }[] = [
-  { to: "/", label: "Trang chủ" },
-  { to: "/hoc-tap", label: "Học tập" },
-  { to: "/san-pham-cua-em", label: "Sản phẩm của em" },
-  { to: "/bang-xep-hang", label: "Xếp hạng" },
+  { to: "/", label: "home" },
+  { to: "/hoc-tap", label: "learn" },
+  { to: "/san-pham-cua-em", label: "products" },
+  { to: "/bang-xep-hang", label: "leaderboard" },
 ];
 
 export function Navbar() {
+  const t = useTranslations("nav");
   const { location } = useRouterState();
   const pathname = location.pathname;
   const { user, isLoading, signOut } = useAuth();
@@ -39,10 +42,9 @@ export function Navbar() {
     redirect: pathname === "/dang-nhap" ? undefined : pathname,
   };
 
-  const displayName =
-    (user?.user_metadata?.full_name as string | undefined) ||
-    user?.email?.split("@")[0] ||
-    "Học sinh";
+  const accountName =
+    (user?.user_metadata?.full_name as string | undefined) || user?.email?.split("@")[0];
+  const displayName = accountName || t("studentFallback");
   const avatarLetter = displayName[0]?.toUpperCase() ?? "?";
   // The profiles row is the source of truth — user_metadata gets overwritten by the OAuth
   // provider (e.g. Google's picture) on every login, so it can't be trusted for a saved avatar.
@@ -65,7 +67,8 @@ export function Navbar() {
   const avatarEmoji = ownProfile
     ? ownProfile.avatar_emoji
     : (user?.user_metadata?.avatar_emoji as string | undefined);
-  const myUsername = user ? generateUsername(displayName, user.id) : null;
+  // Keyed on the untranslated fallback, so a profile URL is the same in every language.
+  const myUsername = user ? generateUsername(accountName || "Học sinh", user.id) : null;
   // Any profile page lights the avatar, not just your own — the ring marks
   // "you are in the profile section", the same way the tab pills do.
   const onProfile = pathname.startsWith("/u/");
@@ -101,7 +104,7 @@ export function Navbar() {
                         isActive ? "text-gold" : "text-white hover:text-gold-soft",
                       ].join(" ")}
                     >
-                      {label}
+                      {t(label)}
                     </Link>
                     {index === tabs.length - 1 && (
                       <span className="mx-4 h-5 w-px bg-white/40" aria-hidden="true" />
@@ -111,8 +114,20 @@ export function Navbar() {
               })}
             </nav>
 
+            <LanguageSwitcher />
+
             {isLoading && (
-              <div className="h-9 w-9 animate-pulse rounded-full bg-white/30 sm:w-28" />
+              <div
+                aria-hidden="true"
+                className="flex animate-pulse items-center gap-2.5 rounded-full border-[3px] border-white/70 py-1 pl-1 pr-3"
+              >
+                <span className="h-9 w-9 shrink-0 rounded-full bg-white/30" />
+                <span className="hidden h-4 w-20 rounded-full bg-white/30 sm:block" />
+                <ChevronDown
+                  className="hidden h-3.5 w-3.5 shrink-0 text-white/40 sm:block"
+                  strokeWidth={3}
+                />
+              </div>
             )}
 
             {!isLoading && !user && (
@@ -121,7 +136,7 @@ export function Navbar() {
                 search={authSearch}
                 className="shrink-0 px-1 font-display text-sm font-bold text-white transition-colors hover:text-gold-soft"
               >
-                Đăng nhập
+                {t("signIn")}
               </Link>
             )}
 
@@ -139,7 +154,7 @@ export function Navbar() {
                       {avatarUrl ? (
                         <img
                           src={avatarUrl}
-                          alt="Avatar"
+                          alt={t("avatarAlt")}
                           className="h-full w-full object-cover"
                           referrerPolicy="no-referrer"
                         />
@@ -154,24 +169,8 @@ export function Navbar() {
                       )}
                     </span>
 
-                    <span className="hidden items-center gap-1.5 sm:flex">
-                      <span className="hidden items-center gap-1 rounded-full bg-white px-2 py-0.5 text-xs font-bold text-amber-700 min-[900px]:flex">
-                        <Star
-                          className="h-3.5 w-3.5 fill-amber-400 text-amber-500"
-                          strokeWidth={2}
-                        />
-                        240
-                      </span>
-                      <span className="hidden items-center gap-1 rounded-full bg-white px-2 py-0.5 text-xs font-bold text-orange-700 min-[900px]:flex">
-                        <Flame
-                          className="h-3.5 w-3.5 fill-orange-400 text-orange-500"
-                          strokeWidth={2}
-                        />
-                        12
-                      </span>
-                      <span className="max-w-[10rem] truncate font-display text-sm font-bold text-white">
-                        {displayName}
-                      </span>
+                    <span className="hidden max-w-[10rem] truncate font-display text-sm font-bold text-white sm:block">
+                      {displayName}
                     </span>
 
                     <ChevronDown
@@ -192,7 +191,7 @@ export function Navbar() {
                         className="flex cursor-pointer items-center"
                       >
                         <UserCircle className="mr-2 h-4 w-4" />
-                        Trang cá nhân
+                        {t("profile")}
                       </Link>
                     </DropdownMenuItem>
                   )}
@@ -200,7 +199,7 @@ export function Navbar() {
                     <DropdownMenuItem asChild>
                       <Link to="/dashboard" className="flex cursor-pointer items-center">
                         <BarChart3 className="mr-2 h-4 w-4" />
-                        Báo cáo
+                        {t("reports")}
                       </Link>
                     </DropdownMenuItem>
                   )}
@@ -210,7 +209,7 @@ export function Navbar() {
                     className="cursor-pointer text-destructive focus:text-destructive"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
-                    Đăng xuất
+                    {t("signOut")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -221,7 +220,7 @@ export function Navbar() {
             <button
               onClick={() => setSidebarOpen(true)}
               className="ml-1 grid h-10 w-10 shrink-0 place-items-center rounded-lg text-white transition hover:bg-white/20"
-              aria-label="Mở menu"
+              aria-label={t("openMenu")}
             >
               <Menu className="h-5 w-5" strokeWidth={3} />
             </button>
@@ -251,7 +250,7 @@ export function Navbar() {
           <button
             onClick={closeSidebar}
             className="grid h-9 w-9 place-items-center rounded-lg text-white transition hover:bg-white/20"
-            aria-label="Đóng menu"
+            aria-label={t("closeMenu")}
           >
             <X className="h-5 w-5" strokeWidth={3} />
           </button>
@@ -273,7 +272,7 @@ export function Navbar() {
                       isActive ? "text-gold" : "text-white hover:text-gold-soft",
                     ].join(" ")}
                   >
-                    {label}
+                    {t(label)}
                   </Link>
                 </li>
               );
@@ -294,7 +293,7 @@ export function Navbar() {
                     onClick={closeSidebar}
                     className="block py-3.5 font-display text-base font-bold text-white transition-colors hover:text-gold-soft"
                   >
-                    Trang cá nhân
+                    {t("profile")}
                   </Link>
                 )}
                 <button
@@ -304,7 +303,7 @@ export function Navbar() {
                   }}
                   className="py-3.5 text-left font-display text-base font-bold text-white transition-colors hover:text-gold-soft"
                 >
-                  Đăng xuất
+                  {t("signOut")}
                 </button>
               </div>
             ) : (
@@ -314,7 +313,7 @@ export function Navbar() {
                 onClick={closeSidebar}
                 className="block py-3.5 text-left font-display text-base font-bold text-white transition-colors hover:text-gold-soft"
               >
-                Đăng nhập
+                {t("signIn")}
               </Link>
             ))}
         </div>

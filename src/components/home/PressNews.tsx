@@ -1,5 +1,7 @@
 import { ExternalLink } from "lucide-react";
+import { useTranslations } from "use-intl";
 import { SkyBox } from "@/components/ui/sky-box";
+import { richTags } from "@/i18n/rich";
 import { PressVideo } from "./PressVideo";
 import daiDoanKetCover from "@/assets/press/dai-doan-ket-cover.webp";
 import daiDoanKetLogo from "@/assets/press/dai-doan-ket-logo.png";
@@ -16,7 +18,8 @@ import vietnamPlusLogo from "@/assets/press/vietnamplus-logo.png";
  * Covers and mastheads are copied into the repo rather than hotlinked: the
  * papers' CDNs are free to rename or block them, and a card with a broken
  * image is worse than no card. Headlines and excerpts are the articles' own
- * (og:title / og:description), verbatim, including their spelling.
+ * (og:title / og:description), verbatim, including their spelling, so they
+ * stay in Vietnamese (marked lang="vi") whatever the page's language.
  *
  * Each masthead carries its own height class because the three logos have very
  * different proportions — Báo ảnh Việt Nam is a two-line block, the other two
@@ -63,19 +66,9 @@ const ARTICLES = [
 const formatDate = (iso: string) => iso.split("-").reverse().join("-");
 
 export function PressNews() {
+  const t = useTranslations("home.press");
   return (
-    <SkyBox
-      tone="cream"
-      ribbon="Tin tức"
-      title="Báo chí viết về chúng tôi"
-      lede={
-        <>
-          Nền tảng học tiếng Việt, các lớp học, tủ sách và hoạt động của{" "}
-          <strong>Hội đồng Văn hóa Giáo dục Canada–Việt Nam</strong> qua góc nhìn của báo chí trong
-          nước.
-        </>
-      }
-    >
+    <SkyBox tone="cream" ribbon={t("ribbon")} title={t("title")} lede={t.rich("lede", richTags)}>
       <PressVideo />
 
       {/* Three across only from lg, where each card still gets ~17rem. Between
@@ -112,15 +105,21 @@ export function PressNews() {
                   </time>
                 </span>
 
-                <span className="mt-3 font-display text-base leading-snug font-extrabold text-sky-ink group-hover:text-indigo-deep">
+                <span
+                  lang="vi"
+                  className="mt-3 font-display text-base leading-snug font-extrabold text-sky-ink group-hover:text-indigo-deep"
+                >
                   {a.title}
                 </span>
-                <span className="mt-2 line-clamp-3 text-sm leading-relaxed text-sky-ink-soft">
+                <span
+                  lang="vi"
+                  className="mt-2 line-clamp-3 text-sm leading-relaxed text-sky-ink-soft"
+                >
                   {a.excerpt}
                 </span>
 
                 <span className="mt-auto inline-flex items-center gap-1.5 pt-3 font-display text-sm font-extrabold text-indigo">
-                  Đọc bài
+                  {t("readArticle")}
                   <ExternalLink className="h-4 w-4" aria-hidden />
                 </span>
               </span>

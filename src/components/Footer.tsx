@@ -1,5 +1,6 @@
 import { Facebook, Linkedin, MessageCircle, Youtube } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useTranslations } from "use-intl";
 import boLogo from "@/assets/uy-ban.png";
 import cvcecLogo from "@/assets/cvcec.jpg";
 import { Logo } from "@/components/Logo";
@@ -17,26 +18,43 @@ const SOCIALS = [
   },
 ];
 
-const ABOUT_LINKS = [
-  { label: "Giới thiệu", to: "/" },
-  { label: "Hướng dẫn sử dụng", to: "/huong-dan-su-dung" },
-  { label: "Câu hỏi thường gặp", to: "/cau-hoi-thuong-gap" },
-  { label: "Liên hệ", to: "/lien-he" },
+/* Labels are keys into the "footer" messages. */
+type FooterLink = {
+  label:
+    | "about"
+    | "guide"
+    | "faq"
+    | "contact"
+    | "alphabet"
+    | "lessons"
+    | "speaking"
+    | "leaderboard"
+    | "terms"
+    | "privacy";
+  to: string;
+};
+
+const ABOUT_LINKS: FooterLink[] = [
+  { label: "about", to: "/" },
+  { label: "guide", to: "/huong-dan-su-dung" },
+  { label: "faq", to: "/cau-hoi-thuong-gap" },
+  { label: "contact", to: "/lien-he" },
 ];
 
-const LEARN_LINKS = [
-  { label: "Bảng chữ cái", to: "/hoc-tap/bang-chu-cai" },
-  { label: "Bài học", to: "/hoc-tap" },
-  { label: "Luyện nói", to: "/hoc-tap/luyen-noi" },
-  { label: "Bảng xếp hạng", to: "/bang-xep-hang" },
+const LEARN_LINKS: FooterLink[] = [
+  { label: "alphabet", to: "/hoc-tap/bang-chu-cai" },
+  { label: "lessons", to: "/hoc-tap" },
+  { label: "speaking", to: "/hoc-tap/luyen-noi" },
+  { label: "leaderboard", to: "/bang-xep-hang" },
 ];
 
-const POLICY_LINKS = [
-  { label: "Điều khoản sử dụng", to: "/dieu-khoan-su-dung" },
-  { label: "Chính sách bảo mật", to: "/chinh-sach-bao-mat" },
+const POLICY_LINKS: FooterLink[] = [
+  { label: "terms", to: "/dieu-khoan-su-dung" },
+  { label: "privacy", to: "/chinh-sach-bao-mat" },
 ];
 
-function LinkColumn({ title, links }: { title: string; links: { label: string; to: string }[] }) {
+function LinkColumn({ title, links }: { title: string; links: FooterLink[] }) {
+  const t = useTranslations("footer");
   return (
     <div>
       <h4 className="mb-4 font-display text-sm font-bold text-grass-ink">{title}</h4>
@@ -47,7 +65,7 @@ function LinkColumn({ title, links }: { title: string; links: { label: string; t
               to={to}
               className="text-sm text-grass-ink-soft transition-colors hover:text-indigo-deep"
             >
-              {label}
+              {t(label)}
             </Link>
           </li>
         ))}
@@ -57,6 +75,7 @@ function LinkColumn({ title, links }: { title: string; links: { label: string; t
 }
 
 export function Footer() {
+  const t = useTranslations("footer");
   return (
     // Flat --grass, the exact colour the home page's hills end on, so the
     // footer is the same meadow running to the bottom of the page with no seam
@@ -68,9 +87,7 @@ export function Footer() {
             {/* The wordmark art, not the token lockup — its own colours read on
               the grass, where the lockup's red-on-green would not. */}
             <Logo size="sm" variant="wordmark" />
-            <p className="max-w-sm text-sm leading-relaxed text-grass-ink-soft">
-              Nền tảng học tiếng Việt dành cho trẻ em Việt Nam ở trong và ngoài nước.
-            </p>
+            <p className="max-w-sm text-sm leading-relaxed text-grass-ink-soft">{t("tagline")}</p>
             <div className="flex items-center gap-2">
               {SOCIALS.map(({ label, Icon, href }) => (
                 <a
@@ -88,7 +105,7 @@ export function Footer() {
             <div className="flex items-center gap-3">
               <img
                 src={boLogo}
-                alt="Bộ Ngoại giao"
+                alt={t("ministryLogoAlt")}
                 className="h-16 w-auto rounded-md bg-white/90 object-contain p-1 shadow-sm"
               />
               <img
@@ -99,16 +116,16 @@ export function Footer() {
             </div>
           </div>
 
-          <LinkColumn title="Về chúng tôi" links={ABOUT_LINKS} />
-          <LinkColumn title="Học tập" links={LEARN_LINKS} />
-          <LinkColumn title="Chính sách" links={POLICY_LINKS} />
+          <LinkColumn title={t("aboutTitle")} links={ABOUT_LINKS} />
+          <LinkColumn title={t("learnTitle")} links={LEARN_LINKS} />
+          <LinkColumn title={t("policyTitle")} links={POLICY_LINKS} />
         </div>
       </div>
 
       <div className="border-t border-grass-ink/20 py-5">
         <div className="mx-auto flex max-w-7xl px-4 sm:px-6">
           <p className="w-full text-center text-xs text-grass-ink-soft">
-            © {COPYRIGHT_YEAR} Trường Tiếng Việt Của Em. Tất cả quyền được bảo lưu.
+            {t("copyright", { year: String(COPYRIGHT_YEAR) })}
           </p>
         </div>
       </div>

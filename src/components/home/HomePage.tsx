@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { useTranslations } from "use-intl";
+import { richTags } from "@/i18n/rich";
 import { SkyBackdrop } from "./SkyBackdrop";
 import { PressNews } from "./PressNews";
 import { SkyBox, SkyCard } from "@/components/ui/sky-box";
@@ -51,6 +53,7 @@ const LOGO_OUTLINE =
   "[filter:drop-shadow(2px_0_0_white)_drop-shadow(-2px_0_0_white)_drop-shadow(0_2px_0_white)_drop-shadow(0_-2px_0_white)]";
 
 function Hero() {
+  const t = useTranslations("home.hero");
   return (
     <section aria-labelledby="hero-title" className="relative px-4 pt-12 sm:px-6 sm:pt-16 lg:pt-20">
       {/* The wrapper is the logo's own width, so on lg the bubble can hang off
@@ -59,7 +62,7 @@ function Hero() {
         <h1 id="hero-title">
           <img
             src={logoWordmark}
-            alt="Trường Tiếng Việt Của Em"
+            alt={t("logoAlt")}
             width={1462}
             height={589}
             fetchPriority="high"
@@ -198,37 +201,17 @@ function SpellBubble() {
    sky. It runs on a 12-column grid so both rows fill the width: the top four
    take 3 columns each at 4:3, the bottom three take 4 columns each at 16:9,
    which is the same height as the top row (a third wider, same height:
-   4/3 × 4/3 = 16/9). Every tile stands on a faint mirror-image reflection. */
+   4/3 × 4/3 = 16/9). Every tile stands on a faint mirror-image reflection.
+   Each photo's alt text is its id under "home.gallery" in the messages. */
 const PHOTOS = [
-  {
-    src: beGioTheCo,
-    alt: "Em bé mặc áo dài đỏ giơ cao thẻ cờ Việt Nam",
-  },
-  {
-    src: coGiaoKhaiMac,
-    alt: "Cô giáo cầm thẻ cờ Việt Nam trong buổi khai mạc lớp tiếng Việt tương tác, dịp Giỗ Tổ Hùng Vương",
-  },
-  {
-    src: caLopChupChung,
-    alt: "Cô giáo, tình nguyện viên và các em học sinh mặc áo dài chụp ảnh chung, tay cầm sách tiếng Việt",
-  },
-  {
-    src: ghepTheDayLa,
-    alt: "Các em nhỏ chơi ghép thẻ từ vựng “Đây là” quanh bàn",
-  },
-  {
-    src: lopHocTuongTac,
-    alt: "Học sinh, tình nguyện viên và phụ huynh trong buổi học tiếng Việt tương tác",
-  },
-  {
-    src: timTheNguoiThan,
-    alt: "Các em cùng tìm thẻ hình người thân trên bàn",
-  },
-  {
-    src: choiTheTuVung,
-    alt: "Nhóm học sinh cúi xem thẻ từ vựng trải trên bàn",
-  },
-];
+  { src: beGioTheCo, id: "flag" },
+  { src: coGiaoKhaiMac, id: "opening" },
+  { src: caLopChupChung, id: "groupPhoto" },
+  { src: ghepTheDayLa, id: "matching" },
+  { src: lopHocTuongTac, id: "interactive" },
+  { src: timTheNguoiThan, id: "family" },
+  { src: choiTheTuVung, id: "vocab" },
+] as const;
 
 const TILE = "overflow-hidden rounded-lg border-2 border-white sm:rounded-xl sm:border-[3px]";
 
@@ -250,6 +233,7 @@ function Gallery() {
  * fades in as one piece instead of showing an empty frame that fills later.
  */
 function GalleryTile({ photo, bottomRow }: { photo: (typeof PHOTOS)[number]; bottomRow: boolean }) {
+  const t = useTranslations("home.gallery");
   const [loaded, setLoaded] = useState(false);
   const shape = bottomRow ? "aspect-[16/9]" : "aspect-[4/3]";
 
@@ -269,7 +253,7 @@ function GalleryTile({ photo, bottomRow }: { photo: (typeof PHOTOS)[number]; bot
             if (el?.complete && el.naturalWidth > 0) setLoaded(true);
           }}
           src={photo.src}
-          alt={photo.alt}
+          alt={t(photo.id)}
           decoding="async"
           onLoad={() => setLoaded(true)}
           onError={() => setLoaded(true)}
@@ -336,63 +320,41 @@ function BuffaloParade() {
 
 /* ── Mission box: the four steps of the journey ───────────────────────── */
 
+/* Titles and bodies are under "home.mission.steps.<id>" in the messages. */
 const STEPS = [
-  {
-    title: "Bảng chữ cái",
-    img: congVienChuCai,
-    body: "Làm quen với bảng chữ cái tiếng Việt qua hình ảnh, âm thanh và trò chơi.",
-  },
-  {
-    title: "Quyển 1",
-    img: quyen1Cover,
-    body: "Bốn chủ đề đầu tiên: gia đình, trường lớp và những người bạn quanh em.",
-  },
-  {
-    title: "Quyển 2",
-    img: quyen2Cover,
-    body: "Bốn chủ đề tiếp theo: quê hương, thiên nhiên và văn hóa Việt Nam.",
-  },
-  {
-    title: "Luyện nói",
-    img: kidsAoDai,
-    body: "Nghe, nhắc lại và ghi âm để nói tiếng Việt tự tin, rõ ràng hơn mỗi ngày.",
-  },
-];
+  { id: "alphabet", img: congVienChuCai },
+  { id: "book1", img: quyen1Cover },
+  { id: "book2", img: quyen2Cover },
+  { id: "speaking", img: kidsAoDai },
+] as const;
 
 function MissionBox() {
+  const t = useTranslations("home.mission");
   return (
     <SkyBox
       tone="lavender"
-      ribbon="Sứ mệnh của dự án"
-      title={
-        <>
-          {/* --indigo, not --primary, for every accent that sits straight on a
-            box tone: the tones carry enough chroma now that --primary only
-            reaches 2.8:1 on them, while --indigo clears 5:1. */}
-          Giúp mọi trẻ em kiều bào <span className="text-indigo">giữ tiếng Việt</span> — miễn phí
-        </>
-      }
-      lede={
-        <>
-          Trường Tiếng Việt Của Em số hóa bộ sách <strong>Vui học Tiếng Việt</strong> thành một hành
-          trình bốn bước: chữ cái, quyển 1, quyển 2 và luyện nói. Miễn phí, trọn đời, cho mọi em
-          nhỏ.
-        </>
-      }
+      ribbon={t("ribbon")}
+      // --indigo (the <accent> tag), not --primary, for every accent that sits
+      // straight on a box tone: the tones carry enough chroma now that
+      // --primary only reaches 2.8:1 on them, while --indigo clears 5:1.
+      title={t.rich("title", richTags)}
+      lede={t.rich("lede", richTags)}
     >
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {STEPS.map((s, i) => (
-          <SkyCard key={s.title} className="relative flex flex-col">
+          <SkyCard key={s.id} className="relative flex flex-col">
             <span className="absolute -top-3 -left-3 grid h-9 w-9 place-items-center rounded-full border-[3px] border-white bg-primary font-display text-sm font-extrabold text-primary-foreground">
               {i + 1}
             </span>
             <h3 className="text-center font-display text-base font-extrabold text-sky-ink">
-              {s.title}
+              {t(`steps.${s.id}.title`)}
             </h3>
             <span className="mt-3 block overflow-hidden rounded-xl border-[3px] border-white">
               <img src={s.img} alt="" className="aspect-4/3 w-full object-cover" loading="lazy" />
             </span>
-            <p className="mt-3 flex-1 text-sm leading-relaxed text-sky-ink-soft">{s.body}</p>
+            <p className="mt-3 flex-1 text-sm leading-relaxed text-sky-ink-soft">
+              {t(`steps.${s.id}.body`)}
+            </p>
           </SkyCard>
         ))}
       </div>
@@ -402,43 +364,17 @@ function MissionBox() {
 
 /* ── About box ────────────────────────────────────────────────────────── */
 
+/* Headings and bodies are under "home.about.<id>" in the messages. */
 const ROWS = [
-  {
-    Icon: BookOpenText,
-    heading: "Dự án số hóa",
-    body: (
-      <>
-        Số hóa hai cuốn sách của <strong>NXB ĐH Sư Phạm TP Hồ Chí Minh</strong>, trong khuôn khổ
-        Chương trình Tôn vinh tiếng Việt trong cộng đồng người Việt Nam ở nước ngoài do{" "}
-        <strong>UBNVONN – Bộ Ngoại giao</strong> phát động.
-      </>
-    ),
-  },
-  {
-    Icon: Network,
-    heading: "Hệ sinh thái",
-    body: (
-      <>
-        Dự án là thành viên tích cực của{" "}
-        <strong>Mạng lưới các cơ sở giảng dạy tiếng Việt và văn hóa Việt Nam ở nước ngoài</strong>.
-      </>
-    ),
-  },
-  {
-    Icon: Copyright,
-    heading: "Bản quyền",
-    body: (
-      <>
-        Được bảo hộ bản quyền bởi đồng tác giả: Phan Thị Quỳnh Trang, Nguyễn Trần Thanh Hải, Đỗ Thị
-        Phương Mai, Trần Thanh Phúc, Trần Văn Nhật.
-      </>
-    ),
-  },
-];
+  { Icon: BookOpenText, id: "digitization" },
+  { Icon: Network, id: "ecosystem" },
+  { Icon: Copyright, id: "copyright" },
+] as const;
 
 function AboutBox() {
+  const t = useTranslations("home.about");
   return (
-    <SkyBox tone="ice" title="Giới thiệu">
+    <SkyBox tone="ice" title={t("title")}>
       {/* The sponsorship is the trust signal, so it leads on its own card
         above the plain trio. The symbol PNG carries a white matte fringe from
         how it was cut out, so it sits on a white disc where the fringe
@@ -449,24 +385,24 @@ function AboutBox() {
         </span>
         <span>
           <span className="block font-display text-lg font-extrabold text-sky-ink">
-            Đồng hành chuyên môn
+            {t("partner.heading")}
           </span>
           <span className="mt-1 block text-sm leading-relaxed text-sky-ink-soft sm:text-base">
-            Dự án thực hiện dưới sự đồng hành và ủng hộ của{" "}
-            <strong className="text-indigo">
-              Ủy ban Nhà nước về người Việt Nam ở nước ngoài – Bộ Ngoại giao
-            </strong>
-            .
+            {t.rich("partner.body", richTags)}
           </span>
         </span>
       </SkyCard>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-3">
         {ROWS.map((r) => (
-          <SkyCard key={r.heading}>
+          <SkyCard key={r.id}>
             <r.Icon className="h-6 w-6 text-primary" strokeWidth={2.5} aria-hidden />
-            <h3 className="mt-3 font-display text-base font-extrabold text-sky-ink">{r.heading}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-sky-ink-soft">{r.body}</p>
+            <h3 className="mt-3 font-display text-base font-extrabold text-sky-ink">
+              {t(`${r.id}.heading`)}
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-sky-ink-soft">
+              {t.rich(`${r.id}.body`, richTags)}
+            </p>
           </SkyCard>
         ))}
       </div>
@@ -477,6 +413,7 @@ function AboutBox() {
 /* ── Thank-you box ────────────────────────────────────────────────────── */
 
 function ThanksBox() {
+  const t = useTranslations("home.thanks");
   return (
     <div className="relative">
       {/* Hoa sen nhô lên góc trên như trái tim của hộp đồng hành — cũng phải là
@@ -488,23 +425,13 @@ function ThanksBox() {
         className="pointer-events-none absolute -top-4 right-4 z-10 h-20 w-20 object-contain sm:-top-5 sm:right-8 sm:h-24 sm:w-24"
         style={{ filter: "drop-shadow(0 5px 4px oklch(0.28 0.045 260 / 0.28))" }}
       />
-      <SkyBox tone="pink" title="Lời cảm ơn">
+      <SkyBox tone="pink" title={t("title")}>
         <SkyCard className="mx-auto max-w-2xl">
           <p className="text-sm leading-relaxed text-sky-ink-soft sm:text-base">
-            Ban quản lý dự án xin được gửi lời cảm ơn chân thành tới{" "}
-            <strong className="text-indigo">
-              Ủy ban Nhà nước về người Việt Nam ở nước ngoài – Bộ Ngoại giao
-            </strong>{" "}
-            nước Cộng hòa xã hội chủ nghĩa Việt Nam đã luôn đồng hành và định hướng. Chúng tôi xin
-            gửi lời tri ân sâu sắc tới các Đại sứ quán, các cơ quan ban ngành tại Việt Nam và
-            Canada, cùng Mạng lưới giảng dạy tiếng Việt đã tạo điều kiện và hỗ trợ quý báu để dự án{" "}
-            <strong className="text-indigo">&quot;Trường Tiếng Việt Của Em&quot;</strong> được hoàn
-            thiện và đi vào vận hành. Sự đồng hành của quý vị là nguồn động lực to lớn giúp chúng
-            tôi gìn giữ và lan tỏa ngôn ngữ, văn hóa Việt đến với thế hệ trẻ tại Canada nói riêng và
-            trên toàn thế giới nói chung.
+            {t.rich("body", richTags)}
           </p>
           <p className="mt-4 text-right font-display text-sm font-extrabold text-indigo">
-            — Ban quản lý dự án
+            {t("signature")}
           </p>
         </SkyCard>
       </SkyBox>
@@ -530,16 +457,17 @@ function ContactCard({
   value: string;
   href: string;
 }) {
+  const t = useTranslations("home.support");
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(value);
-      toast.success("Đã sao chép: " + value);
+      toast.success(t("copied", { value }));
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      toast.error("Không thể sao chép");
+      toast.error(t("copyFailed"));
     }
   };
 
@@ -560,8 +488,8 @@ function ContactCard({
         type="button"
         onClick={handleCopy}
         className="grid h-7 w-7 shrink-0 cursor-pointer place-items-center rounded-md text-sky-ink-soft transition-colors hover:bg-white hover:text-primary"
-        aria-label={"Sao chép " + label}
-        title={"Sao chép " + label}
+        aria-label={t("copy", { label })}
+        title={t("copy", { label })}
       >
         {copied ? (
           <Check className="h-4 w-4 text-nav-green" aria-hidden />
@@ -574,23 +502,12 @@ function ContactCard({
 }
 
 /* Mỗi dòng là một việc mà sự đồng hành trực tiếp nuôi dưỡng — tất cả đều là
-   những gì dự án đang làm, không phải lời hứa. */
-const SUPPORT_POINTS = [
-  {
-    heading: "Giữ toàn bộ chương trình miễn phí",
-    body: "40+ bài học trải khắp 8 chủ đề, mở cho mọi em nhỏ, trọn đời, không thu phí.",
-  },
-  {
-    heading: "Số hóa thêm nội dung mới",
-    body: "Tiếp nối bộ sách Vui học Tiếng Việt của NXB ĐH Sư Phạm TP Hồ Chí Minh.",
-  },
-  {
-    heading: "Nuôi dưỡng phần luyện nói",
-    body: "Hình ảnh, âm thanh, trò chơi và ghi âm để các em nói tiếng Việt tự tin hơn.",
-  },
-];
+   những gì dự án đang làm, không phải lời hứa. Nội dung nằm ở
+   "home.support.points.<id>" trong messages. */
+const SUPPORT_POINTS = ["free", "content", "speaking"] as const;
 
 function SupportBox() {
+  const t = useTranslations("home.support");
   return (
     <div className="relative">
       {/* SkyBox có overflow-hidden nên trái tim phải là anh em của nó, không
@@ -603,30 +520,27 @@ function SupportBox() {
         strokeWidth={1.5}
         style={{ filter: "drop-shadow(0 5px 4px oklch(0.46 0.12 15 / 0.45))" }}
       />
-      <SkyBox tone="peach" title="Kêu gọi hỗ trợ">
+      <SkyBox tone="peach" title={t("title")}>
         <div className="grid gap-5 sm:grid-cols-2 sm:items-start sm:gap-6">
           {/* Cột trái: lời kêu gọi và hai cách liên hệ. */}
           <div>
             <h3 className="font-display text-2xl font-extrabold text-indigo-deep sm:text-3xl">
-              Đồng hành để giữ tiếng Việt cho mọi em nhỏ.
+              {t("heading")}
             </h3>
             <p className="mt-4 text-sm leading-relaxed text-sky-ink-soft">
-              <strong className="text-indigo">&quot;Trường Tiếng Việt Của Em&quot;</strong> là dự án
-              phi lợi nhuận. Dự án luôn rộng mở đón nhận sự đồng hành, đóng góp và tài trợ từ các
-              bậc phụ huynh, kiều bào và các mạnh thường quân. Mỗi sự đóng góp – dù là nhỏ nhất –
-              đều quý báu.
+              {t.rich("body", richTags)}
             </p>
 
             <div className="mt-5 flex flex-col gap-2">
               <ContactCard
                 icon={Mail}
-                label="Email"
+                label={t("email")}
                 value="contact@cvcec.org"
                 href="mailto:contact@cvcec.org"
               />
               <ContactCard
                 icon={MessageCircle}
-                label="Điện thoại"
+                label={t("phone")}
                 value="+1 647 897 2358"
                 href="https://wa.me/16478972358"
               />
@@ -636,11 +550,11 @@ function SupportBox() {
           {/* Cột phải: đóng góp đi về đâu. */}
           <SkyCard className="sm:p-5">
             <h4 className="font-display text-xs font-extrabold tracking-[0.12em] text-indigo uppercase sm:text-sm">
-              Đóng góp của bạn giúp
+              {t("helpsTitle")}
             </h4>
             <ul className="mt-4 flex flex-col gap-4">
               {SUPPORT_POINTS.map((point) => (
-                <li key={point.heading} className="flex gap-3">
+                <li key={point} className="flex gap-3">
                   <Check
                     className="mt-0.5 h-5 w-5 shrink-0 text-nav-green"
                     strokeWidth={3.5}
@@ -648,19 +562,17 @@ function SupportBox() {
                   />
                   <span>
                     <span className="block font-display text-sm font-extrabold text-sky-ink">
-                      {point.heading}
+                      {t(`points.${point}.heading`)}
                     </span>
                     <span className="mt-0.5 block text-sm leading-relaxed text-sky-ink-soft">
-                      {point.body}
+                      {t(`points.${point}.body`)}
                     </span>
                   </span>
                 </li>
               ))}
             </ul>
 
-            <p className="mt-5 font-display text-sm font-extrabold text-indigo">
-              Xin chân thành cảm ơn!
-            </p>
+            <p className="mt-5 font-display text-sm font-extrabold text-indigo">{t("thankYou")}</p>
           </SkyCard>
         </div>
       </SkyBox>
@@ -671,6 +583,7 @@ function SupportBox() {
 /* ── Page ─────────────────────────────────────────────────────────────── */
 
 export function HomePage() {
+  const t = useTranslations("home.closing");
   return (
     <div className="relative isolate overflow-hidden">
       <SkyBackdrop />
@@ -707,19 +620,19 @@ export function HomePage() {
             title={
               <>
                 <img src={buffalo} alt="" className="mx-auto mb-2 h-16 w-16 object-contain" />
-                Học tiếng Việt mọi lúc, mọi nơi
+                {t("title")}
               </>
             }
-            lede="Trâu con đội nón lá đã sẵn sàng. Mở bài học đầu tiên và bắt đầu hành trình của em."
+            lede={t("lede")}
           >
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Link to="/hoc-tap" className={skyButton("primary", "px-6")}>
-                Học ngay
+                {t("start")}
                 <ArrowRight className="h-5 w-5" aria-hidden />
               </Link>
               <Link to="/hoc-tap/luyen-noi" className={skyButton("white", "px-6")}>
                 <Volume2 className="h-5 w-5" aria-hidden />
-                Luyện nói
+                {t("speaking")}
               </Link>
             </div>
           </SkyBox>

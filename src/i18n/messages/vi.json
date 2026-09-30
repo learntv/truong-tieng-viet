@@ -1,0 +1,145 @@
+{
+  "meta": {
+    "siteTitle": "Trường Tiếng Việt Của Em",
+    "siteDescription": "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào.",
+    "homeTitle": "Trường Tiếng Việt Của Em — Học tiếng Việt vui nhộn",
+    "homeDescription": "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào 5–12 tuổi, dưới sự bảo trợ của UBNVONN – Bộ Ngoại giao.",
+    "homeOgDescription": "Vui học Tiếng Việt cùng Trâu con đội nón lá — 8 chủ đề, 40 chặng học dành cho trẻ em kiều bào."
+  },
+  "nav": {
+    "home": "Trang chủ",
+    "learn": "Học tập",
+    "products": "Sản phẩm của em",
+    "leaderboard": "Xếp hạng",
+    "signIn": "Đăng nhập",
+    "signOut": "Đăng xuất",
+    "profile": "Trang cá nhân",
+    "reports": "Báo cáo",
+    "studentFallback": "Học sinh",
+    "avatarAlt": "Avatar",
+    "openMenu": "Mở menu",
+    "closeMenu": "Đóng menu",
+    "language": "Ngôn ngữ"
+  },
+  "footer": {
+    "tagline": "Nền tảng học tiếng Việt dành cho trẻ em Việt Nam ở trong và ngoài nước.",
+    "ministryLogoAlt": "Bộ Ngoại giao",
+    "aboutTitle": "Về chúng tôi",
+    "learnTitle": "Học tập",
+    "policyTitle": "Chính sách",
+    "about": "Giới thiệu",
+    "guide": "Hướng dẫn sử dụng",
+    "faq": "Câu hỏi thường gặp",
+    "contact": "Liên hệ",
+    "alphabet": "Bảng chữ cái",
+    "lessons": "Bài học",
+    "speaking": "Luyện nói",
+    "leaderboard": "Bảng xếp hạng",
+    "terms": "Điều khoản sử dụng",
+    "privacy": "Chính sách bảo mật",
+    "copyright": "© {year} Trường Tiếng Việt Của Em. Tất cả quyền được bảo lưu."
+  },
+  "home": {
+    "hero": {
+      "logoAlt": "Trường Tiếng Việt Của Em"
+    },
+    "gallery": {
+      "flag": "Em bé mặc áo dài đỏ giơ cao thẻ cờ Việt Nam",
+      "opening": "Cô giáo cầm thẻ cờ Việt Nam trong buổi khai mạc lớp tiếng Việt tương tác, dịp Giỗ Tổ Hùng Vương",
+      "groupPhoto": "Cô giáo, tình nguyện viên và các em học sinh mặc áo dài chụp ảnh chung, tay cầm sách tiếng Việt",
+      "matching": "Các em nhỏ chơi ghép thẻ từ vựng “Đây là” quanh bàn",
+      "interactive": "Học sinh, tình nguyện viên và phụ huynh trong buổi học tiếng Việt tương tác",
+      "family": "Các em cùng tìm thẻ hình người thân trên bàn",
+      "vocab": "Nhóm học sinh cúi xem thẻ từ vựng trải trên bàn"
+    },
+    "mission": {
+      "ribbon": "Sứ mệnh của dự án",
+      "title": "Giúp mọi trẻ em kiều bào <accent>giữ tiếng Việt</accent> — miễn phí",
+      "lede": "Trường Tiếng Việt Của Em số hóa bộ sách <b>Vui học Tiếng Việt</b> thành một hành trình bốn bước: chữ cái, quyển 1, quyển 2 và luyện nói. Miễn phí, trọn đời, cho mọi em nhỏ.",
+      "steps": {
+        "alphabet": {
+          "title": "Bảng chữ cái",
+          "body": "Làm quen với bảng chữ cái tiếng Việt qua hình ảnh, âm thanh và trò chơi."
+        },
+        "book1": {
+          "title": "Quyển 1",
+          "body": "Bốn chủ đề đầu tiên: gia đình, trường lớp và những người bạn quanh em."
+        },
+        "book2": {
+          "title": "Quyển 2",
+          "body": "Bốn chủ đề tiếp theo: quê hương, thiên nhiên và văn hóa Việt Nam."
+        },
+        "speaking": {
+          "title": "Luyện nói",
+          "body": "Nghe, nhắc lại và ghi âm để nói tiếng Việt tự tin, rõ ràng hơn mỗi ngày."
+        }
+      }
+    },
+    "press": {
+      "ribbon": "Tin tức",
+      "title": "Báo chí viết về chúng tôi",
+      "lede": "Nền tảng học tiếng Việt, các lớp học, tủ sách và hoạt động của <b>Hội đồng Văn hóa Giáo dục Canada–Việt Nam</b> qua góc nhìn của báo chí trong nước.",
+      "readArticle": "Đọc bài",
+      "viewOriginal": "Xem bài gốc",
+      "playVideo": "Phát video: {title}",
+      "videoFailed": "Không phát được video ở đây. Em có thể xem bản gốc trên trang của Thông tấn xã Việt Nam.",
+      "watchOnVna": "Xem trên VNA"
+    },
+    "about": {
+      "title": "Giới thiệu",
+      "partner": {
+        "heading": "Đồng hành chuyên môn",
+        "body": "Dự án thực hiện dưới sự đồng hành và ủng hộ của <hl>Ủy ban Nhà nước về người Việt Nam ở nước ngoài – Bộ Ngoại giao</hl>."
+      },
+      "digitization": {
+        "heading": "Dự án số hóa",
+        "body": "Số hóa hai cuốn sách của <b>NXB ĐH Sư Phạm TP Hồ Chí Minh</b>, trong khuôn khổ Chương trình Tôn vinh tiếng Việt trong cộng đồng người Việt Nam ở nước ngoài do <b>UBNVONN – Bộ Ngoại giao</b> phát động."
+      },
+      "ecosystem": {
+        "heading": "Hệ sinh thái",
+        "body": "Dự án là thành viên tích cực của <b>Mạng lưới các cơ sở giảng dạy tiếng Việt và văn hóa Việt Nam ở nước ngoài</b>."
+      },
+      "copyright": {
+        "heading": "Bản quyền",
+        "body": "Được bảo hộ bản quyền bởi đồng tác giả: Phan Thị Quỳnh Trang, Nguyễn Trần Thanh Hải, Đỗ Thị Phương Mai, Trần Thanh Phúc, Trần Văn Nhật."
+      }
+    },
+    "thanks": {
+      "title": "Lời cảm ơn",
+      "body": "Ban quản lý dự án xin được gửi lời cảm ơn chân thành tới <hl>Ủy ban Nhà nước về người Việt Nam ở nước ngoài – Bộ Ngoại giao</hl> nước Cộng hòa xã hội chủ nghĩa Việt Nam đã luôn đồng hành và định hướng. Chúng tôi xin gửi lời tri ân sâu sắc tới các Đại sứ quán, các cơ quan ban ngành tại Việt Nam và Canada, cùng Mạng lưới giảng dạy tiếng Việt đã tạo điều kiện và hỗ trợ quý báu để dự án <hl>\"Trường Tiếng Việt Của Em\"</hl> được hoàn thiện và đi vào vận hành. Sự đồng hành của quý vị là nguồn động lực to lớn giúp chúng tôi gìn giữ và lan tỏa ngôn ngữ, văn hóa Việt đến với thế hệ trẻ tại Canada nói riêng và trên toàn thế giới nói chung.",
+      "signature": "— Ban quản lý dự án"
+    },
+    "support": {
+      "title": "Kêu gọi hỗ trợ",
+      "heading": "Đồng hành để giữ tiếng Việt cho mọi em nhỏ.",
+      "body": "<hl>\"Trường Tiếng Việt Của Em\"</hl> là dự án phi lợi nhuận. Dự án luôn rộng mở đón nhận sự đồng hành, đóng góp và tài trợ từ các bậc phụ huynh, kiều bào và các mạnh thường quân. Mỗi sự đóng góp – dù là nhỏ nhất – đều quý báu.",
+      "email": "Email",
+      "phone": "Điện thoại",
+      "copy": "Sao chép {label}",
+      "copied": "Đã sao chép: {value}",
+      "copyFailed": "Không thể sao chép",
+      "helpsTitle": "Đóng góp của bạn giúp",
+      "points": {
+        "free": {
+          "heading": "Giữ toàn bộ chương trình miễn phí",
+          "body": "40+ bài học trải khắp 8 chủ đề, mở cho mọi em nhỏ, trọn đời, không thu phí."
+        },
+        "content": {
+          "heading": "Số hóa thêm nội dung mới",
+          "body": "Tiếp nối bộ sách Vui học Tiếng Việt của NXB ĐH Sư Phạm TP Hồ Chí Minh."
+        },
+        "speaking": {
+          "heading": "Nuôi dưỡng phần luyện nói",
+          "body": "Hình ảnh, âm thanh, trò chơi và ghi âm để các em nói tiếng Việt tự tin hơn."
+        }
+      },
+      "thankYou": "Xin chân thành cảm ơn!"
+    },
+    "closing": {
+      "title": "Học tiếng Việt mọi lúc, mọi nơi",
+      "lede": "Trâu con đội nón lá đã sẵn sàng. Mở bài học đầu tiên và bắt đầu hành trình của em.",
+      "start": "Học ngay",
+      "speaking": "Luyện nói"
+    }
+  }
+}

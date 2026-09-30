@@ -1,26 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { createTranslator } from "use-intl";
 import { HomePage } from "@/components/home/HomePage";
 import { CurtainOpening } from "@/components/CurtainOpening";
+import { localizePathname } from "@/i18n/config";
+import { alternateLinks } from "@/i18n/seo";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Trường Tiếng Việt Của Em — Học tiếng Việt vui nhộn" },
-      {
-        name: "description",
-        content:
-          "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào 5–12 tuổi, dưới sự bảo trợ của UBNVONN – Bộ Ngoại giao.",
-      },
-      { property: "og:title", content: "Trường Tiếng Việt Của Em — Học tiếng Việt vui nhộn" },
-      {
-        property: "og:description",
-        content:
-          "Vui học Tiếng Việt cùng Trâu con đội nón lá — 8 chủ đề, 40 chặng học dành cho trẻ em kiều bào.",
-      },
-      { property: "og:url", content: "/" },
-    ],
-    links: [{ rel: "canonical", href: "/" }],
-  }),
+  head: ({ match }) => {
+    const { locale, messages } = match.context;
+    const t = createTranslator({ locale, messages, namespace: "meta" });
+    const url = localizePathname("/", locale);
+    return {
+      meta: [
+        { title: t("homeTitle") },
+        { name: "description", content: t("homeDescription") },
+        { property: "og:title", content: t("homeTitle") },
+        { property: "og:description", content: t("homeOgDescription") },
+        { property: "og:url", content: url },
+      ],
+      links: [{ rel: "canonical", href: url }, ...alternateLinks("/")],
+    };
+  },
   component: Index,
 });
 

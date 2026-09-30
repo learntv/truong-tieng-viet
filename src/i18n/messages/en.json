@@ -1,0 +1,145 @@
+{
+  "meta": {
+    "siteTitle": "Trường Tiếng Việt Của Em",
+    "siteDescription": "A fun Vietnamese learning journey for children of the Vietnamese diaspora.",
+    "homeTitle": "Trường Tiếng Việt Của Em | Learn Vietnamese the fun way",
+    "homeDescription": "A fun Vietnamese learning journey for children of the Vietnamese diaspora aged 5 to 12, under the patronage of the State Committee for Overseas Vietnamese, Ministry of Foreign Affairs.",
+    "homeOgDescription": "Learn Vietnamese with Trâu con, the little buffalo in a conical hat: 8 topics and 40 lessons for children of the Vietnamese diaspora."
+  },
+  "nav": {
+    "home": "Home",
+    "learn": "Learn",
+    "products": "My work",
+    "leaderboard": "Leaderboard",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "profile": "My profile",
+    "reports": "Reports",
+    "studentFallback": "Student",
+    "avatarAlt": "Avatar",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "language": "Language"
+  },
+  "footer": {
+    "tagline": "A Vietnamese learning platform for Vietnamese children in Vietnam and around the world.",
+    "ministryLogoAlt": "Ministry of Foreign Affairs of Vietnam",
+    "aboutTitle": "About us",
+    "learnTitle": "Learn",
+    "policyTitle": "Policies",
+    "about": "About",
+    "guide": "User guide",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "alphabet": "Alphabet",
+    "lessons": "Lessons",
+    "speaking": "Speaking practice",
+    "leaderboard": "Leaderboard",
+    "terms": "Terms of use",
+    "privacy": "Privacy policy",
+    "copyright": "© {year} Trường Tiếng Việt Của Em. All rights reserved."
+  },
+  "home": {
+    "hero": {
+      "logoAlt": "Trường Tiếng Việt Của Em"
+    },
+    "gallery": {
+      "flag": "A child in a red áo dài holding up a Vietnamese flag card",
+      "opening": "A teacher holding a Vietnamese flag card at the opening of the interactive Vietnamese class, on Hùng Kings’ Commemoration Day",
+      "groupPhoto": "Teachers, volunteers and students in áo dài posing together, holding Vietnamese books",
+      "matching": "Children playing a “Đây là” vocabulary matching game around a table",
+      "interactive": "Students, volunteers and parents at an interactive Vietnamese lesson",
+      "family": "Children looking for family member picture cards on a table",
+      "vocab": "A group of students leaning over vocabulary cards spread on a table"
+    },
+    "mission": {
+      "ribbon": "Our mission",
+      "title": "Helping every overseas Vietnamese child <accent>keep their Vietnamese</accent>, for free",
+      "lede": "Trường Tiếng Việt Của Em brings the <b>Vui học Tiếng Việt</b> book series online as a four-step journey: the alphabet, book 1, book 2 and speaking practice. Free, for life, for every child.",
+      "steps": {
+        "alphabet": {
+          "title": "Alphabet",
+          "body": "Get to know the Vietnamese alphabet through pictures, sounds and games."
+        },
+        "book1": {
+          "title": "Book 1",
+          "body": "The first four topics: family, school and the friends around you."
+        },
+        "book2": {
+          "title": "Book 2",
+          "body": "The next four topics: homeland, nature and Vietnamese culture."
+        },
+        "speaking": {
+          "title": "Speaking practice",
+          "body": "Listen, repeat and record yourself to speak Vietnamese more clearly and confidently every day."
+        }
+      }
+    },
+    "press": {
+      "ribbon": "News",
+      "title": "In the press",
+      "lede": "Vietnamese media on the learning platform, classes, library and activities of the <b>Canada–Vietnam Cultural and Educational Council</b>.",
+      "readArticle": "Read article",
+      "viewOriginal": "View original",
+      "playVideo": "Play video: {title}",
+      "videoFailed": "The video can’t play here. You can watch the original on the Vietnam News Agency website.",
+      "watchOnVna": "Watch on VNA"
+    },
+    "about": {
+      "title": "About",
+      "partner": {
+        "heading": "Expert support",
+        "body": "The project is carried out with the support and endorsement of the <hl>State Committee for Overseas Vietnamese, Ministry of Foreign Affairs</hl>."
+      },
+      "digitization": {
+        "heading": "A digitization project",
+        "body": "Bringing online two books from <b>Ho Chi Minh City University of Education Publishing House</b>, as part of the Honoring the Vietnamese Language in Overseas Vietnamese Communities program launched by the <b>State Committee for Overseas Vietnamese, Ministry of Foreign Affairs</b>."
+      },
+      "ecosystem": {
+        "heading": "Ecosystem",
+        "body": "The project is an active member of the <b>Network of Vietnamese Language and Culture Teaching Institutions Abroad</b>."
+      },
+      "copyright": {
+        "heading": "Copyright",
+        "body": "Copyright held by the co-authors: Phan Thị Quỳnh Trang, Nguyễn Trần Thanh Hải, Đỗ Thị Phương Mai, Trần Thanh Phúc, Trần Văn Nhật."
+      }
+    },
+    "thanks": {
+      "title": "Thank you",
+      "body": "The project team sincerely thanks the <hl>State Committee for Overseas Vietnamese, Ministry of Foreign Affairs</hl> of the Socialist Republic of Vietnam for its constant support and guidance. We are deeply grateful to the embassies, government agencies in Vietnam and Canada, and the Vietnamese teaching network for their generous help in completing and launching <hl>\"Trường Tiếng Việt Của Em\"</hl>. Your support is a great source of motivation as we preserve and share the Vietnamese language and culture with young people in Canada and around the world.",
+      "signature": "The project team"
+    },
+    "support": {
+      "title": "Support us",
+      "heading": "Help every child keep their Vietnamese.",
+      "body": "<hl>\"Trường Tiếng Việt Của Em\"</hl> is a non-profit project. We always welcome support, contributions and sponsorship from parents, the Vietnamese diaspora and benefactors. Every contribution, however small, is precious.",
+      "email": "Email",
+      "phone": "Phone",
+      "copy": "Copy {label}",
+      "copied": "Copied: {value}",
+      "copyFailed": "Couldn’t copy",
+      "helpsTitle": "Your contribution helps",
+      "points": {
+        "free": {
+          "heading": "Keep the whole program free",
+          "body": "40+ lessons across 8 topics, open to every child, for life, at no cost."
+        },
+        "content": {
+          "heading": "Bring more content online",
+          "body": "Continuing the Vui học Tiếng Việt book series from Ho Chi Minh City University of Education Publishing House."
+        },
+        "speaking": {
+          "heading": "Grow speaking practice",
+          "body": "Pictures, sounds, games and recording to help children speak Vietnamese with more confidence."
+        }
+      },
+      "thankYou": "Thank you so much!"
+    },
+    "closing": {
+      "title": "Learn Vietnamese anytime, anywhere",
+      "lede": "Trâu con is ready in his conical hat. Open the first lesson and start your journey.",
+      "start": "Start learning",
+      "speaking": "Speaking practice"
+    }
+  }
+}

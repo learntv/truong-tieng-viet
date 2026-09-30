@@ -3,6 +3,7 @@ import { createRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 import { routeTree } from "./routeTree.gen";
 import { ErrorScreen } from "@/components/ErrorScreen";
+import { createLocaleRewrite } from "@/i18n/rewrite";
 
 export const getRouter = () => {
   const queryClient = new QueryClient();
@@ -17,6 +18,8 @@ export const getRouter = () => {
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
     defaultErrorComponent: ErrorScreen,
+    // "/en/hoc-tap" is routed as "/hoc-tap"; links keep the current language's prefix.
+    rewrite: createLocaleRewrite(),
   });
 
   // Carries route-loader query data (e.g. leaderboard, learning structure) from the server's
