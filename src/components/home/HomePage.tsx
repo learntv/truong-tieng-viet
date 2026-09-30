@@ -31,13 +31,6 @@ import mascotThumbsUp from "@/assets/mascot/thumbs-up.png";
 import mascotThinking from "@/assets/mascot/thinking.png";
 import mascotCheer from "@/assets/mascot/cheer.png";
 import mascotPointing from "@/assets/mascot/pointing.png";
-import caLopChupChung from "@/assets/gallery/ca-lop-chup-chung.webp";
-import beGioTheCo from "@/assets/gallery/be-gio-the-co.webp";
-import coGiaoKhaiMac from "@/assets/gallery/co-giao-khai-mac.webp";
-import ghepTheDayLa from "@/assets/gallery/ghep-the-day-la.webp";
-import lopHocTuongTac from "@/assets/gallery/lop-hoc-tuong-tac.webp";
-import timTheNguoiThan from "@/assets/gallery/tim-the-nguoi-than.webp";
-import choiTheTuVung from "@/assets/gallery/choi-the-tu-vung.webp";
 
 /* ── Hero: the logo, centred on the sky ───────────────────────────────── */
 
@@ -65,8 +58,6 @@ function Hero() {
         </h1>
         <SpellBubble />
       </div>
-
-      <Gallery />
     </section>
   );
 }
@@ -189,112 +180,6 @@ function SpellBubble() {
   );
 }
 
-/* ── Gallery: two rows of class photos under the logo ────────────────── */
-
-/* Four photos over three, each its own rounded, white-bordered tile on the
-   sky. It runs on a 12-column grid so both rows fill the width: the top four
-   take 3 columns each at 4:3, the bottom three take 4 columns each at 16:9,
-   which is the same height as the top row (a third wider, same height:
-   4/3 × 4/3 = 16/9). Every tile stands on a faint mirror-image reflection. */
-const PHOTOS = [
-  {
-    src: beGioTheCo,
-    alt: "Em bé mặc áo dài đỏ giơ cao thẻ cờ Việt Nam",
-  },
-  {
-    src: coGiaoKhaiMac,
-    alt: "Cô giáo cầm thẻ cờ Việt Nam trong buổi khai mạc lớp tiếng Việt tương tác, dịp Giỗ Tổ Hùng Vương",
-  },
-  {
-    src: caLopChupChung,
-    alt: "Cô giáo, tình nguyện viên và các em học sinh mặc áo dài chụp ảnh chung, tay cầm sách tiếng Việt",
-  },
-  {
-    src: ghepTheDayLa,
-    alt: "Các em nhỏ chơi ghép thẻ từ vựng “Đây là” quanh bàn",
-  },
-  {
-    src: lopHocTuongTac,
-    alt: "Học sinh, tình nguyện viên và phụ huynh trong buổi học tiếng Việt tương tác",
-  },
-  {
-    src: timTheNguoiThan,
-    alt: "Các em cùng tìm thẻ hình người thân trên bàn",
-  },
-  {
-    src: choiTheTuVung,
-    alt: "Nhóm học sinh cúi xem thẻ từ vựng trải trên bàn",
-  },
-];
-
-const TILE = "overflow-hidden rounded-lg border-2 border-white sm:rounded-xl sm:border-[3px]";
-
-function Gallery() {
-  return (
-    // mb leaves room for the bottom row's reflection before the divider.
-    <ul className="mx-auto mt-6 mb-8 grid max-w-4xl grid-cols-12 gap-2 sm:mt-8 sm:mb-10 sm:gap-3">
-      {PHOTOS.map((p, i) => (
-        <GalleryTile key={p.src} photo={p} bottomRow={i >= 4} />
-      ))}
-    </ul>
-  );
-}
-
-/**
- * One gallery photo and its reflection. The gallery is the first thing under
- * the logo, so the photos load eagerly, and the whole tile — white frame,
- * photo and reflection — stays invisible until the photo has loaded, then
- * fades in as one piece instead of showing an empty frame that fills later.
- */
-function GalleryTile({ photo, bottomRow }: { photo: (typeof PHOTOS)[number]; bottomRow: boolean }) {
-  const [loaded, setLoaded] = useState(false);
-  const shape = bottomRow ? "aspect-[16/9]" : "aspect-[4/3]";
-
-  return (
-    <li
-      className={[
-        "relative transition-opacity duration-300",
-        bottomRow ? "col-span-4" : "col-span-3",
-        loaded ? "opacity-100" : "opacity-0",
-      ].join(" ")}
-    >
-      <div className={[TILE, shape].join(" ")}>
-        <img
-          // A server-rendered image can finish loading before React attaches
-          // onLoad, so also check `complete` when the element mounts.
-          ref={(el) => {
-            if (el?.complete && el.naturalWidth > 0) setLoaded(true);
-          }}
-          src={photo.src}
-          alt={photo.alt}
-          decoding="async"
-          onLoad={() => setLoaded(true)}
-          onError={() => setLoaded(true)}
-          className="h-full w-full object-cover"
-        />
-      </div>
-
-      {/* Reflection: a copy of the tile flipped upside down just under
-        it, masked from faint to clear so it fades out like a glossy
-        floor. Drawn with markup rather than -webkit-box-reflect so it
-        works in Firefox too. The top row's reflections fall behind
-        the bottom row: later list items paint over earlier ones, so
-        only a sliver shows in the gap. Same URL as the photo, so it
-        comes from cache. */}
-      <div
-        aria-hidden="true"
-        className={[
-          TILE,
-          shape,
-          "pointer-events-none absolute inset-x-0 top-full -scale-y-100 [mask-image:linear-gradient(to_top,rgb(0_0_0/0.18),transparent_35%)]",
-        ].join(" ")}
-      >
-        <img src={photo.src} alt="" decoding="async" className="h-full w-full object-cover" />
-      </div>
-    </li>
-  );
-}
-
 /* ── Divider: a row of Trâu con poses ───────────────────────────────── */
 
 /* Nine full-body poses — crying and the two peeking crops don't stand on a
@@ -312,7 +197,7 @@ const PARADE = [
 ];
 
 /**
- * Divider between the gallery and the content boxes: Trâu con in all his
+ * Divider between the hero and the content boxes: Trâu con in all his
  * poses, standing in one still row spread across the content width. Phones
  * only have room for the first six. Decorative.
  */
