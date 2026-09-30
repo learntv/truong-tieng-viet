@@ -2,8 +2,9 @@
 // shared Drive ("HD viết …" folders): a pencil tracing each stroke, letter, digraph,
 // number or sign over a grey guide on the ô li grid. The originals run 12–43 s, far too
 // slow for young kids, so they were sped up 5×, re-encoded to 540×540 / 30 fps and
-// uploaded to R2 under `tap-viet/v3/`, next to a `<id>.jpg` of the finished shape as a
-// grey guide (pencil removed) — the video poster and the tracing background.
+// uploaded to R2 under `tap-viet/v4/`, next to a `<id>.jpg` of the finished shape as a
+// grey guide (pencil removed) — the video poster and the tracing background. v4 is v3
+// with the "Hành trang số" logo and hanhtrangso.nxbgd.vn painted out of the margins.
 //
 // The per-item tracing masks (135×135, white = the shape) live in public/tap-viet/mask/
 // rather than R2, because the tracing check reads their pixels and the R2 domain sends
@@ -14,7 +15,7 @@
 // handwriting alone (transparent), drawn on that same grid so it lands on its lines.
 // Tiles are a multiple of 4 li tall, so the solid lines stay 4 li apart across rows.
 
-const R2_BASE = "https://bucket.bambootech.fi/tap-viet/v3";
+const R2_BASE = "https://bucket.bambootech.fi/tap-viet/v4";
 
 export type TapVietCategoryId = "net" | "chu" | "ghep" | "so";
 
@@ -53,9 +54,11 @@ const strokes: [string, string][] = [
   ["net-that-giua", "Nét thắt giữa"],
 ];
 
-// Ids match src/data/alphabet.ts. The Drive folder has no ă or q.
+// Ids match src/data/alphabet.ts. The Drive folder has no q; ă came separately and its
+// thumb and mask are a's plus the breve.
 const letters: [string, string][] = [
   ["a", "a"],
+  ["a-breve", "ă"],
   ["a-circumflex", "â"],
   ["b", "b"],
   ["c", "c"],
