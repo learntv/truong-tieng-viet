@@ -243,6 +243,34 @@ export const ImageHotspotsBlock: React.FC = () => {
     return () => stage.removeEventListener('keydown', listener)
   }, [imageUrl, saved, selectedId, setHotspots])
 
+  // Keep the text input's typing away from Lexical. Its root listeners see every key, input and
+  // composition event from inside the block, and on `compositionstart` (a Vietnamese IME's first
+  // keystroke) it reads the caret in this input as a caret in the lesson and inserts its
+  // placeholder character there, replacing the whole block. Marking the event as already
+  // handled makes Lexical skip it (its own flag for nested editors), while it still bubbles on
+  // to React, so onChange keeps working. stopPropagation would cut React off too.
+  const editorBarRef = useRef<HTMLDivElement | null>(null)
+  const hasEditorBar = selected !== null
+  useEffect(() => {
+    const bar = editorBarRef.current
+    if (!bar) return
+    const events = [
+      'beforeinput',
+      'compositionend',
+      'compositionstart',
+      'copy',
+      'cut',
+      'input',
+      'keydown',
+      'paste',
+    ]
+    const markHandled = (event: Event) => {
+      ;(event as Event & { _lexicalHandled?: boolean })._lexicalHandled = true
+    }
+    events.forEach((name) => bar.addEventListener(name, markHandled))
+    return () => events.forEach((name) => bar.removeEventListener(name, markHandled))
+  }, [hasEditorBar])
+
   return (
     <div className={styles.card}>
       <div className={styles.header}>
@@ -305,7 +333,7 @@ export const ImageHotspotsBlock: React.FC = () => {
       )}
 
       {selected && (
-        <div className={styles.editor}>
+        <div className={styles.editor} ref={editorBarRef}>
           <input
             className={styles.text}
             onChange={(event) => update(selected.id, { text: event.target.value })}

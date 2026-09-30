@@ -21,11 +21,21 @@ export const BaiKMD: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title'],
-    // The edit view's header is one row: the title, Lưu and the ⋮ menu. No API tab, and no
-    // preview button (`admin.preview`), which editors didn't use. The title is drawn inside the
-    // save bar by KmdDocTitle; hiding Payload's own title row, the lone "Chỉnh sửa" tab and the
-    // timestamps is CSS in custom.scss, since Payload has no option for those.
+    // The edit view's header is one row: the title, the preview button, Lưu and the ⋮ menu. No
+    // API tab. The title is drawn inside the save bar by KmdDocTitle; hiding Payload's own title
+    // row, the lone "Chỉnh sửa" tab and the timestamps is CSS in custom.scss, since Payload has
+    // no option for those.
     hideAPIURL: true,
+    // The preview button, left of Lưu. SITE_URL is the site's own origin, unset locally where
+    // the two apps share no domain, so the button falls back to the internal preview route
+    // rather than ever building a broken link.
+    preview: (doc) => {
+      const siteUrl = process.env.SITE_URL?.replace(/\/+$/, '')
+      if (typeof doc?.slug === 'string' && siteUrl) {
+        return `${siteUrl}/hoc-tap/khai-minh-duc/${doc.slug}`
+      }
+      return doc?.id ? `/xem-truoc/bai-kmd/${doc.id}` : null
+    },
     components: {
       edit: { beforeDocumentControls: ['@/components/admin/kmd/KmdDocTitle#KmdDocTitle'] },
     },
