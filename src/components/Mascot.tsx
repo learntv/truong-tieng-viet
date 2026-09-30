@@ -1,9 +1,12 @@
 import { cn } from "@/lib/utils";
 import cheer from "@/assets/mascot/cheer.png";
 import crying from "@/assets/mascot/crying.png";
+import flying from "@/assets/mascot/flying.png";
+import hiking from "@/assets/mascot/hiking.png";
 import listening from "@/assets/mascot/listening.png";
 import peeking from "@/assets/mascot/peeking.png";
 import reading from "@/assets/mascot/reading.png";
+import readingSitting from "@/assets/mascot/reading-sitting.png";
 import peekingOver from "@/assets/mascot/peeking-over.png";
 import thinking from "@/assets/mascot/thinking.png";
 import thumbsUp from "@/assets/mascot/thumbs-up.png";
@@ -14,12 +17,15 @@ import wave from "@/assets/mascot/wave.png";
 const POSES = {
   cheer: { src: cheer, alt: "Trâu con reo mừng" },
   crying: { src: crying, alt: "Trâu con đang khóc" },
+  flying: { src: flying, alt: "Trâu con bay lên" },
+  hiking: { src: hiking, alt: "Trâu con đi leo núi" },
   listening: { src: listening, alt: "Trâu con đang lắng nghe" },
   peeking: { src: peeking, alt: "Trâu con ló đầu ra" },
   // Cropped flat at the bottom — sits on an edge, so pair it with a container
   // border rather than floating it in open space.
   "peeking-over": { src: peekingOver, alt: "Trâu con ló đầu lên nhìn" },
   reading: { src: reading, alt: "Trâu con đang đọc sách" },
+  "reading-sitting": { src: readingSitting, alt: "Trâu con ngồi đọc sách" },
   thinking: { src: thinking, alt: "Trâu con đang suy nghĩ" },
   "thumbs-up": { src: thumbsUp, alt: "Trâu con giơ ngón tay cái" },
   wave: { src: wave, alt: "Trâu con vẫy tay chào" },
