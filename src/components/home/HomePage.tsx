@@ -236,50 +236,65 @@ function Gallery() {
   return (
     // mb leaves room for the bottom row's reflection before the divider.
     <ul className="mx-auto mt-6 mb-8 grid max-w-4xl grid-cols-12 gap-2 sm:mt-8 sm:mb-10 sm:gap-3">
-      {PHOTOS.map((p, i) => {
-        const bottomRow = i >= 4;
-        const shape = bottomRow ? "aspect-[16/9]" : "aspect-[4/3]";
-        return (
-          <li
-            key={p.src}
-            className={["relative", bottomRow ? "col-span-4" : "col-span-3"].join(" ")}
-          >
-            <div className={[TILE, shape].join(" ")}>
-              <img
-                src={p.src}
-                alt={p.alt}
-                loading="lazy"
-                decoding="async"
-                className="h-full w-full object-cover"
-              />
-            </div>
-
-            {/* Reflection: a copy of the tile flipped upside down just under
-              it, masked from faint to clear so it fades out like a glossy
-              floor. Drawn with markup rather than -webkit-box-reflect so it
-              works in Firefox too. The top row's reflections fall behind
-              the bottom row: later list items paint over earlier ones, so
-              only a sliver shows in the gap. */}
-            <div
-              aria-hidden="true"
-              className={[
-                TILE,
-                shape,
-                "pointer-events-none absolute inset-x-0 top-full -scale-y-100 [mask-image:linear-gradient(to_top,rgb(0_0_0/0.18),transparent_35%)]",
-              ].join(" ")}
-            >
-              <img
-                src={p.src}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                className="h-full w-full object-cover"
-              />
-            </div>
-          </li>
-        );
-      })}
+      {PHOTOS.map((p, i) => (
+        <GalleryTile key={p.src} photo={p} bottomRow={i >= 4} />
+      ))}
     </ul>
+  );
+}
+
+/**
+ * One gallery photo and its reflection. The gallery is the first thing under
+ * the logo, so the photos load eagerly, and the whole tile — white frame,
+ * photo and reflection — stays invisible until the photo has loaded, then
+ * fades in as one piece instead of showing an empty frame that fills later.
+ */
+function GalleryTile({ photo, bottomRow }: { photo: (typeof PHOTOS)[number]; bottomRow: boolean }) {
+  const [loaded, setLoaded] = useState(false);
+  const shape = bottomRow ? "aspect-[16/9]" : "aspect-[4/3]";
+
+  return (
+    <li
+      className={[
+        "relative transition-opacity duration-300",
+        bottomRow ? "col-span-4" : "col-span-3",
+        loaded ? "opacity-100" : "opacity-0",
+      ].join(" ")}
+    >
+      <div className={[TILE, shape].join(" ")}>
+        <img
+          // A server-rendered image can finish loading before React attaches
+          // onLoad, so also check `complete` when the element mounts.
+          ref={(el) => {
+            if (el?.complete && el.naturalWidth > 0) setLoaded(true);
+          }}
+          src={photo.src}
+          alt={photo.alt}
+          decoding="async"
+          onLoad={() => setLoaded(true)}
+          onError={() => setLoaded(true)}
+          className="h-full w-full object-cover"
+        />
+      </div>
+
+      {/* Reflection: a copy of the tile flipped upside down just under
+        it, masked from faint to clear so it fades out like a glossy
+        floor. Drawn with markup rather than -webkit-box-reflect so it
+        works in Firefox too. The top row's reflections fall behind
+        the bottom row: later list items paint over earlier ones, so
+        only a sliver shows in the gap. Same URL as the photo, so it
+        comes from cache. */}
+      <div
+        aria-hidden="true"
+        className={[
+          TILE,
+          shape,
+          "pointer-events-none absolute inset-x-0 top-full -scale-y-100 [mask-image:linear-gradient(to_top,rgb(0_0_0/0.18),transparent_35%)]",
+        ].join(" ")}
+      >
+        <img src={photo.src} alt="" decoding="async" className="h-full w-full object-cover" />
+      </div>
+    </li>
   );
 }
 
