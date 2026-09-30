@@ -1,26 +1,44 @@
+import { useId } from "react";
+
 /**
- * The blue-sky page background: one continuous gradient from the navbar's blue
- * down to a pale haze, with soft white clouds scattered through it and a band
- * of rolling green hills closing it off above the footer.
+ * The blue-sky page background: one flat light blue, with puffy white clouds
+ * scattered through it and a band of rolling green hills closing it off above
+ * the footer.
  *
  * Everything here is decoration — the whole layer is aria-hidden and
  * pointer-events-none, and the page content renders above it.
  */
 
-/** A cloud is four overlapping ellipses on a flat base — no gradients, no edges. */
+/**
+ * A cloud is four overlapping ellipses on a flat base, shaded as one body:
+ * the gradient is in user space, so it runs across the whole silhouette
+ * rather than restarting on each shape — bright on top, cooling to a blue
+ * belly along the flat bottom. A soft blue drop shadow lifts it off the sky.
+ */
 function Cloud({ className, opacity = 1 }: { className?: string; opacity?: number }) {
+  // Gradient ids must be unique per instance; useId's punctuation isn't safe in url(#…).
+  const id = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   return (
     <svg
       viewBox="0 0 200 80"
       className={className}
-      style={{ opacity }}
-      fill="white"
+      style={{ opacity, filter: "drop-shadow(0 6px 8px rgb(23 75 110 / 0.18))" }}
       aria-hidden="true"
     >
-      <ellipse cx="60" cy="52" rx="46" ry="26" />
-      <ellipse cx="104" cy="38" rx="38" ry="30" />
-      <ellipse cx="140" cy="54" rx="34" ry="22" />
-      <rect x="24" y="50" width="150" height="26" rx="13" />
+      <defs>
+        <linearGradient id={id} gradientUnits="userSpaceOnUse" x1="0" y1="8" x2="0" y2="76">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="0.5" stopColor="#ffffff" />
+          <stop offset="0.8" stopColor="#e6f0fa" />
+          <stop offset="1" stopColor="#bfd6ed" />
+        </linearGradient>
+      </defs>
+      <g fill={`url(#${id})`}>
+        <ellipse cx="60" cy="52" rx="46" ry="26" />
+        <ellipse cx="104" cy="38" rx="38" ry="30" />
+        <ellipse cx="140" cy="54" rx="34" ry="22" />
+        <rect x="24" y="50" width="150" height="26" rx="13" />
+      </g>
     </svg>
   );
 }
