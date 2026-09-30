@@ -28,6 +28,7 @@ import '@ttv/lesson-render/tokens.css'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import styles from './KmdBlocksField.module.css'
+import { useMediaPopulated } from './useMediaPopulated'
 
 const isEditorState = (value: unknown): value is SerializedEditorState =>
   Boolean(value && typeof value === 'object' && 'root' in value)
@@ -39,11 +40,12 @@ const isEditorState = (value: unknown): value is SerializedEditorState =>
  * its links and checkboxes out of the tab order: it is a picture of the section, not a copy of it.
  */
 const RailThumb: React.FC<{ contentPath: string }> = ({ contentPath }) => {
-  const content = useFormFields(([fields]) => fields[contentPath]?.value)
+  const value = useFormFields(([fields]) => fields[contentPath]?.value)
+  const content = useMediaPopulated(isEditorState(value) ? value : undefined)
 
   return (
     <div className={styles.railThumb}>
-      {isEditorState(content) && (
+      {content && (
         <div className={styles.railThumbScale} inert>
           <RichText className={contentStyles.content} converters={lessonConverters} data={content} />
         </div>
