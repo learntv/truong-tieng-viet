@@ -1,7 +1,4 @@
-import "@ttv/lesson-render/tokens.css";
-
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Lesson } from "@ttv/lesson-render";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { KmdThumb } from "@/components/kmd/KmdThumb";
 import { Mascot } from "@/components/Mascot";
@@ -61,24 +58,56 @@ function KhaiMinhDucLessonRoute() {
     );
   }
 
-  // The lesson is a deck of already-framed pieces on the bare sky (see __root's
-  // BARE_SKY_ROUTES). The way back is a floating white pill rather than
-  // BackLink's folded corner, which needs a white card corner to fold out of.
+  // A title card and the lesson's Canva design, both already framed, on the bare sky (see
+  // __root's BARE_SKY_ROUTES). The way back is a round arrow button at the title card's left
+  // edge, centred against it, rather than BackLink's folded corner.
   return (
-    <Lesson
-      lesson={lesson}
-      back={
+    <article className="mx-auto max-w-5xl px-0 pb-6 pt-3 sm:px-4 sm:pb-10 sm:pt-4">
+      <header className="mb-3 flex items-center gap-3 rounded-[18px] bg-white p-2 shadow-[0_10px_28px_rgba(12,58,110,0.22)] sm:gap-4 sm:rounded-[20px] sm:p-2.5">
         <Link
           to="/hoc-tap/khai-minh-duc"
-          className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border-[3px] border-white bg-white/85 px-4 py-1.5 font-display text-sm font-extrabold text-sky-ink shadow-[0_4px_12px_rgba(12,58,110,0.2)] transition hover:bg-ribbon hover:text-indigo-deep"
+          aria-label="Danh sách bài học"
+          className="ml-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-sky-ink transition-colors hover:bg-green hover:text-white sm:ml-1.5 sm:h-11 sm:w-11"
         >
-          <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
-          Danh sách bài học
+          <ArrowLeft className="h-5 w-5" strokeWidth={2.5} />
         </Link>
-      }
-      thumbnail={position >= 0 ? <KmdThumb index={position} /> : undefined}
-      eyebrow={position >= 0 ? `Bài ${position + 1}` : undefined}
-      aside={<Mascot pose="reading-sitting" decorative className="h-20 -scale-x-100" />}
-    />
+        {position >= 0 && <KmdThumb index={position} className="w-[5.5rem] sm:w-[7.5rem]" />}
+        <div className="min-w-0 flex-1">
+          {position >= 0 && (
+            <p className="mb-1 text-xs font-extrabold uppercase tracking-[0.08em] text-green">
+              Bài {position + 1}
+            </p>
+          )}
+          <h1 className="font-display text-[clamp(1.35rem,2.6vw,1.9rem)] font-bold leading-tight text-sky-ink">
+            {lesson.title}
+          </h1>
+        </div>
+        <Mascot
+          pose="reading-sitting"
+          decorative
+          className="mr-2 hidden h-20 shrink-0 -scale-x-100 sm:block"
+        />
+      </header>
+
+      <div className="overflow-hidden rounded-[1.25rem] border-[6px] border-white bg-white shadow-[0_10px_28px_rgba(12,58,110,0.22)] sm:rounded-[1.75rem] sm:border-[8px]">
+        {/* Only a Canva design URL is ever framed: the CMS stores nothing else in this field, and
+         * checking again here keeps an arbitrary page from being embedded if that ever changes.
+         * Lessons created before the switch to Canva have an empty one until an editor adds it. */}
+        {lesson.canvaUrl.startsWith("https://www.canva.com/design/") ? (
+          <iframe
+            src={lesson.canvaUrl}
+            title={lesson.title}
+            loading="lazy"
+            allow="fullscreen"
+            allowFullScreen
+            className="block aspect-video w-full border-0"
+          />
+        ) : (
+          <p className="flex aspect-video items-center justify-center px-6 text-center font-semibold text-sky-ink-soft">
+            Bài học này đang được soạn.
+          </p>
+        )}
+      </div>
+    </article>
   );
 }

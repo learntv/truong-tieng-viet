@@ -31,7 +31,6 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(dirname, '..'),
   },
-  transpilePackages: ['@ttv/lesson-render'],
 }
 
 export default withPayload(nextConfig, { devBundleServerPackages: false })

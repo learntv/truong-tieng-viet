@@ -9,6 +9,7 @@ import * as migration_20260907_133024_remove_kmd_lesson_visibility from './20260
 import * as migration_20260930_053759_remove_kmd_am_van from './20260930_053759_remove_kmd_am_van';
 import * as migration_20260930_064054_kmd_images_to_hotspots from './20260930_064054_kmd_images_to_hotspots';
 import * as migration_20260930_065623_user_roles from './20260930_065623_user_roles';
+import * as migration_20261006_122342_kmd_canva_embed from './20261006_122342_kmd_canva_embed';
 
 export const migrations = [
   {
@@ -64,6 +65,11 @@ export const migrations = [
   {
     up: migration_20260930_065623_user_roles.up,
     down: migration_20260930_065623_user_roles.down,
-    name: '20260930_065623_user_roles'
+    name: '20260930_065623_user_roles',
+  },
+  {
+    up: migration_20261006_122342_kmd_canva_embed.up,
+    down: migration_20261006_122342_kmd_canva_embed.down,
+    name: '20261006_122342_kmd_canva_embed'
   },
 ];

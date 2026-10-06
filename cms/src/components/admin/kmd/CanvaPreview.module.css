@@ -1,0 +1,16 @@
+/* The design under the link field, wide enough to read a slide's text but well short of the
+ * card's full width. */
+.embed {
+  display: block;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: var(--style-radius-m);
+  margin-top: calc(var(--base) * 0.6);
+  max-width: 40rem;
+  width: 100%;
+}
+
+.warning {
+  color: var(--theme-elevation-500);
+  margin: calc(var(--base) * 0.25) 0 0 0;
+}

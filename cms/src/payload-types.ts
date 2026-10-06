@@ -178,7 +178,7 @@ export interface Media {
 export interface SpeakingTopic {
   _order?: string | null;
   /**
-   * Mã chủ đề dùng trong URL, ví dụ 'noi-chao-hoi'. Không đổi sau khi tạo — tiến độ học của học sinh gắn với mã này.
+   * Mã chủ đề dùng trong URL, ví dụ 'noi-chao-hoi'. Không đổi sau khi tạo, vì tiến độ học của học sinh gắn với mã này.
    */
   id: string;
   emoji: string;
@@ -264,28 +264,7 @@ export interface BaiKmd {
   _order?: string | null;
   title: string;
   slug: string;
-  blocks?:
-    | {
-        content?: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'freeText';
-      }[]
-    | null;
+  canvaUrl: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -506,17 +485,7 @@ export interface BaiKmdSelect<T extends boolean = true> {
   _order?: T;
   title?: T;
   slug?: T;
-  blocks?:
-    | T
-    | {
-        freeText?:
-          | T
-          | {
-              content?: T;
-              id?: T;
-              blockName?: T;
-            };
-      };
+  canvaUrl?: T;
   updatedAt?: T;
   createdAt?: T;
 }

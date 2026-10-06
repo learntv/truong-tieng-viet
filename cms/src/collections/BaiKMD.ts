@@ -1,14 +1,13 @@
 import type { CollectionConfig } from 'payload'
 
-import { KMD_BLOCKS } from '@/blocks'
+import { toCanvaEmbedUrl } from '@/lib/canva'
 import { deriveSlug } from '@/lib/slug'
 
 // One document per Khai Minh Đức (KMD) bài — the phonics curriculum's own lesson shape,
 // independent of the quyển → chủ đề → chặng → nội dung → bài tree (see ChuDe.ts / Quyen.ts).
 // A lesson is a flat list ordered by drag position (the hidden _order fractional index, same
-// mechanism as Quyen.ts / ChuDe.ts / SpeakingTopics.ts), with a body composed from a fixed
-// vocabulary of typed blocks (see src/blocks) rather than the nested-array shape the rest of
-// the CMS uses — see openspec/changes/kmd-lessons/design.md for why.
+// mechanism as Quyen.ts / ChuDe.ts / SpeakingTopics.ts), and its body is a single embedded
+// Canva design, authored in Canva rather than in this CMS.
 export const BaiKMD: CollectionConfig = {
   slug: 'bai-kmd',
   labels: {
@@ -27,14 +26,14 @@ export const BaiKMD: CollectionConfig = {
     // no option for those.
     hideAPIURL: true,
     // The preview button, left of Lưu. SITE_URL is the site's own origin, unset locally where
-    // the two apps share no domain, so the button falls back to the internal preview route
-    // rather than ever building a broken link.
+    // the two apps share no domain, so the button falls back to the Canva design itself rather
+    // than ever building a broken link.
     preview: (doc) => {
       const siteUrl = process.env.SITE_URL?.replace(/\/+$/, '')
       if (typeof doc?.slug === 'string' && siteUrl) {
         return `${siteUrl}/hoc-tap/khai-minh-duc/${doc.slug}`
       }
-      return doc?.id ? `/xem-truoc/bai-kmd/${doc.id}` : null
+      return typeof doc?.canvaUrl === 'string' ? doc.canvaUrl.replace(/\?embed$/, '') : null
     },
     components: {
       edit: { beforeDocumentControls: ['@/components/admin/kmd/KmdDocTitle#KmdDocTitle'] },
@@ -97,14 +96,27 @@ export const BaiKMD: CollectionConfig = {
       },
     },
     {
-      name: 'blocks',
-      type: 'blocks',
-      label: 'Nội dung bài học',
-      blocks: KMD_BLOCKS,
-      // A two-pane "slide editor" (section list + editor for the selected section) in place of
-      // the default stacked-accordion blocks UI — see KmdBlocksField.tsx.
+      // The whole lesson body: a Canva design, embedded on the site in a 16:9 frame. Editors
+      // paste Canva's share link or its full embed snippet; the hook keeps only the normalised
+      // embed URL (see lib/canva.ts), so the site never renders pasted HTML.
+      name: 'canvaUrl',
+      type: 'text',
+      required: true,
+      label: 'Link Canva',
       admin: {
-        components: { Field: '@/components/admin/kmd/KmdBlocksField#KmdBlocksField' },
+        placeholder: 'Dán link chia sẻ hoặc mã nhúng từ Canva',
+        components: { afterInput: ['@/components/admin/kmd/CanvaPreview#CanvaPreview'] },
+      },
+      validate: (value: string | null | undefined) => {
+        if (!value?.trim()) return 'Cần có link Canva.'
+        return toCanvaEmbedUrl(value)
+          ? true
+          : 'Không nhận ra link Canva. Trong Canva, chọn Chia sẻ, rồi Nhúng hoặc Chỉ xem, và dán link đó.'
+      },
+      hooks: {
+        beforeValidate: [
+          ({ value }) => (typeof value === 'string' ? (toCanvaEmbedUrl(value) ?? value) : value),
+        ],
       },
     },
   ],
