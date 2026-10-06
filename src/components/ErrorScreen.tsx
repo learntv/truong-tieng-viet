@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Link, useRouter } from "@tanstack/react-router";
+import { Link, useRouter, type ErrorComponentProps } from "@tanstack/react-router";
 import { reportLovableError } from "@/lib/lovable-error-reporting";
 import { Button } from "@/components/ui/button";
 import { Mascot } from "@/components/Mascot";
@@ -8,7 +8,7 @@ import { Mascot } from "@/components/Mascot";
 // root route's errorComponent/notFoundComponent, so every boundary reports to
 // Lovable and shows the same Vietnamese-language UI.
 
-export function ErrorScreen({ error, reset }: { error: Error; reset: () => void }) {
+export function ErrorScreen({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
