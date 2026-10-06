@@ -245,9 +245,10 @@ const ROWS = [
     heading: "Dự án số hóa",
     body: (
       <>
-        Số hóa hai cuốn sách của <strong>NXB ĐH Sư Phạm TP Hồ Chí Minh</strong>, trong khuôn khổ
-        Chương trình Tôn vinh tiếng Việt trong cộng đồng người Việt Nam ở nước ngoài do{" "}
-        <strong>UBNVONN – Bộ Ngoại giao</strong> phát động.
+        Số hóa các ấn phẩm bao gồm sách của <strong>NXB Đại học Sư phạm TP. Hồ Chí Minh</strong>,
+        trong khuôn khổ Chương trình Tôn vinh tiếng Việt trong cộng đồng người Việt Nam ở nước ngoài
+        do <strong>UBNVONN – Bộ Ngoại giao</strong> phát động; và giáo trình của hệ thống giáo dục{" "}
+        <strong>Khai Minh Đức</strong> (với tôn chỉ &quot;Tiên học lễ, hậu học văn&quot;).
       </>
     ),
   },
@@ -256,8 +257,15 @@ const ROWS = [
     heading: "Hệ sinh thái",
     body: (
       <>
-        Dự án là thành viên tích cực của{" "}
-        <strong>Mạng lưới các cơ sở giảng dạy tiếng Việt và văn hóa Việt Nam ở nước ngoài</strong>.
+        Dự án thuộc sáng kiến <strong>Viet Youth Readiness Hub</strong> của Hội đồng Văn hóa Giáo
+        dục Canada Việt Nam (CVCEC).
+        <span className="mt-2 block">
+          Đồng thời, chúng tôi là thành viên tích cực của Mạng lưới giảng dạy tiếng Việt và văn hóa
+          Việt Nam toàn cầu (<strong>VIETLANGNET</strong>), đang tích cực đóng góp vào dự án
+          &ldquo;Xây dựng bản đồ lớp học tiếng Việt toàn cầu&rdquo; từ tháng 6 đến tháng 9 năm 2025,
+          nhằm tạo ra một bản đồ tương tác hiển thị hệ thống các lớp học tiếng Việt dành cho người
+          Việt Nam ở nước ngoài trên toàn thế giới.
+        </span>
       </>
     ),
   },
@@ -266,8 +274,8 @@ const ROWS = [
     heading: "Bản quyền",
     body: (
       <>
-        Được bảo hộ bản quyền bởi đồng tác giả: Phan Thị Quỳnh Trang, Nguyễn Trần Thanh Hải, Đỗ Thị
-        Phương Mai, Trần Thanh Phúc, Trần Văn Nhật.
+        Quyền sở hữu và bản quyền của platform được bảo hộ bản quyền bởi các đồng tác giả: Phan Thị
+        Quỳnh Trang, Nguyễn Trần Thanh Hải, Đỗ Thị Phương Mai, Trần Thanh Phúc, Trần Văn Nhật.
       </>
     ),
   },
