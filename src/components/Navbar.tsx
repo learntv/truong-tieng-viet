@@ -17,12 +17,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const tabs: {
-  to: "/" | "/hoc-tap" | "/san-pham-cua-em" | "/bang-xep-hang";
+  to: "/" | "/hoc-tap" | "/giao-vien" | "/bang-xep-hang";
   label: string;
 }[] = [
   { to: "/", label: "Trang chủ" },
   { to: "/hoc-tap", label: "Học tập" },
-  { to: "/san-pham-cua-em", label: "Sản phẩm của em" },
+  { to: "/giao-vien", label: "Giáo viên" },
   { to: "/bang-xep-hang", label: "Xếp hạng" },
 ];
 
