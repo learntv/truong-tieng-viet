@@ -29,11 +29,18 @@ const TEACHERS: Teacher[] = [
     bio: "Phó Tổng thư ký Mạng lưới giảng dạy tiếng Việt và văn hóa Việt Nam toàn cầu.",
   },
   {
-    name: "Ngô Nguyễn Ngọc Diệu Anh",
-    photo: ngoNguyenNgocDieuAnh,
-    role: "Giáo viên Tiếng Việt",
-    place: "CVCEC tại Manitoba, Canada",
-    bio: "Với vai trò giáo viên tiếng Việt thuộc CVCEC tại Manitoba, cô Ngô Nguyễn Ngọc Diệu Anh luôn truyền cảm hứng và tiếp thêm sức mạnh cho học sinh thông qua ngôn ngữ và các hoạt động kết nối văn hóa.",
+    name: "Hoàng Minh Hà",
+    photo: hoangMinhHa,
+    role: "Giám đốc Học thuật Tiếng Việt",
+    place: "CVCEC tại PEI, Canada",
+    bio: "Là Giám đốc Học thuật và Tiếng Việt tại CVCEC (PEI), cô Hoàng Minh Hà dẫn dắt việc phát triển chương trình giảng dạy ngôn ngữ cùng các sáng kiến bảo tồn văn hóa, góp phần củng cố bản sắc kiều bào và thúc đẩy sự tham gia của thế hệ trẻ.",
+  },
+  {
+    name: "Đỗ Thị Phương Mai",
+    photo: doThiPhuongMai,
+    role: "Cố vấn Học thuật và Công nghệ Giáo dục",
+    place: "CVCEC tại Phần Lan",
+    bio: "Với tư cách là Cố vấn Học thuật tại CVCEC (Phần Lan), cô Đỗ Thị Phương Mai chuyên sâu về phương pháp giảng dạy tiếng Việt, thiết kế các chương trình học dựa trên nền tảng di sản nhằm đảm bảo trải nghiệm học tập hiệu quả, lôi cuốn và mang đậm bản sắc văn hóa.",
   },
   {
     name: "Nguyễn Thị Thanh Bình",
@@ -43,18 +50,11 @@ const TEACHERS: Teacher[] = [
     bio: "Cô Nguyễn Thị Thanh Bình là nhà giáo dục tiếng Việt tận tâm thuộc CVCEC tại PEI, mang trong mình tình yêu nhiệt huyết với sứ mệnh bảo tồn di sản văn hóa và thúc đẩy sự gắn kết cộng đồng.",
   },
   {
-    name: "Hoàng Minh Hà",
-    photo: hoangMinhHa,
-    role: "Giám đốc Học thuật Tiếng Việt",
-    place: "CVCEC tại PEI, Canada",
-    bio: "Là Giám đốc Học thuật và Tiếng Việt tại CVCEC (PEI), cô Hoàng Minh Hà dẫn dắt việc phát triển chương trình giảng dạy ngôn ngữ cùng các sáng kiến bảo tồn văn hóa, góp phần củng cố bản sắc kiều bào và thúc đẩy sự tham gia của thế hệ trẻ.",
-  },
-  {
-    name: "Đỗ Thị Phương Mai (Cô Ngọc Mai)",
-    photo: doThiPhuongMai,
-    role: "Cố vấn Học thuật và Công nghệ Giáo dục",
-    place: "CVCEC tại Phần Lan",
-    bio: "Với tư cách là Cố vấn Học thuật tại CVCEC (Phần Lan), cô Đỗ Thị Phương Mai chuyên sâu về phương pháp giảng dạy tiếng Việt, thiết kế các chương trình học dựa trên nền tảng di sản nhằm đảm bảo trải nghiệm học tập hiệu quả, lôi cuốn và mang đậm bản sắc văn hóa.",
+    name: "Ngô Nguyễn Ngọc Diệu Anh",
+    photo: ngoNguyenNgocDieuAnh,
+    role: "Giáo viên Tiếng Việt",
+    place: "CVCEC tại Manitoba, Canada",
+    bio: "Với vai trò giáo viên tiếng Việt thuộc CVCEC tại Manitoba, cô Ngô Nguyễn Ngọc Diệu Anh luôn truyền cảm hứng và tiếp thêm sức mạnh cho học sinh thông qua ngôn ngữ và các hoạt động kết nối văn hóa.",
   },
 ];
 
