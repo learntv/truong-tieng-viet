@@ -10,26 +10,26 @@ import { Mascot } from "@/components/Mascot";
 import { PageBanner } from "@/components/site/PageBanner";
 import { BOX_TONES as TONES, type BoxTone as Tone } from "@/components/learning/boxTones";
 
-type Book = {
-  quyenNumber: string;
+type Program = {
   title: string;
-  body: string;
+  /** The quyển the card opens. */
+  quyenNumber: string;
+  body?: string;
   cover: string;
   tone: Tone;
 };
 
-const books: Book[] = [
+const programs: Program[] = [
   {
+    title: "Chương trình Vui Học Tiếng Việt",
     quyenNumber: "1",
-    title: "Quyển 1",
     body: "Vui học Tiếng Việt, quyển 1, NXB ĐH Sư Phạm TP Hồ Chí Minh",
     cover: quyen1Cover,
     tone: "lavender",
   },
   {
+    title: "Chương trình Tiếng Việt và Văn Hoá Truyền Thống",
     quyenNumber: "2",
-    title: "Quyển 2",
-    body: "Vui học Tiếng Việt, quyển 2, NXB ĐH Sư Phạm TP Hồ Chí Minh",
     cover: quyen2Cover,
     tone: "peach",
   },
@@ -77,7 +77,7 @@ const practices: Practice[] = [
 
 /**
  * The học tập landing page, laid out for SkyPage's white card: a greeting
- * from Trâu con, then the two books as the main path, then the practice
+ * from Trâu con, then the two programs as the main path, then the practice
  * corners as a row of smaller cards. On white, the tones carry the cards on
  * their own — no white keylines, just a soft shadow and a deeper tone rim.
  */
@@ -94,10 +94,10 @@ export function HocTapHome() {
       />
 
       <section className="mt-10 px-4 sm:mt-12 sm:px-8">
-        <SectionHeading title="Học theo sách" />
+        <SectionHeading title="Chương trình học" />
         <div className="mt-5 grid gap-4 sm:grid-cols-2 sm:gap-5">
-          {books.map((book) => (
-            <BookCard key={book.quyenNumber} book={book} />
+          {programs.map((program) => (
+            <ProgramCard key={program.title} program={program} />
           ))}
         </div>
       </section>
@@ -126,40 +126,40 @@ function SectionHeading({ title }: { title: string }) {
 
 
 /**
- * A book lying on its tone like it was set down on a desk, the cover tilted a
- * little. Hovering grows the card slightly in place and draws its outline.
+ * A program's book lying on its tone like it was set down on a desk, the cover
+ * tilted a little. Hovering grows the card slightly in place and draws its
+ * outline.
  */
-function BookCard({ book }: { book: Book }) {
-  const tone = TONES[book.tone];
+function ProgramCard({ program }: { program: Program }) {
+  const tone = TONES[program.tone];
   return (
     <Link
       to="/hoc-tap/quyen-{$quyenNumber}"
-      params={{ quyenNumber: book.quyenNumber }}
+      params={{ quyenNumber: program.quyenNumber }}
       className={[
         "relative flex items-center gap-4 rounded-[1.5rem] p-4 shadow-[0_6px_20px_rgba(12,58,110,0.14)] outline-4 outline-offset-0 outline-transparent transition-[outline-color,scale] duration-150 hover:z-10 hover:scale-[1.02] sm:gap-5 sm:p-5",
         tone.light,
         tone.outline,
       ].join(" ")}
     >
-
       <div className="w-24 shrink-0 sm:w-32">
         <img
-          src={book.cover}
+          src={program.cover}
           alt=""
           className="aspect-[900/1270] w-full -rotate-3 rounded-r-lg rounded-l-sm border-l-[5px] border-black/15 object-cover shadow-[4px_8px_16px_rgba(12,58,110,0.3)]"
         />
       </div>
 
       <div className="min-w-0 flex-1">
-        <h3 className="font-display text-xl font-bold text-sky-ink sm:text-2xl">{book.title}</h3>
-        <p className="mt-1.5 text-sm leading-relaxed text-sky-ink-soft">{book.body}</p>
+        <h3 className="font-display text-xl font-bold text-sky-ink sm:text-2xl">{program.title}</h3>
+        {program.body && <p className="mt-1.5 text-sm leading-relaxed text-sky-ink-soft">{program.body}</p>}
         <span
           className={[
             "mt-4 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold text-sky-ink",
             tone.deep,
           ].join(" ")}
         >
-          Vào học
+          Khám phá chương trình
           <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
         </span>
       </div>
