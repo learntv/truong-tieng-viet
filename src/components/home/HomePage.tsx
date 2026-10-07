@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ArrowRight,
   BookOpenText,
@@ -43,8 +43,6 @@ const LOGO_OUTLINE =
 function Hero() {
   return (
     <section aria-labelledby="hero-title" className="relative px-4 pt-12 sm:px-6 sm:pt-16 lg:pt-20">
-      {/* The wrapper is the logo's own width, so on lg the bubble can hang off
-        its right edge while the logo itself stays centred. */}
       <div className="relative mx-auto w-full max-w-[30rem] text-center">
         <h1 id="hero-title">
           <img
@@ -56,127 +54,8 @@ function Hero() {
             className={["block h-auto w-full", LOGO_OUTLINE].join(" ")}
           />
         </h1>
-        <SpellBubble />
       </div>
     </section>
-  );
-}
-
-/* ── Spelling bubble: the logo "says" a word, letter by letter ───────── */
-
-/* Each word split the way a Vietnamese child spells it — "nh" is one sound,
-   so it is one tile — with the tone mark kept on its vowel. */
-const SPELL_WORDS = [
-  { parts: ["m", "è", "o"], word: "mèo" },
-  { parts: ["b", "à"], word: "bà" },
-  { parts: ["c", "á"], word: "cá" },
-  { parts: ["nh", "à"], word: "nhà" },
-  { parts: ["h", "o", "a"], word: "hoa" },
-  { parts: ["đ", "ỏ"], word: "đỏ" },
-];
-
-/* Tiles cycle through the stage accents — flat fills, no bevel. */
-const TILE_COLORS = ["bg-stage-5", "bg-stage-2", "bg-stage-4", "bg-stage-1", "bg-stage-3"];
-const WORD_COLORS = [
-  "text-stage-5",
-  "text-stage-2",
-  "text-stage-4",
-  "text-stage-1",
-  "text-stage-3",
-];
-
-const SPELL_INTERVAL_MS = 2800;
-
-/**
- * A cartoon speech bubble beside the logo that spells a short word tile by
- * tile, then shows it whole: m · è · o → mèo. It moves on to the next word
- * every few seconds. Purely decorative (aria-hidden) — a live region that
- * changes every three seconds would only be noise for a screen reader.
- *
- * lg+: it hangs off the logo's right edge. Below lg there is no room beside
- * the logo, so it sits centred underneath. Either way the tail curls off its
- * bottom-right corner.
- */
-function SpellBubble() {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const id = window.setInterval(
-      () => setIndex((i) => (i + 1) % SPELL_WORDS.length),
-      SPELL_INTERVAL_MS,
-    );
-    return () => window.clearInterval(id);
-  }, []);
-
-  const { parts, word } = SPELL_WORDS[index];
-  const color = (i: number) => (index + i) % TILE_COLORS.length;
-
-  return (
-    <div
-      aria-hidden="true"
-      className="relative mx-auto mt-4 mb-20 w-[15rem] rotate-[6deg] rounded-[1.4rem] border-[3px] border-indigo-deep bg-white px-3.5 py-2.5 shadow-bevel-primary lg:absolute lg:top-[8%] lg:left-full lg:mt-0 lg:mb-0 lg:ml-2 xl:ml-5 xl:w-[17.5rem]"
-    >
-      {/* Tail: a curved comic-strip hook off the bottom-right. The SVG starts
-        4px up inside the bubble so its white fill paints over the bubble's
-        bottom border and bevel where they meet; only the two curved sides are
-        stroked, so the join reads as one continuous outline. */}
-      <svg
-        viewBox="0 0 40 36"
-        className="absolute top-[calc(100%-4px)] right-5 h-9 w-10 overflow-visible"
-      >
-        <path d="M6 0 C 8 14 20 26 37 33 C 28 22 26 12 26 0 Z" className="fill-white" />
-        <path
-          d="M6 0 C 8 14 20 26 37 33 C 28 22 26 12 26 0"
-          fill="none"
-          strokeWidth="3"
-          strokeLinejoin="round"
-          className="stroke-indigo-deep"
-        />
-      </svg>
-
-      {/* The speaker: Trâu con's head at the tip of the tail, counter-rotated
-        so it stays upright while the bubble tilts. */}
-      <img
-        src={buffalo}
-        alt=""
-        className={[
-          "absolute top-[calc(100%+0.75rem)] -right-10 h-14 w-14 -rotate-[6deg] object-contain xl:h-16 xl:w-16",
-          LOGO_OUTLINE,
-        ].join(" ")}
-      />
-
-      {/* Fixed-width bubble, content centred: it holds its size from word to
-        word instead of jumping as they change length. */}
-      <div key={index} className="relative flex items-center justify-center gap-1.5">
-        {parts.map((p, i) => (
-          <span
-            key={i}
-            style={{ animationDelay: `${i * 140}ms` }}
-            className={[
-              "grid h-9 min-w-9 animate-tile-pop place-items-center rounded-xl px-1.5 font-display text-xl leading-none font-extrabold text-white xl:h-11 xl:min-w-11 xl:text-[1.7rem]",
-              TILE_COLORS[color(i)],
-            ].join(" ")}
-          >
-            {p}
-          </span>
-        ))}
-        <span
-          style={{ animationDelay: `${parts.length * 140 + 120}ms` }}
-          className="ml-1 animate-tile-pop font-display text-xl font-extrabold text-indigo-deep"
-        >
-          →
-        </span>
-        <span
-          style={{ animationDelay: `${parts.length * 140 + 240}ms` }}
-          className={[
-            "animate-tile-pop font-display text-2xl leading-none font-extrabold xl:text-[2rem]",
-            WORD_COLORS[color(parts.length)],
-          ].join(" ")}
-        >
-          {word}
-        </span>
-      </div>
-    </div>
   );
 }
 
