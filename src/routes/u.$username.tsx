@@ -3,18 +3,17 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import {
-  KeyRound,
-  Loader2,
-  RotateCcw,
-  Globe,
-  ImagePlus,
-  Pencil,
-  Check,
-  Home,
-  LogOut,
-  Trash2,
-} from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundKey from "@iconify-icons/ic/round-key";
+import mdiLoading from "@iconify-icons/mdi/loading";
+import roundRestartAlt from "@iconify-icons/ic/round-restart-alt";
+import roundPublic from "@iconify-icons/ic/round-public";
+import roundAddPhotoAlternate from "@iconify-icons/ic/round-add-photo-alternate";
+import roundEdit from "@iconify-icons/ic/round-edit";
+import roundCheck from "@iconify-icons/ic/round-check";
+import roundHome from "@iconify-icons/ic/round-home";
+import roundLogout from "@iconify-icons/ic/round-logout";
+import roundDelete from "@iconify-icons/ic/round-delete";
 import { toast } from "sonner";
 import { deleteOwnAccount } from "@/lib/account.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -311,12 +310,12 @@ function AvatarPickerDialog({
           variant="outline"
           disabled={saving}
           onClick={() => fileInputRef.current?.click()}
-          className="w-full rounded-xl"
+          className="w-full rounded-full"
         >
           {saving ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Icon icon={mdiLoading} className="h-4 w-4 animate-spin" aria-hidden />
           ) : (
-            <ImagePlus className="h-4 w-4" />
+            <Icon icon={roundAddPhotoAlternate} className="h-4 w-4" aria-hidden />
           )}
           Tải ảnh của em lên
         </Button>
@@ -415,7 +414,7 @@ function CountryPickerDialog({
           className="rounded-xl"
           autoFocus
         />
-        <div className="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto pr-1">
+        <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto pr-1">
           {filtered.map((c) => (
             <button
               key={c.code}
@@ -428,13 +427,13 @@ function CountryPickerDialog({
               ].join(" ")}
             >
               <FlagImg code={c.code} size={28} />
-              <span className="text-[9px] font-semibold text-ink leading-tight line-clamp-1">
+              <span className="text-xs font-semibold text-ink leading-tight line-clamp-1">
                 {c.name}
               </span>
             </button>
           ))}
           {filtered.length === 0 && (
-            <p className="col-span-4 text-center text-sm text-muted-foreground py-4">
+            <p className="col-span-3 text-center text-sm text-muted-foreground py-4">
               Không tìm thấy quốc gia
             </p>
           )}
@@ -661,7 +660,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                 className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-white shadow-bevel-neutral flex items-center justify-center transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-neutral-active"
                 title="Đổi avatar"
               >
-                <Pencil className="h-3.5 w-3.5 text-ink" />
+                <Icon icon={roundEdit} className="h-3.5 w-3.5 text-ink" aria-hidden />
               </button>
               <AvatarPickerDialog
                 current={avatarEmoji}
@@ -698,9 +697,9 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                       className="shrink-0 h-8 w-8 rounded-full bg-green shadow-bevel-green flex items-center justify-center text-white transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-green-active disabled:opacity-50 disabled:pointer-events-none"
                     >
                       {savingName ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <Icon icon={mdiLoading} className="h-4 w-4 animate-spin" aria-hidden />
                       ) : (
-                        <Check className="h-4 w-4" />
+                        <Icon icon={roundCheck} className="h-4 w-4" aria-hidden />
                       )}
                     </button>
                   </div>
@@ -716,7 +715,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                       className="shrink-0 h-7 w-7 rounded-full bg-white shadow-bevel-neutral flex items-center justify-center transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-neutral-active"
                       title="Đổi tên"
                     >
-                      <Pencil className="h-3.5 w-3.5 text-ink/60" />
+                      <Icon icon={roundEdit} className="h-3.5 w-3.5 text-ink/60" aria-hidden />
                     </button>
                     <button
                       onClick={() => setCountryPickerOpen(true)}
@@ -726,7 +725,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                       {countryCode ? (
                         <FlagImg code={countryCode} size={32} />
                       ) : (
-                        <Globe className="h-5 w-5 text-ink/50 m-1" />
+                        <Icon icon={roundPublic} className="h-5 w-5 text-ink/50 m-1" aria-hidden />
                       )}
                     </button>
                   </h1>
@@ -788,7 +787,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
             </div>
             <div
               className={[
-                "mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                "mt-1.5 inline-block rounded-full px-2 py-0.5 text-xs font-semibold",
                 streak.studiedToday
                   ? "bg-stage-1-soft text-stage-1-deep"
                   : "bg-muted text-muted-foreground",
@@ -811,9 +810,9 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
               disabled={isSendingReset}
             >
               {isSendingReset ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Icon icon={mdiLoading} className="h-4 w-4 animate-spin" aria-hidden />
               ) : (
-                <KeyRound className="h-4 w-4 text-primary" />
+                <Icon icon={roundKey} className="h-4 w-4 text-primary" aria-hidden />
               )}
               Đổi mật khẩu
             </Button>
@@ -827,9 +826,9 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                 disabled={isRestarting}
               >
                 {isRestarting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Icon icon={mdiLoading} className="h-4 w-4 animate-spin" aria-hidden />
                 ) : (
-                  <RotateCcw className="h-4 w-4" />
+                  <Icon icon={roundRestartAlt} className="h-4 w-4" aria-hidden />
                 )}
                 Bắt đầu lại từ đầu
               </Button>
@@ -845,12 +844,12 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel className="rounded-xl font-medium">
+                <AlertDialogCancel className="rounded-full font-medium">
                   Thôi, giữ lại
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleRestartProgress}
-                  className="rounded-xl bg-stage-4 font-medium hover:brightness-95"
+                  className="rounded-full bg-stage-4 font-medium hover:brightness-95"
                 >
                   Bắt đầu lại
                 </AlertDialogAction>
@@ -863,7 +862,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
             className="w-full justify-start gap-3 rounded-xl h-12 font-medium text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive/50"
             onClick={signOut}
           >
-            <LogOut className="h-4 w-4" />
+            <Icon icon={roundLogout} className="h-4 w-4" aria-hidden />
             Đăng xuất
           </Button>
 
@@ -885,7 +884,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                   variant="outline"
                   className="w-full justify-start gap-3 rounded-xl h-12 font-medium bg-destructive text-destructive-foreground border-destructive hover:bg-destructive/90 hover:text-destructive-foreground"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Icon icon={roundDelete} className="h-4 w-4" aria-hidden />
                   Xóa tài khoản
                 </Button>
               </AlertDialogTrigger>
@@ -909,10 +908,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                   disabled={isDeleting}
                 />
                 <AlertDialogFooter>
-                  <AlertDialogCancel
-                    disabled={isDeleting}
-                    className="rounded-xl font-medium"
-                  >
+                  <AlertDialogCancel disabled={isDeleting} className="rounded-full font-medium">
                     Hủy
                   </AlertDialogCancel>
                   <AlertDialogAction
@@ -921,10 +917,10 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                       handleDeleteAccount();
                     }}
                     disabled={isDeleting || deleteConfirm.trim().toUpperCase() !== "XÓA"}
-                    className="rounded-xl bg-destructive font-medium text-destructive-foreground hover:bg-destructive/90"
+                    className="rounded-full bg-destructive font-medium text-destructive-foreground hover:bg-destructive/90"
                   >
                     {isDeleting ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Icon icon={mdiLoading} className="h-4 w-4 animate-spin" aria-hidden />
                     ) : (
                       "Xóa vĩnh viễn"
                     )}
@@ -965,7 +961,7 @@ function PublicView({ username }: { username: string }) {
     return (
       <div className="min-h-screen">
         <div className="flex items-center justify-center py-32">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <Icon icon={mdiLoading} className="h-8 w-8 animate-spin text-primary" aria-hidden />
         </div>
       </div>
     );
@@ -986,7 +982,7 @@ function PublicView({ username }: { username: string }) {
             to="/"
             className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-display text-sm font-extrabold text-white shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active"
           >
-            <Home className="h-4 w-4" />
+            <Icon icon={roundHome} className="h-4 w-4" aria-hidden />
             Về trang chủ
           </Link>
         </main>
@@ -1082,7 +1078,7 @@ function ProfilePage() {
     return (
       <div className="min-h-screen">
         <div className="flex items-center justify-center py-32">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <Icon icon={mdiLoading} className="h-8 w-8 animate-spin text-primary" aria-hidden />
         </div>
       </div>
     );

@@ -1,6 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Check, Download, Volume2, X } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundCheck from "@iconify-icons/ic/round-check";
+import roundDownload from "@iconify-icons/ic/round-download";
+import roundVolumeUp from "@iconify-icons/ic/round-volume-up";
+import roundClose from "@iconify-icons/ic/round-close";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Mascot } from "@/components/Mascot";
 import { PageBanner } from "@/components/site/PageBanner";
@@ -142,7 +146,7 @@ function BangChuCaiTab() {
             download
             className={skyButton("white", "shrink-0 self-start ring-1 ring-sky-ink/10 sm:self-auto")}
           >
-            <Download className="h-4 w-4" strokeWidth={2.5} />
+            <Icon icon={roundDownload} className="h-4 w-4" aria-hidden />
             Tải PDF bảng chữ cái
           </a>
         </div>
@@ -198,7 +202,7 @@ function LetterCard({
     >
       {isSeen && (
         <span className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-white text-green">
-          <Check className="h-3.5 w-3.5" strokeWidth={3} />
+          <Icon icon={roundCheck} className="h-3.5 w-3.5" aria-hidden />
           <span className="sr-only">Đã xem</span>
         </span>
       )}
@@ -231,7 +235,7 @@ function LetterSoundButton({ text, label }: { text: string; label: string }) {
         aria-label={`Nghe đọc chữ ${label}`}
         className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full bg-primary text-white shadow-btn transition-[transform,box-shadow,background-color] hover:bg-primary-glow active:translate-y-[1px] active:shadow-btn-active"
       >
-        <Volume2 className="h-5 w-5" strokeWidth={2.5} />
+        <Icon icon={roundVolumeUp} className="h-5 w-5" aria-hidden />
       </button>
     </>
   );
@@ -266,7 +270,11 @@ function WordRow({ word, tone }: { word: AlphabetWord; tone: Tone }) {
           <span className="block font-display text-base font-bold text-sky-ink">{word.vi}</span>
           <span className="block text-sm text-sky-ink-soft">{word.en}</span>
         </span>
-        <Volume2 className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-sky-ink" strokeWidth={2.5} />
+        <Icon
+          icon={roundVolumeUp}
+          className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-sky-ink"
+          aria-hidden
+        />
       </button>
     </>
   );
@@ -292,7 +300,7 @@ function LetterDetailDialog({
         className="max-h-[92vh] w-[calc(100%-1.5rem)] max-w-3xl gap-0 overflow-hidden rounded-[1.75rem] border-[6px] border-white bg-white p-0 shadow-2xl sm:rounded-[2rem] sm:border-[8px]"
       >
         <DialogClose className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white text-sky-ink shadow-btn transition-transform hover:scale-105 active:translate-y-[1px] active:shadow-btn-active">
-          <X className="h-5 w-5" strokeWidth={2.5} />
+          <Icon icon={roundClose} className="h-5 w-5" aria-hidden />
           <span className="sr-only">Đóng</span>
         </DialogClose>
         {letter && (

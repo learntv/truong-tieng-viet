@@ -4,7 +4,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundArrowBack from "@iconify-icons/ic/round-arrow-back";
+import mdiLoading from "@iconify-icons/mdi/loading";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -65,10 +67,10 @@ function GoogleButton({ onClick, loading }: { onClick: () => void; loading: bool
       type="button"
       onClick={onClick}
       disabled={loading}
-      className="flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-white px-4 py-3 text-sm font-medium text-foreground shadow-sm transition-all hover:bg-muted disabled:opacity-60"
+      className="flex w-full items-center justify-center gap-3 rounded-full border border-border bg-white px-4 py-3 text-sm font-medium text-foreground shadow-sm transition-all hover:bg-muted disabled:opacity-60"
     >
       {loading ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <Icon icon={mdiLoading} className="h-4 w-4 animate-spin" aria-hidden />
       ) : (
         <svg className="h-4 w-4" viewBox="0 0 24 24">
           <path
@@ -134,7 +136,7 @@ function ForgotPasswordView({ onBack }: { onBack: () => void }) {
           onClick={onBack}
           className="flex items-center gap-1 text-sm font-medium text-primary hover:underline mx-auto"
         >
-          <ArrowLeft className="h-3.5 w-3.5" />
+          <Icon icon={roundArrowBack} className="h-3.5 w-3.5" aria-hidden />
           Quay lại đăng nhập
         </button>
       </div>
@@ -149,7 +151,7 @@ function ForgotPasswordView({ onBack }: { onBack: () => void }) {
           onClick={onBack}
           className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="h-3.5 w-3.5" />
+          <Icon icon={roundArrowBack} className="h-3.5 w-3.5" aria-hidden />
           Quay lại
         </button>
         <p className="mt-2 text-sm text-muted-foreground">
@@ -168,7 +170,7 @@ function ForgotPasswordView({ onBack }: { onBack: () => void }) {
           {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
         </div>
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {loading && <Icon icon={mdiLoading} className="mr-2 h-4 w-4 animate-spin" aria-hidden />}
           Gửi email đặt lại mật khẩu
         </Button>
       </form>
@@ -244,7 +246,7 @@ function EmailForm({
         {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
       </div>
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        {loading && <Icon icon={mdiLoading} className="mr-2 h-4 w-4 animate-spin" aria-hidden />}
         {mode === "login" ? "Đăng nhập" : "Đăng ký"}
       </Button>
     </form>

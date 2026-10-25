@@ -1,4 +1,7 @@
-import { ArrowRight, ChevronDown, Map } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundArrowForward from "@iconify-icons/ic/round-arrow-forward";
+import roundExpandMore from "@iconify-icons/ic/round-expand-more";
+import roundMap from "@iconify-icons/ic/round-map";
 import { Link } from "@tanstack/react-router";
 import heroImage from "@/assets/hero-trau-con.jpg";
 
@@ -48,7 +51,7 @@ export function InfoHero() {
               className="inline-flex items-center gap-2 rounded-none bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground shadow-card transition-colors hover:bg-primary/90 sm:text-base"
             >
               Học ngay
-              <ArrowRight className="h-5 w-5" />
+              <Icon icon={roundArrowForward} className="h-5 w-5" aria-hidden />
             </Link>
             {/* Scrolls to the lộ trình band rather than navigating — "Học ngay"
               already covers /hoc-tap, and this mirrors the "Khám phá" cue below. */}
@@ -61,7 +64,7 @@ export function InfoHero() {
               }}
               className="inline-flex cursor-pointer items-center gap-2 rounded-none border border-white/40 bg-white/10 px-7 py-3.5 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:border-white/70 hover:bg-white/20 sm:text-base"
             >
-              <Map className="h-5 w-5" />
+              <Icon icon={roundMap} className="h-5 w-5" aria-hidden />
               Khám phá lộ trình
             </button>
           </div>
@@ -81,7 +84,7 @@ export function InfoHero() {
         }}
         className="group absolute bottom-0 left-1/2 z-10 flex h-14 w-14 shrink-0 -translate-x-1/2 translate-y-1/2 items-center justify-center rounded-full border-4 border-white bg-lime-500 shadow-lg transition-transform hover:scale-105"
       >
-        <ChevronDown className="h-10 w-10 text-white" strokeWidth={3} />
+        <Icon icon={roundExpandMore} className="h-10 w-10 text-white" aria-hidden />
       </button>
     </section>
   );

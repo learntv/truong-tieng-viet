@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { Loader2, ChevronRight } from "lucide-react";
+import { Icon } from "@iconify/react";
+import mdiLoading from "@iconify-icons/mdi/loading";
+import roundChevronRight from "@iconify-icons/ic/round-chevron-right";
 import { toast } from "sonner";
 import type { User } from "@supabase/supabase-js";
 import { useQueryClient } from "@tanstack/react-query";
@@ -239,7 +241,11 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
               >
                 <span className="flex items-center gap-2">
                   {detectingCountry ? (
-                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    <Icon
+                      icon={mdiLoading}
+                      className="h-4 w-4 animate-spin text-muted-foreground"
+                      aria-hidden
+                    />
                   ) : selectedCountry ? (
                     <>
                       <FlagImg code={selectedCountry.code} size={20} />
@@ -249,7 +255,11 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
                     <span className="text-muted-foreground">Chọn quốc gia...</span>
                   )}
                 </span>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                <Icon
+                  icon={roundChevronRight}
+                  className="h-4 w-4 text-muted-foreground"
+                  aria-hidden
+                />
               </button>
             ) : (
               <div className="space-y-2">
@@ -260,7 +270,7 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
                   className="rounded-xl"
                   autoFocus
                 />
-                <div className="grid grid-cols-4 gap-1.5 max-h-40 overflow-y-auto pr-1">
+                <div className="grid grid-cols-3 gap-1.5 max-h-40 overflow-y-auto pr-1">
                   {filteredCountries.map((c) => (
                     <button
                       key={c.code}
@@ -277,13 +287,13 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
                       ].join(" ")}
                     >
                       <FlagImg code={c.code} size={24} />
-                      <span className="text-[9px] font-semibold text-navy leading-tight line-clamp-1">
+                      <span className="text-xs font-semibold text-navy leading-tight line-clamp-1">
                         {c.name}
                       </span>
                     </button>
                   ))}
                   {filteredCountries.length === 0 && (
-                    <p className="col-span-4 text-center text-xs text-muted-foreground py-3">
+                    <p className="col-span-3 text-center text-xs text-muted-foreground py-3">
                       Không tìm thấy
                     </p>
                   )}
@@ -293,11 +303,15 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
           </div>
 
           <Button
-            className="w-full rounded-xl h-12 font-medium text-base"
+            className="w-full rounded-full h-12 font-medium text-base"
             onClick={handleSave}
             disabled={saving}
           >
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Bắt đầu học! 🚀"}
+            {saving ? (
+              <Icon icon={mdiLoading} className="h-4 w-4 animate-spin" aria-hidden />
+            ) : (
+              "Bắt đầu học! 🚀"
+            )}
           </Button>
         </div>
       </DialogContent>

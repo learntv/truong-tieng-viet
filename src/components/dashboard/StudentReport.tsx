@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowDown, ArrowUp, Search } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundArrowDownward from "@iconify-icons/ic/round-arrow-downward";
+import roundArrowUpward from "@iconify-icons/ic/round-arrow-upward";
+import roundSearch from "@iconify-icons/ic/round-search";
 import {
   Card,
   CardContent,
@@ -146,9 +149,9 @@ function StudentTable({ students }: { students: StudentRow[] }) {
         {label}
         {sort.key === k &&
           (sort.dir === "asc" ? (
-            <ArrowUp className="h-3 w-3" />
+            <Icon icon={roundArrowUpward} className="h-3 w-3" aria-hidden />
           ) : (
-            <ArrowDown className="h-3 w-3" />
+            <Icon icon={roundArrowDownward} className="h-3 w-3" aria-hidden />
           ))}
       </button>
     </TableHead>
@@ -165,7 +168,11 @@ function StudentTable({ students }: { students: StudentRow[] }) {
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative max-w-xs flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Icon
+              icon={roundSearch}
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden
+            />
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -331,7 +338,7 @@ function StuckPoints({ funnel }: { funnel: ChangFunnelRow[] }) {
             <div className="w-28 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
               <span className="font-semibold text-foreground">{f.completionPct.toFixed(0)}%</span>{" "}
               hoàn thành
-              <div className="text-[11px]">
+              <div className="text-xs">
                 {f.dropoff} / {f.reached} còn dở
               </div>
             </div>

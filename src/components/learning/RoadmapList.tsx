@@ -1,4 +1,9 @@
-import { ArrowLeft, BookOpen, Check, CircleDot, Lock } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundArrowBack from "@iconify-icons/ic/round-arrow-back";
+import roundMenuBook from "@iconify-icons/ic/round-menu-book";
+import roundCheck from "@iconify-icons/ic/round-check";
+import roundTrackChanges from "@iconify-icons/ic/round-track-changes";
+import roundLock from "@iconify-icons/ic/round-lock";
 import { Link } from "@tanstack/react-router";
 import type { ChuDe } from "@/data/topics";
 import type { QuyenNumber } from "@/lib/learning";
@@ -112,8 +117,8 @@ export function RoadmapList({
           <div className="mt-8 grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:gap-12">
             <div className="min-w-0">
               {isLocked && (
-                <span className="mb-3 inline-flex items-center gap-1 bg-muted px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  <Lock className="h-3 w-3" strokeWidth={2.5} />
+                <span className="mb-3 inline-flex items-center gap-1 bg-muted px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <Icon icon={roundLock} className="h-3 w-3" aria-hidden />
                   Sắp có
                 </span>
               )}
@@ -130,7 +135,7 @@ export function RoadmapList({
                 <button
                   type="button"
                   onClick={() => onOpenLesson(currentChangIndex)}
-                  className="mt-7 cursor-pointer bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:text-base"
+                  className="mt-7 cursor-pointer rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:text-base"
                 >
                   {doneStages === 0 ? "Bắt đầu học" : allDone ? "Ôn tập lại" : "Tiếp tục học"}
                 </button>
@@ -150,7 +155,7 @@ export function RoadmapList({
         <div className="w-full bg-teal-deep text-white">
           <div className="mx-auto flex max-w-6xl items-center px-6 py-6 sm:px-10 lg:px-16">
             <div className="flex items-center gap-3">
-              <BookOpen className="h-6 w-6 shrink-0" strokeWidth={2} aria-hidden />
+              <Icon icon={roundMenuBook} className="h-6 w-6 shrink-0" aria-hidden />
               <div className="min-w-0">
                 <div className="text-sm font-semibold sm:text-base">
                   {doneStages}/{totalStages} chặng đã hoàn thành
@@ -187,7 +192,7 @@ export function RoadmapList({
                 to="/hoc-tap/quyen-{$quyenNumber}"
                 params={{ quyenNumber: String(quyenNumber) }}
               >
-                <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
+                <Icon icon={roundArrowBack} className="h-4 w-4" aria-hidden />
                 Về bản đồ
               </Link>
             </Button>
@@ -247,7 +252,7 @@ export function RoadmapList({
                         {isCurrent && (
                           <span
                             className={[
-                              "absolute left-0 top-0 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white",
+                              "absolute left-0 top-0 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-white",
                               color.bg,
                             ].join(" ")}
                           >
@@ -256,7 +261,7 @@ export function RoadmapList({
                         )}
                         {isDone && (
                           <span className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-green text-white">
-                            <Check className="h-5 w-5" strokeWidth={3} />
+                            <Icon icon={roundCheck} className="h-5 w-5" aria-hidden />
                           </span>
                         )}
                       </span>
@@ -272,11 +277,15 @@ export function RoadmapList({
                         </span>
                         <span className="mt-3 flex flex-col gap-2 text-sm text-muted-foreground">
                           <span className="flex items-center gap-2">
-                            <BookOpen className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+                            <Icon icon={roundMenuBook} className="h-4 w-4 shrink-0" aria-hidden />
                             {total} bài học
                           </span>
                           <span className="flex items-center gap-2">
-                            <CircleDot className="h-4 w-4 shrink-0" strokeWidth={2} aria-hidden />
+                            <Icon
+                              icon={roundTrackChanges}
+                              className="h-4 w-4 shrink-0"
+                              aria-hidden
+                            />
                             {isDone
                               ? "Đã hoàn thành"
                               : prog
@@ -298,7 +307,7 @@ export function RoadmapList({
 
                         <span
                           className={[
-                            "mt-5 inline-block self-start px-4 py-2 font-display text-xs font-semibold uppercase tracking-wide text-white",
+                            "mt-5 inline-block self-start rounded-full px-4 py-2 font-display text-xs font-semibold uppercase tracking-wide text-white",
                             color.bg,
                           ].join(" ")}
                         >

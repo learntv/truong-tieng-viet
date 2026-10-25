@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
  * component-only and keep fast refresh working.
  */
 const BUTTON_BASE =
-  "inline-flex cursor-pointer items-center justify-center gap-2 rounded-[0.6rem] px-5 py-2.5 font-display text-sm font-bold transition-[colors,transform,box-shadow] shadow-btn active:translate-y-[1px] active:shadow-btn-active sm:text-base";
+  "inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-5 py-2.5 font-display text-sm font-bold transition-[colors,transform,box-shadow] shadow-btn active:translate-y-[1px] active:shadow-btn-active sm:text-base";
 
 const BUTTON_TONES = {
   primary: "bg-primary text-primary-foreground hover:bg-primary-glow",

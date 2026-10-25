@@ -1,7 +1,8 @@
 import * as React from "react";
 import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu";
 import { cva } from "class-variance-authority";
-import { ChevronDown } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundExpandMore from "@iconify-icons/ic/round-expand-more";
 
 import { cn } from "@/lib/utils";
 
@@ -48,7 +49,8 @@ const NavigationMenuTrigger = React.forwardRef<
     {...props}
   >
     {children}{" "}
-    <ChevronDown
+    <Icon
+      icon={roundExpandMore}
       className="relative top-[1px] ml-1 h-3 w-3 transition duration-300 group-data-[state=open]:rotate-180"
       aria-hidden="true"
     />

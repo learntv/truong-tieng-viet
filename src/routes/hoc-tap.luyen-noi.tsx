@@ -1,6 +1,9 @@
 import { createFileRoute, Link, Outlet, useChildMatches } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { ArrowRight, Loader2, Star } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundArrowForward from "@iconify-icons/ic/round-arrow-forward";
+import mdiLoading from "@iconify-icons/mdi/loading";
+import roundStar from "@iconify-icons/ic/round-star";
 import { type SpeakingProgress } from "@/lib/speaking-progress";
 import { useSpeakingContent } from "@/hooks/useSpeakingContent";
 import { useSpeakingProgress } from "@/hooks/useSpeakingProgress";
@@ -78,7 +81,7 @@ function TopicPicker() {
       <div className="relative mx-auto max-w-4xl px-4 pb-10 pt-8 sm:px-6">
         {speakingContentLoading && (
           <div className="flex justify-center py-16">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <Icon icon={mdiLoading} className="h-8 w-8 animate-spin text-primary" aria-hidden />
           </div>
         )}
 
@@ -134,16 +137,17 @@ function TopicCard({ card }: { card: TopicCardData }) {
             <div className={["h-full rounded-full", tone.bar].join(" ")} style={{ width: `${done * 100}%` }} />
           </div>
           <span className="inline-flex shrink-0 items-center gap-1 text-xs font-bold text-muted-foreground">
-            <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-500" strokeWidth={1.5} />
+            <Icon icon={roundStar} className="h-3.5 w-3.5 text-yellow-400" aria-hidden />
             {card.perfect}/{card.total}
           </span>
         </div>
       </div>
 
       <span className="mr-1.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors group-hover:bg-green group-hover:text-white">
-        <ArrowRight
+        <Icon
+          icon={roundArrowForward}
           className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-          strokeWidth={2}
+          aria-hidden
         />
       </span>
     </Link>

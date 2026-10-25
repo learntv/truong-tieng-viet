@@ -1,4 +1,8 @@
-import { Facebook, Linkedin, MessageCircle, Youtube } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundFacebook from "@iconify-icons/ic/round-facebook";
+import roundWhatsapp from "@iconify-icons/ic/round-whatsapp";
+import mdiLinkedin from "@iconify-icons/mdi/linkedin";
+import mdiYoutube from "@iconify-icons/mdi/youtube";
 import { Link } from "@tanstack/react-router";
 import boLogo from "@/assets/uy-ban.png";
 import cvcecLogo from "@/assets/cvcec.jpg";
@@ -7,12 +11,12 @@ import { Logo } from "@/components/Logo";
 const COPYRIGHT_YEAR = 2026;
 
 const SOCIALS = [
-  { label: "Facebook", Icon: Facebook, href: "https://facebook.com/cvcec.org" },
-  { label: "YouTube", Icon: Youtube, href: "https://youtube.com/@CVCEC2024" },
-  { label: "LinkedIn", Icon: Linkedin, href: "https://linkedin.com/company/cvcec/" },
+  { label: "Facebook", icon: roundFacebook, href: "https://facebook.com/cvcec.org" },
+  { label: "YouTube", icon: mdiYoutube, href: "https://youtube.com/@CVCEC2024" },
+  { label: "LinkedIn", icon: mdiLinkedin, href: "https://linkedin.com/company/cvcec/" },
   {
     label: "WhatsApp",
-    Icon: MessageCircle,
+    icon: roundWhatsapp,
     href: "https://api.whatsapp.com/send?phone=16478972358",
   },
 ];
@@ -72,7 +76,7 @@ export function Footer() {
               Nền tảng học tiếng Việt dành cho trẻ em Việt Nam ở trong và ngoài nước.
             </p>
             <div className="flex items-center gap-2">
-              {SOCIALS.map(({ label, Icon, href }) => (
+              {SOCIALS.map(({ label, icon, href }) => (
                 <a
                   key={label}
                   href={href}
@@ -81,7 +85,7 @@ export function Footer() {
                   aria-label={label}
                   className="grid h-9 w-9 place-items-center rounded-full border-2 border-grass-ink/35 text-grass-ink transition-colors hover:border-grass-ink hover:bg-grass-ink hover:text-white"
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon icon={icon} className="h-4 w-4" aria-hidden />
                 </a>
               ))}
             </div>

@@ -4,7 +4,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Icon } from "@iconify/react";
+import mdiLoading from "@iconify-icons/mdi/loading";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -100,7 +101,9 @@ function ResetPassword() {
                 {errors.confirm && <p className="text-xs text-destructive">{errors.confirm.message}</p>}
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {loading && (
+                  <Icon icon={mdiLoading} className="mr-2 h-4 w-4 animate-spin" aria-hidden />
+                )}
                 Cập nhật mật khẩu
               </Button>
             </form>

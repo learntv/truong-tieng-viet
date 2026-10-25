@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { Icon } from "@iconify/react";
+import mdiLoading from "@iconify-icons/mdi/loading";
 import { supabase } from "@/integrations/supabase/client";
 import { Mascot } from "@/components/Mascot";
 import { PageBanner } from "@/components/site/PageBanner";
@@ -92,7 +93,7 @@ function BangXepHang() {
       <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6">
         {isLoading ? (
           <div className="flex justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <Icon icon={mdiLoading} className="h-8 w-8 animate-spin text-primary" aria-hidden />
           </div>
         ) : !profiles || profiles.length === 0 ? (
           <div className="p-12 text-center">
@@ -196,9 +197,7 @@ function RankRow({ profile, rank }: { profile: Profile; rank: number }) {
         <div className="font-display text-lg font-bold leading-none text-navy">
           {profile.completed_count}
         </div>
-        <div className="text-[10px] font-semibold leading-tight text-muted-foreground">
-          bài xong
-        </div>
+        <div className="text-xs font-semibold leading-tight text-muted-foreground">bài xong</div>
       </div>
     </Link>
   );

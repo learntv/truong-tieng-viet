@@ -1,19 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
-import {
-  ArrowLeft,
-  CaseLower,
-  Hash,
-  Link2,
-  Pause,
-  Play,
-  Rabbit,
-  RotateCcw,
-  Spline,
-  Turtle,
-  X,
-  type LucideIcon,
-} from "lucide-react";
+import { Icon, type IconifyIcon } from "@iconify/react";
+import roundArrowBack from "@iconify-icons/ic/round-arrow-back";
+import roundAbc from "@iconify-icons/ic/round-abc";
+import roundPin from "@iconify-icons/ic/round-pin";
+import roundLink from "@iconify-icons/ic/round-link";
+import roundPause from "@iconify-icons/ic/round-pause";
+import roundPlayArrow from "@iconify-icons/ic/round-play-arrow";
+import mdiRabbit from "@iconify-icons/mdi/rabbit";
+import roundReplay from "@iconify-icons/ic/round-replay";
+import roundGesture from "@iconify-icons/ic/round-gesture";
+import mdiTurtle from "@iconify-icons/mdi/turtle";
+import roundClose from "@iconify-icons/ic/round-close";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Mascot } from "@/components/Mascot";
 import { IconButton } from "@/components/tap-viet/IconButton";
@@ -76,7 +74,7 @@ function TapVietPage() {
           to="/hoc-tap"
           className="mb-3 inline-flex items-center gap-2 self-start rounded-full border-[3px] border-white bg-white/85 px-4 py-1.5 font-display text-sm font-extrabold text-sky-ink shadow-[0_4px_12px_rgba(12,58,110,0.2)] transition hover:bg-ribbon hover:text-indigo-deep"
         >
-          <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
+          <Icon icon={roundArrowBack} className="h-4 w-4" aria-hidden />
           Học tập
         </Link>
         <h1>
@@ -163,11 +161,11 @@ function SpiralBinding() {
   );
 }
 
-const TAB_LOOK: Record<TapVietCategoryId, { icon: LucideIcon; tone: string }> = {
-  net: { icon: Spline, tone: "bg-box-ice" },
-  chu: { icon: CaseLower, tone: "bg-box-mint" },
-  ghep: { icon: Link2, tone: "bg-box-lavender" },
-  so: { icon: Hash, tone: "bg-box-peach" },
+const TAB_LOOK: Record<TapVietCategoryId, { icon: IconifyIcon; tone: string }> = {
+  net: { icon: roundGesture, tone: "bg-box-ice" },
+  chu: { icon: roundAbc, tone: "bg-box-mint" },
+  ghep: { icon: roundLink, tone: "bg-box-lavender" },
+  so: { icon: roundPin, tone: "bg-box-peach" },
 };
 
 /** The four sections as index tabs, like the coloured dividers in a school binder.
@@ -244,7 +242,7 @@ function NotebookTabs({
     >
       {TAP_VIET.map((c, i) => {
         const isOpen = i === selected;
-        const { icon: Icon, tone } = TAB_LOOK[c.id];
+        const { icon, tone } = TAB_LOOK[c.id];
         return (
           <button
             key={c.id}
@@ -284,7 +282,7 @@ function NotebookTabs({
                   ].join(" "),
             ].join(" ")}
           >
-            <Icon className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" strokeWidth={2.5} aria-hidden />
+            <Icon icon={icon} className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" aria-hidden />
             <span className="text-center sm:whitespace-nowrap">{c.label}</span>
           </button>
         );
@@ -378,7 +376,7 @@ function WritingDialog({
         className="flex h-[min(94dvh,44rem)] w-[calc(100%-1.5rem)] max-w-5xl flex-col gap-0 overflow-hidden border-0 bg-card p-0"
       >
         <DialogClose className="absolute right-3 top-3 z-10 grid h-10 w-10 cursor-pointer place-items-center rounded-[0.6rem] bg-white text-indigo-deep shadow-btn transition-[colors,box-shadow] hover:bg-box-white-deep active:shadow-btn-active">
-          <X className="h-5 w-5" strokeWidth={2.5} />
+          <Icon icon={roundClose} className="h-5 w-5" aria-hidden />
           <span className="sr-only">Đóng</span>
         </DialogClose>
 
@@ -467,10 +465,14 @@ function WatchPanel({
           onChange={(fast) => onRateChange(fast ? FAST_RATE : SLOW_RATE)}
         />
         <IconButton label={playing ? "Tạm dừng" : "Phát"} onClick={togglePlay}>
-          {playing ? <Pause /> : <Play />}
+          {playing ? (
+            <Icon icon={roundPause} aria-hidden />
+          ) : (
+            <Icon icon={roundPlayArrow} aria-hidden />
+          )}
         </IconButton>
         <IconButton label="Xem lại từ đầu" onClick={replay}>
-          <RotateCcw />
+          <Icon icon={roundReplay} aria-hidden />
         </IconButton>
       </div>
     </div>
@@ -482,12 +484,12 @@ function WatchPanel({
 function SpeedSwitch({ fast, onChange }: { fast: boolean; onChange: (fast: boolean) => void }) {
   return (
     <div className="flex items-center gap-2">
-      <Turtle
+      <Icon
+        icon={mdiTurtle}
         aria-hidden
         className={["h-7 w-7 transition-colors", fast ? "text-sky-ink/35" : "text-grass-deep"].join(
           " ",
         )}
-        strokeWidth={2.25}
       />
       <SwitchPrimitive.Root
         checked={fast}
@@ -497,12 +499,12 @@ function SpeedSwitch({ fast, onChange }: { fast: boolean; onChange: (fast: boole
       >
         <SwitchPrimitive.Thumb className="block h-7 w-7 translate-x-1 rounded-full bg-white shadow-btn transition-transform duration-200 ease-bounce data-[state=checked]:translate-x-8" />
       </SwitchPrimitive.Root>
-      <Rabbit
+      <Icon
+        icon={mdiRabbit}
         aria-hidden
         className={["h-7 w-7 transition-colors", fast ? "text-primary" : "text-sky-ink/35"].join(
           " ",
         )}
-        strokeWidth={2.25}
       />
     </div>
   );

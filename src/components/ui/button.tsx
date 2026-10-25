@@ -12,7 +12,7 @@ const buttonVariants = cva(
         // The house button: solid blue, no outline, and a soft indigo shadow
         // that falls off underneath — it presses to the surface on :active.
         default:
-          "rounded-[0.6rem] bg-primary font-bold text-primary-foreground shadow-btn hover:bg-primary-glow active:translate-y-[1px] active:shadow-btn-active",
+          "rounded-full bg-primary font-bold text-primary-foreground shadow-btn hover:bg-primary-glow active:translate-y-[1px] active:shadow-btn-active",
         pill: "rounded-full bg-primary font-bold text-primary-foreground shadow-btn hover:bg-primary-glow active:translate-y-[1px] active:shadow-btn-active",
         destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:

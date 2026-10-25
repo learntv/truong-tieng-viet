@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { ExternalLink, Play } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundOpenInNew from "@iconify-icons/ic/round-open-in-new";
+import roundPlayArrow from "@iconify-icons/ic/round-play-arrow";
 import poster from "@/assets/vna-ket-noi-coi-nguon-poster.webp";
 import vietnamMediaLogo from "@/assets/press/vietnam-media-logo.png";
 
@@ -102,8 +104,9 @@ function VnaPlayer() {
         <span className="absolute inset-0 grid place-items-center">
           <span className="grid h-16 w-16 place-items-center rounded-full bg-primary shadow-btn transition-transform group-hover:scale-105 sm:h-20 sm:w-20">
             {/* Nudged right so the triangle's visual centre sits on the disc's. */}
-            <Play
-              className="ml-1 h-7 w-7 fill-primary-foreground text-primary-foreground sm:h-9 sm:w-9"
+            <Icon
+              icon={roundPlayArrow}
+              className="ml-1 h-7 w-7 text-primary-foreground sm:h-9 sm:w-9"
               aria-hidden
             />
           </span>
@@ -176,7 +179,7 @@ export function PressVideo() {
           className="mt-auto inline-flex w-fit items-center gap-1.5 pt-3 font-display text-sm font-extrabold text-indigo hover:text-indigo-deep hover:underline"
         >
           Xem bài gốc
-          <ExternalLink className="h-4 w-4" aria-hidden />
+          <Icon icon={roundOpenInNew} className="h-4 w-4" aria-hidden />
         </a>
       </div>
     </article>

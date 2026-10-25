@@ -1,5 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Facebook, Linkedin, Mail, MapPin, MessageCircle, Youtube } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundFacebook from "@iconify-icons/ic/round-facebook";
+import mdiLinkedin from "@iconify-icons/mdi/linkedin";
+import roundMail from "@iconify-icons/ic/round-mail";
+import roundPlace from "@iconify-icons/ic/round-place";
+import roundWhatsapp from "@iconify-icons/ic/round-whatsapp";
+import mdiYoutube from "@iconify-icons/mdi/youtube";
 import { PageBanner } from "@/components/site/PageBanner";
 
 export const Route = createFileRoute("/lien-he")({
@@ -25,19 +31,19 @@ export const Route = createFileRoute("/lien-he")({
 
 const CHANNELS = [
   {
-    Icon: Mail,
+    icon: roundMail,
     label: "Email",
     value: "contact@cvcec.org",
     href: "mailto:contact@cvcec.org",
   },
   {
-    Icon: MessageCircle,
+    icon: roundWhatsapp,
     label: "WhatsApp",
     value: "+1 647-897-2358",
     href: "https://api.whatsapp.com/send?phone=16478972358",
   },
   {
-    Icon: MapPin,
+    icon: roundPlace,
     label: "Địa chỉ",
     value: "192 Spadina Ave., Toronto, ON M5T 2C2, Canada",
     href: "https://maps.google.com/?q=192+Spadina+Ave,+Toronto,+ON+M5T+2C2",
@@ -45,9 +51,9 @@ const CHANNELS = [
 ];
 
 const SOCIALS = [
-  { Icon: Facebook, label: "Facebook", href: "https://facebook.com/cvcec.org" },
-  { Icon: Youtube, label: "YouTube", href: "https://youtube.com/@CVCEC2024" },
-  { Icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com/company/cvcec/" },
+  { icon: roundFacebook, label: "Facebook", href: "https://facebook.com/cvcec.org" },
+  { icon: mdiYoutube, label: "YouTube", href: "https://youtube.com/@CVCEC2024" },
+  { icon: mdiLinkedin, label: "LinkedIn", href: "https://linkedin.com/company/cvcec/" },
 ];
 
 function Contact() {
@@ -71,7 +77,7 @@ function Contact() {
         </p>
 
         <div className="flex flex-col gap-3">
-          {CHANNELS.map(({ Icon, label, value, href }) => (
+          {CHANNELS.map(({ icon, label, value, href }) => (
             <a
               key={label}
               href={href}
@@ -80,7 +86,7 @@ function Contact() {
               className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary"
             >
               <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
-                <Icon className="h-5 w-5" />
+                <Icon icon={icon} className="h-5 w-5" aria-hidden />
               </span>
               <span>
                 <span className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -96,7 +102,7 @@ function Contact() {
           Theo dõi chúng tôi
         </h2>
         <div className="flex items-center gap-3">
-          {SOCIALS.map(({ Icon, label, href }) => (
+          {SOCIALS.map(({ icon, label, href }) => (
             <a
               key={label}
               href={href}
@@ -105,7 +111,7 @@ function Contact() {
               aria-label={label}
               className="grid h-11 w-11 place-items-center rounded-full border border-border text-foreground transition-colors hover:border-primary hover:bg-primary hover:text-white"
             >
-              <Icon className="h-5 w-5" />
+              <Icon icon={icon} className="h-5 w-5" aria-hidden />
             </a>
           ))}
         </div>

@@ -56,7 +56,7 @@ export function PageBanner({
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-          <h1 className="mt-2 font-display text-2xl font-bold leading-tight text-bamboo-ink sm:text-4xl">{title}</h1>
+          <h1 className="mt-2 font-display text-[1.75rem] font-bold leading-tight text-bamboo-ink sm:text-[2.5rem]">{title}</h1>
         </div>
 
         {art}

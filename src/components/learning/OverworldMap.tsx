@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Check, HelpCircle, Lock, MapPin } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundCheck from "@iconify-icons/ic/round-check";
+import roundHelp from "@iconify-icons/ic/round-help";
+import roundLock from "@iconify-icons/ic/round-lock";
+import roundPlace from "@iconify-icons/ic/round-place";
 import type { ChuDeWithChangs, QuyenNumber } from "@/lib/learning";
 import { chuDeShortTitle, isChuDeComplete } from "@/lib/learning";
 import type { ChangProgress } from "@/hooks/useUserProgress";
@@ -173,7 +177,7 @@ export function OverworldMap({
             title="Xem lại hướng dẫn"
             className="grid h-6 w-6 shrink-0 cursor-pointer place-items-center rounded-full bg-primary/10 text-primary transition hover:bg-primary/20 active:translate-y-[1px]"
           >
-            <HelpCircle className="h-4 w-4" strokeWidth={2.75} />
+            <Icon icon={roundHelp} className="h-4 w-4" aria-hidden />
           </button>
         </p>
 
@@ -194,7 +198,7 @@ export function OverworldMap({
               />
 
               {/* Journey progress, kept on the map itself rather than in a header bar. */}
-              <div className="absolute right-3 top-3 z-30 rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-semibold text-navy shadow-card">
+              <div className="absolute right-3 top-3 z-30 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-navy shadow-card">
                 {doneCount}/{landmarks.length} chủ đề
               </div>
 
@@ -275,26 +279,26 @@ export function OverworldMap({
                           >
                             {/* Just the pin itself — no disc behind it. A white stroke keeps it
                                 readable wherever it lands on the artwork. */}
-                            <MapPin
+                            <Icon
+                              icon={roundPlace}
+                              aria-hidden
                               className={[
                                 "h-11 w-11 drop-shadow-[0_4px_6px_rgba(0,0,0,0.45)] sm:h-13 sm:w-13",
+                                "[&_path]:stroke-white [&_path]:[stroke-width:1.25] [&_path]:[paint-order:stroke]",
                                 isOpen ? "text-destructive" : "text-stone-400",
                               ].join(" ")}
-                              fill="currentColor"
-                              stroke="white"
-                              strokeWidth={1.75}
                             />
                             {status === "completed" ? (
                               <span className="absolute -right-1 top-0 grid h-5 w-5 place-items-center rounded-full border-2 border-white bg-green text-white shadow-sm">
-                                <Check className="h-3 w-3" strokeWidth={3.5} />
+                                <Icon icon={roundCheck} className="h-3 w-3" aria-hidden />
                               </span>
                             ) : !isOpen ? (
                               <span className="absolute -right-1 top-0 grid h-5 w-5 place-items-center rounded-full border-2 border-white bg-stone-500 text-white shadow-sm">
-                                <Lock className="h-2.5 w-2.5" strokeWidth={3} />
+                                <Icon icon={roundLock} className="h-2.5 w-2.5" aria-hidden />
                               </span>
                             ) : null}
                           </button>
-                          <span className="whitespace-nowrap rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-semibold text-navy shadow-card">
+                          <span className="whitespace-nowrap rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-semibold text-navy shadow-card">
                             {lm.name}
                           </span>
                         </div>
@@ -320,7 +324,7 @@ export function OverworldMap({
                           />
                           {status === "completed" && (
                             <span className="absolute right-2 top-2 grid h-5 w-5 place-items-center rounded-full bg-green text-white">
-                              <Check className="h-3 w-3" strokeWidth={3.5} />
+                              <Icon icon={roundCheck} className="h-3 w-3" aria-hidden />
                             </span>
                           )}
                         </div>
@@ -330,7 +334,7 @@ export function OverworldMap({
                               the whole card reads as flat panels stacked, no overlays. */}
                           <p
                             className={[
-                              "text-[10px] font-semibold uppercase tracking-[0.12em]",
+                              "text-xs font-semibold uppercase tracking-[0.12em]",
                               status === "coming-soon" ? "text-muted-foreground" : accent.text,
                             ].join(" ")}
                           >
@@ -354,7 +358,7 @@ export function OverworldMap({
                             </p>
                           ) : (
                             <>
-                              <div className="mt-3 flex items-center justify-between text-[11px] font-semibold text-navy/70">
+                              <div className="mt-3 flex items-center justify-between text-xs font-semibold text-navy/70">
                                 <span>
                                   {stats.done}/{stats.total} chặng
                                 </span>

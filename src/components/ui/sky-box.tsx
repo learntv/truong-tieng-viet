@@ -67,7 +67,7 @@ export function SkyBox({
         <div className="px-4 pt-5 pb-5 text-center sm:px-6">
           {ribbon && <SkyBoxRibbon>{ribbon}</SkyBoxRibbon>}
           {title && (
-            <h2 className="font-display text-xl font-extrabold text-sky-ink sm:text-2xl">
+            <h2 className="font-display text-[1.375rem] font-extrabold text-sky-ink sm:text-[1.75rem]">
               {title}
             </h2>
           )}

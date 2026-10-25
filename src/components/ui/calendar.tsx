@@ -1,7 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundExpandMore from "@iconify-icons/ic/round-expand-more";
+import roundChevronLeft from "@iconify-icons/ic/round-chevron-left";
+import roundChevronRight from "@iconify-icons/ic/round-chevron-right";
 import { DayButton, DayPicker, getDefaultClassNames } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
@@ -108,16 +111,16 @@ function Calendar({
         Root: ({ className, rootRef, ...props }) => {
           return <div data-slot="calendar" ref={rootRef} className={cn(className)} {...props} />;
         },
-        Chevron: ({ className, orientation, ...props }) => {
+        Chevron: ({ className, orientation }) => {
           if (orientation === "left") {
-            return <ChevronLeftIcon className={cn("size-4", className)} {...props} />;
+            return <Icon icon={roundChevronLeft} className={cn("size-4", className)} />;
           }
 
           if (orientation === "right") {
-            return <ChevronRightIcon className={cn("size-4", className)} {...props} />;
+            return <Icon icon={roundChevronRight} className={cn("size-4", className)} />;
           }
 
-          return <ChevronDownIcon className={cn("size-4", className)} {...props} />;
+          return <Icon icon={roundExpandMore} className={cn("size-4", className)} />;
         },
         DayButton: CalendarDayButton,
         WeekNumber: ({ children, ...props }) => {

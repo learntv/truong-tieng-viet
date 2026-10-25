@@ -1,16 +1,15 @@
 import { useState } from "react";
-import {
-  ArrowRight,
-  BookOpenText,
-  Check,
-  Copy,
-  Copyright,
-  Heart,
-  Mail,
-  MessageCircle,
-  Network,
-  Volume2,
-} from "lucide-react";
+import { Icon, type IconifyIcon } from "@iconify/react";
+import roundArrowForward from "@iconify-icons/ic/round-arrow-forward";
+import roundMenuBook from "@iconify-icons/ic/round-menu-book";
+import roundCheck from "@iconify-icons/ic/round-check";
+import roundContentCopy from "@iconify-icons/ic/round-content-copy";
+import roundCopyright from "@iconify-icons/ic/round-copyright";
+import roundFavorite from "@iconify-icons/ic/round-favorite";
+import roundMail from "@iconify-icons/ic/round-mail";
+import roundChat from "@iconify-icons/ic/round-chat";
+import roundHub from "@iconify-icons/ic/round-hub";
+import roundVolumeUp from "@iconify-icons/ic/round-volume-up";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { SkyBackdrop } from "./SkyBackdrop";
@@ -120,7 +119,7 @@ function MissionBox() {
 
 const ROWS = [
   {
-    Icon: BookOpenText,
+    icon: roundMenuBook,
     heading: "Dự án số hóa",
     body: (
       <>
@@ -132,7 +131,7 @@ const ROWS = [
     ),
   },
   {
-    Icon: Network,
+    icon: roundHub,
     heading: "Hệ sinh thái",
     body: (
       <>
@@ -149,7 +148,7 @@ const ROWS = [
     ),
   },
   {
-    Icon: Copyright,
+    icon: roundCopyright,
     heading: "Bản quyền",
     body: (
       <>
@@ -188,7 +187,7 @@ function AboutBox() {
       <div className="mt-4 grid gap-4 sm:grid-cols-3">
         {ROWS.map((r) => (
           <SkyCard key={r.heading}>
-            <r.Icon className="h-6 w-6 text-primary" strokeWidth={2.5} aria-hidden />
+            <Icon icon={r.icon} className="h-6 w-6 text-primary" aria-hidden />
             <h3 className="mt-3 font-display text-base font-extrabold text-sky-ink">{r.heading}</h3>
             <p className="mt-2 text-sm leading-relaxed text-sky-ink-soft">{r.body}</p>
           </SkyCard>
@@ -244,12 +243,12 @@ function ThanksBox() {
  * outweigh the copy it belongs to.
  */
 function ContactCard({
-  icon: Icon,
+  icon,
   label,
   value,
   href,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
+  icon: IconifyIcon;
   label: string;
   value: string;
   href: string;
@@ -273,7 +272,7 @@ function ContactCard({
         {/* Đĩa tròn nhỏ giữ cho icon có cùng trọng lượng với dòng chữ đậm bên
           cạnh — icon trần trông lạc lõng ở cỡ này. */}
         <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
-          <Icon className="h-3.5 w-3.5" aria-hidden />
+          <Icon icon={icon} className="h-3.5 w-3.5" aria-hidden />
         </span>
         <span className="text-sm text-sky-ink-soft">{label}:</span>
         <span className="font-display text-sm font-extrabold text-sky-ink group-hover:text-indigo-deep">
@@ -288,9 +287,9 @@ function ContactCard({
         title={"Sao chép " + label}
       >
         {copied ? (
-          <Check className="h-4 w-4 text-nav-green" aria-hidden />
+          <Icon icon={roundCheck} className="h-4 w-4 text-nav-green" aria-hidden />
         ) : (
-          <Copy className="h-4 w-4" aria-hidden />
+          <Icon icon={roundContentCopy} className="h-4 w-4" aria-hidden />
         )}
       </button>
     </div>
@@ -321,10 +320,10 @@ function SupportBox() {
         phải con — nếu không, phần nhô lên trên sẽ bị viền trắng cắt mất. Bóng
         đổ dùng drop-shadow inline vì filter phải bám theo hình trái tim, không
         phải theo ô vuông của icon. */}
-      <Heart
+      <Icon
+        icon={roundFavorite}
         aria-hidden
-        className="pointer-events-none absolute -top-6 right-4 z-10 h-20 w-20 rotate-6 fill-stage-5 text-stage-5-deep sm:-top-8 sm:right-8 sm:h-24 sm:w-24"
-        strokeWidth={1.5}
+        className="pointer-events-none absolute -top-6 right-4 z-10 h-20 w-20 rotate-6 text-stage-5 sm:-top-8 sm:right-8 sm:h-24 sm:w-24"
         style={{ filter: "drop-shadow(0 5px 4px oklch(0.46 0.12 15 / 0.45))" }}
       />
       <SkyBox tone="peach" title="Kêu gọi hỗ trợ">
@@ -343,13 +342,13 @@ function SupportBox() {
 
             <div className="mt-5 flex flex-col gap-2">
               <ContactCard
-                icon={Mail}
+                icon={roundMail}
                 label="Email"
                 value="contact@cvcec.org"
                 href="mailto:contact@cvcec.org"
               />
               <ContactCard
-                icon={MessageCircle}
+                icon={roundChat}
                 label="Điện thoại"
                 value="+1 647 897 2358"
                 href="https://wa.me/16478972358"
@@ -365,9 +364,9 @@ function SupportBox() {
             <ul className="mt-4 flex flex-col gap-4">
               {SUPPORT_POINTS.map((point) => (
                 <li key={point.heading} className="flex gap-3">
-                  <Check
+                  <Icon
+                    icon={roundCheck}
                     className="mt-0.5 h-5 w-5 shrink-0 text-nav-green"
-                    strokeWidth={3.5}
                     aria-hidden
                   />
                   <span>
@@ -439,10 +438,10 @@ export function HomePage() {
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Link to="/hoc-tap" className={skyButton("primary", "px-6")}>
                 Học ngay
-                <ArrowRight className="h-5 w-5" aria-hidden />
+                <Icon icon={roundArrowForward} className="h-5 w-5" aria-hidden />
               </Link>
               <Link to="/hoc-tap/luyen-noi" className={skyButton("white", "px-6")}>
-                <Volume2 className="h-5 w-5" aria-hidden />
+                <Icon icon={roundVolumeUp} className="h-5 w-5" aria-hidden />
                 Luyện nói
               </Link>
             </div>

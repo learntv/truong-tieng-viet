@@ -23,7 +23,7 @@ export function IconButton({
       onClick={onClick}
       className={skyButton(
         tone,
-        "h-12 w-12 p-0 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none [&_svg]:h-6 [&_svg]:w-6 [&_svg]:stroke-[2.5]",
+        "h-12 w-12 rounded-[0.6rem] p-0 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none [&_svg]:h-6 [&_svg]:w-6 [&_svg]:stroke-[2.5]",
       )}
     >
       {children}
