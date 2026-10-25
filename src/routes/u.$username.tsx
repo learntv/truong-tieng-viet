@@ -908,10 +908,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                   disabled={isDeleting}
                 />
                 <AlertDialogFooter>
-                  <AlertDialogCancel
-                    disabled={isDeleting}
-                    className="rounded-full font-medium"
-                  >
+                  <AlertDialogCancel disabled={isDeleting} className="rounded-full font-medium">
                     Hủy
                   </AlertDialogCancel>
                   <AlertDialogAction

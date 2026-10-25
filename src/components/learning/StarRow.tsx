@@ -26,9 +26,7 @@ export function StarRow({
             loading
               ? "animate-pulse text-stone-300"
               : i <= stars
-                ? ["text-yellow-400", animated && "animate-hop"]
-                    .filter(Boolean)
-                    .join(" ")
+                ? ["text-yellow-400", animated && "animate-hop"].filter(Boolean).join(" ")
                 : "text-stone-300",
           ].join(" ")}
           style={

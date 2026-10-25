@@ -101,7 +101,9 @@ function ResetPassword() {
                 {errors.confirm && <p className="text-xs text-destructive">{errors.confirm.message}</p>}
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading && <Icon icon={mdiLoading} className="mr-2 h-4 w-4 animate-spin" aria-hidden />}
+                {loading && (
+                  <Icon icon={mdiLoading} className="mr-2 h-4 w-4 animate-spin" aria-hidden />
+                )}
                 Cập nhật mật khẩu
               </Button>
             </form>

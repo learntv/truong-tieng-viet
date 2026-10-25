@@ -281,7 +281,11 @@ export function RoadmapList({
                             {total} bài học
                           </span>
                           <span className="flex items-center gap-2">
-                            <Icon icon={roundTrackChanges} className="h-4 w-4 shrink-0" aria-hidden />
+                            <Icon
+                              icon={roundTrackChanges}
+                              className="h-4 w-4 shrink-0"
+                              aria-hidden
+                            />
                             {isDone
                               ? "Đã hoàn thành"
                               : prog
