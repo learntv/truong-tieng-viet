@@ -1028,7 +1028,7 @@ export function LessonPage({
               disabled={!canPrev}
               aria-label="Bài trước"
               className={[
-                "flex shrink-0 items-center gap-1.5 rounded-none px-2.5 py-2 text-sm font-medium text-navy transition sm:px-3",
+                "flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-2 text-sm font-medium text-navy transition sm:px-3",
                 canPrev ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed opacity-40",
               ].join(" ")}
             >
@@ -1049,7 +1049,7 @@ export function LessonPage({
                   onClick={handleComplete}
                   disabled={isCompleted}
                   className={[
-                    "relative flex shrink-0 items-center justify-center gap-1.5 overflow-hidden rounded-none px-5 py-2.5 text-sm font-bold transition-colors sm:px-8",
+                    "relative flex shrink-0 items-center justify-center gap-1.5 overflow-hidden rounded-full px-5 py-2.5 text-sm font-bold transition-colors sm:px-8",
                     isCompleted
                       ? "cursor-not-allowed bg-stage-1-soft text-stage-1-deep"
                       : "cursor-pointer bg-stage-1 text-white hover:brightness-110",
@@ -1067,7 +1067,7 @@ export function LessonPage({
                 onClick={() => goTo(slideIndex + 1)}
                 disabled={!canNext}
                 className={[
-                  "flex shrink-0 items-center justify-center gap-1.5 rounded-none px-5 py-2.5 text-sm font-bold text-white transition-colors sm:px-8",
+                  "flex shrink-0 items-center justify-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-bold text-white transition-colors sm:px-8",
                   color.bg,
                   canNext ? "cursor-pointer hover:brightness-110" : "cursor-not-allowed opacity-40",
                 ].join(" ")}

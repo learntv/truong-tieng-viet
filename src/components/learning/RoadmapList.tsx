@@ -130,7 +130,7 @@ export function RoadmapList({
                 <button
                   type="button"
                   onClick={() => onOpenLesson(currentChangIndex)}
-                  className="mt-7 cursor-pointer bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:text-base"
+                  className="mt-7 cursor-pointer rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:text-base"
                 >
                   {doneStages === 0 ? "Bắt đầu học" : allDone ? "Ôn tập lại" : "Tiếp tục học"}
                 </button>
@@ -298,7 +298,7 @@ export function RoadmapList({
 
                         <span
                           className={[
-                            "mt-5 inline-block self-start px-4 py-2 font-display text-xs font-semibold uppercase tracking-wide text-white",
+                            "mt-5 inline-block self-start rounded-full px-4 py-2 font-display text-xs font-semibold uppercase tracking-wide text-white",
                             color.bg,
                           ].join(" ")}
                         >

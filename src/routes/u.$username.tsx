@@ -311,7 +311,7 @@ function AvatarPickerDialog({
           variant="outline"
           disabled={saving}
           onClick={() => fileInputRef.current?.click()}
-          className="w-full rounded-xl"
+          className="w-full rounded-full"
         >
           {saving ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -845,12 +845,12 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel className="rounded-xl font-medium">
+                <AlertDialogCancel className="rounded-full font-medium">
                   Thôi, giữ lại
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleRestartProgress}
-                  className="rounded-xl bg-stage-4 font-medium hover:brightness-95"
+                  className="rounded-full bg-stage-4 font-medium hover:brightness-95"
                 >
                   Bắt đầu lại
                 </AlertDialogAction>
@@ -911,7 +911,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                 <AlertDialogFooter>
                   <AlertDialogCancel
                     disabled={isDeleting}
-                    className="rounded-xl font-medium"
+                    className="rounded-full font-medium"
                   >
                     Hủy
                   </AlertDialogCancel>
@@ -921,7 +921,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                       handleDeleteAccount();
                     }}
                     disabled={isDeleting || deleteConfirm.trim().toUpperCase() !== "XÓA"}
-                    className="rounded-xl bg-destructive font-medium text-destructive-foreground hover:bg-destructive/90"
+                    className="rounded-full bg-destructive font-medium text-destructive-foreground hover:bg-destructive/90"
                   >
                     {isDeleting ? (
                       <Loader2 className="h-4 w-4 animate-spin" />

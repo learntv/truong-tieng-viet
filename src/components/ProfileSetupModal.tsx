@@ -293,7 +293,7 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
           </div>
 
           <Button
-            className="w-full rounded-xl h-12 font-medium text-base"
+            className="w-full rounded-full h-12 font-medium text-base"
             onClick={handleSave}
             disabled={saving}
           >
