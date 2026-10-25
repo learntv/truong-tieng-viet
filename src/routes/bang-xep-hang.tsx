@@ -196,7 +196,7 @@ function RankRow({ profile, rank }: { profile: Profile; rank: number }) {
         <div className="font-display text-lg font-bold leading-none text-navy">
           {profile.completed_count}
         </div>
-        <div className="text-[10px] font-semibold leading-tight text-muted-foreground">
+        <div className="text-xs font-semibold leading-tight text-muted-foreground">
           bài xong
         </div>
       </div>

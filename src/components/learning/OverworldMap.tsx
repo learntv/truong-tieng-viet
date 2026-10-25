@@ -194,7 +194,7 @@ export function OverworldMap({
               />
 
               {/* Journey progress, kept on the map itself rather than in a header bar. */}
-              <div className="absolute right-3 top-3 z-30 rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-semibold text-navy shadow-card">
+              <div className="absolute right-3 top-3 z-30 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-navy shadow-card">
                 {doneCount}/{landmarks.length} chủ đề
               </div>
 
@@ -294,7 +294,7 @@ export function OverworldMap({
                               </span>
                             ) : null}
                           </button>
-                          <span className="whitespace-nowrap rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-semibold text-navy shadow-card">
+                          <span className="whitespace-nowrap rounded-full bg-white/90 px-2.5 py-0.5 text-xs font-semibold text-navy shadow-card">
                             {lm.name}
                           </span>
                         </div>
@@ -330,7 +330,7 @@ export function OverworldMap({
                               the whole card reads as flat panels stacked, no overlays. */}
                           <p
                             className={[
-                              "text-[10px] font-semibold uppercase tracking-[0.12em]",
+                              "text-xs font-semibold uppercase tracking-[0.12em]",
                               status === "coming-soon" ? "text-muted-foreground" : accent.text,
                             ].join(" ")}
                           >
@@ -354,7 +354,7 @@ export function OverworldMap({
                             </p>
                           ) : (
                             <>
-                              <div className="mt-3 flex items-center justify-between text-[11px] font-semibold text-navy/70">
+                              <div className="mt-3 flex items-center justify-between text-xs font-semibold text-navy/70">
                                 <span>
                                   {stats.done}/{stats.total} chặng
                                 </span>

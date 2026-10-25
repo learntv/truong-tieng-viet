@@ -304,7 +304,7 @@ function TopCountries({ countryData, total }: { countryData: CountryCount[]; tot
           </div>
           <span className="w-14 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
             {c.count.toLocaleString("en-US")}
-            <span className="ml-1 text-[10px]">
+            <span className="ml-1 text-xs">
               {total > 0 ? `${((c.count / total) * 100).toFixed(0)}%` : ""}
             </span>
           </span>

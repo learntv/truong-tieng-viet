@@ -110,6 +110,17 @@
   --font-sans: "Arimo", Arial, sans-serif;
 }
 
+/* A step up on Tailwind's three smallest sizes, so every text-xs/sm/base on
+   the site reads larger at once. */
+@theme {
+  --text-xs: 0.8125rem; /* 13px, was 12px */
+  --text-xs--line-height: 1.5;
+  --text-sm: 0.9375rem; /* 15px, was 14px */
+  --text-sm--line-height: 1.6;
+  --text-base: 1.0625rem; /* 17px, was 16px */
+  --text-base--line-height: 1.65;
+}
+
 :root {
   --radius: 1rem;
 
@@ -320,6 +331,8 @@
     background: var(--background);
     color: var(--color-foreground);
     min-height: 100vh;
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
   }
 
   h1,

@@ -260,7 +260,7 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
                   className="rounded-xl"
                   autoFocus
                 />
-                <div className="grid grid-cols-4 gap-1.5 max-h-40 overflow-y-auto pr-1">
+                <div className="grid grid-cols-3 gap-1.5 max-h-40 overflow-y-auto pr-1">
                   {filteredCountries.map((c) => (
                     <button
                       key={c.code}
@@ -277,13 +277,13 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
                       ].join(" ")}
                     >
                       <FlagImg code={c.code} size={24} />
-                      <span className="text-[9px] font-semibold text-navy leading-tight line-clamp-1">
+                      <span className="text-xs font-semibold text-navy leading-tight line-clamp-1">
                         {c.name}
                       </span>
                     </button>
                   ))}
                   {filteredCountries.length === 0 && (
-                    <p className="col-span-4 text-center text-xs text-muted-foreground py-3">
+                    <p className="col-span-3 text-center text-xs text-muted-foreground py-3">
                       Không tìm thấy
                     </p>
                   )}

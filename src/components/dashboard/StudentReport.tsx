@@ -331,7 +331,7 @@ function StuckPoints({ funnel }: { funnel: ChangFunnelRow[] }) {
             <div className="w-28 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
               <span className="font-semibold text-foreground">{f.completionPct.toFixed(0)}%</span>{" "}
               hoàn thành
-              <div className="text-[11px]">
+              <div className="text-xs">
                 {f.dropoff} / {f.reached} còn dở
               </div>
             </div>

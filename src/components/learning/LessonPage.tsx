@@ -351,7 +351,7 @@ function ChangProgressHeader({
       />
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-2">
-          <span className="truncate text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
+          <span className="truncate text-xs font-bold uppercase tracking-wide text-muted-foreground">
             {isCompleted ? "Đã hoàn thành" : "Tiến độ chặng"}
           </span>
           <span className="shrink-0 text-xs font-semibold text-navy">
@@ -430,7 +430,7 @@ function LessonSidebar({
         {/* Quyển › Chủ đề, each crumb its own link. */}
         <nav
           aria-label="Đường dẫn"
-          className="flex items-center justify-center gap-1 text-[11px] font-bold uppercase tracking-wide"
+          className="flex items-center justify-center gap-1 text-xs font-bold uppercase tracking-wide"
         >
           <Link
             to="/hoc-tap/quyen-{$quyenNumber}"
@@ -527,7 +527,7 @@ function LessonSidebar({
                 >
                   {slideLabel(s, i)}
                 </span>
-                <span className="block truncate text-[11px] text-muted-foreground">
+                <span className="block truncate text-xs text-muted-foreground">
                   {isActive ? "Đang học" : isDone ? "Đã học" : "Chưa học"}
                 </span>
               </span>

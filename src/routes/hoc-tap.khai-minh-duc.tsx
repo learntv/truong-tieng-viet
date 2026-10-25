@@ -90,7 +90,7 @@ function LessonRow({ lesson, index }: { lesson: KmdLessonSummary; index: number 
       <KmdThumb index={index} className="w-24 sm:w-28" />
 
       <div className="min-w-0 flex-1">
-        <p className="text-[0.6875rem] font-extrabold uppercase tracking-[0.08em] text-green">
+        <p className="text-xs font-extrabold uppercase tracking-[0.08em] text-green">
           Bài {index + 1}
         </p>
         <h2 className="mt-1 font-display text-base font-bold leading-snug text-foreground">

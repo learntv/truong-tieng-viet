@@ -415,7 +415,7 @@ function CountryPickerDialog({
           className="rounded-xl"
           autoFocus
         />
-        <div className="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto pr-1">
+        <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto pr-1">
           {filtered.map((c) => (
             <button
               key={c.code}
@@ -428,13 +428,13 @@ function CountryPickerDialog({
               ].join(" ")}
             >
               <FlagImg code={c.code} size={28} />
-              <span className="text-[9px] font-semibold text-ink leading-tight line-clamp-1">
+              <span className="text-xs font-semibold text-ink leading-tight line-clamp-1">
                 {c.name}
               </span>
             </button>
           ))}
           {filtered.length === 0 && (
-            <p className="col-span-4 text-center text-sm text-muted-foreground py-4">
+            <p className="col-span-3 text-center text-sm text-muted-foreground py-4">
               Không tìm thấy quốc gia
             </p>
           )}
@@ -788,7 +788,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
             </div>
             <div
               className={[
-                "mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                "mt-1.5 inline-block rounded-full px-2 py-0.5 text-xs font-semibold",
                 streak.studiedToday
                   ? "bg-stage-1-soft text-stage-1-deep"
                   : "bg-muted text-muted-foreground",

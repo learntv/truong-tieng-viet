@@ -112,7 +112,7 @@ export function RoadmapList({
           <div className="mt-8 grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:gap-12">
             <div className="min-w-0">
               {isLocked && (
-                <span className="mb-3 inline-flex items-center gap-1 bg-muted px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                <span className="mb-3 inline-flex items-center gap-1 bg-muted px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   <Lock className="h-3 w-3" strokeWidth={2.5} />
                   Sắp có
                 </span>
@@ -247,7 +247,7 @@ export function RoadmapList({
                         {isCurrent && (
                           <span
                             className={[
-                              "absolute left-0 top-0 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white",
+                              "absolute left-0 top-0 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-white",
                               color.bg,
                             ].join(" ")}
                           >
