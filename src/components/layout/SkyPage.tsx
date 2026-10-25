@@ -20,7 +20,7 @@ export function SkyPage({ children, card = true }: { children: ReactNode; card?:
       <SkyBackdrop density="sparse" />
       <main className="relative w-full px-4 pb-44 pt-6 sm:px-6 sm:pb-56 sm:pt-10">
         {card ? (
-          <div className="mx-auto w-full max-w-5xl overflow-hidden border-[6px] border-white bg-white shadow-2xl sm:border-[8px]">
+          <div className="mx-auto w-full max-w-5xl overflow-hidden border-[6px] border-white bg-white shadow-sheet sm:border-[8px]">
             {children}
           </div>
         ) : (
