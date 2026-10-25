@@ -1,5 +1,6 @@
 import { Icon } from "@iconify/react";
 import roundArrowBack from "@iconify-icons/ic/round-arrow-back";
+import roundArrowForward from "@iconify-icons/ic/round-arrow-forward";
 import roundMenuBook from "@iconify-icons/ic/round-menu-book";
 import roundCheck from "@iconify-icons/ic/round-check";
 import roundTrackChanges from "@iconify-icons/ic/round-track-changes";
@@ -20,16 +21,6 @@ const ACCENT_SOFT: Record<ChuDe["accent"], string> = {
   purple: "bg-purple/15",
   green: "bg-green/15",
 };
-
-function getLessonButtonLabel(
-  index: number,
-  completedChangs: Set<number>,
-  startedChangs: Set<number>,
-): string {
-  if (completedChangs.has(index)) return "Ôn tập";
-  if (startedChangs.has(index)) return "Tiếp tục";
-  return "Bắt đầu";
-}
 
 /**
  * The place this chủ đề is set in. The quyển's landmark list is the authority on *which* place
@@ -305,13 +296,16 @@ export function RoadmapList({
                           </span>
                         )}
 
-                        <span
-                          className={[
-                            "mt-5 inline-block self-start rounded-full px-4 py-2 font-display text-xs font-semibold uppercase tracking-wide text-white",
-                            color.bg,
-                          ].join(" ")}
-                        >
-                          {getLessonButtonLabel(i, completedChangs, startedChangs)}
+                        {/* The whole card is the button; the arrow only marks it as one. */}
+                        <span aria-hidden className="mt-auto flex justify-end pt-4">
+                          <span
+                            className={[
+                              "grid h-8 w-8 place-items-center rounded-full text-white",
+                              color.bg,
+                            ].join(" ")}
+                          >
+                            <Icon icon={roundArrowForward} className="h-4 w-4" />
+                          </span>
                         </span>
                       </span>
                     </button>
