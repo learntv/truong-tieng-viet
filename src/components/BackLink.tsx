@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundArrowBack from "@iconify-icons/ic/round-arrow-back";
 
 import { cn } from "@/lib/utils";
 
@@ -36,9 +37,10 @@ export function BackLink({
           boxShadow: "inset -3px -3px 6px rgba(0,0,0,0.35), inset 2px 2px 3px rgba(255,255,255,0.25)",
         }}
       />
-      <ArrowLeft
+      <Icon
+        icon={roundArrowBack}
         className="absolute left-2 top-2 h-5 w-5 text-white drop-shadow-sm transition-transform group-hover:-translate-x-0.5 sm:left-2.5 sm:top-2.5"
-        strokeWidth={2.5}
+        aria-hidden
       />
     </Link>
   );

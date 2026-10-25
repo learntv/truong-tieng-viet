@@ -1,20 +1,19 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import {
-  ArrowLeft,
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  ExternalLink,
-  Headphones,
-  Image as ImageIcon,
-  Link2,
-  Loader2,
-  Menu,
-  PenLine,
-  Play,
-  X,
-} from "lucide-react";
+import { Icon, type IconifyIcon } from "@iconify/react";
+import roundArrowBack from "@iconify-icons/ic/round-arrow-back";
+import roundCheck from "@iconify-icons/ic/round-check";
+import roundChevronLeft from "@iconify-icons/ic/round-chevron-left";
+import roundChevronRight from "@iconify-icons/ic/round-chevron-right";
+import roundOpenInNew from "@iconify-icons/ic/round-open-in-new";
+import roundHeadphones from "@iconify-icons/ic/round-headphones";
+import roundImage from "@iconify-icons/ic/round-image";
+import roundLink from "@iconify-icons/ic/round-link";
+import mdiLoading from "@iconify-icons/mdi/loading";
+import roundMenu from "@iconify-icons/ic/round-menu";
+import roundEdit from "@iconify-icons/ic/round-edit";
+import roundPlayArrow from "@iconify-icons/ic/round-play-arrow";
+import roundClose from "@iconify-icons/ic/round-close";
 import { Link, useCanGoBack, useNavigate, useRouter } from "@tanstack/react-router";
 import { useLearningContent } from "@/hooks/useLearningContent";
 import { useSingletonAudio } from "@/hooks/useSingletonAudio";
@@ -70,7 +69,7 @@ function BackToMapButton({
       aria-label="Quay lại bản đồ"
       className={[className, color.bgSoft, color.bevel, color.bevelActive].join(" ")}
     >
-      <ArrowLeft className={[arrowClassName, color.text].join(" ")} strokeWidth={3} />
+      <Icon icon={roundArrowBack} className={[arrowClassName, color.text].join(" ")} aria-hidden />
       <img src={mapPinIcon} alt="" className={iconClassName} />
     </Link>
   );
@@ -108,7 +107,7 @@ function AudioButton({ src }: { src: string }) {
             : "bg-stage-2-soft text-stage-2-deep hover:brightness-95",
         ].join(" ")}
       >
-        <Headphones className="h-4 w-4" strokeWidth={2.5} />
+        <Icon icon={roundHeadphones} className="h-4 w-4" aria-hidden />
       </button>
     </>
   );
@@ -135,7 +134,7 @@ function VideoEmbed({ url }: { url: string }) {
           rel="noopener noreferrer"
           className="inline-flex shrink-0 items-center gap-1 self-start text-xs font-medium text-primary hover:underline"
         >
-          <ExternalLink className="h-3.5 w-3.5" />
+          <Icon icon={roundOpenInNew} className="h-3.5 w-3.5" aria-hidden />
           Video không phát được? Mở trên YouTube
         </a>
       </div>
@@ -308,11 +307,11 @@ export function buildSlides(noiDungs: NoiDung[]): Slide[] {
 }
 
 // Khan-style content-item icon: what kind of thing this slide is, at a glance.
-function slideIcon(slide: Slide) {
-  if (slide.bai?.meta?.video_url) return Play;
-  if (slide.bai?.meta?.link) return Link2;
-  if (slide.bai?.hinhs.some((h) => h.url)) return ImageIcon;
-  return PenLine;
+function slideIcon(slide: Slide): IconifyIcon {
+  if (slide.bai?.meta?.video_url) return roundPlayArrow;
+  if (slide.bai?.meta?.link) return roundLink;
+  if (slide.bai?.hinhs.some((h) => h.url)) return roundImage;
+  return roundEdit;
 }
 
 function slideLabel(slide: Slide, index: number): string {
@@ -439,7 +438,11 @@ function LessonSidebar({
           >
             Quyển {quyenNumber}
           </Link>
-          <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground" strokeWidth={3} />
+          <Icon
+            icon={roundChevronRight}
+            className="h-3 w-3 shrink-0 text-muted-foreground"
+            aria-hidden
+          />
           <Link
             to="/hoc-tap/quyen-{$quyenNumber}/chu-de-{$chuDeIndex}"
             params={{ quyenNumber: String(quyenNumber), chuDeIndex: String(chuDeIndex + 1) }}
@@ -458,7 +461,7 @@ function LessonSidebar({
               prevChang ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed opacity-30",
             ].join(" ")}
           >
-            <ChevronLeft className="h-4 w-4" strokeWidth={3} />
+            <Icon icon={roundChevronLeft} className="h-4 w-4" aria-hidden />
           </button>
           <p className="min-w-0 flex-1 truncate text-center font-display text-sm font-bold text-navy">
             Chặng {changIndex + 1}/{changCount}: {chang.title}
@@ -472,7 +475,7 @@ function LessonSidebar({
               nextChang ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed opacity-30",
             ].join(" ")}
           >
-            <ChevronRight className="h-4 w-4" strokeWidth={3} />
+            <Icon icon={roundChevronRight} className="h-4 w-4" aria-hidden />
           </button>
         </div>
       </div>
@@ -480,7 +483,7 @@ function LessonSidebar({
       {/* Content items */}
       <div className="min-h-0 flex-1 overflow-y-auto py-1">
         {slides.map((s, i) => {
-          const Icon = slideIcon(s);
+          const kindIcon = slideIcon(s);
           const isActive = i === slideIndex;
           // Read = behind the furthest point reached, not merely behind the open slide —
           // paging back must not un-learn the pages already gone through.
@@ -510,11 +513,11 @@ function LessonSidebar({
                         : "border-border bg-card text-muted-foreground",
                   ].join(" ")}
                 >
-                  <Icon className="h-4 w-4" strokeWidth={2.5} />
+                  <Icon icon={kindIcon} className="h-4 w-4" aria-hidden />
                 </span>
                 {isDone && (
                   <span className="absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded-full border border-card bg-stage-1 text-white">
-                    <Check className="h-2.5 w-2.5" strokeWidth={4} />
+                    <Icon icon={roundCheck} className="h-2.5 w-2.5" aria-hidden />
                   </span>
                 )}
               </span>
@@ -690,7 +693,7 @@ export function LessonPage({
   if (isLoading || authIsLoading || isProgressLoading) {
     return (
       <div className="flex h-dvh w-full items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Icon icon={mdiLoading} className="h-8 w-8 animate-spin text-primary" aria-hidden />
       </div>
     );
   }
@@ -705,7 +708,7 @@ export function LessonPage({
         <p className="mb-6 text-muted-foreground">Chặng học này không tồn tại hoặc đã bị xóa.</p>
         <Button variant="bevel" tone="primary" asChild>
           <Link to="/hoc-tap/quyen-{$quyenNumber}" params={{ quyenNumber: String(quyenNumber) }}>
-            <ArrowLeft className="h-4 w-4" />
+            <Icon icon={roundArrowBack} className="h-4 w-4" aria-hidden />
             Quay lại lộ trình
           </Link>
         </Button>
@@ -884,9 +887,9 @@ export function LessonPage({
             className="absolute left-0 top-1/2 z-20 hidden h-11 w-7 -translate-y-1/2 cursor-pointer place-items-center rounded-l-none rounded-r-full border border-l-0 border-border bg-card text-navy shadow-[1px_1px_4px_rgba(0,0,0,0.10)] transition hover:bg-muted lg:grid"
           >
             {railOpen ? (
-              <ChevronLeft className="h-4 w-4" strokeWidth={2.5} />
+              <Icon icon={roundChevronLeft} className="h-4 w-4" aria-hidden />
             ) : (
-              <ChevronRight className="h-4 w-4" strokeWidth={2.5} />
+              <Icon icon={roundChevronRight} className="h-4 w-4" aria-hidden />
             )}
           </button>
 
@@ -899,7 +902,7 @@ export function LessonPage({
               aria-label="Danh sách bài"
               className="grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-full text-navy transition hover:bg-muted lg:hidden"
             >
-              <Menu className="h-4 w-4" strokeWidth={2.5} />
+              <Icon icon={roundMenu} className="h-4 w-4" aria-hidden />
             </button>
 
             <span
@@ -923,7 +926,11 @@ export function LessonPage({
                     {currentNoiDung?.title && i === 0 && (
                       <span className="mr-1 inline-flex items-center gap-1 align-middle text-sm font-semibold text-stage-2-deep sm:text-base">
                         {currentNoiDung.title}
-                        <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-70" />
+                        <Icon
+                          icon={roundChevronRight}
+                          className="h-3.5 w-3.5 shrink-0 opacity-70"
+                          aria-hidden
+                        />
                       </span>
                     )}
                     {t}
@@ -1032,7 +1039,7 @@ export function LessonPage({
                 canPrev ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed opacity-40",
               ].join(" ")}
             >
-              <ChevronLeft className="h-4 w-4" strokeWidth={2.5} />
+              <Icon icon={roundChevronLeft} className="h-4 w-4" aria-hidden />
               <span className="hidden sm:inline">Bài trước</span>
             </button>
 
@@ -1058,7 +1065,7 @@ export function LessonPage({
                   {!isCompleted && (
                     <span className="pointer-events-none absolute inset-0 animate-shine bg-gradient-to-r from-transparent via-white/50 to-transparent" />
                   )}
-                  <Check className="h-4 w-4" strokeWidth={3} />
+                  <Icon icon={roundCheck} className="h-4 w-4" aria-hidden />
                   {isCompleted ? "Đã hoàn thành" : "Hoàn thành"}
                 </button>
               </>
@@ -1073,7 +1080,7 @@ export function LessonPage({
                 ].join(" ")}
               >
                 Tiếp tục
-                <ChevronRight className="h-4 w-4" strokeWidth={3} />
+                <Icon icon={roundChevronRight} className="h-4 w-4" aria-hidden />
               </button>
             )}
           </div>
@@ -1091,7 +1098,7 @@ export function LessonPage({
               aria-label="Đóng"
               className="absolute right-1.5 top-1.5 grid h-6 w-6 cursor-pointer place-items-center rounded-full text-muted-foreground transition hover:bg-muted"
             >
-              <X className="h-3.5 w-3.5" strokeWidth={2.5} />
+              <Icon icon={roundClose} className="h-3.5 w-3.5" aria-hidden />
             </button>
             <button
               onClick={goToNextChang}
@@ -1113,9 +1120,10 @@ export function LessonPage({
                   {nextChang.title}
                 </span>
               </span>
-              <ChevronRight
+              <Icon
+                icon={roundChevronRight}
                 className={["h-5 w-5 shrink-0", nextColor.text].join(" ")}
-                strokeWidth={3}
+                aria-hidden
               />
             </button>
           </div>

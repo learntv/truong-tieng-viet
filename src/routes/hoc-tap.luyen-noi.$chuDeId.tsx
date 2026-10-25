@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundArrowBack from "@iconify-icons/ic/round-arrow-back";
+import mdiLoading from "@iconify-icons/mdi/loading";
 import { useSpeakingContent } from "@/hooks/useSpeakingContent";
 import { SpeakingPractice } from "@/components/speaking/SpeakingPractice";
 import { PageBanner } from "@/components/site/PageBanner";
@@ -31,7 +33,7 @@ function SpeakingRoute() {
   if (speakingContentLoading) {
     return (
       <div className="flex justify-center py-32">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <Icon icon={mdiLoading} className="h-8 w-8 animate-spin text-primary" aria-hidden />
       </div>
     );
   }
@@ -61,7 +63,7 @@ function SpeakingRoute() {
       <div className="px-4 py-16 text-center">
         <p className="mb-6 text-sky-ink-soft">Chủ đề này không tồn tại hoặc đã bị đổi.</p>
         <Link to="/hoc-tap/luyen-noi" className={skyButton("primary")}>
-          <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
+          <Icon icon={roundArrowBack} className="h-4 w-4" aria-hidden />
           Chọn chủ đề khác
         </Link>
       </div>

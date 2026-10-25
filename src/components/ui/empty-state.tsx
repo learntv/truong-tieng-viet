@@ -1,4 +1,4 @@
-import type { LucideIcon } from "lucide-react";
+import { Icon, type IconifyIcon } from "@iconify/react";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
@@ -7,14 +7,14 @@ import { cn } from "@/lib/utils";
  * page's white card rather than in a box of its own.
  */
 export function EmptyState({
-  icon: Icon,
+  icon,
   illustration,
   title,
   description,
   action,
   className,
 }: {
-  icon: LucideIcon;
+  icon: IconifyIcon;
   /** Rendered in place of the icon badge — e.g. a mascot pose. */
   illustration?: ReactNode;
   title: string;
@@ -26,7 +26,7 @@ export function EmptyState({
     <div className={cn("flex flex-col items-center gap-4 px-8 py-6 text-center", className)}>
       {illustration ?? (
         <span className="grid h-16 w-16 place-items-center rounded-full bg-primary/10 text-primary">
-          <Icon className="h-8 w-8" strokeWidth={2} />
+          <Icon icon={icon} className="h-8 w-8" aria-hidden />
         </span>
       )}
       <div className="space-y-2">

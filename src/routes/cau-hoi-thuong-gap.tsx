@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Icon } from "@iconify/react";
+import roundAdd from "@iconify-icons/ic/round-add";
 import { PageBanner } from "@/components/site/PageBanner";
 
 export const Route = createFileRoute("/cau-hoi-thuong-gap")({
@@ -99,9 +101,11 @@ function FAQ() {
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-base font-bold text-foreground sm:text-lg">
                 {q}
-                <span className="shrink-0 text-primary transition-transform group-open:rotate-45">
-                  +
-                </span>
+                <Icon
+                  icon={roundAdd}
+                  aria-hidden
+                  className="h-6 w-6 shrink-0 text-primary transition-transform group-open:rotate-45"
+                />
               </summary>
               <div className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
                 {a}

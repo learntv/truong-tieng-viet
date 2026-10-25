@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { BarChart3, ChevronDown, LogOut, Menu, UserCircle, X } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundBarChart from "@iconify-icons/ic/round-bar-chart";
+import roundExpandMore from "@iconify-icons/ic/round-expand-more";
+import roundLogout from "@iconify-icons/ic/round-logout";
+import roundMenu from "@iconify-icons/ic/round-menu";
+import roundAccountCircle from "@iconify-icons/ic/round-account-circle";
+import roundClose from "@iconify-icons/ic/round-close";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -158,9 +164,10 @@ export function Navbar() {
                       {displayName}
                     </span>
 
-                    <ChevronDown
+                    <Icon
+                      icon={roundExpandMore}
                       className="hidden h-3.5 w-3.5 shrink-0 text-white sm:block"
-                      strokeWidth={3}
+                      aria-hidden
                     />
                   </button>
                 </DropdownMenuTrigger>
@@ -175,7 +182,7 @@ export function Navbar() {
                         params={{ username: myUsername }}
                         className="flex cursor-pointer items-center"
                       >
-                        <UserCircle className="mr-2 h-4 w-4" />
+                        <Icon icon={roundAccountCircle} className="mr-2 h-4 w-4" aria-hidden />
                         Trang cá nhân
                       </Link>
                     </DropdownMenuItem>
@@ -183,7 +190,7 @@ export function Navbar() {
                   {isStaff && (
                     <DropdownMenuItem asChild>
                       <Link to="/dashboard" className="flex cursor-pointer items-center">
-                        <BarChart3 className="mr-2 h-4 w-4" />
+                        <Icon icon={roundBarChart} className="mr-2 h-4 w-4" aria-hidden />
                         Báo cáo
                       </Link>
                     </DropdownMenuItem>
@@ -193,7 +200,7 @@ export function Navbar() {
                     onClick={signOut}
                     className="cursor-pointer text-destructive focus:text-destructive"
                   >
-                    <LogOut className="mr-2 h-4 w-4" />
+                    <Icon icon={roundLogout} className="mr-2 h-4 w-4" aria-hidden />
                     Đăng xuất
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -207,7 +214,7 @@ export function Navbar() {
               className="ml-1 grid h-10 w-10 shrink-0 place-items-center rounded-lg text-white transition hover:bg-white/20"
               aria-label="Mở menu"
             >
-              <Menu className="h-5 w-5" strokeWidth={3} />
+              <Icon icon={roundMenu} className="h-5 w-5" aria-hidden />
             </button>
           </div>
         </div>
@@ -237,7 +244,7 @@ export function Navbar() {
             className="grid h-9 w-9 place-items-center rounded-lg text-white transition hover:bg-white/20"
             aria-label="Đóng menu"
           >
-            <X className="h-5 w-5" strokeWidth={3} />
+            <Icon icon={roundClose} className="h-5 w-5" aria-hidden />
           </button>
         </div>
 

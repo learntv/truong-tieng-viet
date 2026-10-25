@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundArrowBack from "@iconify-icons/ic/round-arrow-back";
+import mdiLoading from "@iconify-icons/mdi/loading";
 import { useState } from "react";
 import { KmdThumb } from "@/components/kmd/KmdThumb";
 import { Mascot } from "@/components/Mascot";
@@ -38,7 +40,7 @@ function KhaiMinhDucLessonRoute() {
     return (
       <div className="flex justify-center py-32">
         {/* Dark, not white: the sky has white clouds drifting through it. */}
-        <Loader2 className="h-10 w-10 animate-spin text-sky-ink" />
+        <Icon icon={mdiLoading} className="h-10 w-10 animate-spin text-sky-ink" aria-hidden />
       </div>
     );
   }
@@ -53,7 +55,7 @@ function KhaiMinhDucLessonRoute() {
           to="/hoc-tap/khai-minh-duc"
           className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-display font-extrabold text-white shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <Icon icon={roundArrowBack} className="h-4 w-4" aria-hidden />
           Xem danh sách bài học
         </Link>
       </div>
@@ -72,7 +74,7 @@ function KhaiMinhDucLessonRoute() {
             aria-label="Danh sách bài học"
             className="ml-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-sky-ink transition-colors hover:bg-green hover:text-white sm:ml-1.5 sm:h-11 sm:w-11"
           >
-            <ArrowLeft className="h-5 w-5" strokeWidth={2.5} />
+            <Icon icon={roundArrowBack} className="h-5 w-5" aria-hidden />
           </Link>
           {position >= 0 && <KmdThumb index={position} className="w-[5.5rem] sm:w-[7.5rem]" />}
           <div className="min-w-0 flex-1">

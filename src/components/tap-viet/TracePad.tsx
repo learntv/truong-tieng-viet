@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, Eraser } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundCheck from "@iconify-icons/ic/round-check";
+import roundAutoFixNormal from "@iconify-icons/ic/round-auto-fix-normal";
 import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
 import { StarRow } from "@/components/learning/StarRow";
 import { Mascot } from "@/components/Mascot";
@@ -246,10 +248,10 @@ export function TracePad({ id }: { id: string }) {
 
       <div className="flex flex-wrap items-center justify-center gap-3">
         <IconButton label="Xoá" onClick={clear} disabled={!hasInk}>
-          <Eraser />
+          <Icon icon={roundAutoFixNormal} aria-hidden />
         </IconButton>
         <IconButton label="Xong rồi" tone="green" onClick={check} disabled={!hasInk || !mask}>
-          <Check />
+          <Icon icon={roundCheck} aria-hidden />
         </IconButton>
       </div>
     </div>

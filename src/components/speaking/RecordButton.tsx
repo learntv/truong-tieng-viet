@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Mic, Square } from "lucide-react";
+import { Icon } from "@iconify/react";
+import mdiLoading from "@iconify-icons/mdi/loading";
+import roundMic from "@iconify-icons/ic/round-mic";
+import roundStop from "@iconify-icons/ic/round-stop";
 
 const MAX_RECORDING_MS = 10_000;
 // RMS (0–1) below this counts as silence. Mic noise floor is usually well under this.
@@ -199,11 +202,11 @@ export function RecordButton({
         ].join(" ")}
       >
         {phase === "starting" ? (
-          <Loader2 className="h-8 w-8 animate-spin" />
+          <Icon icon={mdiLoading} className="h-8 w-8 animate-spin" aria-hidden />
         ) : isRecording ? (
-          <Square className="h-7 w-7 fill-white" strokeWidth={2} />
+          <Icon icon={roundStop} className="h-7 w-7" aria-hidden />
         ) : (
-          <Mic className="h-9 w-9" strokeWidth={2.5} />
+          <Icon icon={roundMic} className="h-9 w-9" aria-hidden />
         )}
       </button>
       <span className="font-display text-sm font-semibold text-sky-ink">

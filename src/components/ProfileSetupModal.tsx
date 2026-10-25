@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { Loader2, ChevronRight } from "lucide-react";
+import { Icon } from "@iconify/react";
+import mdiLoading from "@iconify-icons/mdi/loading";
+import roundChevronRight from "@iconify-icons/ic/round-chevron-right";
 import { toast } from "sonner";
 import type { User } from "@supabase/supabase-js";
 import { useQueryClient } from "@tanstack/react-query";
@@ -239,7 +241,11 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
               >
                 <span className="flex items-center gap-2">
                   {detectingCountry ? (
-                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    <Icon
+                      icon={mdiLoading}
+                      className="h-4 w-4 animate-spin text-muted-foreground"
+                      aria-hidden
+                    />
                   ) : selectedCountry ? (
                     <>
                       <FlagImg code={selectedCountry.code} size={20} />
@@ -249,7 +255,11 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
                     <span className="text-muted-foreground">Chọn quốc gia...</span>
                   )}
                 </span>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                <Icon
+                  icon={roundChevronRight}
+                  className="h-4 w-4 text-muted-foreground"
+                  aria-hidden
+                />
               </button>
             ) : (
               <div className="space-y-2">
@@ -297,7 +307,11 @@ export function ProfileSetupModal({ user, onComplete }: ProfileSetupModalProps) 
             onClick={handleSave}
             disabled={saving}
           >
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Bắt đầu học! 🚀"}
+            {saving ? (
+              <Icon icon={mdiLoading} className="h-4 w-4 animate-spin" aria-hidden />
+            ) : (
+              "Bắt đầu học! 🚀"
+            )}
           </Button>
         </div>
       </DialogContent>

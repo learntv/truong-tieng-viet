@@ -1,4 +1,5 @@
-import { ExternalLink } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundOpenInNew from "@iconify-icons/ic/round-open-in-new";
 import { SkyBox } from "@/components/ui/sky-box";
 import { PressVideo } from "./PressVideo";
 import daiDoanKetCover from "@/assets/press/dai-doan-ket-cover.webp";
@@ -121,7 +122,7 @@ export function PressNews() {
 
                 <span className="mt-auto inline-flex items-center gap-1.5 pt-3 font-display text-sm font-extrabold text-indigo">
                   Đọc bài
-                  <ExternalLink className="h-4 w-4" aria-hidden />
+                  <Icon icon={roundOpenInNew} className="h-4 w-4" aria-hidden />
                 </span>
               </span>
             </a>

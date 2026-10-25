@@ -1,4 +1,5 @@
-import { Star } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundStar from "@iconify-icons/ic/round-star";
 import type { Stars } from "@/lib/speech";
 
 export function StarRow({
@@ -15,15 +16,17 @@ export function StarRow({
   return (
     <div className="flex justify-center gap-1.5">
       {([1, 2, 3] as const).map((i) => (
-        <Star
+        <Icon
           key={i}
+          icon={roundStar}
+          aria-hidden
           className={[
             size,
             "transition-transform",
             loading
               ? "animate-pulse text-stone-300"
               : i <= stars
-                ? ["fill-yellow-400 text-yellow-500", animated && "animate-hop"]
+                ? ["text-yellow-400", animated && "animate-hop"]
                     .filter(Boolean)
                     .join(" ")
                 : "text-stone-300",
@@ -33,7 +36,6 @@ export function StarRow({
               ? { animationDelay: `${(i - 1) * 120}ms` }
               : undefined
           }
-          strokeWidth={1.5}
         />
       ))}
     </div>

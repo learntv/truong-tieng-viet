@@ -2,7 +2,10 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useMemo, useState } from "react";
 import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
-import { Minus, Plus, RotateCcw } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundRemove from "@iconify-icons/ic/round-remove";
+import roundAdd from "@iconify-icons/ic/round-add";
+import roundRestartAlt from "@iconify-icons/ic/round-restart-alt";
 import {
   LineChart,
   Line,
@@ -243,7 +246,7 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
             onClick={() => setZoom((z) => Math.min(MAX_MAP_ZOOM, z * 1.5))}
             className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card text-foreground shadow-sm hover:bg-muted"
           >
-            <Plus className="h-3.5 w-3.5" />
+            <Icon icon={roundAdd} className="h-3.5 w-3.5" aria-hidden />
           </button>
           <button
             type="button"
@@ -251,7 +254,7 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
             onClick={() => setZoom((z) => Math.max(MIN_MAP_ZOOM, z / 1.5))}
             className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card text-foreground shadow-sm hover:bg-muted"
           >
-            <Minus className="h-3.5 w-3.5" />
+            <Icon icon={roundRemove} className="h-3.5 w-3.5" aria-hidden />
           </button>
           <button
             type="button"
@@ -262,7 +265,7 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
             }}
             className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card text-foreground shadow-sm hover:bg-muted"
           >
-            <RotateCcw className="h-3.5 w-3.5" />
+            <Icon icon={roundRestartAlt} className="h-3.5 w-3.5" aria-hidden />
           </button>
         </div>
       </div>

@@ -1,5 +1,7 @@
 import { createFileRoute, Link, Outlet, useChildMatches } from "@tanstack/react-router";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundArrowForward from "@iconify-icons/ic/round-arrow-forward";
+import mdiLoading from "@iconify-icons/mdi/loading";
 import { KmdThumb } from "@/components/kmd/KmdThumb";
 import { useKmdLessons, type KmdLessonSummary } from "@/hooks/useKmdLessons";
 import { PageBanner } from "@/components/site/PageBanner";
@@ -45,7 +47,7 @@ function KhaiMinhDucIndex() {
       <div className="relative mx-auto max-w-4xl px-4 pb-10 pt-8 sm:px-6">
         {isLoading && (
           <div className="flex justify-center py-16">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <Icon icon={mdiLoading} className="h-8 w-8 animate-spin text-primary" aria-hidden />
           </div>
         )}
 
@@ -99,9 +101,10 @@ function LessonRow({ lesson, index }: { lesson: KmdLessonSummary; index: number 
       </div>
 
       <span className="mr-1.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors group-hover:bg-green group-hover:text-white">
-        <ArrowRight
+        <Icon
+          icon={roundArrowForward}
           className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-          strokeWidth={2}
+          aria-hidden
         />
       </span>
     </Link>

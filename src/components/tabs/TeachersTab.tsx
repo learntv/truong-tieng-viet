@@ -1,5 +1,9 @@
 import { Fragment, useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, MapPin, X } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundChevronLeft from "@iconify-icons/ic/round-chevron-left";
+import roundChevronRight from "@iconify-icons/ic/round-chevron-right";
+import roundPlace from "@iconify-icons/ic/round-place";
+import roundClose from "@iconify-icons/ic/round-close";
 import phanThiQuynhTrang from "@/assets/teachers/phan-thi-quynh-trang.webp";
 import ngoNguyenNgocDieuAnh from "@/assets/teachers/ngo-nguyen-ngoc-dieu-anh.webp";
 import nguyenThiThanhBinh from "@/assets/teachers/nguyen-thi-thanh-binh.webp";
@@ -200,7 +204,7 @@ function BioPanel({
         aria-label="Đóng"
         className="absolute right-4 top-4 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
       >
-        <X className="h-5 w-5" />
+        <Icon icon={roundClose} className="h-5 w-5" aria-hidden />
       </button>
 
       {/* Keyed by teacher so switching cards fades the new bio in. */}
@@ -220,7 +224,7 @@ function BioPanel({
           aria-label="Giáo viên trước"
           className="rounded-full bg-background p-2 text-foreground transition-colors hover:text-primary"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <Icon icon={roundChevronLeft} className="h-5 w-5" aria-hidden />
         </button>
         <button
           type="button"
@@ -228,7 +232,7 @@ function BioPanel({
           aria-label="Giáo viên tiếp theo"
           className="rounded-full bg-background p-2 text-foreground transition-colors hover:text-primary"
         >
-          <ChevronRight className="h-5 w-5" />
+          <Icon icon={roundChevronRight} className="h-5 w-5" aria-hidden />
         </button>
       </div>
     </div>
@@ -281,7 +285,7 @@ function TeacherCard({
 function Place({ place, className }: { place: string; className: string }) {
   return (
     <span className={`${className} inline-flex items-center gap-1.5 text-sm text-muted-foreground`}>
-      <MapPin className="h-4 w-4 shrink-0" strokeWidth={2.5} aria-hidden />
+      <Icon icon={roundPlace} className="h-4 w-4 shrink-0" aria-hidden />
       {place}
     </span>
   );

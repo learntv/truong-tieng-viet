@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundArrowForward from "@iconify-icons/ic/round-arrow-forward";
 import quyen1Cover from "@/assets/quyen_1_cover.jpg";
 import quyen2Cover from "@/assets/quyen_2_cover.jpg";
 import thumbBangChuCai from "@/assets/hoc-tap-thumb-bang-chu-cai.jpg";
@@ -160,7 +161,7 @@ function ProgramCard({ program }: { program: Program }) {
           ].join(" ")}
         >
           Khám phá chương trình
-          <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
+          <Icon icon={roundArrowForward} className="h-4 w-4" aria-hidden />
         </span>
       </div>
     </Link>
@@ -198,7 +199,7 @@ function PracticeCard({ practice }: { practice: Practice }) {
           <p className="mt-0.5 text-xs leading-snug text-sky-ink-soft sm:text-sm">{practice.body}</p>
         </div>
         <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/80 text-sky-ink">
-          <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
+          <Icon icon={roundArrowForward} className="h-4 w-4" aria-hidden />
         </span>
       </div>
     </Link>

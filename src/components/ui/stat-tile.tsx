@@ -1,14 +1,14 @@
-import type { LucideIcon } from "lucide-react";
+import { Icon, type IconifyIcon } from "@iconify/react";
 import { cn } from "@/lib/utils";
 
 export function StatTile({
-  icon: Icon,
+  icon,
   value,
   label,
   light = false,
   className,
 }: {
-  icon: LucideIcon;
+  icon: IconifyIcon;
   value: string | number;
   label: string;
   light?: boolean;
@@ -28,7 +28,7 @@ export function StatTile({
           light ? "bg-white/15 text-white" : "bg-primary/10 text-primary",
         )}
       >
-        <Icon className="h-6 w-6" strokeWidth={2.25} />
+        <Icon icon={icon} className="h-6 w-6" aria-hidden />
       </span>
       <div className={cn("font-display text-3xl font-bold", light ? "text-white" : "text-navy")}>
         {value}

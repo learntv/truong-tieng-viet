@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { ArrowRight, BookOpenText, Check, Copyright, Copy, Mail, MessageCircle, Network } from "lucide-react";
+import { Icon, type IconifyIcon } from "@iconify/react";
+import roundArrowForward from "@iconify-icons/ic/round-arrow-forward";
+import roundMenuBook from "@iconify-icons/ic/round-menu-book";
+import roundCheck from "@iconify-icons/ic/round-check";
+import roundCopyright from "@iconify-icons/ic/round-copyright";
+import roundContentCopy from "@iconify-icons/ic/round-content-copy";
+import roundMail from "@iconify-icons/ic/round-mail";
+import roundWhatsapp from "@iconify-icons/ic/round-whatsapp";
+import roundHub from "@iconify-icons/ic/round-hub";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { InfoHero } from "./InfoHero";
@@ -28,12 +36,12 @@ const LEAD = {
 };
 
 function ContactCard({
-  icon: Icon,
+  icon,
   label,
   value,
   href,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
+  icon: IconifyIcon;
   label: string;
   value: string;
   href: string;
@@ -57,7 +65,7 @@ function ContactCard({
     <div className="group flex items-center justify-between gap-3 rounded-2xl bg-card px-5 py-4 text-left shadow-card transition-all hover:shadow-card-hover sm:px-6">
       <a href={href} className="flex min-w-0 flex-1 items-center gap-3">
         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
-          <Icon className="h-5 w-5" />
+          <Icon icon={icon} className="h-5 w-5" aria-hidden />
         </span>
         <span className="min-w-0">
           <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -74,9 +82,9 @@ function ContactCard({
         title="Sao chép"
       >
         {copied ? (
-          <Check className="h-4 w-4 text-green-600" aria-hidden />
+          <Icon icon={roundCheck} className="h-4 w-4 text-green-600" aria-hidden />
         ) : (
-          <Copy className="h-4 w-4" aria-hidden />
+          <Icon icon={roundContentCopy} className="h-4 w-4" aria-hidden />
         )}
       </button>
     </div>
@@ -85,7 +93,7 @@ function ContactCard({
 
 const ROWS = [
   {
-    icon: BookOpenText,
+    icon: roundMenuBook,
     heading: "Dự án số hóa",
     body: (
       <>
@@ -98,7 +106,7 @@ const ROWS = [
     ),
   },
   {
-    icon: Network,
+    icon: roundHub,
     heading: "Hệ sinh thái",
     body: (
       <>
@@ -111,7 +119,7 @@ const ROWS = [
     ),
   },
   {
-    icon: Copyright,
+    icon: roundCopyright,
     heading: "Bản quyền",
     body: (
       <>
@@ -171,7 +179,7 @@ export function InfoTab() {
                 key={r.heading}
                 className="rounded-2xl border border-border bg-card px-6 py-6 shadow-card sm:px-7 sm:py-7"
               >
-                <r.icon className="h-6 w-6 text-primary" strokeWidth={2} aria-hidden />
+                <Icon icon={r.icon} className="h-6 w-6 text-primary" aria-hidden />
                 <h3 className="mt-4 font-display text-lg font-bold text-navy">{r.heading}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{r.body}</p>
               </div>
@@ -192,7 +200,7 @@ export function InfoTab() {
             className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground shadow-card transition-colors hover:bg-primary/90 sm:text-base"
           >
             Học ngay
-            <ArrowRight className="h-5 w-5" />
+            <Icon icon={roundArrowForward} className="h-5 w-5" aria-hidden />
           </Link>
         </div>
       </div>
@@ -261,13 +269,13 @@ export function InfoTab() {
 
           <div className="mt-8 flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:items-stretch">
             <ContactCard
-              icon={Mail}
+              icon={roundMail}
               label="Email"
               value="contact@cvcec.org"
               href="mailto:contact@cvcec.org"
             />
             <ContactCard
-              icon={MessageCircle}
+              icon={roundWhatsapp}
               label="WhatsApp"
               value="+1 647 897 2358"
               href="https://wa.me/16478972358"

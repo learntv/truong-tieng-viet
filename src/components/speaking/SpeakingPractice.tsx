@@ -1,6 +1,11 @@
 import { useMemo, useRef, useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, ChevronLeft, ChevronRight, ThumbsUp, Volume2 } from "lucide-react";
+import { Icon } from "@iconify/react";
+import roundArrowBack from "@iconify-icons/ic/round-arrow-back";
+import roundChevronLeft from "@iconify-icons/ic/round-chevron-left";
+import roundChevronRight from "@iconify-icons/ic/round-chevron-right";
+import roundThumbUp from "@iconify-icons/ic/round-thumb-up";
+import roundVolumeUp from "@iconify-icons/ic/round-volume-up";
 import {
   canRecordAudio,
   compareSentence,
@@ -186,7 +191,7 @@ export function SpeakingPractice({
             Chủ đề này chưa có câu luyện
           </p>
           <Link to="/hoc-tap/luyen-noi" className={skyButton("primary")}>
-            <ArrowLeft className="h-4 w-4" strokeWidth={2.5} />
+            <Icon icon={roundArrowBack} className="h-4 w-4" aria-hidden />
             Chọn chủ đề khác
           </Link>
         </div>
@@ -289,7 +294,7 @@ export function SpeakingPractice({
                         aria-label="Nghe cô đọc"
                         className="ml-1 inline-grid h-10 w-10 shrink-0 cursor-pointer place-items-center rounded-full bg-white text-sky-ink shadow-btn transition-transform hover:scale-105 active:translate-y-[1px] active:shadow-btn-active"
                       >
-                        <Volume2 className="h-5 w-5" strokeWidth={2.5} />
+                        <Icon icon={roundVolumeUp} className="h-5 w-5" aria-hidden />
                       </button>
                     </>
                   )}
@@ -374,7 +379,7 @@ export function SpeakingPractice({
                 : "Thiết bị này chưa ghi âm được. Em nghe cô đọc rồi đọc to theo nhé!"}
             </p>
             <button onClick={handleRepeatedAloud} className={skyButton("primary", "mt-3")}>
-              <ThumbsUp className="h-4 w-4" strokeWidth={2.5} />
+              <Icon icon={roundThumbUp} className="h-4 w-4" aria-hidden />
               Em đã đọc to theo cô!
             </button>
           </div>
@@ -406,7 +411,7 @@ export function SpeakingPractice({
             disabled={index === 0}
             className={skyButton("white", ["ring-1 ring-sky-ink/10", NAV_DISABLED].join(" "))}
           >
-            <ChevronLeft className="h-4 w-4" strokeWidth={2.5} />
+            <Icon icon={roundChevronLeft} className="h-4 w-4" aria-hidden />
             Câu trước
           </button>
 
@@ -416,7 +421,7 @@ export function SpeakingPractice({
             className={skyButton("primary", NAV_DISABLED)}
           >
             Câu tiếp theo
-            <ChevronRight className="h-4 w-4" strokeWidth={2.5} />
+            <Icon icon={roundChevronRight} className="h-4 w-4" aria-hidden />
           </button>
         </div>
       </div>
