@@ -22,8 +22,7 @@ import { m } from "@/paraglide/messages";
 import { getLocale } from "@/paraglide/runtime";
 
 const SITE_URL = "https://truongtiengviet.cvcec.org";
-const OG_IMAGE =
-  "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/23fe28ec-8f13-4117-91d0-e728c468b1e1/id-preview-55843cf1--6f159385-7fe4-4d96-95b9-462c8529b5ee.lovable.app-1782308677073.png";
+const OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 const structuredData = JSON.stringify({
   "@context": "https://schema.org",
@@ -66,7 +65,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content: m.account_site_description(),
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Trường Tiếng Việt Của Em" },
       {
         name: "twitter:description",
