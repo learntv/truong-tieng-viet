@@ -18,6 +18,7 @@ const STATIC_ROUTES: SitemapEntry[] = [
   { path: "/hoc-tap/quyen-2", changefreq: "weekly", priority: "0.9" },
   { path: "/hoc-tap/luyen-noi", changefreq: "weekly", priority: "0.9" },
   { path: "/hoc-tap/tap-viet", changefreq: "monthly", priority: "0.8" },
+  { path: "/hoc-tap/thanh-ngu", changefreq: "monthly", priority: "0.8" },
   { path: "/bang-xep-hang", changefreq: "daily", priority: "0.7" },
   { path: "/giao-vien", changefreq: "monthly", priority: "0.6" },
   { path: "/huong-dan-su-dung", changefreq: "monthly", priority: "0.6" },

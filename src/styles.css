@@ -888,3 +888,187 @@
     animation: none;
   }
 }
+
+/* ── Idiom art (/hoc-tap/thanh-ngu) ───────────────────────────────────── */
+
+/* The little loops that bring each idiom's SVG scene to life. They run on SVG
+   shapes, so each sets transform-box: fill-box, which makes the origin-*
+   classes measure from the shape itself rather than the whole picture: a
+   lantern swings from its own string, a tail from its own root. */
+@keyframes idiom-sway {
+  0%,
+  100% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
+}
+@utility animate-idiom-sway {
+  transform-box: fill-box;
+  animation: idiom-sway 2.6s ease-in-out infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes idiom-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+@utility animate-idiom-bob {
+  transform-box: fill-box;
+  animation: idiom-bob 0.9s ease-in-out infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes idiom-swim {
+  from {
+    transform: translate(-8px, 2px);
+  }
+  to {
+    transform: translate(8px, -2px);
+  }
+}
+@utility animate-idiom-swim {
+  transform-box: fill-box;
+  animation: idiom-swim 2.8s ease-in-out infinite alternate;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* A quick close-and-open every few seconds. Pair with origin-center. */
+@keyframes idiom-blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+@utility animate-idiom-blink {
+  transform-box: fill-box;
+  animation: idiom-blink 4s ease-in-out infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* Drops fall --fall (default 22px) and fade, then start over. */
+@keyframes idiom-drip {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(var(--fall, 22px));
+    opacity: 0;
+  }
+}
+@utility animate-idiom-drip {
+  transform-box: fill-box;
+  animation: idiom-drip 1.6s ease-in infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* Notes, bubbles, steam and hearts float up and drift --dx sideways as they fade. */
+@keyframes idiom-rise {
+  0% {
+    transform: translate(0, 0) scale(0.6);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx, 6px), -30px) scale(1);
+    opacity: 0;
+  }
+}
+@utility animate-idiom-rise {
+  transform-box: fill-box;
+  animation: idiom-rise 2.4s ease-out infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes idiom-twinkle {
+  0%,
+  100% {
+    transform: scale(0.6) rotate(0deg);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.15) rotate(20deg);
+    opacity: 1;
+  }
+}
+@utility animate-idiom-twinkle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: idiom-twinkle 1.8s ease-in-out infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* A ring spreading out over still water. */
+@keyframes idiom-ripple {
+  from {
+    transform: scale(0.4);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+@utility animate-idiom-ripple {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: idiom-ripple 1.6s ease-out infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* Running water: a dashed highlight sliding along the stream's own path. */
+@keyframes idiom-flow {
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+@utility animate-idiom-flow {
+  animation: idiom-flow 1.2s linear infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* On the idiom grid the scenes hold still until their card is hovered or
+   focused, so twelve pictures aren't all moving at once. */
+@utility idiom-card {
+  & [class*="animate-idiom-"] {
+    animation-play-state: paused;
+  }
+  &:hover [class*="animate-idiom-"],
+  &:focus-visible [class*="animate-idiom-"] {
+    animation-play-state: running;
+  }
+}

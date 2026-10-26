@@ -10,6 +10,7 @@ import trongDong from "@/assets/symbols/trong-dong.svg";
 import thumbLuyenNoi from "@/assets/hoc-tap-thumb-luyen-noi.jpg";
 import thumbTapViet from "@/assets/hoc-tap-thumb-tap-viet.jpg";
 import { Mascot } from "@/components/Mascot";
+import { IdiomArt } from "@/components/thanh-ngu/IdiomArt";
 import { PageBanner } from "@/components/site/PageBanner";
 import { BOX_TONES as TONES, type BoxTone as Tone } from "@/components/learning/boxTones";
 import {
@@ -28,12 +29,14 @@ const books = [
 ];
 
 type Practice = {
-  to: "/hoc-tap/bang-chu-cai" | "/hoc-tap/luyen-noi" | "/hoc-tap/tap-viet";
+  to: "/hoc-tap/bang-chu-cai" | "/hoc-tap/luyen-noi" | "/hoc-tap/tap-viet" | "/hoc-tap/thanh-ngu";
   title: () => string;
   body: () => string;
   tone: Tone;
   /** A landscape illustration painted on the card's own tone, filling the art window. */
-  image: string;
+  image?: string;
+  /** Or, in its place, one of the Thành ngữ page's drawn scenes, by idiom id. */
+  scene?: string;
 };
 
 const practices: Practice[] = [
@@ -57,6 +60,13 @@ const practices: Practice[] = [
     body: m.learn_practice_alphabet_body,
     tone: "sun",
     image: thumbBangChuCai,
+  },
+  {
+    to: "/hoc-tap/thanh-ngu",
+    title: m.learn_idioms,
+    body: m.learn_practice_idioms_body,
+    tone: "lavender",
+    scene: "ech-ngoi-day-gieng",
   },
 ];
 
@@ -91,7 +101,7 @@ export function HocTapHome() {
 
       <section className="mt-10 px-4 sm:mt-12 sm:px-8">
         <SectionHeading title={m.learn_home_practice()} />
-        <div className="mt-5 grid gap-3 sm:grid-cols-3 sm:gap-4">
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
           {practices.map((practice) => (
             <PracticeCard key={practice.to} practice={practice} />
           ))}
@@ -102,7 +112,7 @@ export function HocTapHome() {
 }
 
 /** A section title followed by a hairline running to the card's edge. */
-function SectionHeading({ title }: { title: string }) {
+export function SectionHeading({ title }: { title: string }) {
   return (
     <div className="flex items-center gap-4">
       <h2 className="shrink-0 font-display text-xl font-bold leading-tight text-sky-ink sm:text-2xl">
@@ -292,7 +302,11 @@ function PracticeCard({ practice }: { practice: Practice }) {
           tone.light,
         ].join(" ")}
       >
-        <img src={practice.image} alt="" className="h-full w-full object-cover" />
+        {practice.scene ? (
+          <IdiomArt id={practice.scene} className="block h-full w-full" />
+        ) : (
+          <img src={practice.image} alt="" className="h-full w-full object-cover" />
+        )}
       </div>
 
       <div className="flex flex-1 items-end gap-2 px-2 pb-1.5 pt-3">
