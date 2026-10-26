@@ -1,15 +1,14 @@
-import { Fragment, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Icon } from "@iconify/react";
-import roundChevronLeft from "@iconify-icons/ic/round-chevron-left";
-import roundChevronRight from "@iconify-icons/ic/round-chevron-right";
 import roundPlace from "@iconify-icons/ic/round-place";
-import roundClose from "@iconify-icons/ic/round-close";
 import phanThiQuynhTrang from "@/assets/teachers/phan-thi-quynh-trang.webp";
 import ngoNguyenNgocDieuAnh from "@/assets/teachers/ngo-nguyen-ngoc-dieu-anh.webp";
 import nguyenThiThanhBinh from "@/assets/teachers/nguyen-thi-thanh-binh.webp";
 import hoangMinhHa from "@/assets/teachers/hoang-minh-ha.webp";
 import doThiPhuongMai from "@/assets/teachers/do-thi-phuong-mai.webp";
 import cvcecEmblem from "@/assets/cvcec-emblem.webp";
+import hikingMascot from "@/assets/mascot/hiking.png";
+import cheerMascot from "@/assets/mascot/cheer.png";
 import { m } from "@/paraglide/messages";
 
 /** Role, place and bio are message functions, read at render time so they
@@ -61,235 +60,319 @@ const TEACHERS: Teacher[] = [
 ];
 
 /**
- * Five equal cards. A six-column grid with every card spanning two lets the
- * second row of two start at column 2, so it sits centred under the three.
- * At two columns the odd last card spans both and is held to half width.
+ * A footpath winding down the lawn past each teacher, like the Vui Học
+ * overworld map turned on its side: the visitor walks down and meets every
+ * teacher in turn. Nothing to click, every card shows its full bio.
  *
- * Clicking a card opens its bio in a full-width panel inserted right after
- * that card's row (before it, for the last row), with a notch pointing at
- * the card. Clicking another
- * card swaps the panel's content in place, so there is nothing to close.
+ * On wide screens the cards zigzag in two staggered columns, with the path
+ * weaving behind them from one to the next. Every card spans two grid rows,
+ * starting one row below the card before it, so each one sits half a card
+ * lower than its neighbour whatever their heights, and never overlaps the
+ * card above it. On phones the cards stack and the path runs down the left
+ * gutter.
+ *
+ * A stop is marked with CSS on each card, then everything else is drawn
+ * around wherever the cards land: the path through the stops, and
+ * the scenery (the buffalo, a pond, trees) in the lawn left between them.
  */
 export function TeachersTab() {
-  const [selected, setSelected] = useState<number | null>(null);
-  const layout = useLayout();
-  const panelRef = useRef<HTMLLIElement>(null);
-
-  const rows = ROWS[layout];
-  const selectedRow = selected === null ? -1 : rows.findIndex((r) => r.includes(selected));
-  // The last row opens the panel above itself, so it never trails off the
-  // bottom of the grid; every other row opens it below.
-  const above = selectedRow > 0 && selectedRow === rows.length - 1;
-  const anchor = selectedRow === -1 ? -1 : above ? rows[selectedRow][0] : rows[selectedRow].at(-1)!;
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLOListElement>(null);
+  const cardRefs = useRef<(HTMLLIElement | null)[]>([]);
+  const stopRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const [scene, setScene] = useState<Scene | null>(null);
 
   useEffect(() => {
-    if (selected === null) return;
-    panelRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setSelected(null);
+    const wrap = wrapRef.current;
+    const list = listRef.current;
+    if (!wrap || !list) return;
+    const measure = () => {
+      const box = wrap.getBoundingClientRect();
+      const rel = (el: Element): Box => {
+        const r = el.getBoundingClientRect();
+        return { x: r.left - box.left, y: r.top - box.top, w: r.width, h: r.height };
+      };
+      const cards = cardRefs.current.flatMap((el) => (el ? [rel(el)] : []));
+      const stops = stopRefs.current.flatMap((el) => (el ? [rel(el)] : []));
+      setScene({
+        cards,
+        stops,
+        gap: parseFloat(getComputedStyle(list).rowGap) || 0,
+        wide: cards.length > 1 && cards[1].x > cards[0].x + 20,
+      });
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [selected]);
-
-  const step = (delta: number) =>
-    setSelected((i) => (i === null ? i : (i + delta + TEACHERS.length) % TEACHERS.length));
-
-  const panel = selected !== null && (
-    <li
-      ref={panelRef}
-      key={`panel-${selectedRow}`}
-      className={`col-span-full animate-in fade-in duration-300 ${above ? "-mb-4 slide-in-from-bottom-3" : "-mt-4 slide-in-from-top-3"}`}
-    >
-      <BioPanel
-        teacher={TEACHERS[selected]}
-        notchLeft={NOTCH[layout][selected]}
-        notchBelow={above}
-        onClose={() => setSelected(null)}
-        onPrev={() => step(-1)}
-        onNext={() => step(1)}
-      />
-    </li>
-  );
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(wrap);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
-      <ul className="grid gap-x-8 gap-y-10 px-3 sm:grid-cols-2 lg:grid-cols-6">
-        {TEACHERS.map((t, i) => (
-          <Fragment key={t.name}>
-            {above && i === anchor && panel}
-            <li className={CARD_CLASS[i] ?? "lg:col-span-2"}>
-              <TeacherCard
-                teacher={t}
-                active={selected === i}
-                dimmed={selected !== null && selected !== i}
-                onClick={() => setSelected(selected === i ? null : i)}
-              />
-            </li>
-            {!above && i === anchor && panel}
-          </Fragment>
-        ))}
-      </ul>
+      <div ref={wrapRef} className="relative">
+        {scene && <TrailMap scene={scene} />}
+        <ol
+          ref={listRef}
+          className="grid grid-cols-1 gap-y-10 pl-9 md:grid-cols-2 md:gap-x-8 md:pl-0"
+        >
+          {TEACHERS.map((t, i) => {
+            const left = i % 2 === 0;
+            return (
+              <li
+                key={t.name}
+                ref={(el) => {
+                  cardRefs.current[i] = el;
+                }}
+                style={{ "--row": `${i + 1} / span 2` } as CSSProperties}
+                className={`relative self-start md:[grid-row:var(--row)] ${left ? "md:col-start-1" : "md:col-start-2"}`}
+              >
+                {/* Zero-size mark the path is drawn through: beside the photo in the
+                    phone gutter, the card's middle on wide screens. */}
+                <span
+                  ref={(el) => {
+                    stopRefs.current[i] = el;
+                  }}
+                  aria-hidden
+                  className="absolute -left-4.5 top-20 md:left-1/2 md:top-1/2"
+                />
+                <TeacherCard teacher={t} />
+              </li>
+            );
+          })}
+        </ol>
+      </div>
     </section>
   );
 }
 
+/* ── The map around the cards ───────────────────────────────────────────── */
+
+type Point = { x: number; y: number };
+type Box = Point & { w: number; h: number };
+/** Where the cards and stops landed, in pixels from the list's top left. */
+type Scene = { cards: Box[]; stops: Point[]; gap: number; wide: boolean };
+type Placed = { kind: PropKind; x: number; y: number; s: number };
+type Walker = { pose: keyof typeof WALKERS; x: number; y: number; h: number };
+
+const WALKERS = {
+  hiking: { src: hikingMascot, ratio: 300 / 360 },
+  cheer: { src: cheerMascot, ratio: 318 / 384 },
+};
+
 /**
- * Placement by index rather than nth-child, since the bio panel is its own
- * list item and would shift the count.
+ * Works out the route and the scenery from where the cards landed. On wide
+ * screens the two gaps the stagger leaves, above the first right-hand card
+ * and beside the last card, get a scene each: the buffalo setting off by a
+ * pond at the top, and cheering at the end of the path at the bottom. Phones
+ * get the path alone.
  */
-const CARD_CLASS: Record<number, string> = {
-  3: "lg:col-span-2 lg:col-start-2",
-  4: "sm:col-span-2 sm:mx-auto sm:w-1/2 lg:mx-0 lg:w-auto",
-};
+function layOut({ cards, stops, gap, wide }: Scene) {
+  const props: Placed[] = [];
+  const walkers: Walker[] = [];
+  // The path comes in from the banner above, straight down to the first stop.
+  const route = stops.length ? [{ x: stops[0].x, y: -36 }, ...stops] : [];
 
-type Layout = "one" | "two" | "three";
+  if (!wide) return { route, props, walkers };
 
-/** Card indexes per visual row, matching the grid classes above. */
-const ROWS: Record<Layout, number[][]> = {
-  one: [[0], [1], [2], [3], [4]],
-  two: [[0, 1], [2, 3], [4]],
-  three: [
-    [0, 1, 2],
-    [3, 4],
-  ],
-};
+  // The start: above the first right-hand card, where the path comes down
+  // into it. The buffalo walks it, with a pond off to the side.
+  const top = { x: cards[1].x, y: 0, w: cards[1].w, h: cards[1].y - 8 };
+  if (top.h > 80) {
+    const ground = top.y + top.h - 6;
+    const h = Math.min(110, top.h - 10);
+    walkers.push({ pose: "hiking", x: stops[1].x - h * WALKERS.hiking.ratio - 14, y: ground, h });
+    const pondS = Math.min(1.1, (top.w * 0.17) / 60, (top.h * 0.3) / 22);
+    props.push({ kind: "pond", x: top.x + top.w * 0.82, y: top.y + top.h * 0.72, s: pondS });
+    props.push({ kind: "tree", x: top.x + top.w - 26, y: top.y + top.h * 0.45, s: 1.2 });
+  }
 
-/** Horizontal centre of each card, as a share of the grid width, for the notch. */
-const NOTCH: Record<Layout, string[]> = {
-  one: ["50%", "50%", "50%", "50%", "50%"],
-  two: ["25%", "75%", "25%", "75%", "50%"],
-  three: ["16.67%", "50%", "83.33%", "33.33%", "66.67%"],
-};
+  // The end: beside the last card, below the last one in the other column.
+  const last = cards.length - 1;
+  const other = cards[last - 1];
+  const endTop = other.y + other.h + gap;
+  const end = { x: other.x, y: endTop, w: other.w, h: cards[last].y + cards[last].h - endTop };
+  if (end.h > 80) {
+    // Measured in from the edge facing the path, so it mirrors on either side.
+    const lastLeft = last % 2 === 0;
+    const at = (d: number) => (lastLeft ? end.x + d : end.x + end.w - d);
+    const ground = end.y + end.h - 6;
+    const h = Math.min(110, end.h - 10);
+    const w = h * WALKERS.cheer.ratio;
+    route.push({ x: at(36), y: ground - 8 });
+    walkers.push({ pose: "cheer", x: lastLeft ? at(56) : at(56) - w, y: ground, h });
+    props.push({ kind: "bamboo", x: at(end.w * 0.62), y: ground - 6, s: 1.2 });
+    props.push({ kind: "tree", x: at(end.w - 40), y: ground, s: 1.3 });
+  }
 
-function useLayout(): Layout {
-  const [layout, setLayout] = useState<Layout>("three");
-  useEffect(() => {
-    const lg = window.matchMedia("(min-width: 1024px)");
-    const sm = window.matchMedia("(min-width: 640px)");
-    const update = () => setLayout(lg.matches ? "three" : sm.matches ? "two" : "one");
-    update();
-    lg.addEventListener("change", update);
-    sm.addEventListener("change", update);
-    return () => {
-      lg.removeEventListener("change", update);
-      sm.removeEventListener("change", update);
-    };
-  }, []);
-  return layout;
+  return { route, props, walkers };
 }
 
-function BioPanel({
-  teacher: t,
-  notchLeft,
-  notchBelow,
-  onClose,
-  onPrev,
-  onNext,
-}: {
-  teacher: Teacher;
-  notchLeft: string;
-  notchBelow: boolean;
-  onClose: () => void;
-  onPrev: () => void;
-  onNext: () => void;
-}) {
+/**
+ * The path through every stop in order, with the scenery around it, all
+ * drawn under the cards. On wide screens each stop is a card's middle, so the
+ * path runs behind one card, out across the lawn, and in behind the next.
+ * On phones, where the stops line up in the gutter, it bows alternately left
+ * and right so it still meanders; opposite bows give matching tangents at
+ * each stop, so it reads as one smooth line. Scenery is drawn back to front,
+ * so a thing lower on the lawn stands in front of one above it.
+ */
+function TrailMap({ scene }: { scene: Scene }) {
+  const { route, props, walkers } = layOut(scene);
+  const d = route
+    .map((q, i) => {
+      if (i === 0) return `M ${q.x} ${q.y}`;
+      const p = route[i - 1];
+      if (Math.abs(q.x - p.x) < 4) {
+        const my = (p.y + q.y) / 2;
+        const bow = i % 2 ? 14 : -14;
+        return `C ${p.x + bow} ${my} ${q.x + bow} ${my} ${q.x} ${q.y}`;
+      }
+      // Across the columns: straight down out of one card, over the lawn,
+      // and down into the next from above.
+      const k = (q.y - p.y) * 0.55;
+      return `C ${p.x} ${p.y + k} ${q.x} ${q.y - k} ${q.x} ${q.y}`;
+    })
+    .join(" ");
   return (
-    <div className="relative rounded-3xl bg-muted p-6 sm:p-8">
-      <span
-        aria-hidden
-        className={`absolute ${notchBelow ? "-bottom-2" : "-top-2"} h-4 w-4 -translate-x-1/2 rotate-45 bg-muted transition-[left] duration-300 ease-out`}
-        style={{ left: notchLeft }}
-      />
-      <button
-        type="button"
-        onClick={onClose}
-        aria-label={m.home_teachers_close()}
-        className="absolute right-4 top-4 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
-      >
-        <Icon icon={roundClose} className="h-5 w-5" aria-hidden />
-      </button>
-
-      {/* Keyed by teacher so switching cards fades the new bio in. */}
-      <div key={t.name} className="animate-in fade-in slide-in-from-bottom-1 duration-300">
-        <h3 className="pr-8 font-display text-xl font-bold leading-snug text-foreground">
-          {t.name}
-        </h3>
-        <p className="mt-1 text-sm text-muted-foreground">{t.role()}</p>
-        <Place place={t.place()} className="mt-2" />
-        <p className="mt-4 text-base leading-relaxed text-foreground">{t.bio()}</p>
-      </div>
-
-      <div className="mt-6 flex justify-end gap-2">
-        <button
-          type="button"
-          onClick={onPrev}
-          aria-label={m.home_teachers_prev()}
-          className="rounded-full bg-background p-2 text-foreground transition-colors hover:text-primary"
-        >
-          <Icon icon={roundChevronLeft} className="h-5 w-5" aria-hidden />
-        </button>
-        <button
-          type="button"
-          onClick={onNext}
-          aria-label={m.home_teachers_next()}
-          className="rounded-full bg-background p-2 text-foreground transition-colors hover:text-primary"
-        >
-          <Icon icon={roundChevronRight} className="h-5 w-5" aria-hidden />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function TeacherCard({
-  teacher: t,
-  active,
-  dimmed,
-  onClick,
-}: {
-  teacher: Teacher;
-  active: boolean;
-  dimmed: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-expanded={active}
-      className={`group flex h-full w-full cursor-pointer flex-col text-center transition-opacity duration-300 ${dimmed ? "opacity-50 hover:opacity-100" : ""}`}
+    <svg
+      aria-hidden
+      className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
     >
-      <div className="relative">
-        <img
-          src={t.photo}
-          alt={t.name}
-          loading="lazy"
-          className={`aspect-square w-full rounded-3xl object-cover object-top ring-offset-4 ring-offset-background transition-shadow duration-300 ${active ? "ring-4 ring-primary" : ""}`}
+      {/* A sandy track with footstep dashes along its middle. */}
+      <path d={d} fill="none" stroke="#efe2bf" strokeWidth={16} strokeLinecap="round" />
+      <path
+        d={d}
+        fill="none"
+        stroke="#c8ad72"
+        strokeWidth={3}
+        strokeDasharray="3 9"
+        strokeLinecap="round"
+      />
+      {props
+        .sort((a, b) => a.y - b.y)
+        .map((p, i) => {
+          const Prop = PROPS[p.kind];
+          return (
+            <g key={i} transform={`translate(${p.x} ${p.y}) scale(${p.s})`}>
+              <Prop />
+            </g>
+          );
+        })}
+      {walkers.map((w) => (
+        <image
+          key={w.pose}
+          href={WALKERS[w.pose].src}
+          x={w.x}
+          y={w.y - w.h}
+          height={w.h}
+          width={w.h * WALKERS[w.pose].ratio}
         />
-        <img
-          src={cvcecEmblem}
-          alt="CVCEC"
-          loading="lazy"
-          className="absolute -bottom-3 -left-3 h-14 w-14 rounded-full bg-white p-1.5 shadow-md ring-4 ring-background"
-        />
-      </div>
-      <span
-        className={`mt-5 px-2 font-display text-lg font-bold leading-snug group-hover:text-primary ${active ? "text-primary" : "text-foreground"}`}
-      >
-        {t.name}
-      </span>
-      <span className="mt-0.5 px-2 text-sm text-muted-foreground">{t.role()}</span>
-      <span className="px-2 text-sm text-muted-foreground">{t.place()}</span>
-    </button>
+      ))}
+    </svg>
   );
 }
 
-function Place({ place, className }: { place: string; className: string }) {
+/* ── Scenery ────────────────────────────────────────────────────────────────
+ * Painted flat like the Thành ngữ scenes: fills only, a shade apart where two
+ * shapes overlap. Each one stands on the ground at 0,0 and grows upward,
+ * except the pond, which lies centred on it.
+ */
+
+const LEAF = "#5fc06a";
+const LEAF_MID = "#4fae5a";
+const LEAF_DARK = "#46a052";
+const BARK = "#8b5a2b";
+
+const PROPS = {
+  tree: () => (
+    <>
+      <ellipse rx="14" ry="3.5" fill="#000" opacity="0.08" />
+      <rect x="-3" y="-18" width="6" height="18" rx="2" fill={BARK} />
+      <circle cy="-30" r="15" fill={LEAF_MID} />
+      <circle cx="-9" cy="-22" r="9" fill={LEAF} />
+      <circle cx="9" cy="-23" r="9" fill={LEAF_DARK} />
+    </>
+  ),
+  bamboo: () => (
+    <>
+      {[
+        { x: -7, h: 44 },
+        { x: 0, h: 54 },
+        { x: 7, h: 40 },
+      ].map(({ x, h }) => (
+        <g key={x}>
+          <rect x={x - 2} y={-h} width="4" height={h} rx="2" fill="#7cc35b" />
+          {Array.from({ length: Math.floor(h / 12) }, (_, n) => (
+            <rect key={n} x={x - 2} y={-12 * (n + 1)} width="4" height="1.5" fill="#5a9e3f" />
+          ))}
+          <ellipse
+            cx={x + 6}
+            cy={-h + 4}
+            rx="6"
+            ry="2"
+            fill={LEAF_DARK}
+            transform={`rotate(-25 ${x + 6} ${-h + 4})`}
+          />
+        </g>
+      ))}
+    </>
+  ),
+  pond: () => (
+    <>
+      <ellipse rx="60" ry="22" fill="#8fd3f4" />
+      <ellipse cx="-6" cy="-3" rx="44" ry="13" fill="#b4e4fa" />
+      <path d="M-28 4 m-7 0 a7 5 0 1 0 14 0 L-28 4 Z" fill={LEAF} />
+      <circle cx="22" cy="-4" r="7" fill={LEAF_MID} />
+      <circle cx="36" cy="7" r="5" fill={LEAF} />
+      <g transform="translate(22 -7)">
+        {[0, 72, 144, 216, 288].map((deg) => (
+          <ellipse
+            key={deg}
+            cy="-3"
+            rx="2.2"
+            ry="3.6"
+            fill="#ff9cc4"
+            transform={`rotate(${deg})`}
+          />
+        ))}
+        <circle r="1.8" fill="#ffd23f" />
+      </g>
+    </>
+  ),
+};
+
+type PropKind = keyof typeof PROPS;
+
+function TeacherCard({ teacher: t }: { teacher: Teacher }) {
   return (
-    <span className={`${className} inline-flex items-center gap-1.5 text-sm text-muted-foreground`}>
-      <Icon icon={roundPlace} className="h-4 w-4 shrink-0" aria-hidden />
-      {place}
-    </span>
+    <article className="rounded-3xl bg-card p-5 shadow-card sm:p-7">
+      <div className="flex items-center gap-4 sm:gap-6">
+        <div className="relative w-28 shrink-0 sm:w-44">
+          <img
+            src={t.photo}
+            alt={t.name}
+            loading="lazy"
+            className="aspect-square w-full rounded-2xl object-cover object-top"
+          />
+          <img
+            src={cvcecEmblem}
+            alt="CVCEC"
+            loading="lazy"
+            className="absolute -bottom-2 -left-2 h-10 w-10 rounded-full bg-white p-1 shadow-md ring-4 ring-card sm:h-12 sm:w-12"
+          />
+        </div>
+        <div className="min-w-0">
+          <h3 className="font-display text-xl font-bold leading-snug text-foreground sm:text-2xl">
+            {t.name}
+          </h3>
+          <p className="mt-1 text-sm text-muted-foreground sm:text-base">{t.role()}</p>
+          <p className="mt-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground sm:text-base">
+            <Icon icon={roundPlace} className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" aria-hidden />
+            {t.place()}
+          </p>
+        </div>
+      </div>
+      <p className="mt-5 text-base leading-relaxed text-foreground sm:text-lg">{t.bio()}</p>
+    </article>
   );
 }
