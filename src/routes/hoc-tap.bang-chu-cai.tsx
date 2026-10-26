@@ -114,7 +114,7 @@ function BangChuCaiTab() {
     <div className="pb-10 sm:pb-12">
       <PageBanner
         title={m.learn_alphabet()}
-        parents={[{ label: m.learn_learning(), to: "/hoc-tap" }]}
+        back={{ label: m.learn_learning(), to: "/hoc-tap" }}
         art={<Mascot pose="reading" decorative className="relative h-24 sm:h-36" />}
       />
 

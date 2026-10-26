@@ -15,7 +15,7 @@ import { useId } from "react";
  * rather than restarting on each shape — bright on top, cooling to a blue
  * belly along the flat bottom. A soft blue drop shadow lifts it off the sky.
  */
-function Cloud({ className, opacity = 1 }: { className?: string; opacity?: number }) {
+export function Cloud({ className, opacity = 1 }: { className?: string; opacity?: number }) {
   // Gradient ids must be unique per instance; useId's punctuation isn't safe in url(#…).
   const id = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   return (

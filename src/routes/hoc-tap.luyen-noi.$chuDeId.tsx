@@ -58,10 +58,7 @@ function SpeakingRoute() {
     <div>
       <PageBanner
         title={m.learn_topic_not_found()}
-        parents={[
-          { label: m.learn_learning(), to: "/hoc-tap" },
-          { label: m.learn_speaking(), to: "/hoc-tap/luyen-noi" },
-        ]}
+        back={{ label: m.learn_speaking(), to: "/hoc-tap/luyen-noi" }}
       />
       <div className="px-4 py-16 text-center">
         <p className="mb-6 text-sky-ink-soft">{m.learn_topic_not_found_body()}</p>

@@ -71,7 +71,6 @@ export function HocTapHome() {
     <div className="pb-10 sm:pb-12">
       <PageBanner
         title={m.learn_home_title()}
-        crumb={m.learn_learning()}
         art={
           // Mirrored so he faces into the banner, toward the heading.
           <Mascot

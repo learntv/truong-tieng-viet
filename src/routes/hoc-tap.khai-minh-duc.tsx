@@ -34,9 +34,9 @@ function KhaiMinhDucIndex() {
 
   return (
     <div>
-      <PageBanner title="Khai Minh Đức" parents={[{ label: m.learn_learning(), to: "/hoc-tap" }]} />
+      <PageBanner title="Khai Minh Đức" back={{ label: m.learn_learning(), to: "/hoc-tap" }} />
 
-      <div className="relative mx-auto max-w-4xl px-4 pb-10 pt-8 sm:px-6">
+      <div className="relative px-4 pb-10 pt-8 sm:px-8">
         {isLoading && (
           <div className="flex justify-center py-16">
             <Icon icon={mdiLoading} className="h-8 w-8 animate-spin text-primary" aria-hidden />

@@ -75,11 +75,11 @@ function TopicPicker() {
     <div>
       <PageBanner
         title={m.learn_speaking()}
-        parents={[{ label: m.learn_learning(), to: "/hoc-tap" }]}
+        back={{ label: m.learn_learning(), to: "/hoc-tap" }}
         art={<Mascot pose="listening" decorative className="relative h-24 sm:h-36" />}
       />
 
-      <div className="relative mx-auto max-w-4xl px-4 pb-10 pt-8 sm:px-6">
+      <div className="relative px-4 pb-10 pt-8 sm:px-8">
         {speakingContentLoading && (
           <div className="flex justify-center py-16">
             <Icon icon={mdiLoading} className="h-8 w-8 animate-spin text-primary" aria-hidden />

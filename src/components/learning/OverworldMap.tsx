@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { ConfettiBurst } from "./ConfettiBurst";
 import { BuffaloMascot } from "./BuffaloMascot";
-import { BackLink } from "@/components/BackLink";
+import { PageBanner } from "@/components/site/PageBanner";
 import { loadBuffaloPos } from "@/components/tabs/LearningTab";
 import { m } from "@/paraglide/messages";
 import { getLocale } from "@/paraglide/runtime";
@@ -167,8 +167,11 @@ export function OverworldMap({
 
   return (
     <section className="relative w-full">
-      <BackLink to="/hoc-tap" label={m.learn_back_to_learning()} />
-      <div className="w-full px-3 pb-8 pt-20 sm:px-4 sm:pt-24">
+      <PageBanner
+        title={m.learn_book_n({ n: quyenNumber })}
+        back={{ label: m.learn_learning(), to: "/hoc-tap" }}
+      />
+      <div className="relative w-full px-3 pb-8 pt-8 sm:px-4">
         <p className="mx-auto mb-4 flex max-w-7xl items-center justify-center gap-2 text-center text-xs text-muted-foreground sm:text-sm">
           <span>{m.learn_map_intro()}</span>
           {/* Reopens the three-step tutorial for a child who dismissed it and wants it back. */}

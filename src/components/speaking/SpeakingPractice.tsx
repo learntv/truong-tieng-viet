@@ -174,10 +174,7 @@ export function SpeakingPractice({
     <PageBanner
       title={title}
       gloss={titleGloss}
-      parents={[
-        { label: m.learn_learning(), to: "/hoc-tap" },
-        { label: m.learn_speaking(), to: "/hoc-tap/luyen-noi" },
-      ]}
+      back={{ label: m.learn_speaking(), to: "/hoc-tap/luyen-noi" }}
       art={
         <span aria-hidden="true" className="relative text-6xl leading-none sm:text-8xl">
           {emoji}
