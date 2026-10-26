@@ -805,8 +805,12 @@ function MemoryGame() {
                 ].join(" ")}
               >
                 {/* Face down: a Đông Sơn drum face on the card's back. */}
-                <span className="absolute inset-0 grid place-items-center overflow-hidden rounded-[0.9rem] bg-box-cream shadow-btn [backface-visibility:hidden]">
-                  <img src={trongDong} alt="" className="h-[85%] w-[85%] opacity-30" />
+                <span className="absolute inset-0 overflow-hidden rounded-[0.9rem] bg-box-cream shadow-btn [backface-visibility:hidden]">
+                  <img
+                    src={trongDong}
+                    alt=""
+                    className="absolute inset-0 m-auto h-[85%] w-[85%] object-contain opacity-30"
+                  />
                 </span>
                 {/* Face up: the picture, or the idiom it draws. */}
                 <span
