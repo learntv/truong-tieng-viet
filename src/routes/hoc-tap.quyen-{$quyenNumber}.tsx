@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { parseQuyenNumber } from "@/lib/learning";
+import { m } from "@/paraglide/messages";
 
 // One route serves every quyển: the number in the URL picks which book's chủ đề are read out of
 // the CMS. Quyển 2 is not a separate page — it is this page with `quyenNumber` = 2, so a book
@@ -15,12 +16,12 @@ export const Route = createFileRoute("/hoc-tap/quyen-{$quyenNumber}")({
   },
   head: ({ params }) => {
     const n = params.quyenNumber;
-    const title = `Học Tiếng Việt Quyển ${n} | Trường Tiếng Việt Của Em`;
-    const description = `Lộ trình học tiếng Việt Quyển ${n} qua các chủ đề dành cho trẻ em kiều bào.`;
+    const title = m.learn_meta_quyen_title({ n });
+    const description = m.learn_meta_quyen_description({ n });
     const url = `/hoc-tap/quyen-${n}`;
     return {
       meta: [
-        { title: "Học Tiếng Việt | Trường Tiếng Việt Của Em" },
+        { title: m.learn_meta_quyen_title_plain() },
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },

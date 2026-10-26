@@ -6,21 +6,20 @@ import mdiLoading from "@iconify-icons/mdi/loading";
 import roundStar from "@iconify-icons/ic/round-star";
 import { type SpeakingProgress } from "@/lib/speaking-progress";
 import { useSpeakingContent } from "@/hooks/useSpeakingContent";
+import { glossOf } from "@/lib/localized";
 import { useSpeakingProgress } from "@/hooks/useSpeakingProgress";
 import { toneAt } from "@/components/learning/boxTones";
 import { Mascot } from "@/components/Mascot";
 import { PageBanner } from "@/components/site/PageBanner";
+import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/hoc-tap/luyen-noi")({
   head: () => ({
     meta: [
-      { title: "Luyện nói | Trường Tiếng Việt Của Em" },
-      {
-        name: "description",
-        content: "Luyện nói tiếng Việt cùng Trâu con: nghe mẫu, ghi âm và nhận sao khích lệ.",
-      },
-      { property: "og:title", content: "Luyện nói | Trường Tiếng Việt Của Em" },
-      { property: "og:description", content: "Luyện nói tiếng Việt cùng Trâu con: nghe mẫu, ghi âm và nhận sao khích lệ." },
+      { title: m.learn_meta_speaking_title() },
+      { name: "description", content: m.learn_meta_speaking_description() },
+      { property: "og:title", content: m.learn_meta_speaking_title() },
+      { property: "og:description", content: m.learn_meta_speaking_description() },
       { property: "og:url", content: "/hoc-tap/luyen-noi" },
     ],
     links: [{ rel: "canonical", href: "/hoc-tap/luyen-noi" }],
@@ -40,6 +39,7 @@ type TopicCardData = {
   id: string;
   emoji: string;
   label: string;
+  gloss?: string;
   total: number;
   perfect: number;
   index: number;
@@ -62,7 +62,8 @@ function TopicPicker() {
       (speakingTopics ?? []).map((topic, i) => ({
         id: topic.id,
         emoji: topic.emoji,
-        label: topic.title,
+        label: topic.title.vi,
+        gloss: glossOf(topic.title),
         total: topic.sentences.length,
         perfect: countPerfect(topic.sentences, progress),
         index: i,
@@ -73,8 +74,8 @@ function TopicPicker() {
   return (
     <div>
       <PageBanner
-        title="Luyện nói"
-        parents={[{ label: "Học tập", to: "/hoc-tap" }]}
+        title={m.learn_speaking()}
+        parents={[{ label: m.learn_learning(), to: "/hoc-tap" }]}
         art={<Mascot pose="listening" decorative className="relative h-24 sm:h-36" />}
       />
 
@@ -87,7 +88,7 @@ function TopicPicker() {
 
         {speakingContentError != null && !speakingContentLoading && (
           <p className="py-16 text-center text-sm font-semibold text-muted-foreground">
-            Chưa tải được chủ đề luyện nói, em thử lại sau nhé!
+            {m.learn_speaking_load_failed()}
           </p>
         )}
 
@@ -131,7 +132,13 @@ function TopicCard({ card }: { card: TopicCardData }) {
       </div>
 
       <div className="min-w-0 flex-1">
-        <h2 className="font-display text-base font-bold leading-snug text-foreground">{card.label}</h2>
+        <h2
+          lang={card.gloss ? "vi" : undefined}
+          className="font-display text-base font-bold leading-snug text-foreground"
+        >
+          {card.label}
+        </h2>
+        {card.gloss && <p className="text-sm leading-snug text-muted-foreground">{card.gloss}</p>}
         <div className="mt-2 flex items-center gap-2">
           <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
             <div className={["h-full rounded-full", tone.bar].join(" ")} style={{ width: `${done * 100}%` }} />

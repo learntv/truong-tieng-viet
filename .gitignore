@@ -44,3 +44,6 @@ supabase/.temp/
 supabase/prod-snapshot/
 supabase/.branches/
 package-lock.json
+
+# Paraglide output, regenerated from messages/*.json by the vite plugin
+src/paraglide/

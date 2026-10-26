@@ -5,20 +5,15 @@ import mdiLoading from "@iconify-icons/mdi/loading";
 import { KmdThumb } from "@/components/kmd/KmdThumb";
 import { useKmdLessons, type KmdLessonSummary } from "@/hooks/useKmdLessons";
 import { PageBanner } from "@/components/site/PageBanner";
+import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/hoc-tap/khai-minh-duc")({
   head: () => ({
     meta: [
       { title: "Khai Minh Đức | Trường Tiếng Việt Của Em" },
-      {
-        name: "description",
-        content: "Học đánh vần cùng chương trình Khai Minh Đức: từng bài âm, vần cùng Trâu con.",
-      },
+      { name: "description", content: m.learn_meta_kmd_description() },
       { property: "og:title", content: "Khai Minh Đức | Trường Tiếng Việt Của Em" },
-      {
-        property: "og:description",
-        content: "Học đánh vần cùng chương trình Khai Minh Đức: từng bài âm, vần cùng Trâu con.",
-      },
+      { property: "og:description", content: m.learn_meta_kmd_description() },
       { property: "og:url", content: "/hoc-tap/khai-minh-duc" },
     ],
     links: [{ rel: "canonical", href: "/hoc-tap/khai-minh-duc" }],
@@ -39,10 +34,7 @@ function KhaiMinhDucIndex() {
 
   return (
     <div>
-      <PageBanner
-        title="Khai Minh Đức"
-        parents={[{ label: "Học tập", to: "/hoc-tap" }]}
-      />
+      <PageBanner title="Khai Minh Đức" parents={[{ label: m.learn_learning(), to: "/hoc-tap" }]} />
 
       <div className="relative mx-auto max-w-4xl px-4 pb-10 pt-8 sm:px-6">
         {isLoading && (
@@ -53,13 +45,13 @@ function KhaiMinhDucIndex() {
 
         {error != null && !isLoading && (
           <p className="py-16 text-center text-sm font-semibold text-muted-foreground">
-            Chưa tải được danh sách bài học, em thử lại sau nhé!
+            {m.learn_kmd_load_failed()}
           </p>
         )}
 
         {!isLoading && !error && lessons != null && lessons.length === 0 && (
           <p className="py-16 text-center text-sm font-semibold text-muted-foreground">
-            Chưa có bài học nào.
+            {m.learn_kmd_empty()}
           </p>
         )}
 
@@ -93,7 +85,7 @@ function LessonRow({ lesson, index }: { lesson: KmdLessonSummary; index: number 
 
       <div className="min-w-0 flex-1">
         <p className="text-xs font-extrabold uppercase tracking-[0.08em] text-green">
-          Bài {index + 1}
+          {m.learn_lesson_n({ n: index + 1 })}
         </p>
         <h2 className="mt-1 font-display text-base font-bold leading-snug text-foreground">
           {lesson.title}

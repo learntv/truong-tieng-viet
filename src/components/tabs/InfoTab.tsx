@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { Icon, type IconifyIcon } from "@iconify/react";
 import roundArrowForward from "@iconify-icons/ic/round-arrow-forward";
 import roundMenuBook from "@iconify-icons/ic/round-menu-book";
@@ -16,23 +16,22 @@ import { InfoStats } from "./InfoStats";
 import hoaSen from "@/assets/symbols/hoa-sen.png";
 import chimLac from "@/assets/symbols/chim-lac.png";
 import { SectionHeader } from "@/components/ui/section-header";
+import { RichMessage } from "@/components/home/RichMessage";
+import { m } from "@/paraglide/messages";
 
 /**
  * The content is not four equal facts: the Bộ Ngoại giao sponsorship is the
  * trust signal and leads on a full-width indigo card; the rest drop to a plain
  * bordered trio with red line-icons. No tints, no decorative symbol artwork.
  */
+const boldGold = { b: (c: ReactNode) => <strong className="font-semibold text-gold">{c}</strong> };
+const boldInk = {
+  b: (c: ReactNode) => <strong className="font-semibold text-foreground">{c}</strong>,
+};
+
 const LEAD = {
-  heading: "Đồng hành chuyên môn",
-  body: (
-    <>
-      Dự án thực hiện dưới sự đồng hành và ủng hộ của{" "}
-      <strong className="font-semibold text-gold">
-        Ủy ban Nhà nước về người Việt Nam ở nước ngoài – Bộ Ngoại giao
-      </strong>
-      .
-    </>
-  ),
+  heading: m.home_about_partner_heading,
+  body: () => <RichMessage parts={m.home_about_partner_body.parts()} tags={boldGold} />,
 };
 
 function ContactCard({
@@ -53,11 +52,11 @@ function ContactCard({
     e.stopPropagation();
     try {
       await navigator.clipboard.writeText(value);
-      toast.success("Đã sao chép: " + value);
+      toast.success(m.home_copied({ value }));
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      toast.error("Không thể sao chép");
+      toast.error(m.home_copy_failed());
     }
   };
 
@@ -78,8 +77,8 @@ function ContactCard({
         type="button"
         onClick={handleCopy}
         className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
-        aria-label="Sao chép"
-        title="Sao chép"
+        aria-label={m.home_copy()}
+        title={m.home_copy()}
       >
         {copied ? (
           <Icon icon={roundCheck} className="h-4 w-4 text-green-600" aria-hidden />
@@ -93,40 +92,22 @@ function ContactCard({
 
 const ROWS = [
   {
+    id: "digital",
     icon: roundMenuBook,
-    heading: "Dự án số hóa",
-    body: (
-      <>
-        Dự án số hóa hai cuốn sách của{" "}
-        <strong className="font-semibold text-foreground">NXB ĐH Sư Phạm TP Hồ Chí Minh</strong>, được
-        thực hiện trong khuôn khổ Chương trình Tôn vinh tiếng Việt trong cộng đồng người Việt Nam ở
-        nước ngoài, do{" "}
-        <strong className="font-semibold text-foreground">UBNVONN – Bộ Ngoại giao</strong> phát động.
-      </>
-    ),
+    heading: m.home_about_digital_heading,
+    body: () => <RichMessage parts={m.home_info_digital_body.parts()} tags={boldInk} />,
   },
   {
+    id: "network",
     icon: roundHub,
-    heading: "Hệ sinh thái",
-    body: (
-      <>
-        Dự án là thành viên tích cực nằm trong{" "}
-        <strong className="font-semibold text-foreground">
-          Mạng lưới các cơ sở giảng dạy tiếng Việt và văn hóa Việt Nam ở nước ngoài
-        </strong>
-        .
-      </>
-    ),
+    heading: m.home_about_network_heading,
+    body: () => <RichMessage parts={m.home_info_network_body.parts()} tags={boldInk} />,
   },
   {
+    id: "copyright",
     icon: roundCopyright,
-    heading: "Bản quyền",
-    body: (
-      <>
-        Dự án được bảo hộ bản quyền bởi đồng tác giả: Phan Thị Quỳnh Trang, Nguyễn Trần Thanh Hải,
-        Đỗ Thị Phương Mai, Trần Thanh Phúc, Trần Văn Nhật.
-      </>
-    ),
+    heading: m.home_about_copyright_heading,
+    body: () => m.home_info_copyright_body(),
   },
 ];
 
@@ -139,9 +120,9 @@ export function InfoTab() {
       <div id="gioi-thieu" className="mx-auto max-w-6xl scroll-mt-24 pt-8 pb-16 sm:pt-12 sm:pb-24">
         <SectionHeader
           align="center"
-          eyebrow="Về dự án"
-          title="Giới thiệu"
-          subtitle="Đôi nét về sứ mệnh, đối tác và bản quyền của Trường Tiếng Việt Của Em."
+          eyebrow={m.home_info_about_eyebrow()}
+          title={m.home_about_title()}
+          subtitle={m.home_info_about_subtitle()}
           className="mx-auto mb-10 sm:mb-14"
         />
 
@@ -164,10 +145,10 @@ export function InfoTab() {
               </div>
               <div className="min-w-0">
                 <h3 className="text-xs font-semibold tracking-[0.12em] text-gold uppercase">
-                  {LEAD.heading}
+                  {LEAD.heading()}
                 </h3>
                 <p className="mt-2 text-base leading-relaxed text-white/90 sm:text-lg">
-                  {LEAD.body}
+                  {LEAD.body()}
                 </p>
               </div>
             </div>
@@ -176,12 +157,12 @@ export function InfoTab() {
           <div className="mt-5 grid gap-5 sm:mt-6 sm:grid-cols-3 sm:gap-6">
             {ROWS.map((r) => (
               <div
-                key={r.heading}
+                key={r.id}
                 className="rounded-2xl border border-border bg-card px-6 py-6 shadow-card sm:px-7 sm:py-7"
               >
                 <Icon icon={r.icon} className="h-6 w-6 text-primary" aria-hidden />
-                <h3 className="mt-4 font-display text-lg font-bold text-navy">{r.heading}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{r.body}</p>
+                <h3 className="mt-4 font-display text-lg font-bold text-navy">{r.heading()}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{r.body()}</p>
               </div>
             ))}
           </div>
@@ -189,7 +170,7 @@ export function InfoTab() {
       </div>
 
       <div id="lo-trinh" className="-mx-4 scroll-mt-24 bg-sky-tint px-4 py-16 sm:-mx-6 sm:px-6 sm:py-24 lg:-mx-8">
-        <SectionHeader align="center" title="Lộ trình học thú vị" className="mb-10 sm:mb-12" />
+        <SectionHeader align="center" title={m.home_info_path_title()} className="mb-10 sm:mb-12" />
         <InfoStats />
 
         {/* Repeats the hero's primary CTA at the point where the reader has
@@ -199,7 +180,7 @@ export function InfoTab() {
             to="/hoc-tap"
             className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground shadow-card transition-colors hover:bg-primary/90 sm:text-base"
           >
-            Học ngay
+            {m.home_learn_now()}
             <Icon icon={roundArrowForward} className="h-5 w-5" aria-hidden />
           </Link>
         </div>
@@ -232,22 +213,12 @@ export function InfoTab() {
             className="mx-auto mb-5 h-20 w-20 object-contain sm:h-24 sm:w-24"
           />
           <h3 className="inline-flex items-center gap-2 font-display text-2xl font-bold text-white sm:text-3xl">
-            Lời cảm ơn
+            {m.home_thanks_title()}
           </h3>
           <p className="mx-auto mt-5 max-w-2xl text-[15px] leading-relaxed text-white/90 sm:text-base">
-            Ban quản lý dự án xin được gửi lời cảm ơn chân thành tới{" "}
-            <strong className="font-semibold text-gold">
-              Ủy ban Nhà nước về người Việt Nam ở nước ngoài - Bộ Ngoại giao
-            </strong>{" "}
-            nước Cộng hòa xã hội chủ nghĩa Việt Nam đã luôn đồng hành và định hướng. Chúng tôi xin
-            gửi lời tri ân sâu sắc tới các Đại sứ quán, các cơ quan ban ngành tại Việt Nam và
-            Canada, cùng Mạng lưới giảng dạy tiếng Việt đã tạo điều kiện và hỗ trợ quý báu để dự án{" "}
-            <strong className="font-semibold text-gold">&quot;Trường Tiếng Việt Của Em&quot;</strong>{" "}
-            được hoàn thiện và đi vào vận hành. Sự đồng hành của quý vị là nguồn động lực to lớn
-            giúp chúng tôi gìn giữ và lan tỏa ngôn ngữ, văn hóa Việt đến với thế hệ trẻ tại Canada
-            nói riêng và trên toàn thế giới nói chung.
+            <RichMessage parts={m.home_thanks_body.parts()} tags={boldGold} />
           </p>
-          <p className="mt-6 text-sm font-semibold text-gold-soft">Ban quản lý dự án</p>
+          <p className="mt-6 text-sm font-semibold text-gold-soft">{m.home_thanks_signature()}</p>
         </div>
       </div>
 
@@ -255,16 +226,13 @@ export function InfoTab() {
       <div id="dong-hanh" className="-mx-4 scroll-mt-24 bg-sky-tint px-4 py-16 sm:-mx-6 sm:px-6 sm:py-24 lg:-mx-8">
         <div className="mx-auto max-w-3xl text-center">
           <h3 className="font-display text-2xl font-bold text-navy sm:text-3xl">
-            Chung tay gieo hạt giống cội nguồn cho thế hệ mai sau
+            {m.home_info_support_heading()}
           </h3>
           <p className="mx-auto mt-5 max-w-2xl text-[15px] leading-relaxed text-muted-foreground sm:text-base">
-            Hành trình gìn giữ tiếng mẹ đẻ nơi xứ người là một sứ mệnh đầy tự hào nhưng cũng cần rất
-            nhiều nguồn lực. Dự án phi lợi nhuận{" "}
-            <strong className="font-semibold text-primary">&quot;Trường Tiếng Việt Của Em&quot;</strong> luôn
-            rộng mở đón nhận sự đồng hành, đóng góp và tài trợ từ các bậc phụ huynh, kiều bào và các
-            mạnh thường quân để nuôi dưỡng ngọn lửa văn hóa Việt trong tâm hồn thế hệ trẻ. Mỗi sự đóng
-            góp – dù là nhỏ nhất – đều là nguồn lực quý báu để dự án vươn xa hơn. Xin vui lòng liên hệ
-            và đồng hành cùng chúng tôi qua:
+            <RichMessage
+              parts={m.home_info_support_body.parts()}
+              tags={{ b: (c) => <strong className="font-semibold text-primary">{c}</strong> }}
+            />
           </p>
 
           <div className="mt-8 flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:items-stretch">
@@ -283,7 +251,7 @@ export function InfoTab() {
           </div>
 
           <p className="mt-8 font-display text-base font-semibold text-primary">
-            Xin chân thành cảm ơn!
+            {m.home_support_thanks()}
           </p>
         </div>
       </div>

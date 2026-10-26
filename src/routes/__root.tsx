@@ -18,6 +18,8 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { SkyPage } from "@/components/layout/SkyPage";
 import { logCmsHealth } from "@/lib/cms-health";
+import { m } from "@/paraglide/messages";
+import { getLocale } from "@/paraglide/runtime";
 
 const SITE_URL = "https://truongtiengviet.cvcec.org";
 const OG_IMAGE =
@@ -56,19 +58,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Trường Tiếng Việt Của Em" },
       {
         name: "description",
-        content: "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào.",
+        content: m.account_site_description(),
       },
       { property: "og:title", content: "Trường Tiếng Việt Của Em" },
       {
         property: "og:description",
-        content: "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào.",
+        content: m.account_site_description(),
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "Trường Tiếng Việt Của Em" },
       {
         name: "twitter:description",
-        content: "Hành trình học tiếng Việt vui nhộn dành cho trẻ em kiều bào.",
+        content: m.account_site_description(),
       },
       {
         property: "og:image",
@@ -107,7 +109,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="vi">
+    <html lang={getLocale()}>
       <head>
         <HeadContent />
       </head>

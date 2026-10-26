@@ -2,12 +2,15 @@ import { Icon } from "@iconify/react";
 import roundOpenInNew from "@iconify-icons/ic/round-open-in-new";
 import { SkyBox } from "@/components/ui/sky-box";
 import { PressVideo } from "./PressVideo";
+import { RichMessage } from "./RichMessage";
+import { formatPressDate } from "./pressDate";
 import daiDoanKetCover from "@/assets/press/dai-doan-ket-cover.webp";
 import daiDoanKetLogo from "@/assets/press/dai-doan-ket-logo.png";
 import baoAnhVietNamCover from "@/assets/press/bao-anh-viet-nam-cover.webp";
 import baoAnhVietNamLogo from "@/assets/press/bao-anh-viet-nam-logo.svg";
 import vietnamPlusCover from "@/assets/press/vietnamplus-cover.webp";
 import vietnamPlusLogo from "@/assets/press/vietnamplus-logo.png";
+import { m } from "@/paraglide/messages";
 
 /**
  * The homepage's one press box: the VNA television report up top as the
@@ -60,21 +63,14 @@ const ARTICLES = [
   },
 ];
 
-/** "2026-09-07" → "07-09-2026", the day-first form the featured report's dateline uses too. */
-const formatDate = (iso: string) => iso.split("-").reverse().join("-");
-
 export function PressNews() {
   return (
     <SkyBox
       tone="cream"
-      ribbon="Tin tức"
-      title="Báo chí viết về chúng tôi"
+      ribbon={m.home_press_ribbon()}
+      title={m.home_press_title()}
       lede={
-        <>
-          Nền tảng học tiếng Việt, các lớp học, tủ sách và hoạt động của{" "}
-          <strong>Hội đồng Văn hóa Giáo dục Canada–Việt Nam</strong> qua góc nhìn của báo chí trong
-          nước.
-        </>
+        <RichMessage parts={m.home_press_lede.parts()} tags={{ b: (c) => <strong>{c}</strong> }} />
       }
     >
       <PressVideo />
@@ -109,19 +105,26 @@ export function PressNews() {
                     dateTime={a.date}
                     className="shrink-0 font-display text-xs font-bold text-sky-ink-soft"
                   >
-                    {formatDate(a.date)}
+                    {formatPressDate(a.date)}
                   </time>
                 </span>
 
-                <span className="mt-3 font-display text-base leading-snug font-extrabold text-sky-ink group-hover:text-indigo-deep">
+                {/* The papers' own words, so they stay Vietnamese in every UI language. */}
+                <span
+                  lang="vi"
+                  className="mt-3 font-display text-base leading-snug font-extrabold text-sky-ink group-hover:text-indigo-deep"
+                >
                   {a.title}
                 </span>
-                <span className="mt-2 line-clamp-3 text-sm leading-relaxed text-sky-ink-soft">
+                <span
+                  lang="vi"
+                  className="mt-2 line-clamp-3 text-sm leading-relaxed text-sky-ink-soft"
+                >
                   {a.excerpt}
                 </span>
 
                 <span className="mt-auto inline-flex items-center gap-1.5 pt-3 font-display text-sm font-extrabold text-indigo">
-                  Đọc bài
+                  {m.home_press_read()}
                   <Icon icon={roundOpenInNew} className="h-4 w-4" aria-hidden />
                 </span>
               </span>

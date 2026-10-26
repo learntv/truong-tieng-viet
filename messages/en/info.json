@@ -1,0 +1,28 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "info_last_updated": "Last updated: {date}",
+
+  "info_privacy_title": "Privacy policy",
+  "info_privacy_meta_description": "The privacy policy of Trường Tiếng Việt Của Em: the data we collect, how we use it, and the rights of parents and students.",
+  "info_privacy_og_description": "The data we collect, how we use it, and the rights of parents and students.",
+
+  "info_terms_title": "Terms of use",
+  "info_terms_meta_description": "The terms of use of Trường Tiếng Việt Của Em: your rights and responsibilities when using our Vietnamese learning platform.",
+
+  "info_faq_title": "Frequently asked questions",
+  "info_faq_meta_description": "Frequently asked questions about Trường Tiếng Việt Của Em: cost, suitable ages, speaking practice, children's privacy, and how to get help.",
+  "info_faq_og_description": "Answers to common questions from parents and students.",
+
+  "info_guide_title": "How to use",
+  "info_guide_meta_description": "How to use Trường Tiếng Việt Của Em: creating an account, learning the alphabet, doing lessons, speaking practice, and tracking progress.",
+  "info_guide_og_description": "How to start learning Vietnamese with your child on Trường Tiếng Việt Của Em.",
+
+  "info_contact_title": "Contact",
+  "info_contact_meta_description": "Contact Trường Tiếng Việt Của Em and Canada Vietnam Cultural & Educational Council (CVCEC) by email, WhatsApp, social media, or at our address in Toronto, Canada.",
+  "info_contact_og_description": "Reach us by email, WhatsApp, social media, or at our address in Toronto.",
+  "info_contact_intro_before": "Trường Tiếng Việt Của Em is run by",
+  "info_contact_intro_after": ". If you have questions, ideas, or would like to work with us, please reach out through any of the channels below.",
+  "info_contact_email": "Email",
+  "info_contact_address": "Address",
+  "info_contact_follow_us": "Follow us"
+}

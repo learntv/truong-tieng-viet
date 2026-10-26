@@ -18,6 +18,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useHasRole } from "@/hooks/useHasRole";
 import { generateUsername } from "@/lib/profile";
 import { Logo } from "@/components/Logo";
+import { LanguageSwitch } from "@/components/LanguageSwitch";
+import { m } from "@/paraglide/messages";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,13 +32,13 @@ import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/com
 
 const tabs: {
   to: "/" | "/hoc-tap" | "/giao-vien" | "/bang-xep-hang";
-  label: string;
+  label: () => string;
   icon: IconifyIcon;
 }[] = [
-  { to: "/", label: "Trang chủ", icon: roundHome },
-  { to: "/hoc-tap", label: "Học tập", icon: roundAutoStories },
-  { to: "/giao-vien", label: "Giáo viên", icon: roundSchool },
-  { to: "/bang-xep-hang", label: "Xếp hạng", icon: roundEmojiEvents },
+  { to: "/", label: m.nav_home, icon: roundHome },
+  { to: "/hoc-tap", label: m.nav_learn, icon: roundAutoStories },
+  { to: "/giao-vien", label: m.nav_teachers, icon: roundSchool },
+  { to: "/bang-xep-hang", label: m.nav_leaderboard, icon: roundEmojiEvents },
 ];
 
 /* Shared pill states. Hover and "you are here" both shade the green rather
@@ -62,10 +64,9 @@ export function Navbar() {
     redirect: pathname === "/dang-nhap" ? undefined : pathname,
   };
 
-  const displayName =
-    (user?.user_metadata?.full_name as string | undefined) ||
-    user?.email?.split("@")[0] ||
-    "Học sinh";
+  const accountName =
+    (user?.user_metadata?.full_name as string | undefined) || user?.email?.split("@")[0];
+  const displayName = accountName || m.nav_default_name();
   const avatarLetter = displayName[0]?.toUpperCase() ?? "?";
   // The profiles row is the source of truth — user_metadata gets overwritten by the OAuth
   // provider (e.g. Google's picture) on every login, so it can't be trusted for a saved avatar.
@@ -88,7 +89,9 @@ export function Navbar() {
   const avatarEmoji = ownProfile
     ? ownProfile.avatar_emoji
     : (user?.user_metadata?.avatar_emoji as string | undefined);
-  const myUsername = user ? generateUsername(displayName, user.id) : null;
+  // The username is derived from the stored name, so its fallback is the literal Vietnamese one
+  // (as on the profile page), never the translated label: "Student" would build another username.
+  const myUsername = user ? generateUsername(accountName || "Học sinh", user.id) : null;
   // Any profile page lights the avatar, not just your own — the ring marks
   // "you are in the profile section", the same way the tab pills do.
   const onProfile = pathname.startsWith("/u/");
@@ -109,7 +112,7 @@ export function Navbar() {
           <div className="flex flex-1 items-center justify-end gap-1 sm:gap-2">
             {/* Desktop tabs — a row of pills, each led by its icon. */}
             <nav
-              aria-label="Điều hướng chính"
+              aria-label={m.nav_main_label()}
               className="hidden items-center gap-1 min-[900px]:flex"
             >
               {tabs.map(({ to, label, icon }) => {
@@ -126,11 +129,18 @@ export function Navbar() {
                     ].join(" ")}
                   >
                     <Icon icon={icon} className="h-5 w-5" aria-hidden />
-                    {label}
+                    {label()}
                   </Link>
                 );
               })}
             </nav>
+
+            <LanguageSwitch
+              className={[
+                "hidden min-h-12 items-center gap-2 rounded-full px-4 font-display text-[1rem] font-bold text-white transition-colors min-[900px]:inline-flex",
+                PILL_HOVER,
+              ].join(" ")}
+            />
 
             {isLoading && (
               <div className="h-12 w-12 animate-pulse rounded-full bg-white/30 sm:w-[7.5rem]" />
@@ -144,7 +154,7 @@ export function Navbar() {
               >
                 {/* Hidden on phones so logo, sign-in and Menu fit at 375px. */}
                 <Icon icon={roundLogin} className="hidden h-5 w-5 sm:block" aria-hidden />
-                Đăng nhập
+                {m.nav_sign_in()}
               </Link>
             )}
 
@@ -153,15 +163,18 @@ export function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <button
                     aria-current={onProfile ? "page" : undefined}
-                    aria-label={`Tài khoản: ${displayName}`}
+                    aria-label={m.nav_account_label({ name: displayName })}
                     className={[
-                      "flex min-h-12 items-center gap-2 rounded-full border-[3px] py-0.5 pl-0.5 pr-0.5 text-white transition-colors sm:pr-3",
-                      onProfile
-                        ? "border-gold bg-black/[0.22]"
-                        : ["border-white/70", PILL_HOVER].join(" "),
+                      "inline-flex min-h-12 shrink-0 items-center gap-2 rounded-full p-1.5 font-display text-[1rem] font-bold transition-colors sm:pr-3",
+                      onProfile ? PILL_ACTIVE : ["text-white", PILL_HOVER].join(" "),
                     ].join(" ")}
                   >
-                    <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-primary text-sm font-medium text-white">
+                    <span
+                      className={[
+                        "relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-primary text-sm font-medium text-white ring-2",
+                        onProfile ? "ring-gold" : "ring-white/80",
+                      ].join(" ")}
+                    >
                       {avatarUrl ? (
                         <img
                           src={avatarUrl}
@@ -180,9 +193,7 @@ export function Navbar() {
                       )}
                     </span>
 
-                    <span className="hidden max-w-[10rem] truncate font-display text-[0.9375rem] font-bold sm:block">
-                      {displayName}
-                    </span>
+                    <span className="hidden max-w-[10rem] truncate sm:block">{displayName}</span>
 
                     <Icon
                       icon={roundExpandMore}
@@ -203,7 +214,7 @@ export function Navbar() {
                         className="flex min-h-12 cursor-pointer items-center gap-3 [&>svg]:size-5"
                       >
                         <Icon icon={roundAccountCircle} className="h-5 w-5" aria-hidden />
-                        Trang cá nhân
+                        {m.nav_profile()}
                       </Link>
                     </DropdownMenuItem>
                   )}
@@ -214,7 +225,7 @@ export function Navbar() {
                         className="flex min-h-12 cursor-pointer items-center gap-3 [&>svg]:size-5"
                       >
                         <Icon icon={roundBarChart} className="h-5 w-5" aria-hidden />
-                        Báo cáo
+                        {m.nav_reports()}
                       </Link>
                     </DropdownMenuItem>
                   )}
@@ -224,7 +235,7 @@ export function Navbar() {
                     className="min-h-12 cursor-pointer gap-3 text-destructive focus:text-destructive [&>svg]:size-5"
                   >
                     <Icon icon={roundLogout} className="h-5 w-5" aria-hidden />
-                    Đăng xuất
+                    {m.nav_sign_out()}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -235,7 +246,7 @@ export function Navbar() {
             <SheetTrigger asChild>
               <button className="inline-flex min-h-12 shrink-0 items-center gap-2 rounded-full px-2 font-display text-[1rem] font-bold text-white transition-colors hover:bg-black/[0.14] sm:px-3 min-[900px]:hidden">
                 <Icon icon={roundMenu} className="h-6 w-6" aria-hidden />
-                Menu
+                {m.nav_menu()}
               </button>
             </SheetTrigger>
           </div>
@@ -250,7 +261,7 @@ export function Navbar() {
         hideCloseButton
         className="flex w-72 flex-col gap-0 border-0 bg-nav-green p-0 text-white"
       >
-        <SheetTitle className="sr-only">Menu</SheetTitle>
+        <SheetTitle className="sr-only">{m.nav_menu()}</SheetTitle>
 
         <div className="flex min-h-16 items-center justify-between px-5 sm:min-h-[4.5rem]">
           <SheetClose asChild>
@@ -263,13 +274,13 @@ export function Navbar() {
               "grid h-12 w-12 place-items-center rounded-full text-white transition-colors",
               PILL_HOVER,
             ].join(" ")}
-            aria-label="Đóng menu"
+            aria-label={m.nav_close_menu()}
           >
             <Icon icon={roundClose} className="h-6 w-6" aria-hidden />
           </SheetClose>
         </div>
 
-        <nav aria-label="Điều hướng chính" className="flex-1 overflow-y-auto px-3 py-2">
+        <nav aria-label={m.nav_main_label()} className="flex-1 overflow-y-auto px-3 py-2">
           <ul className="flex flex-col">
             {tabs.map(({ to, label, icon }) => {
               const isActive = isTabActive(to);
@@ -286,7 +297,7 @@ export function Navbar() {
                       ].join(" ")}
                     >
                       <Icon icon={icon} className="h-6 w-6 shrink-0" aria-hidden />
-                      {label}
+                      {label()}
                     </Link>
                   </SheetClose>
                 </li>
@@ -309,7 +320,7 @@ export function Navbar() {
                       className={[DRAWER_ROW, "text-white", PILL_HOVER].join(" ")}
                     >
                       <Icon icon={roundAccountCircle} className="h-6 w-6 shrink-0" aria-hidden />
-                      Trang cá nhân
+                      {m.nav_profile()}
                     </Link>
                   </SheetClose>
                 )}
@@ -321,7 +332,7 @@ export function Navbar() {
                   className={[DRAWER_ROW, "cursor-pointer text-white", PILL_HOVER].join(" ")}
                 >
                   <Icon icon={roundLogout} className="h-6 w-6 shrink-0" aria-hidden />
-                  Đăng xuất
+                  {m.nav_sign_out()}
                 </button>
               </div>
             ) : (
@@ -332,10 +343,13 @@ export function Navbar() {
                   className={[DRAWER_ROW, "text-white", PILL_HOVER].join(" ")}
                 >
                   <Icon icon={roundLogin} className="h-6 w-6 shrink-0" aria-hidden />
-                  Đăng nhập
+                  {m.nav_sign_in()}
                 </Link>
               </SheetClose>
             ))}
+          <LanguageSwitch
+            className={[DRAWER_ROW, "cursor-pointer text-white", PILL_HOVER].join(" ")}
+          />
         </div>
       </SheetContent>
     </Sheet>

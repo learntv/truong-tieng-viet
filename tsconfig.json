@@ -12,6 +12,8 @@
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": false,
     "noEmit": true,
+    /* src/paraglide is generated JS with JSDoc types */
+    "allowJs": true,
 
     /* Linting */
     "skipLibCheck": true,

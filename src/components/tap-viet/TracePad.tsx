@@ -9,6 +9,7 @@ import { IconButton } from "./IconButton";
 import { SquareStage } from "./SquareStage";
 import { tapVietGuide, tapVietMask } from "@/data/tap-viet";
 import type { Stars } from "@/lib/speech";
+import { m } from "@/paraglide/messages";
 
 // Canvas units match the 540×540 guide image; the mask is the same square at a quarter
 // of that, so one mask cell covers 4×4 canvas pixels.
@@ -104,11 +105,11 @@ function score(canvas: HTMLCanvasElement, mask: Mask): Stars {
   return 0;
 }
 
-const MESSAGES: Record<Stars, string> = {
-  3: "Giỏi quá! Em viết đẹp lắm!",
-  2: "Tốt lắm! Gần giống mẫu rồi.",
-  1: "Cố lên! Em tô sát nét xám hơn nhé.",
-  0: "Em thử lại nhé, em làm được mà!",
+const MESSAGES: Record<Stars, () => string> = {
+  3: m.learn_trace_stars_3,
+  2: m.learn_trace_stars_2,
+  1: m.learn_trace_stars_1,
+  0: m.learn_trace_stars_0,
 };
 
 /** The child traces the grey guide with a finger, stylus or mouse, then gets 0–3 stars.
@@ -127,8 +128,8 @@ export function TracePad({ id }: { id: string }) {
     let alive = true;
     // On failure the mask stays null and "Xong rồi" stays disabled.
     loadMask(tapVietMask(id)).then(
-      (m) => {
-        if (alive) setMask(m);
+      (loaded) => {
+        if (alive) setMask(loaded);
       },
       () => {},
     );
@@ -206,7 +207,7 @@ export function TracePad({ id }: { id: string }) {
   return (
     // Laid out by the popup's grid: the square and the buttons are its items
     // (display: contents), so the square matches the video's size exactly.
-    <div role="group" aria-label="Em tô theo" className="contents">
+    <div role="group" aria-label={m.learn_trace_group()} className="contents">
       {confetti && <ConfettiBurst onDone={hideConfetti} />}
 
       <SquareStage className="overflow-hidden rounded-2xl bg-white ring-1 ring-black/10">
@@ -220,7 +221,7 @@ export function TracePad({ id }: { id: string }) {
           ref={canvasRef}
           width={SIZE}
           height={SIZE}
-          aria-label="Chỗ để em tô theo nét xám"
+          aria-label={m.learn_trace_canvas()}
           className="absolute inset-0 h-full w-full cursor-crosshair touch-none"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
@@ -240,17 +241,22 @@ export function TracePad({ id }: { id: string }) {
                 className="h-12"
               />
               <StarRow stars={stars} size="h-8 w-8" />
-              <p className="sr-only">{MESSAGES[stars]}</p>
+              <p className="sr-only">{MESSAGES[stars]()}</p>
             </div>
           )}
         </div>
       </SquareStage>
 
       <div className="flex flex-wrap items-center justify-center gap-3">
-        <IconButton label="Xoá" onClick={clear} disabled={!hasInk}>
+        <IconButton label={m.learn_trace_clear()} onClick={clear} disabled={!hasInk}>
           <Icon icon={roundAutoFixNormal} aria-hidden />
         </IconButton>
-        <IconButton label="Xong rồi" tone="green" onClick={check} disabled={!hasInk || !mask}>
+        <IconButton
+          label={m.learn_trace_done()}
+          tone="green"
+          onClick={check}
+          disabled={!hasInk || !mask}
+        >
           <Icon icon={roundCheck} aria-hidden />
         </IconButton>
       </div>

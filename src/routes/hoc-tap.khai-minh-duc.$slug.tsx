@@ -8,11 +8,12 @@ import { Mascot } from "@/components/Mascot";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useKmdLesson } from "@/hooks/useKmdLesson";
 import { useKmdLessons } from "@/hooks/useKmdLessons";
+import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/hoc-tap/khai-minh-duc/$slug")({
   head: ({ params }) => {
     const title = `Khai Minh Đức: ${params.slug} | Trường Tiếng Việt Của Em`;
-    const description = "Học đánh vần cùng chương trình Khai Minh Đức, cùng Trâu con.";
+    const description = m.learn_meta_kmd_lesson_description();
     const url = `/hoc-tap/khai-minh-duc/${params.slug}`;
     return {
       meta: [
@@ -49,14 +50,16 @@ function KhaiMinhDucLessonRoute() {
     return (
       <div className="mx-auto max-w-lg rounded-[1.75rem] border-[6px] border-white bg-white px-6 py-12 text-center shadow-[0_10px_28px_rgba(12,58,110,0.22)] sm:rounded-[2.25rem] sm:border-[8px]">
         <div className="mb-4 text-6xl">🔍</div>
-        <h1 className="mb-2 font-display text-2xl font-bold text-sky-ink">Bài học không có sẵn</h1>
-        <p className="mb-6 text-sky-ink-soft">Bài học này không tồn tại.</p>
+        <h1 className="mb-2 font-display text-2xl font-bold text-sky-ink">
+          {m.learn_kmd_not_available()}
+        </h1>
+        <p className="mb-6 text-sky-ink-soft">{m.learn_kmd_not_found_body()}</p>
         <Link
           to="/hoc-tap/khai-minh-duc"
           className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-display font-extrabold text-white shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active"
         >
           <Icon icon={roundArrowBack} className="h-4 w-4" aria-hidden />
-          Xem danh sách bài học
+          {m.learn_kmd_see_list()}
         </Link>
       </div>
     );
@@ -71,7 +74,7 @@ function KhaiMinhDucLessonRoute() {
         <header className="mb-6 flex items-center gap-3 sm:mb-10 sm:gap-4">
           <Link
             to="/hoc-tap/khai-minh-duc"
-            aria-label="Danh sách bài học"
+            aria-label={m.learn_kmd_list()}
             className="ml-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-sky-ink transition-colors hover:bg-green hover:text-white sm:ml-1.5 sm:h-11 sm:w-11"
           >
             <Icon icon={roundArrowBack} className="h-5 w-5" aria-hidden />
@@ -80,7 +83,7 @@ function KhaiMinhDucLessonRoute() {
           <div className="min-w-0 flex-1">
             {position >= 0 && (
               <p className="mb-1 text-xs font-extrabold uppercase tracking-[0.08em] text-green">
-                Bài {position + 1}
+                {m.learn_lesson_n({ n: position + 1 })}
               </p>
             )}
             <h1 className="font-display text-[clamp(1.35rem,2.6vw,1.9rem)] font-bold leading-tight text-sky-ink">
@@ -104,7 +107,7 @@ function KhaiMinhDucLessonRoute() {
             <CanvaEmbed key={lesson.canvaUrl} src={lesson.canvaUrl} title={lesson.title} />
           ) : (
             <p className="flex aspect-video items-center justify-center px-6 text-center font-semibold text-sky-ink-soft">
-              Bài học này đang được soạn.
+              {m.learn_kmd_in_progress()}
             </p>
           )}
         </div>

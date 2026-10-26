@@ -20,6 +20,7 @@
     "@iconify-icons/ic": "^2.0.0",
     "@iconify-icons/mdi": "^2.0.0",
     "@iconify/react": "^6.0.3",
+    "@inlang/paraglide-js": "2.29.1",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-aspect-ratio": "^1.1.8",

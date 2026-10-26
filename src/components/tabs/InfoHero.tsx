@@ -4,6 +4,7 @@ import roundExpandMore from "@iconify-icons/ic/round-expand-more";
 import roundMap from "@iconify-icons/ic/round-map";
 import { Link } from "@tanstack/react-router";
 import heroImage from "@/assets/hero-trau-con.jpg";
+import { m } from "@/paraglide/messages";
 
 export function InfoHero() {
   return (
@@ -41,8 +42,7 @@ export function InfoHero() {
             Trường Tiếng Việt Của Em
           </h1>
           <p className="mt-5 max-w-lg text-base leading-relaxed text-white/85 [text-shadow:0_1px_10px_rgba(0,0,0,0.5)] sm:text-lg">
-            Hành trình gìn giữ và lan tỏa tiếng Việt, văn hóa Việt đến với thế hệ trẻ kiều bào trên
-            khắp thế giới.
+            {m.home_info_hero_subtitle()}
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -50,7 +50,7 @@ export function InfoHero() {
               to="/hoc-tap"
               className="inline-flex items-center gap-2 rounded-none bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground shadow-card transition-colors hover:bg-primary/90 sm:text-base"
             >
-              Học ngay
+              {m.home_learn_now()}
               <Icon icon={roundArrowForward} className="h-5 w-5" aria-hidden />
             </Link>
             {/* Scrolls to the lộ trình band rather than navigating — "Học ngay"
@@ -65,7 +65,7 @@ export function InfoHero() {
               className="inline-flex cursor-pointer items-center gap-2 rounded-none border border-white/40 bg-white/10 px-7 py-3.5 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:border-white/70 hover:bg-white/20 sm:text-base"
             >
               <Icon icon={roundMap} className="h-5 w-5" aria-hidden />
-              Khám phá lộ trình
+              {m.home_info_explore_path()}
             </button>
           </div>
         </div>
@@ -76,7 +76,7 @@ export function InfoHero() {
         plain-background gap below. */}
       <button
         type="button"
-        aria-label="Cuộn xuống phần hình ảnh"
+        aria-label={m.home_info_scroll_down()}
         onClick={() => {
           document
             .getElementById("hinh-anh")

@@ -10,50 +10,53 @@ import nguyenThiThanhBinh from "@/assets/teachers/nguyen-thi-thanh-binh.webp";
 import hoangMinhHa from "@/assets/teachers/hoang-minh-ha.webp";
 import doThiPhuongMai from "@/assets/teachers/do-thi-phuong-mai.webp";
 import cvcecEmblem from "@/assets/cvcec-emblem.webp";
+import { m } from "@/paraglide/messages";
 
+/** Role, place and bio are message functions, read at render time so they
+    follow the visitor's language. Names stay as they are. */
 type Teacher = {
   name: string;
   photo: string;
-  role: string;
-  place: string;
-  bio: string;
+  role: () => string;
+  place: () => string;
+  bio: () => string;
 };
 
 const TEACHERS: Teacher[] = [
   {
     name: "Phan Thị Quỳnh Trang",
     photo: phanThiQuynhTrang,
-    role: "Chủ tịch Hội đồng văn hoá và giáo dục Canada Việt Nam (CVCEC)",
-    place: "CVCEC tại Canada",
-    bio: "Phó Tổng thư ký Mạng lưới giảng dạy tiếng Việt và văn hóa Việt Nam toàn cầu.",
+    role: m.home_teacher_role_president,
+    place: m.home_teacher_place_canada,
+    bio: m.home_teacher_bio_trang,
   },
   {
     name: "Hoàng Minh Hà",
     photo: hoangMinhHa,
-    role: "Giám đốc Học thuật Tiếng Việt",
-    place: "CVCEC tại PEI, Canada",
-    bio: "Là Giám đốc Học thuật và Tiếng Việt tại CVCEC (PEI), cô Hoàng Minh Hà dẫn dắt việc phát triển chương trình giảng dạy ngôn ngữ cùng các sáng kiến bảo tồn văn hóa, góp phần củng cố bản sắc kiều bào và thúc đẩy sự tham gia của thế hệ trẻ.",
+    role: m.home_teacher_role_academic_director,
+    place: m.home_teacher_place_pei,
+    bio: m.home_teacher_bio_ha,
   },
   {
     name: "Đỗ Thị Phương Mai",
     photo: doThiPhuongMai,
-    role: "Cố vấn Học thuật và Công nghệ Giáo dục",
-    place: "CVCEC tại Phần Lan",
-    bio: "Với tư cách là Cố vấn Học thuật tại CVCEC (Phần Lan), cô Đỗ Thị Phương Mai chuyên sâu về phương pháp giảng dạy tiếng Việt, thiết kế các chương trình học dựa trên nền tảng di sản nhằm đảm bảo trải nghiệm học tập hiệu quả, lôi cuốn và mang đậm bản sắc văn hóa.",
+    role: m.home_teacher_role_academic_advisor,
+    place: m.home_teacher_place_finland,
+    bio: m.home_teacher_bio_mai,
   },
   {
     name: "Nguyễn Thị Thanh Bình",
     photo: nguyenThiThanhBinh,
-    role: "Giáo viên Tiếng Việt",
-    place: "CVCEC tại PEI, Canada",
-    bio: "Cô Nguyễn Thị Thanh Bình là nhà giáo dục tiếng Việt tận tâm thuộc CVCEC tại PEI, mang trong mình tình yêu nhiệt huyết với sứ mệnh bảo tồn di sản văn hóa và thúc đẩy sự gắn kết cộng đồng.",
+    role: m.home_teacher_role_teacher,
+    place: m.home_teacher_place_pei,
+    bio: m.home_teacher_bio_binh,
   },
   {
     name: "Ngô Nguyễn Ngọc Diệu Anh",
     photo: ngoNguyenNgocDieuAnh,
-    role: "Giáo viên Tiếng Việt",
-    place: "CVCEC tại Manitoba, Canada",
-    bio: "Với vai trò giáo viên tiếng Việt thuộc CVCEC tại Manitoba, cô Ngô Nguyễn Ngọc Diệu Anh luôn truyền cảm hứng và tiếp thêm sức mạnh cho học sinh thông qua ngôn ngữ và các hoạt động kết nối văn hóa.",
+    role: m.home_teacher_role_teacher,
+    place: m.home_teacher_place_manitoba,
+    bio: m.home_teacher_bio_dieu_anh,
   },
 ];
 
@@ -201,7 +204,7 @@ function BioPanel({
       <button
         type="button"
         onClick={onClose}
-        aria-label="Đóng"
+        aria-label={m.home_teachers_close()}
         className="absolute right-4 top-4 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
       >
         <Icon icon={roundClose} className="h-5 w-5" aria-hidden />
@@ -212,16 +215,16 @@ function BioPanel({
         <h3 className="pr-8 font-display text-xl font-bold leading-snug text-foreground">
           {t.name}
         </h3>
-        <p className="mt-1 text-sm text-muted-foreground">{t.role}</p>
-        <Place place={t.place} className="mt-2" />
-        <p className="mt-4 text-base leading-relaxed text-foreground">{t.bio}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{t.role()}</p>
+        <Place place={t.place()} className="mt-2" />
+        <p className="mt-4 text-base leading-relaxed text-foreground">{t.bio()}</p>
       </div>
 
       <div className="mt-6 flex justify-end gap-2">
         <button
           type="button"
           onClick={onPrev}
-          aria-label="Giáo viên trước"
+          aria-label={m.home_teachers_prev()}
           className="rounded-full bg-background p-2 text-foreground transition-colors hover:text-primary"
         >
           <Icon icon={roundChevronLeft} className="h-5 w-5" aria-hidden />
@@ -229,7 +232,7 @@ function BioPanel({
         <button
           type="button"
           onClick={onNext}
-          aria-label="Giáo viên tiếp theo"
+          aria-label={m.home_teachers_next()}
           className="rounded-full bg-background p-2 text-foreground transition-colors hover:text-primary"
         >
           <Icon icon={roundChevronRight} className="h-5 w-5" aria-hidden />
@@ -276,8 +279,8 @@ function TeacherCard({
       >
         {t.name}
       </span>
-      <span className="mt-0.5 px-2 text-sm text-muted-foreground">{t.role}</span>
-      <span className="px-2 text-sm text-muted-foreground">{t.place}</span>
+      <span className="mt-0.5 px-2 text-sm text-muted-foreground">{t.role()}</span>
+      <span className="px-2 text-sm text-muted-foreground">{t.place()}</span>
     </button>
   );
 }

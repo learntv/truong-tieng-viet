@@ -15,6 +15,7 @@ import { buildSlides } from "@/components/learning/LessonPage";
 import { ConfettiBurst } from "@/components/learning/ConfettiBurst";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
 import { Button } from "@/components/ui/button";
+import { m } from "@/paraglide/messages";
 
 export const BUFFALO_POS_KEY = "vui-hoc-buffalo-pos";
 
@@ -277,7 +278,7 @@ export function LearningTab({
     return (
       <section className="flex min-h-[60vh] w-full items-center justify-center px-4 text-center text-navy">
         <div>
-          <p className="font-display text-lg font-bold">Chưa có dữ liệu bài học.</p>
+          <p className="font-display text-lg font-bold">{m.learn_no_lesson_data()}</p>
           {error ? (
             <p className="mt-2 text-sm text-muted-foreground">{(error as Error).message}</p>
           ) : null}
@@ -313,10 +314,10 @@ export function LearningTab({
               }}
             />
             <p className="font-display text-xl font-bold text-navy sm:text-2xl">
-              🎉 Em đã hoàn thành cả lộ trình! Em giỏi lắm!
+              {m.learn_roadmap_all_done()}
             </p>
             <Button variant="bevel" tone="stage-4" onClick={dismissCelebration} className="mt-6">
-              Ôn tập lại
+              {m.learn_review_again()}
             </Button>
           </div>
         </div>

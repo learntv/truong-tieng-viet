@@ -20,6 +20,8 @@ import { useSingletonAudio } from "@/hooks/useSingletonAudio";
 import type { Bai, Hinh, NoiDung, QuyenNumber } from "@/lib/learning";
 import { chuDesOfQuyen } from "@/lib/learning";
 import { joinForSpeech, ttsSrc } from "@/lib/tts/text";
+import { glossOf } from "@/lib/localized";
+import { m } from "@/paraglide/messages";
 import { STAGE_COLORS } from "./stageColors";
 import { ConfettiBurst } from "./ConfettiBurst";
 import { ImageHighlightOverlay } from "./ImageHighlightOverlay";
@@ -66,7 +68,7 @@ function BackToMapButton({
         e.preventDefault();
         router.history.back();
       }}
-      aria-label="Quay lại bản đồ"
+      aria-label={m.learn_back_to_map()}
       className={[className, color.bgSoft, color.bevel, color.bevelActive].join(" ")}
     >
       <Icon icon={roundArrowBack} className={[arrowClassName, color.text].join(" ")} aria-hidden />
@@ -76,13 +78,13 @@ function BackToMapButton({
 }
 
 function toYouTubeEmbed(url: string): string | null {
-  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
-  if (!m) return null;
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  if (!match) return null;
   // youtube-nocookie.com + an explicit origin cut down on the third-party-cookie /
   // storage-access checks that cause the embedded player to intermittently fail with
   // "An error occurred" in browsers with strict tracking protection or ad blockers.
   const origin = typeof window !== "undefined" ? window.location.origin : "";
-  return `https://www.youtube-nocookie.com/embed/${m[1]}?origin=${encodeURIComponent(origin)}`;
+  return `https://www.youtube-nocookie.com/embed/${match[1]}?origin=${encodeURIComponent(origin)}`;
 }
 
 function AudioButton({ src }: { src: string }) {
@@ -99,7 +101,7 @@ function AudioButton({ src }: { src: string }) {
       />
       <button
         onClick={playing ? pause : play}
-        aria-label={playing ? "Dừng" : "Nghe"}
+        aria-label={playing ? m.learn_audio_stop() : m.learn_audio_listen()}
         className={[
           "cursor-pointer grid h-8 w-8 shrink-0 place-items-center rounded-full transition-[transform,box-shadow,background-color] ease-bounce active:translate-y-[1px]",
           playing
@@ -135,7 +137,7 @@ function VideoEmbed({ url }: { url: string }) {
           className="inline-flex shrink-0 items-center gap-1 self-start text-xs font-medium text-primary hover:underline"
         >
           <Icon icon={roundOpenInNew} className="h-3.5 w-3.5" aria-hidden />
-          Video không phát được? Mở trên YouTube
+          {m.learn_video_fallback()}
         </a>
       </div>
     );
@@ -167,7 +169,7 @@ function CloudWord({ text, color }: { text: string; color: StageColor }) {
       />
       <button
         onClick={play}
-        aria-label={`Nghe đọc: ${text}`}
+        aria-label={m.learn_listen_to({ text })}
         className={[
           "relative cursor-pointer overflow-hidden rounded-full border-2 px-3 py-1.5 font-display text-base leading-tight transition-[transform,box-shadow,background-color,color] ease-bounce",
           playing
@@ -247,7 +249,7 @@ function HinhBlock({
             <div className="relative mx-auto w-full sm:flex sm:h-full sm:items-center sm:justify-center">
               <img
                 src={hinh.url}
-                alt={captions[0] || "Hình minh họa"}
+                alt={captions[0] || m.learn_illustration_alt()}
                 loading="eager"
                 decoding="async"
                 onLoad={(e) => {
@@ -264,7 +266,7 @@ function HinhBlock({
           </div>
         ) : (
           <div className="grid min-h-0 flex-1 place-items-center rounded-none bg-stone-50 text-xs text-muted-foreground ring-1 ring-border/60 sm:rounded-xl">
-            (Không tải được hình)
+            {m.learn_image_failed()}
           </div>
         )}
       </div>
@@ -316,7 +318,7 @@ function slideIcon(slide: Slide): IconifyIcon {
 
 function slideLabel(slide: Slide, index: number): string {
   const title = slide.nd.title?.trim();
-  const base = title || `Trang ${index + 1}`;
+  const base = title || m.learn_page_n({ n: index + 1 });
   return slide.baiCount > 1 ? `${base} (${slide.baiIndex + 1}/${slide.baiCount})` : base;
 }
 
@@ -351,7 +353,7 @@ function ChangProgressHeader({
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-2">
           <span className="truncate text-xs font-bold uppercase tracking-wide text-muted-foreground">
-            {isCompleted ? "Đã hoàn thành" : "Tiến độ chặng"}
+            {isCompleted ? m.learn_completed() : m.learn_stage_progress()}
           </span>
           <span className="shrink-0 text-xs font-semibold text-navy">
             {slideIndex + 1}/{total}
@@ -428,7 +430,7 @@ function LessonSidebar({
       <div className="shrink-0 border-b border-border px-3 py-2.5">
         {/* Quyển › Chủ đề, each crumb its own link. */}
         <nav
-          aria-label="Đường dẫn"
+          aria-label={m.learn_breadcrumb()}
           className="flex items-center justify-center gap-1 text-xs font-bold uppercase tracking-wide"
         >
           <Link
@@ -436,7 +438,7 @@ function LessonSidebar({
             params={{ quyenNumber: String(quyenNumber) }}
             className={["shrink-0 hover:underline", color.text].join(" ")}
           >
-            Quyển {quyenNumber}
+            {m.learn_book_n({ n: quyenNumber })}
           </Link>
           <Icon
             icon={roundChevronRight}
@@ -455,7 +457,7 @@ function LessonSidebar({
           <button
             onClick={() => prevChang && onGoChang(prevChang.id)}
             disabled={!prevChang}
-            aria-label="Chặng trước"
+            aria-label={m.learn_prev_stage()}
             className={[
               "grid h-7 w-7 shrink-0 place-items-center rounded-full text-navy transition",
               prevChang ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed opacity-30",
@@ -464,12 +466,13 @@ function LessonSidebar({
             <Icon icon={roundChevronLeft} className="h-4 w-4" aria-hidden />
           </button>
           <p className="min-w-0 flex-1 truncate text-center font-display text-sm font-bold text-navy">
-            Chặng {changIndex + 1}/{changCount}: {chang.title}
+            {m.learn_stage_n_of({ n: changIndex + 1, total: changCount })}:{" "}
+            <span lang="vi">{chang.title}</span>
           </p>
           <button
             onClick={() => nextChang && onGoChang(nextChang.id)}
             disabled={!nextChang}
-            aria-label="Chặng kế tiếp"
+            aria-label={m.learn_next_stage()}
             className={[
               "grid h-7 w-7 shrink-0 place-items-center rounded-full text-navy transition",
               nextChang ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed opacity-30",
@@ -531,7 +534,11 @@ function LessonSidebar({
                   {slideLabel(s, i)}
                 </span>
                 <span className="block truncate text-xs text-muted-foreground">
-                  {isActive ? "Đang học" : isDone ? "Đã học" : "Chưa học"}
+                  {isActive
+                    ? m.learn_item_active()
+                    : isDone
+                      ? m.learn_item_done()
+                      : m.learn_item_todo()}
                 </span>
               </span>
             </button>
@@ -703,13 +710,13 @@ export function LessonPage({
       <div className="flex h-dvh w-full flex-col items-center justify-center bg-background px-4 text-center">
         <div className="mb-4 text-6xl">🔍</div>
         <h1 className="mb-2 font-display text-2xl font-bold text-navy">
-          Không tìm thấy bài học
+          {m.learn_lesson_not_found()}
         </h1>
-        <p className="mb-6 text-muted-foreground">Chặng học này không tồn tại hoặc đã bị xóa.</p>
+        <p className="mb-6 text-muted-foreground">{m.learn_stage_not_found_body()}</p>
         <Button variant="bevel" tone="primary" asChild>
           <Link to="/hoc-tap/quyen-{$quyenNumber}" params={{ quyenNumber: String(quyenNumber) }}>
             <Icon icon={roundArrowBack} className="h-4 w-4" aria-hidden />
-            Quay lại lộ trình
+            {m.learn_back_to_roadmap()}
           </Link>
         </Button>
       </div>
@@ -735,6 +742,10 @@ export function LessonPage({
     return [];
   })();
   const hasSpeakableText = !!bai && bai.texts.some((t) => t.trim().length > 0);
+  // English glosses of the nội dung label and the bài's instruction, shown only in the English
+  // UI and only when an editor added one. The Vietnamese stays, and is all that is read aloud.
+  const noiDungGloss = currentNoiDung ? glossOf({ en: currentNoiDung.titleEn }) : undefined;
+  const baiGloss = bai && bai.texts.length > 0 ? glossOf({ en: bai.textEn }) : undefined;
   // A manually-curated narration takes priority over TTS (skip synthesis entirely when
   // someone already recorded/uploaded real audio for this bài), and — same as before TTS
   // existed — its presence is also what hides the per-word cloud below: a full narration
@@ -768,8 +779,8 @@ export function LessonPage({
     const ok = await markChangComplete(chang.id, currentSlide?.ndIndex ?? 0);
     setShowConfetti(true);
     if (ok) {
-      toast.success(`Chặng ${changIndex + 1} hoàn thành! 🎉`, {
-        description: "Tiếp tục giỏi nhé!",
+      toast.success(m.learn_stage_done_toast({ n: changIndex + 1 }), {
+        description: m.learn_stage_done_toast_desc(),
         duration: 3000,
       });
     }
@@ -881,7 +892,7 @@ export function LessonPage({
           {/* Collapse handle: an oval tab riding the lesson panel's own left edge. */}
           <button
             onClick={() => setRailOpen((v) => !v)}
-            aria-label={railOpen ? "Ẩn danh sách bài" : "Hiện danh sách bài"}
+            aria-label={railOpen ? m.learn_hide_lesson_list() : m.learn_show_lesson_list()}
             // Flush D-tab: square against the panel's own left edge (no radius, no border
             // there), rounded only on the side that pokes into the content.
             className="absolute left-0 top-1/2 z-20 hidden h-11 w-7 -translate-y-1/2 cursor-pointer place-items-center rounded-l-none rounded-r-full border border-l-0 border-border bg-card text-navy shadow-[1px_1px_4px_rgba(0,0,0,0.10)] transition hover:bg-muted lg:grid"
@@ -899,7 +910,7 @@ export function LessonPage({
           <div className="flex shrink-0 items-center gap-2 border-b border-border bg-secondary/15 px-3 py-2 sm:gap-3 sm:px-4">
             <button
               onClick={() => setMobileRailOpen(true)}
-              aria-label="Danh sách bài"
+              aria-label={m.learn_lesson_list()}
               className="grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-full text-navy transition hover:bg-muted lg:hidden"
             >
               <Icon icon={roundMenu} className="h-4 w-4" aria-hidden />
@@ -925,7 +936,8 @@ export function LessonPage({
                   >
                     {currentNoiDung?.title && i === 0 && (
                       <span className="mr-1 inline-flex items-center gap-1 align-middle text-sm font-semibold text-stage-2-deep sm:text-base">
-                        {currentNoiDung.title}
+                        <span lang="vi">{currentNoiDung.title}</span>
+                        {noiDungGloss && <span className="font-normal">({noiDungGloss})</span>}
                         <Icon
                           icon={roundChevronRight}
                           className="h-3.5 w-3.5 shrink-0 opacity-70"
@@ -933,9 +945,12 @@ export function LessonPage({
                         />
                       </span>
                     )}
-                    {t}
+                    <span lang="vi">{t}</span>
                   </p>
                 ))}
+                {baiGloss && (
+                  <p className="text-xs text-muted-foreground sm:text-sm">{baiGloss}</p>
+                )}
               </div>
               {hasSpeakableText && (
                 <AudioButton src={manualAudioUrl ?? ttsSrc(joinForSpeech(bai.texts))} />
@@ -1021,7 +1036,7 @@ export function LessonPage({
                 })()
               ) : (
                 <p className="text-center text-sm text-muted-foreground">
-                  Nội dung đang được cập nhật.
+                  {m.learn_content_updating()}
                 </p>
               )}
             </div>
@@ -1033,19 +1048,19 @@ export function LessonPage({
             <button
               onClick={() => goTo(slideIndex - 1)}
               disabled={!canPrev}
-              aria-label="Bài trước"
+              aria-label={m.learn_prev_lesson()}
               className={[
                 "flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-2 text-sm font-medium text-navy transition sm:px-3",
                 canPrev ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed opacity-40",
               ].join(" ")}
             >
               <Icon icon={roundChevronLeft} className="h-4 w-4" aria-hidden />
-              <span className="hidden sm:inline">Bài trước</span>
+              <span className="hidden sm:inline">{m.learn_prev_lesson()}</span>
             </button>
 
             <div className="flex min-w-0 flex-1 items-center justify-center">
               <span className="truncate text-sm font-semibold text-navy">
-                Trang {slideIndex + 1} / {total}
+                {m.learn_page_of({ n: slideIndex + 1, total })}
               </span>
             </div>
 
@@ -1066,7 +1081,7 @@ export function LessonPage({
                     <span className="pointer-events-none absolute inset-0 animate-shine bg-gradient-to-r from-transparent via-white/50 to-transparent" />
                   )}
                   <Icon icon={roundCheck} className="h-4 w-4" aria-hidden />
-                  {isCompleted ? "Đã hoàn thành" : "Hoàn thành"}
+                  {isCompleted ? m.learn_completed() : m.learn_complete()}
                 </button>
               </>
             ) : (
@@ -1079,7 +1094,7 @@ export function LessonPage({
                   canNext ? "cursor-pointer hover:brightness-110" : "cursor-not-allowed opacity-40",
                 ].join(" ")}
               >
-                Tiếp tục
+                {m.learn_continue()}
                 <Icon icon={roundChevronRight} className="h-4 w-4" aria-hidden />
               </button>
             )}
@@ -1095,7 +1110,7 @@ export function LessonPage({
           <div className="relative flex items-stretch overflow-hidden rounded-3xl border border-border bg-card shadow-card">
             <button
               onClick={() => setShowNextPrompt(false)}
-              aria-label="Đóng"
+              aria-label={m.learn_close()}
               className="absolute right-1.5 top-1.5 grid h-6 w-6 cursor-pointer place-items-center rounded-full text-muted-foreground transition hover:bg-muted"
             >
               <Icon icon={roundClose} className="h-3.5 w-3.5" aria-hidden />
@@ -1114,7 +1129,7 @@ export function LessonPage({
               </span>
               <span className="min-w-0">
                 <span className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Bài kế tiếp
+                  {m.learn_next_lesson()}
                 </span>
                 <span className="block truncate font-display text-sm font-semibold text-navy">
                   {nextChang.title}

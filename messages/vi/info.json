@@ -1,0 +1,28 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "info_last_updated": "Cập nhật lần cuối: {date}",
+
+  "info_privacy_title": "Chính sách bảo mật",
+  "info_privacy_meta_description": "Chính sách bảo mật của Trường Tiếng Việt Của Em: dữ liệu chúng tôi thu thập, cách sử dụng, và quyền của phụ huynh/học sinh.",
+  "info_privacy_og_description": "Dữ liệu chúng tôi thu thập, cách sử dụng, và quyền của phụ huynh/học sinh.",
+
+  "info_terms_title": "Điều khoản sử dụng",
+  "info_terms_meta_description": "Điều khoản sử dụng của Trường Tiếng Việt Của Em: quyền và trách nhiệm khi sử dụng nền tảng học tiếng Việt.",
+
+  "info_faq_title": "Câu hỏi thường gặp",
+  "info_faq_meta_description": "Câu hỏi thường gặp về Trường Tiếng Việt Của Em: chi phí, độ tuổi phù hợp, luyện nói, quyền riêng tư của trẻ và cách được hỗ trợ.",
+  "info_faq_og_description": "Giải đáp những thắc mắc thường gặp của phụ huynh và học sinh.",
+
+  "info_guide_title": "Hướng dẫn sử dụng",
+  "info_guide_meta_description": "Hướng dẫn sử dụng Trường Tiếng Việt Của Em: cách tạo tài khoản, học bảng chữ cái, làm bài học, luyện nói và theo dõi tiến trình.",
+  "info_guide_og_description": "Cách bắt đầu học tiếng Việt cùng con trên Trường Tiếng Việt Của Em.",
+
+  "info_contact_title": "Liên hệ",
+  "info_contact_meta_description": "Liên hệ với Trường Tiếng Việt Của Em và Canada Vietnam Cultural & Educational Council (CVCEC) qua email, WhatsApp, mạng xã hội hoặc địa chỉ tại Toronto, Canada.",
+  "info_contact_og_description": "Kết nối với chúng tôi qua email, WhatsApp, mạng xã hội hoặc địa chỉ tại Toronto.",
+  "info_contact_intro_before": "Trường Tiếng Việt Của Em được vận hành bởi",
+  "info_contact_intro_after": ". Nếu bạn có câu hỏi, góp ý hoặc mong muốn hợp tác, hãy liên hệ với chúng tôi qua các kênh dưới đây.",
+  "info_contact_email": "Email",
+  "info_contact_address": "Địa chỉ",
+  "info_contact_follow_us": "Theo dõi chúng tôi"
+}

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { chuDesOfQuyen, learningStructureQueryOptions, parseQuyenNumber } from "@/lib/learning";
 import { useLearningProgress } from "@/hooks/useLearningProgress";
 import { OverworldMap } from "@/components/learning/OverworldMap";
+import { m } from "@/paraglide/messages";
 
 // "/hoc-tap/quyen-N" is the hub of the book: an overworld map of Việt Nam with one landmark per
 // chủ đề. Moving between chủ đề goes through this map rather than a stepper, so the child always
@@ -10,8 +11,8 @@ import { OverworldMap } from "@/components/learning/OverworldMap";
 export const Route = createFileRoute("/hoc-tap/quyen-{$quyenNumber}/")({
   head: ({ params }) => {
     const n = params.quyenNumber;
-    const title = `Bản đồ Quyển ${n} | Trường Tiếng Việt Của Em`;
-    const description = `Bản đồ Việt Nam với các chủ đề của Quyển ${n}: chọn địa danh để bắt đầu hành trình học tiếng Việt cùng con.`;
+    const title = m.learn_meta_map_title({ n });
+    const description = m.learn_meta_map_description({ n });
     const url = `/hoc-tap/quyen-${n}`;
     return {
       meta: [
@@ -48,7 +49,7 @@ function RouteComponent() {
     return (
       <section className="flex min-h-[60vh] w-full items-center justify-center px-4 text-center text-navy">
         <div>
-          <p className="font-display text-lg font-bold">Chưa có dữ liệu bài học.</p>
+          <p className="font-display text-lg font-bold">{m.learn_no_lesson_data()}</p>
           {error ? (
             <p className="mt-2 text-sm text-muted-foreground">{(error as Error).message}</p>
           ) : null}

@@ -1,3 +1,5 @@
+import { TranslationsAfterInput as TranslationsAfterInput_45c6755456c300b904426bf8deb5c822 } from '@/components/admin/TranslationInputs'
+import { RenderNothing as RenderNothing_45c6755456c300b904426bf8deb5c822 } from '@/components/admin/TranslationInputs'
 import { ChuDeGrid as ChuDeGrid_80e6105b636695961f9526513d5b51f4 } from '@/components/admin/ChuDeGrid'
 import { AudioPreview as AudioPreview_24dd34507baf1ccf7c8db54c358a7795 } from '@/components/admin/AudioPreview'
 import { YouTubePreview as YouTubePreview_62128ccb8f4500a29b16fcfb62cea729 } from '@/components/admin/YouTubePreview'
@@ -19,6 +21,8 @@ import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } f
 
 /** @type import('payload').ImportMap */
 export const importMap = {
+  "@/components/admin/TranslationInputs#TranslationsAfterInput": TranslationsAfterInput_45c6755456c300b904426bf8deb5c822,
+  "@/components/admin/TranslationInputs#RenderNothing": RenderNothing_45c6755456c300b904426bf8deb5c822,
   "@/components/admin/ChuDeGrid#ChuDeGrid": ChuDeGrid_80e6105b636695961f9526513d5b51f4,
   "@/components/admin/AudioPreview#AudioPreview": AudioPreview_24dd34507baf1ccf7c8db54c358a7795,
   "@/components/admin/YouTubePreview#YouTubePreview": YouTubePreview_62128ccb8f4500a29b16fcfb62cea729,

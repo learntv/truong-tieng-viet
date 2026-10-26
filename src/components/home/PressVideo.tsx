@@ -4,6 +4,8 @@ import roundOpenInNew from "@iconify-icons/ic/round-open-in-new";
 import roundPlayArrow from "@iconify-icons/ic/round-play-arrow";
 import poster from "@/assets/vna-ket-noi-coi-nguon-poster.webp";
 import vietnamMediaLogo from "@/assets/press/vietnam-media-logo.png";
+import { m } from "@/paraglide/messages";
+import { formatPressDate } from "./pressDate";
 
 /**
  * The VNA television report on the project's launch, played in place.
@@ -20,6 +22,9 @@ const ARTICLE_URL =
 
 const STREAM_URL =
   "https://storageovp.vnews.gov.vn/mediacache/TS/2026_07/26/VNTNUZDWCOAB/hls/master.m3u8";
+
+const HEADLINE = "Kết nối thế hệ trẻ kiều bào với cội nguồn";
+const DATE = "2026-07-26";
 
 function VnaPlayer() {
   const [playing, setPlaying] = useState(false);
@@ -69,16 +74,14 @@ function VnaPlayer() {
   if (failed) {
     return (
       <div className="grid aspect-video w-full place-items-center gap-3 bg-box-cream p-6 text-center">
-        <p className="text-sm leading-relaxed text-sky-ink-soft">
-          Không phát được video ở đây. Em có thể xem bản gốc trên trang của Thông tấn xã Việt Nam.
-        </p>
+        <p className="text-sm leading-relaxed text-sky-ink-soft">{m.home_video_failed()}</p>
         <a
           href={ARTICLE_URL}
           target="_blank"
           rel="noreferrer"
           className="font-display text-sm font-extrabold text-indigo hover:underline"
         >
-          Xem trên VNA
+          {m.home_video_watch_on_vna()}
         </a>
       </div>
     );
@@ -91,7 +94,7 @@ function VnaPlayer() {
       <button
         type="button"
         onClick={() => setPlaying(true)}
-        aria-label="Phát video: Kết nối thế hệ trẻ kiều bào với cội nguồn"
+        aria-label={m.home_video_play({ title: HEADLINE })}
         className="group relative block aspect-video w-full cursor-pointer overflow-hidden"
       >
         <img
@@ -156,17 +159,21 @@ export function PressVideo() {
         <div className="flex min-h-8 items-center justify-between gap-3">
           <img src={vietnamMediaLogo} alt="VietNam Media (TTXVN)" className="h-5 w-auto" />
           <time
-            dateTime="2026-07-26"
+            dateTime={DATE}
             className="shrink-0 font-display text-xs font-bold text-sky-ink-soft"
           >
-            26-07-2026
+            {formatPressDate(DATE)}
           </time>
         </div>
 
-        <h3 className="mt-3 font-display text-lg leading-snug font-extrabold text-sky-ink">
-          Kết nối thế hệ trẻ kiều bào với cội nguồn
+        {/* The report's own words, so they stay Vietnamese in every UI language. */}
+        <h3
+          lang="vi"
+          className="mt-3 font-display text-lg leading-snug font-extrabold text-sky-ink"
+        >
+          {HEADLINE}
         </h3>
-        <p className="mt-2 line-clamp-4 text-sm leading-relaxed text-sky-ink-soft">
+        <p lang="vi" className="mt-2 line-clamp-4 text-sm leading-relaxed text-sky-ink-soft">
           Một nền tảng học tiếng Việt trực tuyến có tên “Trường Tiếng Việt Online” dành riêng cho
           con em người Việt ở nước ngoài vừa được ra mắt tại Canada. Sự kiện do Hội đồng Văn hóa
           Giáo dục Canada-Việt Nam tổ chức theo hình thức trực tiếp kết hợp trực tuyến.
@@ -178,7 +185,7 @@ export function PressVideo() {
           rel="noreferrer"
           className="mt-auto inline-flex w-fit items-center gap-1.5 pt-3 font-display text-sm font-extrabold text-indigo hover:text-indigo-deep hover:underline"
         >
-          Xem bài gốc
+          {m.home_video_read_original()}
           <Icon icon={roundOpenInNew} className="h-4 w-4" aria-hidden />
         </a>
       </div>

@@ -10,21 +10,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
-      { title: "Đặt lại mật khẩu | Trường Tiếng Việt Của Em" },
+      { title: m.account_reset_meta_title() },
       {
         name: "description",
-        content:
-          "Đặt lại mật khẩu tài khoản Trường Tiếng Việt Của Em sau khi nhận liên kết khôi phục qua email.",
+        content: m.account_reset_meta_description(),
       },
       { name: "robots", content: "noindex" },
-      { property: "og:title", content: "Đặt lại mật khẩu | Trường Tiếng Việt Của Em" },
+      { property: "og:title", content: m.account_reset_meta_title() },
       {
         property: "og:description",
-        content: "Đặt mật khẩu mới cho tài khoản của bạn.",
+        content: m.account_reset_og_description(),
       },
       { property: "og:url", content: "/reset-password" },
     ],
@@ -33,17 +33,19 @@ export const Route = createFileRoute("/reset-password")({
   component: ResetPassword,
 });
 
-const schema = z
-  .object({
-    password: z.string().min(6, "Mật khẩu tối thiểu 6 ký tự"),
-    confirm: z.string(),
-  })
-  .refine((d) => d.password === d.confirm, {
-    message: "Mật khẩu không khớp",
-    path: ["confirm"],
-  });
+// Built per render so the validation messages follow the current locale.
+const makeSchema = () =>
+  z
+    .object({
+      password: z.string().min(6, m.account_password_min()),
+      confirm: z.string(),
+    })
+    .refine((d) => d.password === d.confirm, {
+      message: m.account_passwords_mismatch(),
+      path: ["confirm"],
+    });
 
-type FormValues = z.infer<typeof schema>;
+type FormValues = z.infer<ReturnType<typeof makeSchema>>;
 
 function ResetPassword() {
   const navigate = useNavigate();
@@ -57,14 +59,14 @@ function ResetPassword() {
       if (session) {
         setReady(true);
       } else {
-        toast.error("Liên kết không hợp lệ hoặc đã hết hạn.");
+        toast.error(m.account_reset_link_invalid());
         navigate({ to: "/" });
       }
     });
   }, [navigate]);
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(makeSchema()),
   });
 
   const onSubmit = async ({ password }: FormValues) => {
@@ -72,9 +74,9 @@ function ResetPassword() {
     const { error } = await supabase.auth.updateUser({ password });
     setLoading(false);
     if (error) {
-      toast.error("Không thể đặt lại mật khẩu", { description: error.message });
+      toast.error(m.account_reset_failed(), { description: error.message });
     } else {
-      toast.success("Mật khẩu đã được cập nhật!");
+      toast.success(m.account_password_updated());
       navigate({ to: "/" });
     }
   };
@@ -84,19 +86,19 @@ function ResetPassword() {
       <main className="flex flex-1 items-center justify-center px-4">
         <div className="w-full max-w-sm space-y-6">
           <div className="text-center">
-            <h1 className="font-display text-2xl font-bold text-navy">Đặt lại mật khẩu</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Nhập mật khẩu mới cho tài khoản của bạn.</p>
+            <h1 className="font-display text-2xl font-bold text-navy">{m.account_reset_title()}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{m.account_reset_intro()}</p>
           </div>
 
           {ready && (
             <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-1.5">
-                <Label htmlFor="new-password">Mật khẩu mới</Label>
+                <Label htmlFor="new-password">{m.account_new_password()}</Label>
                 <Input id="new-password" type="password" placeholder="••••••" {...register("password")} />
                 {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="confirm-password">Xác nhận mật khẩu</Label>
+                <Label htmlFor="confirm-password">{m.account_confirm_password()}</Label>
                 <Input id="confirm-password" type="password" placeholder="••••••" {...register("confirm")} />
                 {errors.confirm && <p className="text-xs text-destructive">{errors.confirm.message}</p>}
               </div>
@@ -104,7 +106,7 @@ function ResetPassword() {
                 {loading && (
                   <Icon icon={mdiLoading} className="mr-2 h-4 w-4 animate-spin" aria-hidden />
                 )}
-                Cập nhật mật khẩu
+                {m.account_update_password()}
               </Button>
             </form>
           )}

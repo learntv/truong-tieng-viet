@@ -4,11 +4,12 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { Stars } from "@/lib/speech";
 import type { SpeakingProgress, SpeakingStat } from "@/lib/speaking-progress";
+import { m } from "@/paraglide/messages";
 
 function notifySaveFailed() {
-  toast.error("Chưa lưu được tiến độ nói", {
+  toast.error(m.learn_speaking_save_failed(), {
     id: "speaking-progress-save-failed",
-    description: "Em kiểm tra kết nối mạng rồi thử lại nhé!",
+    description: m.learn_save_failed_desc(),
   });
 }
 
@@ -88,8 +89,8 @@ export function useSpeakingUserProgress(userId: string | null) {
         .in("sentence_id", ids);
       if (fetchError) {
         console.error("Speaking progress merge fetch error:", fetchError);
-        toast.error("Một phần tiến độ nói cũ chưa lưu được vào tài khoản", {
-          description: "Em kiểm tra mạng rồi tải lại trang nhé!",
+        toast.error(m.learn_speaking_merge_failed(), {
+          description: m.learn_merge_failed_desc(),
         });
         return false;
       }
@@ -112,8 +113,8 @@ export function useSpeakingUserProgress(userId: string | null) {
         .upsert(rows, { onConflict: "user_id,sentence_id" });
       if (error) {
         console.error("Speaking progress merge upsert error:", error);
-        toast.error("Một phần tiến độ nói cũ chưa lưu được vào tài khoản", {
-          description: "Em kiểm tra mạng rồi tải lại trang nhé!",
+        toast.error(m.learn_speaking_merge_failed(), {
+          description: m.learn_merge_failed_desc(),
         });
         return false;
       }

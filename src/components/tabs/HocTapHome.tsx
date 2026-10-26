@@ -19,6 +19,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { m } from "@/paraglide/messages";
 
 /** The Vui Học Tiếng Việt books, each opening its own quyển. */
 const books = [
@@ -28,8 +29,8 @@ const books = [
 
 type Practice = {
   to: "/hoc-tap/bang-chu-cai" | "/hoc-tap/luyen-noi" | "/hoc-tap/tap-viet";
-  title: string;
-  body: string;
+  title: () => string;
+  body: () => string;
   tone: Tone;
   /** A landscape illustration painted on the card's own tone, filling the art window. */
   image: string;
@@ -38,22 +39,22 @@ type Practice = {
 const practices: Practice[] = [
   {
     to: "/hoc-tap/tap-viet",
-    title: "Tập viết",
-    body: "Tô chữ theo nét trên trang vở.",
+    title: m.learn_handwriting,
+    body: m.learn_practice_handwriting_body,
     tone: "ice",
     image: thumbTapViet,
   },
   {
     to: "/hoc-tap/luyen-noi",
-    title: "Luyện nói",
-    body: "Nghe cô đọc mẫu rồi nói theo nhé.",
+    title: m.learn_speaking,
+    body: m.learn_practice_speaking_body,
     tone: "mint",
     image: thumbLuyenNoi,
   },
   {
     to: "/hoc-tap/bang-chu-cai",
-    title: "Bảng chữ cái",
-    body: "Gặp bạn thú và nghe cách đọc từng chữ.",
+    title: m.learn_alphabet,
+    body: m.learn_practice_alphabet_body,
     tone: "sun",
     image: thumbBangChuCai,
   },
@@ -69,8 +70,8 @@ export function HocTapHome() {
   return (
     <div className="pb-10 sm:pb-12">
       <PageBanner
-        title="Em muốn học gì hôm nay?"
-        crumb="Học tập"
+        title={m.learn_home_title()}
+        crumb={m.learn_learning()}
         art={
           // Mirrored so he faces into the banner, toward the heading.
           <Mascot
@@ -82,7 +83,7 @@ export function HocTapHome() {
       />
 
       <section className="mt-10 px-4 sm:mt-12 sm:px-8">
-        <SectionHeading title="Chương trình học" />
+        <SectionHeading title={m.learn_home_programs()} />
         <div className="mt-5 grid gap-4 sm:grid-cols-2 sm:gap-5">
           <VuiHocCard />
           <KmdCard />
@@ -90,7 +91,7 @@ export function HocTapHome() {
       </section>
 
       <section className="mt-10 px-4 sm:mt-12 sm:px-8">
-        <SectionHeading title="Luyện thêm" />
+        <SectionHeading title={m.learn_home_practice()} />
         <div className="mt-5 grid gap-3 sm:grid-cols-3 sm:gap-4">
           {practices.map((practice) => (
             <PracticeCard key={practice.to} practice={practice} />
@@ -200,10 +201,7 @@ function VuiHocCard() {
             />
           ))}
         </div>
-        <ProgramCardText
-          title="Chương trình Vui Học Tiếng Việt"
-          body="Vui học Tiếng Việt, quyển 1 và 2, NXB ĐH Sư Phạm TP Hồ Chí Minh"
-        />
+        <ProgramCardText title={m.learn_vui_hoc_title()} body={m.learn_vui_hoc_body()} />
       </Link>
 
       <Dialog open={sach === "vui-hoc"} onOpenChange={(o) => !o && closeMenu()}>
@@ -213,12 +211,12 @@ function VuiHocCard() {
         >
           <DialogClose className="absolute right-3 top-3 z-10 grid h-10 w-10 cursor-pointer place-items-center rounded-full bg-white/80 text-sky-ink transition-colors hover:bg-white">
             <Icon icon={roundClose} className="h-5 w-5" aria-hidden />
-            <span className="sr-only">Đóng</span>
+            <span className="sr-only">{m.learn_close()}</span>
           </DialogClose>
           <DialogTitle className="pr-10 font-display text-xl font-bold text-sky-ink sm:text-2xl">
-            Chương trình Vui Học Tiếng Việt
+            {m.learn_vui_hoc_title()}
           </DialogTitle>
-          <DialogDescription className="sr-only">Chọn quyển em muốn học.</DialogDescription>
+          <DialogDescription className="sr-only">{m.learn_pick_book()}</DialogDescription>
 
           <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-5">
             {books.map((book) => (
@@ -235,7 +233,7 @@ function VuiHocCard() {
                 />
                 <span className="flex w-full items-center justify-between gap-2 px-1">
                   <span className="font-display text-lg font-bold text-sky-ink">
-                    Quyển {book.quyenNumber}
+                    {m.learn_book_n({ n: book.quyenNumber })}
                   </span>
                   <CardArrow />
                 </span>
@@ -268,10 +266,7 @@ function KmdCard() {
         />
         <img src={kmdArt} alt="" className="aspect-[600/382] w-full object-contain" />
       </div>
-      <ProgramCardText
-        title="Chương trình Tiếng Việt và Văn Hoá Truyền Thống"
-        body="Giáo trình Khai Minh Đức, tiên học lễ, hậu học văn"
-      />
+      <ProgramCardText title={m.learn_kmd_title()} body={m.learn_kmd_body()} />
     </Link>
   );
 }
@@ -304,10 +299,10 @@ function PracticeCard({ practice }: { practice: Practice }) {
       <div className="flex flex-1 items-end gap-2 px-2 pb-1.5 pt-3">
         <div className="min-w-0 flex-1">
           <h3 className="font-display text-base font-bold leading-tight text-sky-ink sm:text-lg">
-            {practice.title}
+            {practice.title()}
           </h3>
           <p className="mt-0.5 text-xs leading-snug text-sky-ink-soft sm:text-sm">
-            {practice.body}
+            {practice.body()}
           </p>
         </div>
         <CardArrow />

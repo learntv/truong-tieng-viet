@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { HocTapHome } from "@/components/tabs/HocTapHome";
+import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/hoc-tap/")({
   // `sach=vui-hoc` opens the Vui Học Tiếng Việt book menu over the page.
@@ -8,18 +9,10 @@ export const Route = createFileRoute("/hoc-tap/")({
   }),
   head: () => ({
     meta: [
-      { title: "Học tập | Trường Tiếng Việt Của Em" },
-      {
-        name: "description",
-        content:
-          "Chọn lộ trình học, bảng chữ cái, luyện nói hoặc tập viết để bắt đầu học tiếng Việt cùng Trâu con.",
-      },
-      { property: "og:title", content: "Học tập | Trường Tiếng Việt Của Em" },
-      {
-        property: "og:description",
-        content:
-          "Chọn lộ trình học, bảng chữ cái, luyện nói hoặc tập viết để bắt đầu học tiếng Việt cùng Trâu con.",
-      },
+      { title: m.learn_meta_index_title() },
+      { name: "description", content: m.learn_meta_index_description() },
+      { property: "og:title", content: m.learn_meta_index_title() },
+      { property: "og:description", content: m.learn_meta_index_description() },
       { property: "og:url", content: "/hoc-tap" },
     ],
     links: [{ rel: "canonical", href: "/hoc-tap" }],

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { m } from "@/paraglide/messages";
 import cheer from "@/assets/mascot/cheer.png";
 import crying from "@/assets/mascot/crying.png";
 import flying from "@/assets/mascot/flying.png";
@@ -15,20 +16,20 @@ import wave from "@/assets/mascot/wave.png";
 // Trâu con, the school mascot. Each pose carries its own alt text so screen
 // readers hear what he is doing, not just that he exists.
 const POSES = {
-  cheer: { src: cheer, alt: "Trâu con reo mừng" },
-  crying: { src: crying, alt: "Trâu con đang khóc" },
-  flying: { src: flying, alt: "Trâu con bay lên" },
-  hiking: { src: hiking, alt: "Trâu con đi leo núi" },
-  listening: { src: listening, alt: "Trâu con đang lắng nghe" },
-  peeking: { src: peeking, alt: "Trâu con ló đầu ra" },
+  cheer: { src: cheer, alt: m.learn_mascot_cheer },
+  crying: { src: crying, alt: m.learn_mascot_crying },
+  flying: { src: flying, alt: m.learn_mascot_flying },
+  hiking: { src: hiking, alt: m.learn_mascot_hiking },
+  listening: { src: listening, alt: m.learn_mascot_listening },
+  peeking: { src: peeking, alt: m.learn_mascot_peeking },
   // Cropped flat at the bottom — sits on an edge, so pair it with a container
   // border rather than floating it in open space.
-  "peeking-over": { src: peekingOver, alt: "Trâu con ló đầu lên nhìn" },
-  reading: { src: reading, alt: "Trâu con đang đọc sách" },
-  "reading-sitting": { src: readingSitting, alt: "Trâu con ngồi đọc sách" },
-  thinking: { src: thinking, alt: "Trâu con đang suy nghĩ" },
-  "thumbs-up": { src: thumbsUp, alt: "Trâu con giơ ngón tay cái" },
-  wave: { src: wave, alt: "Trâu con vẫy tay chào" },
+  "peeking-over": { src: peekingOver, alt: m.learn_mascot_peeking_over },
+  reading: { src: reading, alt: m.learn_mascot_reading },
+  "reading-sitting": { src: readingSitting, alt: m.learn_mascot_reading_sitting },
+  thinking: { src: thinking, alt: m.learn_mascot_thinking },
+  "thumbs-up": { src: thumbsUp, alt: m.learn_mascot_thumbs_up },
+  wave: { src: wave, alt: m.learn_mascot_wave },
 } as const;
 
 export type MascotPose = keyof typeof POSES;
@@ -57,7 +58,7 @@ export function Mascot({
   return (
     <img
       src={src}
-      alt={decorative ? "" : alt}
+      alt={decorative ? "" : alt()}
       aria-hidden={decorative || undefined}
       className={cn("w-auto shrink-0 object-contain", SIZES[size], bob && "animate-bob", className)}
     />
