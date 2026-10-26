@@ -379,32 +379,15 @@ function decoys(idiom: Idiom, seed: number) {
 }
 
 /**
- * The English for an idiom or a word, when the site isn't in Vietnamese: set
- * under the question and under every answer, so a child learning from English
- * can follow along. Plain weight, so the Vietnamese above it stays the thing
- * being read; on a green right answer it turns white.
+ * The English for an idiom, when the site isn't in Vietnamese: set under the
+ * question so a child learning from English can follow along. Plain weight, so
+ * the Vietnamese above it stays the thing being read.
  */
-function Gloss({
-  text,
-  right = false,
-  className = "",
-}: {
-  text: { en: string };
-  right?: boolean;
-  className?: string;
-}) {
+function Gloss({ text, className = "" }: { text: { en: string }; className?: string }) {
   const gloss = glossOf(text);
   if (!gloss) return null;
   return (
-    <span
-      className={cn(
-        "block font-sans font-normal",
-        right ? "text-white/90" : "text-sky-ink-soft",
-        className,
-      )}
-    >
-      {gloss}
-    </span>
+    <span className={cn("block font-sans font-normal text-sky-ink-soft", className)}>{gloss}</span>
   );
 }
 
@@ -470,7 +453,6 @@ function FillGame({ onSeeMeaning }: { onSeeMeaning: (idiom: Idiom) => void }) {
               <span lang="vi" className="block">
                 {option.vi}
               </span>
-              <Gloss text={option} right={state === "right"} className="text-xs" />
             </button>
           );
         })}
@@ -518,11 +500,6 @@ function PictureGame({ onSeeMeaning }: { onSeeMeaning: (idiom: Idiom) => void })
             <span lang="vi" className="block">
               {idiomText(option)}
             </span>
-            <Gloss
-              text={option.translation}
-              right={choices.stateOf(option.id) === "right"}
-              className="text-sm"
-            />
           </button>
         ))}
       </div>
@@ -596,10 +573,6 @@ function MeaningGame({ onSeeMeaning }: { onSeeMeaning: (idiom: Idiom) => void })
                 >
                   {idiomText(option)}
                 </span>
-                <Gloss
-                  text={option.translation}
-                  className="mt-0.5 text-[0.7rem] leading-snug sm:text-sm"
-                />
               </span>
             </button>
           );
@@ -702,7 +675,6 @@ function OrderGame({ onSeeMeaning }: { onSeeMeaning: (idiom: Idiom) => void }) {
                 <span lang="vi" className="block">
                   {idiom.words[chip].vi}
                 </span>
-                <Gloss text={idiom.words[chip]} className="text-xs" />
               </button>
             ),
           )}
@@ -830,10 +802,6 @@ function MemoryGame() {
                       >
                         {idiomText(card.idiom)}
                       </span>
-                      <Gloss
-                        text={card.idiom.translation}
-                        className="mt-1 text-[0.65rem] leading-snug sm:text-xs"
-                      />
                     </span>
                   )}
                 </span>
