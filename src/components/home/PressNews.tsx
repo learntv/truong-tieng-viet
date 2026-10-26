@@ -17,6 +17,8 @@ import vietnamPlusCover from "@/assets/press/vietnamplus-cover.webp";
 import vietnamPlusLogo from "@/assets/press/vietnamplus-logo.png";
 import ketNoiCongDongCover from "@/assets/press/ket-noi-cong-dong-cover.webp";
 import scovLogo from "@/assets/press/scov-logo.png";
+import baoTinTucCover from "@/assets/press/bao-tin-tuc-cover.webp";
+import baoTinTucLogo from "@/assets/press/bao-tin-tuc-logo.png";
 import { m } from "@/paraglide/messages";
 
 /**
@@ -30,24 +32,24 @@ import { m } from "@/paraglide/messages";
  * (og:title / og:description), verbatim, including their spelling.
  *
  * Each masthead carries its own height class because the logos have very
- * different proportions — Báo ảnh Việt Nam is a two-line block, the others are
- * long single-line wordmarks, the SCOV one longest of all — and one shared
- * height would make the block look half the size of the others.
+ * different proportions — Báo ảnh Việt Nam and Tin tức are two-line blocks,
+ * the others are long single-line wordmarks, the SCOV one longest of all — and
+ * one shared height would make the blocks look half the size of the others.
  *
- * The SCOV piece is a reprint of the Vietnam+ one beside it, so they share a
- * cover.
+ * The SCOV piece is a reprint of a Vietnam+ article, so its cover is that
+ * article's.
  */
 const ARTICLES = [
   {
-    press: "Vietnam+ (TTXVN)",
-    logo: vietnamPlusLogo,
-    logoClass: "h-5",
-    cover: ketNoiCongDongCover,
+    press: "Báo Tin tức và Dân tộc (TTXVN)",
+    logo: baoTinTucLogo,
+    logoClass: "h-8",
+    cover: baoTinTucCover,
     date: "2026-10-26",
-    title: "Kết nối cộng đồng người Việt ở Canada để gìn giữ tiếng Việt",
+    title: "Kết nối cộng đồng gìn giữ tiếng Việt cho thế hệ trẻ tại Canada",
     excerpt:
-      "Hội đồng Văn hóa và Giáo dục Canada-Việt Nam (CVCEC) đang từng bước mở rộng mạng lưới dạy tiếng Việt tại nhiều tỉnh bang, góp phần gìn giữ ngôn ngữ và bản sắc văn hóa dân tộc cho thế hệ trẻ.",
-    url: "https://www.vietnamplus.vn/ket-noi-cong-dong-nguoi-viet-o-canada-de-gin-giu-tieng-viet-post1144200.vnp",
+      "Trong bối cảnh nhiều trẻ em gốc Việt tại Canada lớn lên với tiếng Anh hoặc tiếng Pháp là ngôn ngữ chính, việc duy trì tiếng mẹ đẻ đang đòi hỏi sự phối hợp chặt chẽ giữa gia đình, giáo viên và các tổ chức cộng đồng.",
+    url: "https://baotintuc.vn/ket-noi-cong-dong-gin-giu-tieng-viet-cho-the-he-tre-tai-canada-post1397316.html",
   },
   {
     press: "Ủy ban Nhà nước về người Việt Nam ở nước ngoài",
