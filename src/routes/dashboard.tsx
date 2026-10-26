@@ -32,6 +32,8 @@ import { useDashboardStats, type CountryCount } from "@/hooks/useDashboardStats"
 import { StudentReport } from "@/components/dashboard/StudentReport";
 import { ISO_ALPHA2_TO_NUMERIC } from "@/lib/iso3166";
 import { FlagImg } from "@/components/FlagImg";
+import { m } from "@/paraglide/messages";
+import { getLocale } from "@/paraglide/runtime";
 
 export const Route = createFileRoute("/dashboard")({
   // UX gate — sends non-staff back to the homepage. The real protection is the
@@ -50,14 +52,13 @@ export const Route = createFileRoute("/dashboard")({
   },
   head: () => ({
     meta: [
-      { title: "Báo cáo tác động | Trường Tiếng Việt Của Em" },
+      { title: m.account_dashboard_meta_title() },
       {
         name: "description",
-        content:
-          "Báo cáo tác động xã hội của Trường Tiếng Việt Của Em: quy mô, tăng trưởng và phân bổ địa lý.",
+        content: m.account_dashboard_meta_description(),
       },
-      { property: "og:title", content: "Báo cáo tác động | Trường Tiếng Việt Của Em" },
-      { property: "og:description", content: "Quy mô, tăng trưởng và phân bổ địa lý của học sinh Trường Tiếng Việt Của Em." },
+      { property: "og:title", content: m.account_dashboard_meta_title() },
+      { property: "og:description", content: m.account_dashboard_og_description() },
       { name: "robots", content: "noindex" },
       { property: "og:url", content: "/dashboard" },
     ],
@@ -66,14 +67,26 @@ export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
 });
 
-const REGION_NAMES = new Intl.DisplayNames(["vi"], { type: "region" });
+const REGION_NAMES = new Map<string, Intl.DisplayNames>();
 
+/** Country name in the current UI language; one DisplayNames per locale. */
 function countryLabel(code: string): string {
+  const locale = getLocale();
+  let names = REGION_NAMES.get(locale);
+  if (!names) {
+    names = new Intl.DisplayNames([locale], { type: "region" });
+    REGION_NAMES.set(locale, names);
+  }
   try {
-    return REGION_NAMES.of(code) ?? code;
+    return names.of(code) ?? code;
   } catch {
     return code;
   }
+}
+
+/** "1,234 students" / "1,234 học sinh", plural-aware in English. */
+function studentsLabel(count: number): string {
+  return m.account_students_count({ count, n: count.toLocaleString("en-US") });
 }
 
 const GEO_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
@@ -181,9 +194,7 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
           >
             <FlagImg code={hovered.code} size={18} />
             <span>{countryLabel(hovered.code)}</span>
-            <span className="font-semibold text-primary">
-              {hovered.count.toLocaleString("en-US")} học sinh
-            </span>
+            <span className="font-semibold text-primary">{studentsLabel(hovered.count)}</span>
           </div>
         )}
 
@@ -242,7 +253,7 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
         <div className="absolute right-2 top-2 flex flex-col gap-1">
           <button
             type="button"
-            aria-label="Phóng to"
+            aria-label={m.account_zoom_in()}
             onClick={() => setZoom((z) => Math.min(MAX_MAP_ZOOM, z * 1.5))}
             className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card text-foreground shadow-sm hover:bg-muted"
           >
@@ -250,7 +261,7 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
           </button>
           <button
             type="button"
-            aria-label="Thu nhỏ"
+            aria-label={m.account_zoom_out()}
             onClick={() => setZoom((z) => Math.max(MIN_MAP_ZOOM, z / 1.5))}
             className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-card text-foreground shadow-sm hover:bg-muted"
           >
@@ -258,7 +269,7 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
           </button>
           <button
             type="button"
-            aria-label="Đặt lại"
+            aria-label={m.account_zoom_reset()}
             onClick={() => {
               setZoom(1);
               setCenter(DEFAULT_MAP_CENTER);
@@ -271,7 +282,7 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
       </div>
 
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <span>Ít hơn</span>
+        <span>{m.account_map_less()}</span>
         <div className="flex gap-0.5">
           {[0.2, 0.4, 0.6, 0.8, 1.0].map((frac) => (
             <div
@@ -281,8 +292,8 @@ function MapView({ countryData, total }: { countryData: CountryCount[]; total: n
             />
           ))}
         </div>
-        <span>Nhiều hơn</span>
-        <span className="ml-auto">Tổng: {total.toLocaleString("en-US")} học sinh</span>
+        <span>{m.account_map_more()}</span>
+        <span className="ml-auto">{m.account_map_total({ students: studentsLabel(total) })}</span>
       </div>
     </div>
   );
@@ -338,43 +349,55 @@ function DashboardPage() {
 
   const completionData = stats
     ? [
-        { name: "Đã hoàn thành", value: stats.completion.completed, color: "var(--stage-1)" },
-        { name: "Đang học", value: stats.completion.inProgress, color: "var(--stage-2)" },
-        { name: "Mới bắt đầu", value: stats.completion.notStarted, color: "var(--muted)" },
+        { name: m.account_completed(), value: stats.completion.completed, color: "var(--stage-1)" },
+        {
+          name: m.account_in_progress(),
+          value: stats.completion.inProgress,
+          color: "var(--stage-2)",
+        },
+        {
+          name: m.account_not_started(),
+          value: stats.completion.notStarted,
+          color: "var(--muted)",
+        },
       ]
     : [];
 
   return (
     <main className="bg-muted/40">
-      <PageBanner title="Báo cáo tác động xã hội" />
+      <PageBanner title={m.account_dashboard_title()} />
 
       <div className="mx-auto max-w-7xl space-y-4 px-4 py-6 sm:px-6">
         {isStatsLoading || !stats ? (
-          <p className="text-center text-sm text-muted-foreground">Đang tải dữ liệu...</p>
+          <p className="text-center text-sm text-muted-foreground">{m.account_loading_data()}</p>
         ) : (
           <>
             {/* KPI row — one merged card, columns divided by hairlines */}
             <KpiRow>
               <KpiCell
-                title="Tài khoản"
+                title={m.account_kpi_accounts()}
                 value={stats.totalRegistered.toLocaleString("en-US")}
-                sub={recentAdds > 0 ? `+${recentAdds} kỳ gần nhất` : "đã đăng ký"}
+                sub={
+                  recentAdds > 0
+                    ? m.account_kpi_recent({ n: recentAdds })
+                    : m.account_kpi_registered()
+                }
                 deltaTone={recentAdds > 0 ? "up" : undefined}
               />
               <KpiCell
-                title="Hoàn thành"
+                title={m.account_kpi_completed()}
                 value={stats.completion.completed.toLocaleString("en-US")}
-                sub={`${stats.completionRate.toFixed(1)}% tỷ lệ`}
+                sub={m.account_kpi_rate({ pct: stats.completionRate.toFixed(1) })}
               />
               <KpiCell
-                title="Đang học"
+                title={m.account_in_progress()}
                 value={stats.completion.inProgress.toLocaleString("en-US")}
-                sub="đang trong tiến trình"
+                sub={m.account_kpi_in_progress()}
               />
               <KpiCell
-                title="Quốc gia"
+                title={m.account_kpi_countries()}
                 value={stats.countryData.length.toLocaleString("en-US")}
-                sub="có học sinh"
+                sub={m.account_kpi_with_students()}
               />
             </KpiRow>
 
@@ -384,10 +407,10 @@ function DashboardPage() {
                 <CardHeader className="flex flex-row items-start justify-between gap-3 px-4 pb-2 pt-4">
                   <div>
                     <CardTitle className="font-display text-sm">
-                      Tốc độ tăng trưởng người dùng
+                      {m.account_growth_title()}
                     </CardTitle>
                     <CardDescription className="text-xs">
-                      Tổng học sinh tích lũy theo thời gian đăng ký
+                      {m.account_growth_description()}
                     </CardDescription>
                   </div>
                   <Tabs
@@ -396,10 +419,10 @@ function DashboardPage() {
                   >
                     <TabsList className="h-8">
                       <TabsTrigger value="monthly" className="px-3 text-xs">
-                        Tháng
+                        {m.account_growth_monthly()}
                       </TabsTrigger>
                       <TabsTrigger value="weekly" className="px-3 text-xs">
-                        Tuần
+                        {m.account_growth_weekly()}
                       </TabsTrigger>
                     </TabsList>
                   </Tabs>
@@ -425,7 +448,7 @@ function DashboardPage() {
                         width={45}
                       />
                       <Tooltip
-                        formatter={(v: number) => [`${v.toLocaleString("en-US")} học sinh`, "Tổng"]}
+                        formatter={(v: number) => [studentsLabel(v), m.account_total()]}
                         contentStyle={TOOLTIP_STYLE}
                       />
                       <Line
@@ -443,7 +466,9 @@ function DashboardPage() {
 
               <Card className="rounded-lg shadow-sm">
                 <CardHeader className="px-4 pb-2 pt-4">
-                  <CardTitle className="font-display text-sm">Tỷ lệ hoàn thành</CardTitle>
+                  <CardTitle className="font-display text-sm">
+                    {m.account_completion_rate()}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 px-4 pb-4">
                   <ResponsiveContainer width="100%" height={120}>
@@ -462,7 +487,7 @@ function DashboardPage() {
                         ))}
                       </Pie>
                       <Tooltip
-                        formatter={(v: number) => [`${v.toLocaleString("en-US")} học sinh`]}
+                        formatter={(v: number) => [studentsLabel(v)]}
                         contentStyle={TOOLTIP_STYLE}
                       />
                     </PieChart>
@@ -495,10 +520,14 @@ function DashboardPage() {
             <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-3">
               <Card className="rounded-lg shadow-sm lg:col-span-2">
                 <CardHeader className="px-4 pb-2 pt-4">
-                  <CardTitle className="font-display text-sm">Học sinh theo quốc gia</CardTitle>
+                  <CardTitle className="font-display text-sm">
+                    {m.account_by_country_title()}
+                  </CardTitle>
                   <CardDescription className="text-xs">
-                    {stats.totalRegistered.toLocaleString("en-US")} học sinh tại{" "}
-                    {stats.countryData.length} quốc gia
+                    {m.account_students_in_countries({
+                      students: studentsLabel(stats.totalRegistered),
+                      count: stats.countryData.length,
+                    })}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="px-4 pb-4">
@@ -508,7 +537,9 @@ function DashboardPage() {
 
               <Card className="rounded-lg shadow-sm">
                 <CardHeader className="px-4 pb-2 pt-4">
-                  <CardTitle className="font-display text-sm">Quốc gia dẫn đầu</CardTitle>
+                  <CardTitle className="font-display text-sm">
+                    {m.account_top_countries()}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="px-4 pb-4">
                   <TopCountries

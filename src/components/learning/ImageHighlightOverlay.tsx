@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { HighlightTarget } from "@/data/lessonHighlights";
+import { m } from "@/paraglide/messages";
 
 // Lớp vùng gợi ý tương tác đè lên hình bài học. Phần tử cha phải là
 // `position: relative` và ôm sát đúng kích thước hình, vì tọa độ target tính theo %.
@@ -30,7 +31,7 @@ export function ImageHighlightOverlay({ targets }: { targets: HighlightTarget[] 
         <button
           key={t.id}
           type="button"
-          aria-label={t.label ? `Gợi ý: ${t.label}` : "Gợi ý"}
+          aria-label={t.label ? m.learn_hint_with({ label: t.label }) : m.learn_hint()}
           aria-pressed={t.id === activeId}
           className={["absolute cursor-default bg-transparent outline-none", shapeClass(t)].join(" ")}
           style={boxStyle(t)}

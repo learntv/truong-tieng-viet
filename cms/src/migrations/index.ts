@@ -10,6 +10,7 @@ import * as migration_20260930_053759_remove_kmd_am_van from './20260930_053759_
 import * as migration_20260930_064054_kmd_images_to_hotspots from './20260930_064054_kmd_images_to_hotspots';
 import * as migration_20260930_065623_user_roles from './20260930_065623_user_roles';
 import * as migration_20261006_122342_kmd_canva_embed from './20261006_122342_kmd_canva_embed';
+import * as migration_20261026_065551_title_translations from './20261026_065551_title_translations';
 
 export const migrations = [
   {
@@ -70,6 +71,11 @@ export const migrations = [
   {
     up: migration_20261006_122342_kmd_canva_embed.up,
     down: migration_20261006_122342_kmd_canva_embed.down,
-    name: '20261006_122342_kmd_canva_embed'
+    name: '20261006_122342_kmd_canva_embed',
+  },
+  {
+    up: migration_20261026_065551_title_translations.up,
+    down: migration_20261026_065551_title_translations.down,
+    name: '20261026_065551_title_translations',
   },
 ];

@@ -2,13 +2,14 @@ import { useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { m } from "@/paraglide/messages";
 
 // Deduped via a fixed toast id: repeated failures (e.g. flipping through slides
 // while offline) replace the existing toast instead of stacking.
 function notifySaveFailed() {
-  toast.error("Chưa lưu được tiến độ", {
+  toast.error(m.learn_save_failed(), {
     id: "progress-save-failed",
-    description: "Em kiểm tra kết nối mạng rồi thử lại nhé!",
+    description: m.learn_save_failed_desc(),
   });
 }
 
@@ -142,8 +143,8 @@ export function useUserProgress(userId: string | null) {
       }
       await Promise.all(ops);
       if (mergeFailed) {
-        toast.error("Một phần tiến độ cũ chưa lưu được vào tài khoản", {
-          description: "Em kiểm tra mạng rồi tải lại trang nhé!",
+        toast.error(m.learn_merge_failed(), {
+          description: m.learn_merge_failed_desc(),
         });
       }
       // Refetch progress and invalidate dependent caches

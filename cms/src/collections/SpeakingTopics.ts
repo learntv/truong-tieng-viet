@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { hiddenFromNonAdmins, isAdmin } from '@/lib/access'
+import { translatable } from '@/lib/translations'
 
 // Speaking-practice topics for the app's /hoc-tap/luyen-noi screens. The app reads this
 // collection over the public REST API (src/hooks/useSpeakingContent.ts in the root workspace).
@@ -43,11 +44,13 @@ export const SpeakingTopics: CollectionConfig = {
       type: 'text',
       required: true,
     },
-    {
+    // The only translatable field here: the sentences are what the child practises saying, so
+    // they stay Vietnamese whatever language the site is shown in.
+    ...translatable({
       name: 'title',
       type: 'text',
       required: true,
-    },
+    }),
     {
       name: 'sentences',
       type: 'array',

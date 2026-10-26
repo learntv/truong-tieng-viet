@@ -3,6 +3,7 @@ import { Icon } from "@iconify/react";
 import mdiLoading from "@iconify-icons/mdi/loading";
 import roundMic from "@iconify-icons/ic/round-mic";
 import roundStop from "@iconify-icons/ic/round-stop";
+import { m } from "@/paraglide/messages";
 
 const MAX_RECORDING_MS = 10_000;
 // RMS (0–1) below this counts as silence. Mic noise floor is usually well under this.
@@ -191,7 +192,7 @@ export function RecordButton({
       <button
         onClick={isRecording ? stopRecording : startRecording}
         disabled={disabled || phase === "starting"}
-        aria-label={isRecording ? "Dừng ghi âm" : "Bắt đầu ghi âm"}
+        aria-label={isRecording ? m.learn_record_stop() : m.learn_record_start()}
         className={[
           "grid h-20 w-20 cursor-pointer place-items-center rounded-full text-white",
           "transition-[transform,box-shadow,background-color] duration-150",
@@ -210,7 +211,7 @@ export function RecordButton({
         )}
       </button>
       <span className="font-display text-sm font-semibold text-sky-ink">
-        {isRecording ? "Đang nghe em nói… bấm để xong" : "Em nói nào!"}
+        {isRecording ? m.learn_record_listening() : m.learn_record_prompt()}
       </span>
     </div>
   );

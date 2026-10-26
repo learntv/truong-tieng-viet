@@ -1,10 +1,11 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import type { SpeakingSentence } from "@/lib/speech";
+import { cmsEnglish, type CmsTranslations, type Localized } from "@/lib/localized";
 
 export type SpeakingTopic = {
   id: string;
   emoji: string;
-  title: string;
+  title: Localized;
   sentences: SpeakingSentence[];
 };
 
@@ -12,6 +13,7 @@ type CmsSpeakingTopic = {
   id: string;
   emoji: string;
   title: string;
+  titleTranslations?: CmsTranslations;
   sentences: { id: string; text: string }[] | null;
 };
 
@@ -20,6 +22,9 @@ type CmsSpeakingTopic = {
 // API. Topic and sentence ids keep the "noi-" prefix used since the content was
 // hardcoded — topic ids are the /luyen-noi/$chuDeId param and sentence ids key
 // user progress, so the CMS preserves them verbatim.
+//
+// A title's English comes back beside it in the same response, so the cached result is the same
+// whatever the UI language is and the page decides what to show (see lib/localized.ts).
 const CMS_URL: string = import.meta.env.VITE_CMS_URL || process.env.CMS_URL || "";
 
 export async function fetchSpeakingContent(): Promise<SpeakingTopic[]> {
@@ -30,7 +35,7 @@ export async function fetchSpeakingContent(): Promise<SpeakingTopic[]> {
   return docs.map((t) => ({
     id: t.id,
     emoji: t.emoji,
-    title: t.title,
+    title: { vi: t.title, en: cmsEnglish(t.titleTranslations) },
     sentences: (t.sentences ?? []).map((s) => ({ id: s.id, text: s.text })),
   }));
 }

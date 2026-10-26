@@ -28,47 +28,62 @@ import {
   type StudentStatus,
   useStudentReport,
 } from "@/hooks/useStudentReport";
+import { m } from "@/paraglide/messages";
+import { getLocale } from "@/paraglide/runtime";
 
-const REGION_NAMES = new Intl.DisplayNames(["vi"], { type: "region" });
+const REGION_NAMES = new Map<string, Intl.DisplayNames>();
 
+/** Country name in the current UI language; one DisplayNames per locale. */
 function countryLabel(code: string | null): string {
   if (!code) return "—";
+  const locale = getLocale();
+  let names = REGION_NAMES.get(locale);
+  if (!names) {
+    names = new Intl.DisplayNames([locale], { type: "region" });
+    REGION_NAMES.set(locale, names);
+  }
   try {
-    return REGION_NAMES.of(code.toUpperCase()) ?? code;
+    return names.of(code.toUpperCase()) ?? code;
   } catch {
     return code;
   }
 }
 
 function relativeTime(d: Date | null): string {
-  if (!d) return "Chưa hoạt động";
+  if (!d) return m.account_never_active();
   const days = Math.floor((Date.now() - d.getTime()) / 86_400_000);
-  if (days <= 0) return "Hôm nay";
-  if (days === 1) return "Hôm qua";
-  if (days < 30) return `${days} ngày trước`;
-  if (days < 365) return `${Math.floor(days / 30)} tháng trước`;
-  return `${Math.floor(days / 365)} năm trước`;
+  if (days <= 0) return m.account_today();
+  if (days === 1) return m.account_yesterday();
+  if (days < 30) return m.account_days_ago({ count: days });
+  if (days < 365) return m.account_months_ago({ count: Math.floor(days / 30) });
+  return m.account_years_ago({ count: Math.floor(days / 365) });
 }
 
 const STATUS_META: Record<
   StudentStatus,
-  { label: string; className: string }
+  { label: () => string; className: string }
 > = {
-  completed: { label: "Hoàn thành", className: "bg-[var(--stage-1)]/15 text-[var(--stage-1)]" },
-  active: { label: "Đang học", className: "bg-primary/10 text-primary" },
-  attention: { label: "Cần hỗ trợ", className: "bg-amber-500/15 text-amber-600 dark:text-amber-400" },
-  new: { label: "Mới", className: "bg-muted text-muted-foreground" },
+  completed: {
+    label: m.account_status_completed,
+    className: "bg-[var(--stage-1)]/15 text-[var(--stage-1)]",
+  },
+  active: { label: m.account_in_progress, className: "bg-primary/10 text-primary" },
+  attention: {
+    label: m.account_status_attention,
+    className: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
+  },
+  new: { label: m.account_status_new, className: "bg-muted text-muted-foreground" },
 };
 
 type SortKey = "name" | "completion" | "stars" | "active";
 type StatusFilter = "all" | StudentStatus;
 
-const FILTERS: { key: StatusFilter; label: string }[] = [
-  { key: "all", label: "Tất cả" },
-  { key: "active", label: "Đang học" },
-  { key: "attention", label: "Cần hỗ trợ" },
-  { key: "completed", label: "Hoàn thành" },
-  { key: "new", label: "Mới" },
+const FILTERS: { key: StatusFilter; label: () => string }[] = [
+  { key: "all", label: m.account_filter_all },
+  { key: "active", label: m.account_in_progress },
+  { key: "attention", label: m.account_status_attention },
+  { key: "completed", label: m.account_status_completed },
+  { key: "new", label: m.account_status_new },
 ];
 
 function ProgressBar({ pct }: { pct: number }) {
@@ -161,10 +176,8 @@ function StudentTable({ students }: { students: StudentRow[] }) {
     <Card className="rounded-lg shadow-sm">
       <CardHeader className="gap-3 px-4 pb-3 pt-4">
         <div className="flex flex-col gap-0.5">
-          <CardTitle className="font-display text-sm">Danh sách học sinh</CardTitle>
-          <CardDescription className="text-xs">
-            Nhấp tiêu đề cột để sắp xếp, lọc theo trạng thái để tìm em cần hỗ trợ.
-          </CardDescription>
+          <CardTitle className="font-display text-sm">{m.account_students_title()}</CardTitle>
+          <CardDescription className="text-xs">{m.account_students_description()}</CardDescription>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative max-w-xs flex-1">
@@ -176,7 +189,7 @@ function StudentTable({ students }: { students: StudentRow[] }) {
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Tìm theo tên, quốc gia…"
+              placeholder={m.account_students_search()}
               className="pl-9"
             />
           </div>
@@ -193,7 +206,7 @@ function StudentTable({ students }: { students: StudentRow[] }) {
                     : "bg-muted text-muted-foreground hover:bg-muted/70",
                 ].join(" ")}
               >
-                {f.label}
+                {f.label()}
               </button>
             ))}
           </div>
@@ -204,12 +217,12 @@ function StudentTable({ students }: { students: StudentRow[] }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <SortHead label="Học sinh" k="name" />
-                <TableHead>Quốc gia</TableHead>
-                <SortHead label="Tiến độ" k="completion" />
-                <SortHead label="Sao nói" k="stars" className="text-right" />
-                <SortHead label="Hoạt động" k="active" />
-                <TableHead>Trạng thái</TableHead>
+                <SortHead label={m.account_col_student()} k="name" />
+                <TableHead>{m.account_col_country()}</TableHead>
+                <SortHead label={m.account_col_progress()} k="completion" />
+                <SortHead label={m.account_col_stars()} k="stars" className="text-right" />
+                <SortHead label={m.account_col_active()} k="active" />
+                <TableHead>{m.account_col_status()}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -244,7 +257,10 @@ function StudentTable({ students }: { students: StudentRow[] }) {
                             {s.displayName}
                           </span>
                           <span className="block truncate text-xs text-muted-foreground">
-                            {s.completedChang}/{s.totalChang} chặng
+                            {m.account_stages_progress({
+                              completed: s.completedChang,
+                              total: s.totalChang,
+                            })}
                           </span>
                         </span>
                       </Link>
@@ -275,7 +291,7 @@ function StudentTable({ students }: { students: StudentRow[] }) {
                         variant="secondary"
                         className={`${meta.className} hover:${meta.className} border-0`}
                       >
-                        {meta.label}
+                        {meta.label()}
                       </Badge>
                     </TableCell>
                   </TableRow>
@@ -284,7 +300,7 @@ function StudentTable({ students }: { students: StudentRow[] }) {
               {rows.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6} className="py-10 text-center text-sm text-muted-foreground">
-                    Không có học sinh nào khớp bộ lọc.
+                    {m.account_no_matching_students()}
                   </TableCell>
                 </TableRow>
               )}
@@ -312,11 +328,8 @@ function StuckPoints({ funnel }: { funnel: ChangFunnelRow[] }) {
   return (
     <Card className="rounded-lg shadow-sm">
       <CardHeader className="px-4 pb-3 pt-4">
-        <CardTitle className="font-display text-sm">Chặng học sinh dễ mắc kẹt</CardTitle>
-        <CardDescription className="text-xs">
-          Tỷ lệ hoàn thành thấp nhất trong số các chặng đã có nhiều em bắt đầu, nơi nên xem lại nội
-          dung hoặc hỗ trợ thêm.
-        </CardDescription>
+        <CardTitle className="font-display text-sm">{m.account_stuck_title()}</CardTitle>
+        <CardDescription className="text-xs">{m.account_stuck_description()}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2 px-4 pb-4">
         {hardest.map((f) => (
@@ -337,9 +350,9 @@ function StuckPoints({ funnel }: { funnel: ChangFunnelRow[] }) {
             </div>
             <div className="w-28 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
               <span className="font-semibold text-foreground">{f.completionPct.toFixed(0)}%</span>{" "}
-              hoàn thành
+              {m.account_completed_suffix()}
               <div className="text-xs">
-                {f.dropoff} / {f.reached} còn dở
+                {m.account_unfinished({ dropoff: f.dropoff, reached: f.reached })}
               </div>
             </div>
           </div>
@@ -363,10 +376,8 @@ export function StudentReport() {
   if (reportError) {
     return (
       <section className="space-y-4">
-        <SectionHeading>Báo Cáo Học Sinh</SectionHeading>
-        <p className="text-sm text-muted-foreground">
-          Không tải được báo cáo học sinh. Vui lòng thử lại.
-        </p>
+        <SectionHeading>{m.account_report_title()}</SectionHeading>
+        <p className="text-sm text-muted-foreground">{m.account_report_error()}</p>
       </section>
     );
   }
@@ -374,8 +385,8 @@ export function StudentReport() {
   if (isReportLoading || !report) {
     return (
       <section className="space-y-4">
-        <SectionHeading>Báo Cáo Học Sinh</SectionHeading>
-        <p className="text-sm text-muted-foreground">Đang tải báo cáo học sinh…</p>
+        <SectionHeading>{m.account_report_title()}</SectionHeading>
+        <p className="text-sm text-muted-foreground">{m.account_report_loading()}</p>
       </section>
     );
   }
@@ -384,22 +395,25 @@ export function StudentReport() {
 
   return (
     <section className="space-y-3">
-      <SectionHeading>Báo Cáo Học Sinh</SectionHeading>
+      <SectionHeading>{m.account_report_title()}</SectionHeading>
       <Card className="rounded-lg py-0 shadow-sm">
         <div className="grid grid-cols-2 divide-y divide-border sm:grid-cols-4 sm:divide-y-0 sm:divide-x">
-          <SummaryStat label="Tổng học sinh" value={summary.totalStudents.toLocaleString("en-US")} />
           <SummaryStat
-            label="Hoạt động trong 7 ngày"
+            label={m.account_summary_total()}
+            value={summary.totalStudents.toLocaleString("en-US")}
+          />
+          <SummaryStat
+            label={m.account_summary_active_week()}
             value={summary.activeWeek.toLocaleString("en-US")}
             tone="text-primary"
           />
           <SummaryStat
-            label="Cần hỗ trợ"
+            label={m.account_status_attention()}
             value={summary.needAttention.toLocaleString("en-US")}
             tone="text-amber-600 dark:text-amber-400"
           />
           <SummaryStat
-            label="Tiến độ TB (đã bắt đầu)"
+            label={m.account_summary_avg_progress()}
             value={`${summary.avgCompletion.toFixed(0)}%`}
           />
         </div>

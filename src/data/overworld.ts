@@ -14,6 +14,10 @@ import cauVangPhoto from "@/assets/landmarks/cau-vang.jpg";
 //   Hội An       https://unsplash.com/photos/JjxdZZKyWq0
 //   Landmark 81  https://unsplash.com/photos/0yjsdmgkBYE
 //   Cầu Vàng     https://unsplash.com/photos/pXiXeosLOAk
+
+/** UI copy in each interface language, picked with getLocale() at render. */
+export type LocaleText = Record<"vi" | "en", string>;
+
 export type Landmark = {
   chuDeIndex: number;
   /** Real place the artwork depicts — shown on the pin banner and in the popup. */
@@ -24,12 +28,12 @@ export type Landmark = {
   /** Photo of the real place, used as the cover of the landmark card. */
   photo: string;
   /** One kid-sized sentence about the place — keep it short enough to read at a glance. */
-  blurb: string;
+  blurb: LocaleText;
   /**
    * A fuller two-to-three sentence version of `blurb`, for the chủ đề page header where there's
    * room to say more. Same voice as `blurb` — still written for a child.
    */
-  description: string;
+  description: LocaleText;
   /** The "Khám phá" popup content — see {@link Discovery}. */
   discovery: Discovery;
 };
@@ -65,9 +69,14 @@ export const QUYEN1_LANDMARKS: Landmark[] = [
     x: 21,
     y: 25,
     photo: halongPhoto,
-    blurb: "Hàng nghìn hòn đảo đá nhô lên giữa làn nước xanh biếc ở Quảng Ninh.",
-    description:
-      "Vịnh Hạ Long nằm ở tỉnh Quảng Ninh, nơi hàng nghìn hòn đảo đá vôi nhô lên giữa làn nước xanh biếc. Trong lòng các hòn đảo là những hang động tuyệt đẹp đã hình thành qua hàng triệu năm. Vịnh được UNESCO công nhận là Di sản Thiên nhiên Thế giới.",
+    blurb: {
+      vi: "Hàng nghìn hòn đảo đá nhô lên giữa làn nước xanh biếc ở Quảng Ninh.",
+      en: "Thousands of rocky islands rise out of the blue-green sea in Quảng Ninh.",
+    },
+    description: {
+      vi: "Vịnh Hạ Long nằm ở tỉnh Quảng Ninh, nơi hàng nghìn hòn đảo đá vôi nhô lên giữa làn nước xanh biếc. Trong lòng các hòn đảo là những hang động tuyệt đẹp đã hình thành qua hàng triệu năm. Vịnh được UNESCO công nhận là Di sản Thiên nhiên Thế giới.",
+      en: "Vịnh Hạ Long is in Quảng Ninh province, where thousands of limestone islands rise out of the blue-green sea. Inside the islands are beautiful caves that formed over millions of years. UNESCO has named the bay a World Natural Heritage Site.",
+    },
     discovery: {
       facts: [
         { icon: "🏝️", label: "Số hòn đảo", value: "gần 2.000" },
@@ -98,9 +107,14 @@ export const QUYEN1_LANDMARKS: Landmark[] = [
     x: 21,
     y: 80,
     photo: hoiAnPhoto,
-    blurb: "Phố cổ bên sông Hoài, rực rỡ đèn lồng đủ màu mỗi khi đêm xuống.",
-    description:
-      "Phố cổ Hội An nằm bên sông Hoài, tỉnh Quảng Nam, với những ngôi nhà gỗ mái ngói đã hơn bốn trăm năm tuổi. Mỗi khi đêm xuống, cả khu phố rực rỡ ánh đèn lồng đủ màu và người ta thả hoa đăng trôi trên sông. Đây cũng là một Di sản Văn hóa Thế giới.",
+    blurb: {
+      vi: "Phố cổ bên sông Hoài, rực rỡ đèn lồng đủ màu mỗi khi đêm xuống.",
+      en: "An old town by the Hoài River that glows with colorful lanterns every night.",
+    },
+    description: {
+      vi: "Phố cổ Hội An nằm bên sông Hoài, tỉnh Quảng Nam, với những ngôi nhà gỗ mái ngói đã hơn bốn trăm năm tuổi. Mỗi khi đêm xuống, cả khu phố rực rỡ ánh đèn lồng đủ màu và người ta thả hoa đăng trôi trên sông. Đây cũng là một Di sản Văn hóa Thế giới.",
+      en: "Phố cổ Hội An sits by the Hoài River in Quảng Nam province, with wooden houses and tiled roofs more than four hundred years old. When night falls, the whole town glows with colorful lanterns, and people float flower lanterns down the river. It is also a World Cultural Heritage Site.",
+    },
     discovery: {
       facts: [
         { icon: "🏮", label: "Tuổi phố cổ", value: "hơn 400 năm" },
@@ -131,9 +145,14 @@ export const QUYEN1_LANDMARKS: Landmark[] = [
     x: 55,
     y: 52,
     photo: landmark81Photo,
-    blurb: "Toà nhà cao nhất Việt Nam, đứng bên sông Sài Gòn ở Thành phố Hồ Chí Minh.",
-    description:
-      "Toà nhà Landmark 81 đứng bên sông Sài Gòn ở Thành phố Hồ Chí Minh, cao 81 tầng và hơn bốn trăm sáu mươi mét, cao nhất Việt Nam. Nhìn từ xa, toà nhà trông như một bó tre vươn thẳng lên trời. Trên tầng cao nhất có đài quan sát để ngắm cả thành phố.",
+    blurb: {
+      vi: "Toà nhà cao nhất Việt Nam, đứng bên sông Sài Gòn ở Thành phố Hồ Chí Minh.",
+      en: "The tallest building in Vietnam, by the Sài Gòn River in Hồ Chí Minh City.",
+    },
+    description: {
+      vi: "Toà nhà Landmark 81 đứng bên sông Sài Gòn ở Thành phố Hồ Chí Minh, cao 81 tầng và hơn bốn trăm sáu mươi mét, cao nhất Việt Nam. Nhìn từ xa, toà nhà trông như một bó tre vươn thẳng lên trời. Trên tầng cao nhất có đài quan sát để ngắm cả thành phố.",
+      en: "Landmark 81 stands by the Sài Gòn River in Hồ Chí Minh City. With 81 floors and more than four hundred and sixty meters, it is the tallest building in Vietnam. From far away, it looks like a bundle of bamboo reaching straight up to the sky. At the very top there is a lookout where you can see the whole city.",
+    },
     discovery: {
       facts: [
         { icon: "🏢", label: "Số tầng", value: "81 tầng" },
@@ -164,9 +183,14 @@ export const QUYEN1_LANDMARKS: Landmark[] = [
     x: 86,
     y: 33,
     photo: cauVangPhoto,
-    blurb: "Cây cầu vàng trên núi Bà Nà, Đà Nẵng, được hai bàn tay đá khổng lồ nâng đỡ.",
-    description:
-      "Cầu Vàng nằm trên đỉnh núi Bà Nà, thành phố Đà Nẵng, cao hơn một nghìn mét so với mặt biển. Cây cầu được hai bàn tay đá khổng lồ nâng đỡ, trông như bàn tay của các vị thần đưa cầu lên giữa mây trời. Cầu khánh thành năm 2018 và nhanh chóng nổi tiếng khắp thế giới.",
+    blurb: {
+      vi: "Cây cầu vàng trên núi Bà Nà, Đà Nẵng, được hai bàn tay đá khổng lồ nâng đỡ.",
+      en: "A golden bridge on Bà Nà mountain in Đà Nẵng, held up by two giant stone hands.",
+    },
+    description: {
+      vi: "Cầu Vàng nằm trên đỉnh núi Bà Nà, thành phố Đà Nẵng, cao hơn một nghìn mét so với mặt biển. Cây cầu được hai bàn tay đá khổng lồ nâng đỡ, trông như bàn tay của các vị thần đưa cầu lên giữa mây trời. Cầu khánh thành năm 2018 và nhanh chóng nổi tiếng khắp thế giới.",
+      en: "Cầu Vàng sits on top of Bà Nà mountain in Đà Nẵng, more than a thousand meters above the sea. The bridge is held up by two giant stone hands, like the hands of the gods lifting it into the clouds. It opened in 2018 and quickly became famous all over the world.",
+    },
     discovery: {
       facts: [
         { icon: "⛰️", label: "Độ cao", value: "1.400 m" },

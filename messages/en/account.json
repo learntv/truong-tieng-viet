@@ -1,0 +1,257 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+
+  "account_site_description": "A fun Vietnamese learning journey for overseas Vietnamese children.",
+
+  "account_error_title": "This page didn't load",
+  "account_error_body": "Something went wrong on our side. Try reloading, or go back to the home page.",
+  "account_error_retry": "Try again",
+  "account_home": "Back to home",
+  "account_not_found_title": "Page not found",
+  "account_not_found_body": "The page you're looking for doesn't exist or has moved.",
+
+  "account_login_meta_title": "Sign in | Trường Tiếng Việt Của Em",
+  "account_login_meta_description": "Sign in or create a Trường Tiếng Việt Của Em account to save your learning progress.",
+  "account_login_subtitle": "Sign in to save your learning progress.",
+  "account_invalid_email": "Invalid email address",
+  "account_password_min": "Password must be at least 6 characters",
+  "account_continue_google": "Continue with Google",
+  "account_reset_email_failed": "Couldn't send the email",
+  "account_reset_email_sent": "We sent you a password reset email. Check your inbox.",
+  "account_back_to_login": "Back to sign in",
+  "account_back": "Back",
+  "account_forgot_intro": "Enter your email and we'll send you a link to reset your password.",
+  "account_send_reset_email": "Send reset email",
+  "account_login_failed": "Sign-in failed",
+  "account_login_success": "Signed in!",
+  "account_register_failed": "Sign-up failed",
+  "account_register_check_email": "Check your email to confirm your account!",
+  "account_password_label": "Password",
+  "account_forgot_password": "Forgot password?",
+  "account_sign_in": "Sign in",
+  "account_sign_up": "Sign up",
+  "account_google_failed": "Couldn't connect to Google",
+  "account_create_account": "Create an account",
+  "account_welcome_back": "Welcome back!",
+  "account_or": "or",
+
+  "account_reset_meta_title": "Reset password | Trường Tiếng Việt Của Em",
+  "account_reset_meta_description": "Reset your Trường Tiếng Việt Của Em password after getting a recovery link by email.",
+  "account_reset_og_description": "Set a new password for your account.",
+  "account_passwords_mismatch": "Passwords don't match",
+  "account_reset_link_invalid": "This link is invalid or has expired.",
+  "account_reset_failed": "Couldn't reset your password",
+  "account_password_updated": "Your password has been updated!",
+  "account_reset_title": "Reset password",
+  "account_reset_intro": "Enter a new password for your account.",
+  "account_new_password": "New password",
+  "account_confirm_password": "Confirm password",
+  "account_update_password": "Update password",
+
+  "account_setup_name_required": "Please enter your name!",
+  "account_setup_save_failed": "Couldn't save your profile",
+  "account_setup_title": "Welcome! 🎉",
+  "account_setup_subtitle": "Let's set up your profile",
+  "account_setup_google_avatar": "We'll use your Google profile picture 👍",
+  "account_choose_avatar": "Choose your avatar",
+  "account_setup_name_label": "Your name",
+  "account_setup_name_placeholder": "Enter your name...",
+  "account_setup_country_label": "Where do you live?",
+  "account_choose_country_placeholder": "Choose a country...",
+  "account_search_placeholder": "Search...",
+  "account_setup_no_results": "Nothing found",
+  "account_setup_start": "Start learning! 🚀",
+
+  "account_leaderboard_meta_title": "Leaderboard | Trường Tiếng Việt Của Em",
+  "account_leaderboard_meta_description": "See the hardest-working students at Trường Tiếng Việt Của Em and follow their learning progress.",
+  "account_leaderboard_title": "Leaderboard",
+  "account_leaderboard_empty_title": "No students yet!",
+  "account_leaderboard_empty_body": "Be the first to start learning.",
+  "account_lessons_done_count": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} lesson done",
+        "countPlural=other": "{count} lessons done"
+      }
+    }
+  ],
+  "account_lessons_done": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "lesson done",
+        "countPlural=other": "lessons done"
+      }
+    }
+  ],
+  "account_avatar_alt": "{name}'s profile picture",
+
+  "account_profile_meta_title": "{username}'s profile | Trường Tiếng Việt Của Em",
+  "account_profile_meta_description": "See {username}'s profile and Vietnamese learning progress on Trường Tiếng Việt Của Em.",
+  "account_avatar_save_failed": "Couldn't save your avatar",
+  "account_avatar_saved": "Avatar saved!",
+  "account_avatar_type_error": "The picture must be a JPG, PNG, WebP or GIF",
+  "account_avatar_size_error": "The picture must be smaller than 2MB",
+  "account_sign_in_again": "Please sign in again",
+  "account_avatar_upload_failed": "Couldn't upload the picture",
+  "account_avatar_dialog_title": "Choose your avatar 🎨",
+  "account_avatar_upload": "Upload your own picture",
+  "account_avatar_upload_hint": "JPG, PNG, WebP or GIF, up to 2MB",
+  "account_country_save_failed": "Couldn't save your country",
+  "account_country_saved": "Country saved!",
+  "account_country_dialog_title": "Choose your country 🌍",
+  "account_country_not_found": "No country found",
+  "account_deleted": "Your account has been deleted. Goodbye! 👋",
+  "account_delete_failed": "Couldn't delete the account",
+  "account_try_again": "Please try again.",
+  "account_name_saved": "Name saved!",
+  "account_name_save_failed": "Couldn't save your name",
+  "account_email_send_failed": "Couldn't send the email",
+  "account_reset_email_sent_toast": "Password reset email sent! 📬",
+  "account_restart_failed": "Couldn't clear your progress",
+  "account_restart_done": "Your progress has been reset! Let's start again 🌱",
+  "account_change_avatar": "Change avatar",
+  "account_my_profile": "My profile ♥",
+  "account_change_name": "Change name",
+  "account_choose_country": "Choose country",
+  "account_member_since": "Member since {date}",
+  "account_stat_completed": "Lessons completed",
+  "account_in_progress": "Learning",
+  "account_stat_streak": "Day streak",
+  "account_studied_today": "✓ Done today",
+  "account_not_studied_today": "Not yet today",
+  "account_section_title": "⚙️ Account",
+  "account_change_password": "Change password",
+  "account_restart": "Start over",
+  "account_restart_title": "Start over? 🔄",
+  "account_restart_body": "All your learning progress will be cleared and you'll start again from the first lesson. Your account stays.",
+  "account_restart_cancel": "No, keep it",
+  "account_restart_confirm": "Start over",
+  "account_sign_out": "Sign out",
+  "account_danger_zone": "Danger zone",
+  "account_delete": "Delete account",
+  "account_delete_title": "Delete your account forever? ⚠️",
+  "account_delete_body_before": "Your whole profile and learning progress will be deleted forever and can't be recovered. Type",
+  "account_delete_word": "DELETE",
+  "account_delete_body_after": "in the box below to confirm.",
+  "account_delete_placeholder": "Type {word} to confirm",
+  "account_cancel": "Cancel",
+  "account_delete_forever": "Delete forever",
+  "account_version": "Version 1.0",
+  "account_user_not_found": "User not found",
+  "account_profile_missing_before": "The profile",
+  "account_profile_missing_after": "doesn't exist.",
+
+  "account_dashboard_meta_title": "Impact report | Trường Tiếng Việt Của Em",
+  "account_dashboard_meta_description": "The social impact report of Trường Tiếng Việt Của Em: reach, growth and where students live.",
+  "account_dashboard_og_description": "Reach, growth and where Trường Tiếng Việt Của Em students live.",
+  "account_dashboard_title": "Social impact report",
+  "account_loading_data": "Loading data...",
+  "account_students_count": [
+    {
+      "declarations": ["input count", "input n", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{n} student",
+        "countPlural=other": "{n} students"
+      }
+    }
+  ],
+  "account_map_less": "Fewer",
+  "account_map_more": "More",
+  "account_map_total": "Total: {students}",
+  "account_zoom_in": "Zoom in",
+  "account_zoom_out": "Zoom out",
+  "account_zoom_reset": "Reset",
+  "account_completed": "Completed",
+  "account_not_started": "Just started",
+  "account_kpi_accounts": "Accounts",
+  "account_kpi_recent": "+{n} latest period",
+  "account_kpi_registered": "registered",
+  "account_kpi_completed": "Completed",
+  "account_kpi_rate": "{pct}% rate",
+  "account_kpi_in_progress": "in progress",
+  "account_kpi_countries": "Countries",
+  "account_kpi_with_students": "with students",
+  "account_growth_title": "User growth",
+  "account_growth_description": "Total students over time, by sign-up date",
+  "account_growth_monthly": "Month",
+  "account_growth_weekly": "Week",
+  "account_total": "Total",
+  "account_completion_rate": "Completion rate",
+  "account_by_country_title": "Students by country",
+  "account_students_in_countries": [
+    {
+      "declarations": ["input students", "input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{students} in {count} country",
+        "countPlural=other": "{students} in {count} countries"
+      }
+    }
+  ],
+  "account_top_countries": "Top countries",
+
+  "account_never_active": "No activity yet",
+  "account_today": "Today",
+  "account_yesterday": "Yesterday",
+  "account_days_ago": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} day ago",
+        "countPlural=other": "{count} days ago"
+      }
+    }
+  ],
+  "account_months_ago": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} month ago",
+        "countPlural=other": "{count} months ago"
+      }
+    }
+  ],
+  "account_years_ago": [
+    {
+      "declarations": ["input count", "local countPlural = count: plural"],
+      "selectors": ["countPlural"],
+      "match": {
+        "countPlural=one": "{count} year ago",
+        "countPlural=other": "{count} years ago"
+      }
+    }
+  ],
+  "account_status_completed": "Completed",
+  "account_status_attention": "Needs help",
+  "account_status_new": "New",
+  "account_filter_all": "All",
+  "account_students_title": "Students",
+  "account_students_description": "Click a column title to sort. Filter by status to find students who need help.",
+  "account_students_search": "Search by name or country…",
+  "account_col_student": "Student",
+  "account_col_country": "Country",
+  "account_col_progress": "Progress",
+  "account_col_stars": "Speaking stars",
+  "account_col_active": "Last active",
+  "account_col_status": "Status",
+  "account_stages_progress": "{completed}/{total} stages",
+  "account_no_matching_students": "No students match this filter.",
+  "account_stuck_title": "Stages where students get stuck",
+  "account_stuck_description": "The lowest completion rates among stages many students have started. These may need a content review or extra support.",
+  "account_completed_suffix": "completed",
+  "account_unfinished": "{dropoff} / {reached} unfinished",
+  "account_report_title": "Student Report",
+  "account_report_error": "Couldn't load the student report. Please try again.",
+  "account_report_loading": "Loading the student report…",
+  "account_summary_total": "Total students",
+  "account_summary_active_week": "Active in the last 7 days",
+  "account_summary_avg_progress": "Avg. progress (started)",
+  "account_growth_month": "{month}/{year}"
+}

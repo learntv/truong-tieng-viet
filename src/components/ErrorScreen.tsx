@@ -3,10 +3,11 @@ import { Link, useRouter, type ErrorComponentProps } from "@tanstack/react-route
 import { reportLovableError } from "@/lib/lovable-error-reporting";
 import { Button } from "@/components/ui/button";
 import { Mascot } from "@/components/Mascot";
+import { m } from "@/paraglide/messages";
 
 // Shared error/404 screens for both the router's defaultErrorComponent and the
 // root route's errorComponent/notFoundComponent, so every boundary reports to
-// Lovable and shows the same Vietnamese-language UI.
+// Lovable and shows the same UI in the visitor's language.
 
 export function ErrorScreen({ error, reset }: ErrorComponentProps) {
   console.error(error);
@@ -20,11 +21,9 @@ export function ErrorScreen({ error, reset }: ErrorComponentProps) {
       <div className="max-w-md text-center">
         <Mascot pose="crying" size="md" decorative className="mx-auto mb-4" />
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          Trang này chưa tải được
+          {m.account_error_title()}
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Có lỗi xảy ra từ phía chúng tôi. Em hãy thử tải lại, hoặc quay về trang chủ nhé.
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">{m.account_error_body()}</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <Button
             variant="bevel" tone="primary"
@@ -33,10 +32,10 @@ export function ErrorScreen({ error, reset }: ErrorComponentProps) {
               reset();
             }}
           >
-            Thử lại
+            {m.account_error_retry()}
           </Button>
           <Button variant="bevel" tone="neutral" asChild>
-            <a href="/">Về trang chủ</a>
+            <a href="/">{m.account_home()}</a>
           </Button>
         </div>
       </div>
@@ -50,13 +49,13 @@ export function NotFoundScreen() {
       <div className="max-w-md text-center">
         <Mascot pose="thinking" size="lg" decorative className="mx-auto mb-2" />
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Không tìm thấy trang</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Trang em tìm không tồn tại hoặc đã được chuyển đi nơi khác.
-        </p>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">
+          {m.account_not_found_title()}
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground">{m.account_not_found_body()}</p>
         <div className="mt-6">
           <Button variant="bevel" tone="primary" asChild>
-            <Link to="/">Về trang chủ</Link>
+            <Link to="/">{m.account_home()}</Link>
           </Button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { learningStructureQueryOptions } from "@/lib/learning";
+import { m } from "@/paraglide/messages";
 
 export type CountryCount = { code: string; count: number };
 export type GrowthPoint = { period: string; students: number };
@@ -15,8 +16,8 @@ function bucketByMonth(dates: Date[]): GrowthPoint[] {
   let cumulative = 0;
   return sortedKeys.map((key) => {
     cumulative += counts.get(key)!;
-    const [y, m] = key.split("-");
-    return { period: `T${Number(m)}/${y}`, students: cumulative };
+    const [y, mo] = key.split("-");
+    return { period: m.account_growth_month({ month: Number(mo), year: y }), students: cumulative };
   });
 }
 

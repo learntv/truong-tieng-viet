@@ -11,7 +11,10 @@ import type { QuyenNumber } from "@/lib/learning";
 import { STAGE_COLORS } from "./stageColors";
 import { Button } from "@/components/ui/button";
 import { locationForChuDe } from "@/data/scenes";
-import { landmarksForQuyen } from "@/data/overworld";
+import { landmarksForQuyen, type LocaleText } from "@/data/overworld";
+import { glossOf } from "@/lib/localized";
+import { m } from "@/paraglide/messages";
+import { getLocale } from "@/paraglide/runtime";
 
 // Per-topic accent, keyed by ChuDe.accent — tints the coming-soon emoji plate.
 const ACCENT_SOFT: Record<ChuDe["accent"], string> = {
@@ -32,7 +35,7 @@ const ACCENT_SOFT: Record<ChuDe["accent"], string> = {
 function placeForChuDe(
   quyenNumber: QuyenNumber,
   chuDeIndex: number,
-): { name: string; blurb: string; photo?: string } {
+): { name: string; blurb: LocaleText; photo?: string } {
   const landmark = landmarksForQuyen(quyenNumber).find((l) => l.chuDeIndex === chuDeIndex);
   if (landmark) {
     return { name: landmark.name, blurb: landmark.description, photo: landmark.photo };
@@ -82,6 +85,7 @@ export function RoadmapList({
   const titleName = chuDe.title.includes(":")
     ? chuDe.title.slice(chuDe.title.indexOf(":") + 1).trim()
     : chuDe.title;
+  const titleGloss = glossOf({ en: chuDe.titleEn });
 
   return (
     <div className="w-full">
@@ -89,9 +93,9 @@ export function RoadmapList({
           primary action on the left; a plain photo of the place on the right. ── */}
       <div className="w-full bg-sky-tint">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
-          <nav aria-label="breadcrumb" className="text-sm text-muted-foreground">
+          <nav aria-label={m.learn_breadcrumb()} className="text-sm text-muted-foreground">
             <Link to="/hoc-tap" className="font-semibold text-ink hover:underline">
-              Học tập
+              {m.learn_learning()}
             </Link>
             <span className="px-1.5">&gt;</span>
             <Link
@@ -99,7 +103,7 @@ export function RoadmapList({
               params={{ quyenNumber: String(quyenNumber) }}
               className="font-semibold text-ink hover:underline"
             >
-              Quyển {quyenNumber}
+              {m.learn_book_n({ n: quyenNumber })}
             </Link>
             <span className="px-1.5">&gt;</span>
             <span>{location.name}</span>
@@ -110,7 +114,7 @@ export function RoadmapList({
               {isLocked && (
                 <span className="mb-3 inline-flex items-center gap-1 bg-muted px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   <Icon icon={roundLock} className="h-3 w-3" aria-hidden />
-                  Sắp có
+                  {m.learn_coming_soon()}
                 </span>
               )}
 
@@ -119,7 +123,7 @@ export function RoadmapList({
               </h1>
 
               <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
-                {location.blurb}
+                {location.blurb[getLocale()]}
               </p>
 
               {!isLocked && (
@@ -128,7 +132,11 @@ export function RoadmapList({
                   onClick={() => onOpenLesson(currentChangIndex)}
                   className="mt-7 cursor-pointer rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:text-base"
                 >
-                  {doneStages === 0 ? "Bắt đầu học" : allDone ? "Ôn tập lại" : "Tiếp tục học"}
+                  {doneStages === 0
+                    ? m.learn_start_learning()
+                    : allDone
+                      ? m.learn_review_again()
+                      : m.learn_keep_learning()}
                 </button>
               )}
             </div>
@@ -149,7 +157,7 @@ export function RoadmapList({
               <Icon icon={roundMenuBook} className="h-6 w-6 shrink-0" aria-hidden />
               <div className="min-w-0">
                 <div className="text-sm font-semibold sm:text-base">
-                  {doneStages}/{totalStages} chặng đã hoàn thành
+                  {m.learn_stages_completed({ done: doneStages, total: totalStages })}
                 </div>
                 <div className="mt-1.5 h-1 w-full max-w-48 overflow-hidden bg-white/25">
                   <div
@@ -175,8 +183,7 @@ export function RoadmapList({
               {chuDe.emoji}
             </div>
             <p className="mx-auto mt-4 max-w-sm text-sm text-muted-foreground">
-              Các cô đang biên soạn chủ đề này. Em quay lại chủ đề trước để luyện tập trong lúc chờ
-              nhé!
+              {m.learn_topic_coming_soon_note()}
             </p>
             <Button asChild className="mx-auto mt-5">
               <Link
@@ -184,15 +191,16 @@ export function RoadmapList({
                 params={{ quyenNumber: String(quyenNumber) }}
               >
                 <Icon icon={roundArrowBack} className="h-4 w-4" aria-hidden />
-                Về bản đồ
+                {m.learn_to_map()}
               </Link>
             </Button>
           </div>
         ) : (
           <>
             <h2 className="font-display text-xl font-bold text-ink sm:text-2xl">
-              Chủ đề: {titleName}
+              {m.learn_topic_prefix()} <span lang="vi">{titleName}</span>
             </h2>
+            {titleGloss && <p className="mt-1 text-base text-muted-foreground">{titleGloss}</p>}
 
             <ul className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {changTitles.map((title, i) => {
@@ -247,7 +255,7 @@ export function RoadmapList({
                               color.bg,
                             ].join(" ")}
                           >
-                            Đang học
+                            {m.learn_item_active()}
                           </span>
                         )}
                         {isDone && (
@@ -264,12 +272,12 @@ export function RoadmapList({
                             color.text,
                           ].join(" ")}
                         >
-                          Chặng {i + 1}
+                          {m.learn_stage_n({ n: i + 1 })}
                         </span>
                         <span className="mt-3 flex flex-col gap-2 text-sm text-muted-foreground">
                           <span className="flex items-center gap-2">
                             <Icon icon={roundMenuBook} className="h-4 w-4 shrink-0" aria-hidden />
-                            {total} bài học
+                            {m.learn_lesson_count({ count: total })}
                           </span>
                           <span className="flex items-center gap-2">
                             <Icon
@@ -278,10 +286,13 @@ export function RoadmapList({
                               aria-hidden
                             />
                             {isDone
-                              ? "Đã hoàn thành"
+                              ? m.learn_completed()
                               : prog
-                                ? `Đang học: ${prog.current}/${prog.total} bài`
-                                : "Chưa bắt đầu"}
+                                ? m.learn_stage_in_progress({
+                                    current: prog.current,
+                                    total: prog.total,
+                                  })
+                                : m.learn_not_started()}
                           </span>
                         </span>
 

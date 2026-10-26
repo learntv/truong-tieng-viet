@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import type { ChuDe } from "@/data/topics";
 import { LESSON_HIGHLIGHTS, type HighlightTarget } from "@/data/lessonHighlights";
+import { cmsEnglish, type CmsTranslations } from "@/lib/localized";
 
 const STAGE_EMOJIS = ["👋", "📚", "💬", "📖", "✏️"];
 const TOPIC_EMOJIS = ["👨‍👩‍👧", "🏫", "🧑‍🤝‍🧑", "🧸", "🌳", "🏞️", "👩‍⚕️", "🌏"];
@@ -19,8 +20,15 @@ export type Hinh = {
   highlightTargets?: HighlightTarget[];
 };
 export type BaiMeta = { audio_url?: string; video_url?: string; link?: string };
-export type Bai = { id: string; texts: string[]; hinhs: Hinh[]; meta?: BaiMeta | null };
-export type NoiDung = { id: string; title: string; bais: Bai[] };
+/** `texts` is the Vietnamese the lesson shows and reads aloud; `textEn` an optional gloss. */
+export type Bai = {
+  id: string;
+  texts: string[];
+  textEn?: string;
+  hinhs: Hinh[];
+  meta?: BaiMeta | null;
+};
+export type NoiDung = { id: string; title: string; titleEn?: string; bais: Bai[] };
 export type Chang = {
   id: string;
   title: string;
@@ -42,18 +50,27 @@ type CmsMedia = { url?: string | null };
 type CmsUpload = CmsMedia | number | null;
 type CmsQuyen = { slug: string } | number | null;
 
+// Chủ đề, nội dung and bài titles may have an English translation beside them
+// (`titleTranslations`); chặng titles and captions are Vietnamese-only.
 type CmsHinh = { id: string; image?: CmsUpload; captions?: { text: string }[] | null };
 type CmsBai = {
   id: string;
   title?: string | null;
+  titleTranslations?: CmsTranslations;
   meta?: { audio?: CmsUpload; videoUrl?: string | null; link?: string | null } | null;
   hinhs?: CmsHinh[] | null;
 };
-type CmsNoiDung = { id: string; title?: string | null; bais?: CmsBai[] | null };
+type CmsNoiDung = {
+  id: string;
+  title?: string | null;
+  titleTranslations?: CmsTranslations;
+  bais?: CmsBai[] | null;
+};
 type CmsChang = { id: string; title?: string | null; noiDungs?: CmsNoiDung[] | null };
 type CmsChuDe = {
   id: number;
   title?: string | null;
+  titleTranslations?: CmsTranslations;
   quyen?: CmsQuyen;
   changs?: CmsChang[] | null;
 };
@@ -110,6 +127,7 @@ function parseChuDes(docs: CmsChuDe[]): ChuDeWithChangs[] {
     const chuDe: ChuDe = {
       id: chuDeId,
       title: `Chủ đề ${ti + 1}: ${doc.title ?? ""}`,
+      titleEn: cmsEnglish(doc.titleTranslations),
       emoji: TOPIC_EMOJIS[ti % TOPIC_EMOJIS.length],
       accent: ACCENTS[ti % ACCENTS.length],
     };
@@ -125,6 +143,7 @@ function parseChuDes(docs: CmsChuDe[]): ChuDeWithChangs[] {
           return {
             id: noiDungId,
             title: nd.title ?? "",
+            titleEn: cmsEnglish(nd.titleTranslations),
             bais: (nd.bais ?? []).map((b, bi) => {
               const baiId = `${noiDungId}.bai${pad(bi + 1)}`;
               const audioUrl = mediaUrl(b.meta?.audio);
@@ -138,6 +157,7 @@ function parseChuDes(docs: CmsChuDe[]): ChuDeWithChangs[] {
                 // public.bai.text was a jsonb array of lines; the CMS keeps a single title, so
                 // the array the lesson page renders has at most one entry.
                 texts: b.title ? [b.title] : [],
+                textEn: cmsEnglish(b.titleTranslations),
                 meta: Object.keys(meta).length > 0 ? meta : null,
                 hinhs: (b.hinhs ?? []).flatMap((h, hi) => {
                   const url = mediaUrl(h.image);
@@ -194,10 +214,13 @@ async function fetchChuDes(select: string[][]): Promise<CmsChuDe[]> {
 export function fetchLearningStructure(): Promise<ChuDeWithChangs[]> {
   return fetchChuDes([
     ["title"],
+    ["titleTranslations"],
     ["quyen"],
     ["changs", "title"],
     ["changs", "noiDungs", "title"],
+    ["changs", "noiDungs", "titleTranslations"],
     ["changs", "noiDungs", "bais", "title"],
+    ["changs", "noiDungs", "bais", "titleTranslations"],
     ["changs", "noiDungs", "bais", "meta"],
   ]).then(parseChuDes);
 }

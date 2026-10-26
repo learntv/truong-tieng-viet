@@ -9,7 +9,10 @@ export type Stage = {
 
 export type ChuDe = {
   id: string;
+  /** Vietnamese, with the "Chủ đề N: " prefix. */
   title: string;
+  /** English gloss of the name alone, without the prefix, when an editor has added one. */
+  titleEn?: string;
   emoji: string;
   accent: "primary" | "yellow" | "pink" | "purple" | "green";
 };

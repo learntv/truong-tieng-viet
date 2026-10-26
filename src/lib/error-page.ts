@@ -1,9 +1,25 @@
+import { m } from "@/paraglide/messages";
+import { getServerAsyncLocalStorage, type Locale } from "@/paraglide/runtime";
+
+// Inside paraglideMiddleware (start.ts's request middleware) the request's
+// locale is in async local storage. server.ts's outer catches run outside it,
+// where the locale can't be known, so those fall back to Vietnamese.
+function safeLocale(): Locale {
+  try {
+    return getServerAsyncLocalStorage()?.getStore()?.locale ?? "vi";
+  } catch {
+    return "vi";
+  }
+}
+
 export function renderErrorPage(): string {
+  const locale = safeLocale();
+  const title = m.account_error_title({}, { locale });
   return `<!doctype html>
-<html lang="vi">
+<html lang="${locale}">
   <head>
     <meta charset="utf-8" />
-    <title>Trang này chưa tải được</title>
+    <title>${title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       body { font: 15px/1.5 system-ui, -apple-system, sans-serif; background: #fafafa; color: #111; display: grid; place-items: center; min-height: 100vh; margin: 0; padding: 1.5rem; }
@@ -18,11 +34,11 @@ export function renderErrorPage(): string {
   </head>
   <body>
     <div class="card">
-      <h1>Trang này chưa tải được</h1>
-      <p>Có lỗi xảy ra từ phía chúng tôi. Em hãy thử tải lại, hoặc quay về trang chủ nhé.</p>
+      <h1>${title}</h1>
+      <p>${m.account_error_body({}, { locale })}</p>
       <div class="actions">
-        <button class="primary" onclick="location.reload()">Thử lại</button>
-        <a class="secondary" href="/">Về trang chủ</a>
+        <button class="primary" onclick="location.reload()">${m.account_error_retry({}, { locale })}</button>
+        <a class="secondary" href="/">${m.account_home({}, { locale })}</a>
       </div>
     </div>
   </body>

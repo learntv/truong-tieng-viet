@@ -35,11 +35,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { m } from "@/paraglide/messages";
+import { getLocale } from "@/paraglide/runtime";
 
 export const Route = createFileRoute("/u/$username")({
   head: ({ params }) => {
-    const title = `Hồ sơ của ${params.username} | Trường Tiếng Việt Của Em`;
-    const description = `Xem hồ sơ và tiến trình học tiếng Việt của ${params.username} trên Trường Tiếng Việt Của Em.`;
+    const title = m.account_profile_meta_title({ username: params.username });
+    const description = m.account_profile_meta_description({ username: params.username });
     const url = `/u/${params.username}`;
     return {
       meta: [
@@ -144,6 +146,10 @@ function avatarColor(letter: string) {
   return AVATAR_COLORS[letter.charCodeAt(0) % AVATAR_COLORS.length];
 }
 
+function dateLocale() {
+  return getLocale() === "en" ? "en-US" : "vi-VN";
+}
+
 
 function computeStreak(completedAts: string[]): { days: number; studiedToday: boolean } {
   const MS_PER_DAY = 86400_000;
@@ -235,11 +241,11 @@ function AvatarPickerDialog({
       }
     }
     if (error) {
-      toast.error("Không thể lưu avatar", { description: error.message });
+      toast.error(m.account_avatar_save_failed(), { description: error.message });
     } else {
       onSelect(avatar);
       onOpenChange(false);
-      toast.success("Đã lưu avatar!");
+      toast.success(m.account_avatar_saved());
     }
   };
 
@@ -256,11 +262,11 @@ function AvatarPickerDialog({
     if (!file) return;
 
     if (!ACCEPTED_AVATAR_TYPES.includes(file.type)) {
-      toast.error("Ảnh phải là JPG, PNG, WebP hoặc GIF");
+      toast.error(m.account_avatar_type_error());
       return;
     }
     if (file.size > MAX_AVATAR_BYTES) {
-      toast.error("Ảnh phải nhỏ hơn 2MB");
+      toast.error(m.account_avatar_size_error());
       return;
     }
 
@@ -269,7 +275,7 @@ function AvatarPickerDialog({
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      if (!session) throw new Error("Em cần đăng nhập lại");
+      if (!session) throw new Error(m.account_sign_in_again());
 
       const body = new FormData();
       body.append("file", file);
@@ -283,7 +289,7 @@ function AvatarPickerDialog({
       const { url } = (await res.json()) as { url: string };
       await save({ url });
     } catch (err) {
-      toast.error("Không thể tải ảnh lên", {
+      toast.error(m.account_avatar_upload_failed(), {
         description: err instanceof Error ? err.message : undefined,
       });
     } finally {
@@ -296,7 +302,7 @@ function AvatarPickerDialog({
       <DialogContent className="rounded-3xl max-w-xs p-5">
         <DialogHeader>
           <DialogTitle className="font-display text-xl font-bold text-ink">
-            Chọn avatar của em 🎨
+            {m.account_avatar_dialog_title()}
           </DialogTitle>
         </DialogHeader>
         <input
@@ -317,10 +323,10 @@ function AvatarPickerDialog({
           ) : (
             <Icon icon={roundAddPhotoAlternate} className="h-4 w-4" aria-hidden />
           )}
-          Tải ảnh của em lên
+          {m.account_avatar_upload()}
         </Button>
         <p className="text-center text-xs text-muted-foreground">
-          JPG, PNG, WebP hoặc GIF, tối đa 2MB
+          {m.account_avatar_upload_hint()}
         </p>
         <div className="grid grid-cols-5 gap-2">
           {AVATAR_OPTIONS.map((emoji) => (
@@ -391,11 +397,11 @@ function CountryPickerDialog({
     }
     setSaving(false);
     if (error) {
-      toast.error("Không thể lưu quốc gia", { description: error.message });
+      toast.error(m.account_country_save_failed(), { description: error.message });
     } else {
       onSelect(code);
       onOpenChange(false);
-      toast.success("Đã lưu quốc gia!");
+      toast.success(m.account_country_saved());
     }
   };
 
@@ -404,11 +410,11 @@ function CountryPickerDialog({
       <DialogContent className="rounded-3xl max-w-sm p-5">
         <DialogHeader>
           <DialogTitle className="font-display text-xl font-bold text-ink">
-            Chọn quốc gia của em 🌍
+            {m.account_country_dialog_title()}
           </DialogTitle>
         </DialogHeader>
         <Input
-          placeholder="Tìm kiếm..."
+          placeholder={m.account_search_placeholder()}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="rounded-xl"
@@ -434,7 +440,7 @@ function CountryPickerDialog({
           ))}
           {filtered.length === 0 && (
             <p className="col-span-3 text-center text-sm text-muted-foreground py-4">
-              Không tìm thấy quốc gia
+              {m.account_country_not_found()}
             </p>
           )}
         </div>
@@ -466,6 +472,8 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const deleteAccountFn = useServerFn(deleteOwnAccount);
+  // The word to type to confirm deletion, in the current UI language.
+  const deleteWord = m.account_delete_word();
 
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
@@ -480,12 +488,12 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
       } catch {
         /* ignore */
       }
-      toast.success("Tài khoản đã được xóa. Tạm biệt em! 👋");
+      toast.success(m.account_deleted());
       navigate({ to: "/", replace: true });
     } catch (err) {
       setIsDeleting(false);
-      toast.error("Không thể xóa tài khoản", {
-        description: err instanceof Error ? err.message : "Vui lòng thử lại.",
+      toast.error(m.account_delete_failed(), {
+        description: err instanceof Error ? err.message : m.account_try_again(),
       });
     }
   };
@@ -561,13 +569,13 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
       });
       setSavingName(false);
       setEditingName(false);
-      toast.success("Đã lưu tên!");
+      toast.success(m.account_name_saved());
       navigate({ to: "/u/$username", params: { username }, replace: true });
       return;
     }
     setSavingName(false);
     if (error) {
-      toast.error("Không thể lưu tên", { description: error.message });
+      toast.error(m.account_name_save_failed(), { description: error.message });
     }
   };
 
@@ -579,9 +587,9 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
     });
     setIsSendingReset(false);
     if (error) {
-      toast.error("Không thể gửi email", { description: error.message });
+      toast.error(m.account_email_send_failed(), { description: error.message });
     } else {
-      toast.success("Email đặt lại mật khẩu đã được gửi! 📬");
+      toast.success(m.account_reset_email_sent_toast());
     }
   };
 
@@ -591,7 +599,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
     const { error } = await supabase.from("user_progress").delete().eq("user_id", user.id);
     if (error) {
       setIsRestarting(false);
-      toast.error("Không thể xóa tiến độ", { description: error.message });
+      toast.error(m.account_restart_failed(), { description: error.message });
       return;
     }
     localStorage.removeItem("vui-hoc-progress");
@@ -605,10 +613,10 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
     queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
     queryClient.invalidateQueries({ queryKey: ["public-profile"] });
     setIsRestarting(false);
-    toast.success("Tiến độ đã được đặt lại! Hãy bắt đầu lại nhé 🌱");
+    toast.success(m.account_restart_done());
   };
 
-  const memberSince = new Date(user.created_at).toLocaleDateString("vi-VN", {
+  const memberSince = new Date(user.created_at).toLocaleDateString(dateLocale(), {
     year: "numeric",
     month: "long",
   });
@@ -658,7 +666,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
               <button
                 onClick={() => setAvatarPickerOpen(true)}
                 className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-white shadow-bevel-neutral flex items-center justify-center transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-neutral-active"
-                title="Đổi avatar"
+                title={m.account_change_avatar()}
               >
                 <Icon icon={roundEdit} className="h-3.5 w-3.5 text-ink" aria-hidden />
               </button>
@@ -675,7 +683,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-primary/80">Trang cá nhân của em ♥</p>
+              <p className="text-sm font-semibold text-primary/80">{m.account_my_profile()}</p>
               <div className="flex items-center gap-2 flex-wrap">
                 {editingName ? (
                   <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -713,14 +721,14 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                         setTimeout(() => nameInputRef.current?.select(), 0);
                       }}
                       className="shrink-0 h-7 w-7 rounded-full bg-white shadow-bevel-neutral flex items-center justify-center transition-[transform,box-shadow] ease-bounce hover:-translate-y-0.5 hover:scale-110 active:translate-y-[2px] active:shadow-bevel-neutral-active"
-                      title="Đổi tên"
+                      title={m.account_change_name()}
                     >
                       <Icon icon={roundEdit} className="h-3.5 w-3.5 text-ink/60" aria-hidden />
                     </button>
                     <button
                       onClick={() => setCountryPickerOpen(true)}
                       className="shrink-0 rounded-md border border-white/60 bg-white/50 shadow-sm ease-bounce transition-all hover:-translate-y-0.5 hover:bg-white hover:shadow-md active:translate-y-0 active:scale-95 overflow-hidden cursor-pointer"
-                      title="Chọn quốc gia"
+                      title={m.account_choose_country()}
                     >
                       {countryCode ? (
                         <FlagImg code={countryCode} size={32} />
@@ -741,7 +749,9 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                 onSelect={setCountryCode}
               />
               <p className="text-sm text-muted-foreground mt-0.5 truncate">{user.email}</p>
-              <p className="text-xs text-muted-foreground mt-1">Thành viên từ {memberSince}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {m.account_member_since({ date: memberSince })}
+              </p>
             </div>
           </div>
         </div>
@@ -752,13 +762,13 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
             {
               emoji: "🎯",
               value: completedCount,
-              label: "Bài hoàn thành",
+              label: m.account_stat_completed(),
               color: "bg-stage-1-soft text-stage-1-deep",
             },
             {
               emoji: "📖",
               value: inProgressCount,
-              label: "Đang học",
+              label: m.account_in_progress(),
               color: "bg-stage-4-soft text-ink",
             },
           ].map(({ emoji, value, label, color }) => (
@@ -783,7 +793,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
               {streak.days}
             </div>
             <div className="text-xs font-semibold mt-1 text-muted-foreground leading-tight">
-              Ngày liên tiếp
+              {m.account_stat_streak()}
             </div>
             <div
               className={[
@@ -793,14 +803,16 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                   : "bg-muted text-muted-foreground",
               ].join(" ")}
             >
-              {streak.studiedToday ? "✓ Hôm nay xong" : "Chưa học hôm nay"}
+              {streak.studiedToday ? m.account_studied_today() : m.account_not_studied_today()}
             </div>
           </div>
         </div>
 
         {/* Account actions */}
         <div className="rounded-3xl bg-white ring-1 ring-border shadow-card p-6 space-y-3">
-          <h2 className="font-display text-lg font-bold text-ink mb-4">⚙️ Tài khoản</h2>
+          <h2 className="font-display text-lg font-bold text-ink mb-4">
+            {m.account_section_title()}
+          </h2>
 
           {isEmailUser && (
             <Button
@@ -814,7 +826,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
               ) : (
                 <Icon icon={roundKey} className="h-4 w-4 text-primary" aria-hidden />
               )}
-              Đổi mật khẩu
+              {m.account_change_password()}
             </Button>
           )}
 
@@ -830,28 +842,27 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                 ) : (
                   <Icon icon={roundRestartAlt} className="h-4 w-4" aria-hidden />
                 )}
-                Bắt đầu lại từ đầu
+                {m.account_restart()}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent className="rounded-3xl">
               <AlertDialogHeader>
                 <AlertDialogTitle className="font-display text-xl font-bold text-ink">
-                  Bắt đầu lại từ đầu? 🔄
+                  {m.account_restart_title()}
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-base leading-relaxed">
-                  Tất cả tiến độ học tập của em sẽ bị xóa và em sẽ bắt đầu lại từ bài đầu tiên. Tài
-                  khoản của em vẫn được giữ lại.
+                  {m.account_restart_body()}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel className="rounded-full font-medium">
-                  Thôi, giữ lại
+                  {m.account_restart_cancel()}
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleRestartProgress}
                   className="rounded-full bg-stage-4 font-medium hover:brightness-95"
                 >
-                  Bắt đầu lại
+                  {m.account_restart_confirm()}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -863,12 +874,12 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
             onClick={signOut}
           >
             <Icon icon={roundLogout} className="h-4 w-4" aria-hidden />
-            Đăng xuất
+            {m.account_sign_out()}
           </Button>
 
           <div className="pt-4 mt-2 border-t border-destructive/20">
             <p className="text-xs font-semibold uppercase tracking-wide text-destructive/80 mb-2">
-              Vùng nguy hiểm
+              {m.account_danger_zone()}
             </p>
             <AlertDialog
               open={deleteOpen}
@@ -885,44 +896,43 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
                   className="w-full justify-start gap-3 rounded-xl h-12 font-medium bg-destructive text-destructive-foreground border-destructive hover:bg-destructive/90 hover:text-destructive-foreground"
                 >
                   <Icon icon={roundDelete} className="h-4 w-4" aria-hidden />
-                  Xóa tài khoản
+                  {m.account_delete()}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent className="rounded-3xl">
                 <AlertDialogHeader>
                   <AlertDialogTitle className="font-display text-xl font-bold text-destructive">
-                    Xóa tài khoản vĩnh viễn? ⚠️
+                    {m.account_delete_title()}
                   </AlertDialogTitle>
                   <AlertDialogDescription className="text-base leading-relaxed">
-                    Toàn bộ hồ sơ và tiến độ học tập của em sẽ bị xóa
-                    vĩnh viễn và không thể khôi phục. Hãy gõ{" "}
-                    <span className="font-semibold text-destructive">XÓA</span> vào ô
-                    bên dưới để xác nhận.
+                    {m.account_delete_body_before()}{" "}
+                    <span className="font-semibold text-destructive">{deleteWord}</span>{" "}
+                    {m.account_delete_body_after()}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <Input
                   value={deleteConfirm}
                   onChange={(e) => setDeleteConfirm(e.target.value)}
-                  placeholder="Gõ XÓA để xác nhận"
+                  placeholder={m.account_delete_placeholder({ word: deleteWord })}
                   className="rounded-xl"
                   disabled={isDeleting}
                 />
                 <AlertDialogFooter>
                   <AlertDialogCancel disabled={isDeleting} className="rounded-full font-medium">
-                    Hủy
+                    {m.account_cancel()}
                   </AlertDialogCancel>
                   <AlertDialogAction
                     onClick={(e) => {
                       e.preventDefault();
                       handleDeleteAccount();
                     }}
-                    disabled={isDeleting || deleteConfirm.trim().toUpperCase() !== "XÓA"}
+                    disabled={isDeleting || deleteConfirm.trim().toUpperCase() !== deleteWord}
                     className="rounded-full bg-destructive font-medium text-destructive-foreground hover:bg-destructive/90"
                   >
                     {isDeleting ? (
                       <Icon icon={mdiLoading} className="h-4 w-4 animate-spin" aria-hidden />
                     ) : (
-                      "Xóa vĩnh viễn"
+                      m.account_delete_forever()
                     )}
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -933,7 +943,7 @@ function OwnerView({ user, signOut }: { user: User; signOut: () => void }) {
 
 
         <p className="text-center text-xs text-muted-foreground mt-6 pb-4">
-          Phiên bản 1.0 · Trường Tiếng Việt Của Em 🇻🇳
+          {m.account_version()} · Trường Tiếng Việt Của Em 🇻🇳
         </p>
       </main>
     </div>
@@ -973,17 +983,19 @@ function PublicView({ username }: { username: string }) {
         <main className="mx-auto max-w-lg px-4 py-20 text-center">
           <div className="text-6xl mb-4">🔍</div>
           <h1 className="font-display text-2xl font-bold text-ink mb-2">
-            Không tìm thấy người dùng
+            {m.account_user_not_found()}
           </h1>
           <p className="text-muted-foreground mb-6">
-            Hồ sơ <span className="font-semibold text-ink">@{username}</span> không tồn tại.
+            {m.account_profile_missing_before()}{" "}
+            <span className="font-semibold text-ink">@{username}</span>{" "}
+            {m.account_profile_missing_after()}
           </p>
           <Link
             to="/"
             className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 font-display text-sm font-extrabold text-white shadow-bevel-primary transition-[transform,box-shadow,filter] ease-bounce hover:-translate-y-0.5 hover:scale-[1.03] hover:brightness-105 active:translate-y-[3px] active:scale-100 active:shadow-bevel-primary-active"
           >
             <Icon icon={roundHome} className="h-4 w-4" aria-hidden />
-            Về trang chủ
+            {m.account_home()}
           </Link>
         </main>
       </div>
@@ -991,7 +1003,7 @@ function PublicView({ username }: { username: string }) {
   }
 
   const avatarLetter = profile.display_name[0]?.toUpperCase() ?? "?";
-  const memberSince = new Date(profile.created_at).toLocaleDateString("vi-VN", {
+  const memberSince = new Date(profile.created_at).toLocaleDateString(dateLocale(), {
     year: "numeric",
     month: "long",
   });
@@ -1044,7 +1056,9 @@ function PublicView({ username }: { username: string }) {
                 )}
               </div>
               <p className="text-sm text-muted-foreground mt-0.5">@{profile.username}</p>
-              <p className="text-xs text-muted-foreground mt-1">Thành viên từ {memberSince}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {m.account_member_since({ date: memberSince })}
+              </p>
             </div>
           </div>
         </div>
@@ -1056,7 +1070,9 @@ function PublicView({ username }: { username: string }) {
             <div className="font-display text-2xl font-bold text-ink leading-none">
               {profile.completed_count}
             </div>
-            <div className="text-xs font-semibold mt-1 text-muted-foreground">Bài hoàn thành</div>
+            <div className="text-xs font-semibold mt-1 text-muted-foreground">
+              {m.account_stat_completed()}
+            </div>
           </div>
         </div>
 

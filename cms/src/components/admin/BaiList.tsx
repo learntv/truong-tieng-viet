@@ -24,6 +24,7 @@ import { readBaisInArray } from '@/lib/baiFormState'
 
 import styles from './BaiList.module.css'
 import { useResolvedMedia } from './RowMedia'
+import { TranslationInputs } from './TranslationInputs'
 
 /**
  * The `bais` array of a nội dung, as a flat numbered list of always-visible rows.
@@ -226,6 +227,8 @@ const BaiRow: React.FC<RowProps> = ({
           size={Math.max(title.length, MIN_INPUT_SIZE)}
           value={title}
         />
+
+        <TranslationInputs fieldPath={`${rowPath}.title`} readOnly={readOnly} />
 
         <div className={styles.marks}>
           {/* One indication per attachment that is set, and none for one that is not — from

@@ -183,6 +183,9 @@ export interface SpeakingTopic {
   id: string;
   emoji: string;
   title: string;
+  titleTranslations?: {
+    en?: string | null;
+  };
   sentences: {
     text: string;
     id?: string | null;
@@ -216,6 +219,9 @@ export interface ChuDe {
   id: number;
   _order?: string | null;
   title: string;
+  titleTranslations?: {
+    en?: string | null;
+  };
   quyen: number | Quyen;
   changs?:
     | {
@@ -223,9 +229,15 @@ export interface ChuDe {
         noiDungs?:
           | {
               title: string;
+              titleTranslations?: {
+                en?: string | null;
+              };
               bais?:
                 | {
                     title?: string | null;
+                    titleTranslations?: {
+                      en?: string | null;
+                    };
                     meta?: {
                       audio?: (number | null) | Media;
                       videoUrl?: string | null;
@@ -409,6 +421,11 @@ export interface SpeakingTopicsSelect<T extends boolean = true> {
   id?: T;
   emoji?: T;
   title?: T;
+  titleTranslations?:
+    | T
+    | {
+        en?: T;
+      };
   sentences?:
     | T
     | {
@@ -436,6 +453,11 @@ export interface QuyenSelect<T extends boolean = true> {
 export interface ChuDeSelect<T extends boolean = true> {
   _order?: T;
   title?: T;
+  titleTranslations?:
+    | T
+    | {
+        en?: T;
+      };
   quyen?: T;
   changs?:
     | T
@@ -445,10 +467,20 @@ export interface ChuDeSelect<T extends boolean = true> {
           | T
           | {
               title?: T;
+              titleTranslations?:
+                | T
+                | {
+                    en?: T;
+                  };
               bais?:
                 | T
                 | {
                     title?: T;
+                    titleTranslations?:
+                      | T
+                      | {
+                          en?: T;
+                        };
                     meta?:
                       | T
                       | {

@@ -14,6 +14,7 @@ import { loadAlphabetProgress, markLetterSeen } from "@/lib/alphabet-progress";
 import { toneAt } from "@/components/learning/boxTones";
 import { useSingletonAudio } from "@/hooks/useSingletonAudio";
 import { ttsSrc } from "@/lib/tts/text";
+import { m } from "@/paraglide/messages";
 
 import aImg from "@/assets/alphabet/a.png";
 import aBreveImg from "@/assets/alphabet/a-breve.png";
@@ -80,14 +81,10 @@ const LETTER_IMAGES: Record<string, string> = {
 export const Route = createFileRoute("/hoc-tap/bang-chu-cai")({
   head: () => ({
     meta: [
-      { title: "Bảng chữ cái | Trường Tiếng Việt Của Em" },
-      {
-        name: "description",
-        content:
-          "Khám phá bảng chữ cái tiếng Việt cùng các bạn thú vui nhộn: nghe phát âm và học từ mới.",
-      },
-      { property: "og:title", content: "Bảng chữ cái | Trường Tiếng Việt Của Em" },
-      { property: "og:description", content: "Khám phá bảng chữ cái tiếng Việt cùng các bạn thú vui nhộn: nghe phát âm và học từ mới." },
+      { title: m.learn_meta_alphabet_title() },
+      { name: "description", content: m.learn_meta_alphabet_description() },
+      { property: "og:title", content: m.learn_meta_alphabet_title() },
+      { property: "og:description", content: m.learn_meta_alphabet_description() },
       { property: "og:url", content: "/hoc-tap/bang-chu-cai" },
     ],
     links: [{ rel: "canonical", href: "/hoc-tap/bang-chu-cai" }],
@@ -116,8 +113,8 @@ function BangChuCaiTab() {
   return (
     <div className="pb-10 sm:pb-12">
       <PageBanner
-        title="Bảng chữ cái"
-        parents={[{ label: "Học tập", to: "/hoc-tap" }]}
+        title={m.learn_alphabet()}
+        parents={[{ label: m.learn_learning(), to: "/hoc-tap" }]}
         art={<Mascot pose="reading" decorative className="relative h-24 sm:h-36" />}
       />
 
@@ -127,10 +124,10 @@ function BangChuCaiTab() {
           <div className="min-w-0 flex-1">
             <div className="mb-2 flex items-baseline justify-between gap-2">
               <span className="text-xs font-extrabold uppercase tracking-[0.08em] text-sky-ink-soft">
-                Đã khám phá
+                {m.learn_alphabet_explored()}
               </span>
               <span className="font-display text-sm font-bold text-sky-ink">
-                {seenCount}/{total} chữ
+                {m.learn_alphabet_letters_seen({ seen: seenCount, total })}
               </span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-muted">
@@ -147,7 +144,7 @@ function BangChuCaiTab() {
             className={skyButton("white", "shrink-0 self-start ring-1 ring-sky-ink/10 sm:self-auto")}
           >
             <Icon icon={roundDownload} className="h-4 w-4" aria-hidden />
-            Tải PDF bảng chữ cái
+            {m.learn_alphabet_download_pdf()}
           </a>
         </div>
 
@@ -203,12 +200,12 @@ function LetterCard({
       {isSeen && (
         <span className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-white text-green">
           <Icon icon={roundCheck} className="h-3.5 w-3.5" aria-hidden />
-          <span className="sr-only">Đã xem</span>
+          <span className="sr-only">{m.learn_alphabet_seen()}</span>
         </span>
       )}
       <img
         src={LETTER_IMAGES[letter.id]}
-        alt={`Bạn thú chữ ${letter.letter}`}
+        alt={m.learn_alphabet_animal_alt({ letter: letter.letter })}
         className="h-1/2 w-auto object-contain"
       />
       <span className="font-display text-xl font-bold text-sky-ink sm:text-2xl">
@@ -232,7 +229,7 @@ function LetterSoundButton({ text, label }: { text: string; label: string }) {
       />
       <button
         onClick={play}
-        aria-label={`Nghe đọc chữ ${label}`}
+        aria-label={m.learn_alphabet_listen_letter({ letter: label })}
         className="grid h-11 w-11 shrink-0 cursor-pointer place-items-center rounded-full bg-primary text-white shadow-btn transition-[transform,box-shadow,background-color] hover:bg-primary-glow active:translate-y-[1px] active:shadow-btn-active"
       >
         <Icon icon={roundVolumeUp} className="h-5 w-5" aria-hidden />
@@ -255,7 +252,7 @@ function WordRow({ word, tone }: { word: AlphabetWord; tone: Tone }) {
       />
       <button
         onClick={play}
-        aria-label={`Nghe đọc: ${word.vi}`}
+        aria-label={m.learn_listen_to({ text: word.vi })}
         className="group flex cursor-pointer items-center gap-4 rounded-2xl border border-border/70 bg-card p-2.5 pr-4 text-left shadow-[0_2px_10px_rgba(15,23,42,0.05)] transition-shadow duration-150 hover:shadow-[0_6px_20px_rgba(15,23,42,0.09)]"
       >
         <span
@@ -301,7 +298,7 @@ function LetterDetailDialog({
       >
         <DialogClose className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-white text-sky-ink shadow-btn transition-transform hover:scale-105 active:translate-y-[1px] active:shadow-btn-active">
           <Icon icon={roundClose} className="h-5 w-5" aria-hidden />
-          <span className="sr-only">Đóng</span>
+          <span className="sr-only">{m.learn_close()}</span>
         </DialogClose>
         {letter && (
           <div className="flex max-h-[92vh] flex-col overflow-y-auto sm:flex-row sm:overflow-hidden">
@@ -314,7 +311,7 @@ function LetterDetailDialog({
             >
               <img
                 src={LETTER_IMAGES[letter.id]}
-                alt={`Bạn thú chữ ${letter.letter}`}
+                alt={m.learn_alphabet_animal_alt({ letter: letter.letter })}
                 className="h-40 w-auto animate-breathe object-contain sm:h-64"
               />
             </div>

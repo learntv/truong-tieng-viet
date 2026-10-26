@@ -1,0 +1,80 @@
+/*
+ * Translations sit directly under the Vietnamese they translate, smaller and quieter than it:
+ * the Vietnamese is the content, a translation is a gloss beside it.
+ */
+.translations {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--base) * 0.3);
+  margin-top: calc(var(--base) * 0.2);
+}
+
+/* Untranslated: one small text button per language. base-600 for 4.5:1 on white. */
+.add {
+  background: none;
+  border: 1px dashed var(--color-base-300);
+  border-radius: var(--style-radius-s);
+  color: var(--color-base-600);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.4;
+  padding: 0 calc(var(--base) * 0.25);
+}
+
+.add:hover {
+  border-color: var(--ttv-blue-500);
+  color: var(--ttv-blue-800);
+}
+
+.field {
+  align-items: center;
+  display: flex;
+  flex-grow: 1;
+  gap: calc(var(--base) * 0.25);
+  max-width: 32rem;
+  min-width: 12rem;
+}
+
+.tag {
+  background-color: var(--ttv-blue-50);
+  border-radius: var(--style-radius-s);
+  color: var(--ttv-blue-800);
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.5;
+  padding: 0 calc(var(--base) * 0.2);
+}
+
+/* Scoped under .field so it outranks heading styles like NoiDungSections' `.sectionTitle input`,
+ * which would otherwise make a section's translation as big as the section's name. */
+.field .input {
+  background: none;
+  border: 1px solid transparent;
+  border-bottom-color: var(--color-base-200);
+  border-radius: var(--style-radius-s);
+  color: var(--color-base-700);
+  flex-grow: 1;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 400;
+  min-width: 0;
+  padding: calc(var(--base) * 0.1) calc(var(--base) * 0.2);
+}
+
+.field .input:hover {
+  border-color: var(--color-base-200);
+}
+
+.field .input:focus {
+  background-color: var(--color-base-0);
+  border-color: var(--ttv-blue-500);
+  outline: none;
+}
+
+.field .input::placeholder {
+  color: var(--color-base-400);
+}

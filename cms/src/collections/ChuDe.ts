@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { emptyBaiCounts } from '@/endpoints/emptyBaiCounts'
 import { hiddenFromNonAdmins, isAdmin } from '@/lib/access'
+import { translatable } from '@/lib/translations'
 
 // A chủ đề (topic) and everything under it:
 //
@@ -44,7 +45,10 @@ export const ChuDe: CollectionConfig = {
   orderable: true,
   defaultSort: '_order',
   fields: [
-    { name: 'title', type: 'text', required: true, label: 'Tên chủ đề' },
+    // Translatable fields here are the labels around the lessons, which may get an English
+    // gloss: chủ đề, nội dung and bài titles. Chặng titles are phrases the child is learning to
+    // say ("CON CHÀO MẸ Ạ."), and captions are lesson text, so they stay Vietnamese-only.
+    ...translatable({ name: 'title', type: 'text', required: true, label: 'Tên chủ đề' }),
     {
       // Which quyển this chủ đề belongs to. Set automatically when the grid on a quyển page
       // creates it; editors only touch this when they create a chủ đề from the list view.
@@ -91,15 +95,15 @@ export const ChuDe: CollectionConfig = {
             },
           },
           fields: [
-            {
-              // The tab and section headings show this name and nothing else, so the field's
-              // own label is hidden there and the placeholder does the prompting.
+            // The tab and section headings show this name and nothing else, so the field's
+            // own label is hidden there and the placeholder does the prompting.
+            ...translatable({
               name: 'title',
               type: 'text',
               required: true,
               label: 'Tên nội dung',
               admin: { placeholder: 'Tên phần' },
-            },
+            }),
             {
               name: 'bais',
               label: 'Bài',
@@ -115,18 +119,18 @@ export const ChuDe: CollectionConfig = {
                 },
               },
               fields: [
-                {
-                  // Optional — an unnamed bài says so instead of showing a number. public.bai
-                  // has no matching column, so this is CMS-side only until the app's table
-                  // grows one.
-                  //
-                  // Rendered by BaiList as the row's rename input, and left out of the detail
-                  // drawer; the component chooses what it renders, so the field needs no
-                  // placeholder component to stay out of the way.
+                // Optional — an unnamed bài says so instead of showing a number. public.bai
+                // has no matching column, so this is CMS-side only until the app's table
+                // grows one.
+                //
+                // Rendered by BaiList as the row's rename input, with its translations under
+                // it, and left out of the detail drawer; the component chooses what it
+                // renders, so the field needs no placeholder component to stay out of the way.
+                ...translatable({
                   name: 'title',
                   type: 'text',
                   label: 'Tên bài',
-                },
+                }),
                 {
                   // public.bai.meta — optional media attached to the bài.
                   name: 'meta',

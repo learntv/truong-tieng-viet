@@ -8,6 +8,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { m } from "@/paraglide/messages";
 
 type Crumb = { label: string; to: LinkProps["to"] };
 
@@ -22,11 +23,14 @@ type Crumb = { label: string; to: LinkProps["to"] };
  */
 export function PageBanner({
   title,
+  gloss,
   crumb,
   parents = [],
   art,
 }: {
   title: string;
+  /** A translation of a Vietnamese title, shown smaller beneath it (see lib/localized.ts). */
+  gloss?: string;
   /** This page's name in the breadcrumb, when the title reads differently. */
   crumb?: string;
   /** Pages between Trang chủ and this one. */
@@ -34,7 +38,7 @@ export function PageBanner({
   /** Optional picture on the right of the band. */
   art?: ReactNode;
 }) {
-  const trail: Crumb[] = [{ label: "Trang chủ", to: "/" }, ...parents];
+  const trail: Crumb[] = [{ label: m.learn_crumb_home(), to: "/" }, ...parents];
 
   return (
     <div className="px-4 pt-6 sm:px-8 sm:pt-8">
@@ -56,7 +60,15 @@ export function PageBanner({
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-          <h1 className="mt-2 font-display text-[1.75rem] font-bold leading-tight text-bamboo-ink sm:text-[2.5rem]">{title}</h1>
+          <h1
+            lang={gloss ? "vi" : undefined}
+            className="mt-2 font-display text-[1.75rem] font-bold leading-tight text-bamboo-ink sm:text-[2.5rem]"
+          >
+            {title}
+          </h1>
+          {gloss && (
+            <p className="mt-1 text-base font-semibold text-bamboo-ink-soft sm:text-lg">{gloss}</p>
+          )}
         </div>
 
         {art}

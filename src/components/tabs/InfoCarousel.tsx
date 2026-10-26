@@ -2,22 +2,17 @@ import banDoVietNam from "@/assets/ban-do-viet-nam.jpg";
 import congVienChuCai from "@/assets/cong-vien-chu-cai.jpg";
 import kidsAoDai from "@/assets/kids-aodai.jpg";
 import heroStudents from "@/assets/hero-students-fullwidth.jpg";
+import { m } from "@/paraglide/messages";
 
 /**
  * Slides: the two illustrations first — the journey map and the alphabet park —
  * then the photographs of children.
  */
 const SLIDES = [
-  {
-    src: banDoVietNam,
-    alt: "Bản đồ Việt Nam với Trâu con đội nón lá và các điểm đến Hà Nội, Vịnh Hạ Long, Hội An, Nha Trang, TP. Hồ Chí Minh",
-  },
-  {
-    src: congVienChuCai,
-    alt: "Công viên chữ cái: các chữ cái tiếng Việt vui chơi bên chùa, ruộng lúa và rồng giấy",
-  },
-  { src: kidsAoDai, alt: "Trẻ em Việt Nam trong tà áo dài cùng đọc sách Tiếng Việt" },
-  { src: heroStudents, alt: "Học sinh Trường Tiếng Việt Của Em trong giờ học" },
+  { src: banDoVietNam, alt: m.home_info_photo_map },
+  { src: congVienChuCai, alt: m.home_info_photo_alphabet_park },
+  { src: kidsAoDai, alt: m.home_info_photo_ao_dai },
+  { src: heroStudents, alt: m.home_info_photo_students },
 ];
 
 /**
@@ -32,7 +27,7 @@ export function InfoCarousel() {
   return (
     <section
       id="hinh-anh"
-      aria-label="Hình ảnh Việt Nam và các bạn nhỏ"
+      aria-label={m.home_info_carousel_label()}
       // pt keeps the slides clear of the fold: the hero's bottom edge sits just
       // above it, and without this padding the top of the strip peeks through.
       className="w-full overflow-hidden pt-8 pb-8 sm:pb-12"
@@ -61,7 +56,7 @@ export function InfoCarousel() {
               >
                 <img
                   src={slide.src}
-                  alt={isClone ? "" : slide.alt}
+                  alt={isClone ? "" : slide.alt()}
                   className="h-full w-full object-cover"
                   loading="lazy"
                 />

@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LessonPage } from "@/components/learning/LessonPage";
 import { parseQuyenNumber } from "@/lib/learning";
+import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/hoc-tap_/quyen-{$quyenNumber}_/$changId")({
   head: ({ params }) => {
-    const title = `Bài học ${params.changId}, Quyển ${params.quyenNumber} | Trường Tiếng Việt Của Em`;
-    const description = `Bài học tiếng Việt (chặng ${params.changId}) thuộc Quyển ${params.quyenNumber}: nội dung, hình ảnh và luyện tập cho trẻ em kiều bào.`;
+    const vars = { id: params.changId, book: params.quyenNumber };
+    const title = m.learn_meta_lesson_title(vars);
+    const description = m.learn_meta_lesson_description(vars);
     const url = `/hoc-tap/quyen-${params.quyenNumber}/${params.changId}`;
     return {
       meta: [

@@ -27,6 +27,7 @@ import { PageBanner } from "@/components/site/PageBanner";
 import { skyButton } from "@/components/ui/sky-button";
 import { useSingletonAudio } from "@/hooks/useSingletonAudio";
 import { ttsSrc } from "@/lib/tts/text";
+import { m } from "@/paraglide/messages";
 import { RecordButton } from "./RecordButton";
 
 type Stage = "ready" | "recording" | "review";
@@ -50,11 +51,13 @@ const NAV_DISABLED =
 
 export function SpeakingPractice({
   title,
+  titleGloss,
   emoji,
   sentences,
   colorIndex,
 }: {
   title: string;
+  titleGloss?: string;
   emoji: string;
   sentences: SpeakingSentence[];
   colorIndex: number;
@@ -170,9 +173,10 @@ export function SpeakingPractice({
   const banner = (
     <PageBanner
       title={title}
+      gloss={titleGloss}
       parents={[
-        { label: "Học tập", to: "/hoc-tap" },
-        { label: "Luyện nói", to: "/hoc-tap/luyen-noi" },
+        { label: m.learn_learning(), to: "/hoc-tap" },
+        { label: m.learn_speaking(), to: "/hoc-tap/luyen-noi" },
       ]}
       art={
         <span aria-hidden="true" className="relative text-6xl leading-none sm:text-8xl">
@@ -188,11 +192,11 @@ export function SpeakingPractice({
         {banner}
         <div className="px-4 py-16 text-center">
           <p className="mb-6 font-display text-lg font-bold text-sky-ink">
-            Chủ đề này chưa có câu luyện
+            {m.learn_speaking_no_sentences()}
           </p>
           <Link to="/hoc-tap/luyen-noi" className={skyButton("primary")}>
             <Icon icon={roundArrowBack} className="h-4 w-4" aria-hidden />
-            Chọn chủ đề khác
+            {m.learn_pick_another_topic()}
           </Link>
         </div>
       </div>
@@ -211,7 +215,7 @@ export function SpeakingPractice({
         {/* Progress */}
         <div className="mb-5 flex items-center gap-3">
           <span className="shrink-0 text-xs font-extrabold uppercase tracking-[0.08em] text-sky-ink-soft">
-            Câu {index + 1}/{sentences.length}
+            {m.learn_sentence_n_of({ n: index + 1, total: sentences.length })}
           </span>
           <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
             <div
@@ -238,7 +242,7 @@ export function SpeakingPractice({
                 {sentence?.imageUrl && (
                   <img
                     src={sentence.imageUrl}
-                    alt="Hình minh họa"
+                    alt={m.learn_illustration_alt()}
                     className="mx-auto mb-5 max-h-52 rounded-xl bg-white object-contain"
                   />
                 )}
@@ -291,7 +295,7 @@ export function SpeakingPractice({
                       />
                       <button
                         onClick={modelAudio.play}
-                        aria-label="Nghe cô đọc"
+                        aria-label={m.learn_listen_teacher()}
                         className="ml-1 inline-grid h-10 w-10 shrink-0 cursor-pointer place-items-center rounded-full bg-white text-sky-ink shadow-btn transition-transform hover:scale-105 active:translate-y-[1px] active:shadow-btn-active"
                       >
                         <Icon icon={roundVolumeUp} className="h-5 w-5" aria-hidden />
@@ -306,7 +310,7 @@ export function SpeakingPractice({
               <div className="my-5 flex min-h-[2.25rem] items-center justify-center text-center sm:min-h-[2.5rem]">
                 {tooWrong ? (
                   <p className="font-display text-base font-semibold text-amber-600 sm:text-lg">
-                    Cô nghe không rõ, em thử lại nhé! 🌼
+                    {m.learn_speaking_unclear()}
                   </p>
                 ) : (
                   showGraded &&
@@ -314,7 +318,7 @@ export function SpeakingPractice({
                     <div className="inline-flex max-w-full items-center gap-2 rounded-full bg-muted px-4 py-2 text-base font-semibold text-muted-foreground sm:text-lg">
                       <span aria-hidden>🎧</span>
                       <span>
-                        Con đã nói: “
+                        {m.learn_you_said()} “
                         {result.spokenWords && result.spokenWords.length > 0 ? (
                           result.spokenWords.map((w, i) => (
                             <span key={i}>
@@ -374,20 +378,18 @@ export function SpeakingPractice({
         {!canRecord || micDenied ? (
           <div className="mx-auto max-w-sm rounded-2xl bg-box-white-deep p-4 text-center">
             <p className="text-sm font-semibold text-sky-ink">
-              {micDenied
-                ? "Micro chưa được bật. Không sao, em nghe cô đọc rồi đọc to theo nhé!"
-                : "Thiết bị này chưa ghi âm được. Em nghe cô đọc rồi đọc to theo nhé!"}
+              {micDenied ? m.learn_mic_denied() : m.learn_cannot_record()}
             </p>
             <button onClick={handleRepeatedAloud} className={skyButton("primary", "mt-3")}>
               <Icon icon={roundThumbUp} className="h-4 w-4" aria-hidden />
-              Em đã đọc to theo cô!
+              {m.learn_repeated_aloud()}
             </button>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-5">
             {isReviewing && showSelfAssess && !grading && (
               <button onClick={handleSelfAssessDone} className={skyButton("green")}>
-                😊 Giống rồi!
+                {m.learn_self_assess_done()}
               </button>
             )}
 
@@ -412,7 +414,7 @@ export function SpeakingPractice({
             className={skyButton("white", ["ring-1 ring-sky-ink/10", NAV_DISABLED].join(" "))}
           >
             <Icon icon={roundChevronLeft} className="h-4 w-4" aria-hidden />
-            Câu trước
+            {m.learn_prev_sentence()}
           </button>
 
           <button
@@ -420,7 +422,7 @@ export function SpeakingPractice({
             disabled={index >= sentences.length - 1}
             className={skyButton("primary", NAV_DISABLED)}
           >
-            Câu tiếp theo
+            {m.learn_next_sentence()}
             <Icon icon={roundChevronRight} className="h-4 w-4" aria-hidden />
           </button>
         </div>

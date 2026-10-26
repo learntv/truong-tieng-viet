@@ -30,17 +30,15 @@ import {
   type TapVietCategoryId,
   type TapVietItem,
 } from "@/data/tap-viet";
-
-const DESCRIPTION =
-  "Xem cô viết mẫu từng nét, chữ cái, chữ ghép và chữ số, rồi tô theo bằng ngón tay.";
+import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/hoc-tap/tap-viet")({
   head: () => ({
     meta: [
-      { title: "Tập viết | Trường Tiếng Việt Của Em" },
-      { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: "Tập viết | Trường Tiếng Việt Của Em" },
-      { property: "og:description", content: DESCRIPTION },
+      { title: m.learn_meta_handwriting_title() },
+      { name: "description", content: m.learn_meta_handwriting_description() },
+      { property: "og:title", content: m.learn_meta_handwriting_title() },
+      { property: "og:description", content: m.learn_meta_handwriting_description() },
       { property: "og:url", content: "/hoc-tap/tap-viet" },
     ],
     links: [{ rel: "canonical", href: "/hoc-tap/tap-viet" }],
@@ -75,13 +73,13 @@ function TapVietPage() {
           className="mb-3 inline-flex items-center gap-2 self-start rounded-full border-[3px] border-white bg-white/85 px-4 py-1.5 font-display text-sm font-extrabold text-sky-ink shadow-[0_4px_12px_rgba(12,58,110,0.2)] transition hover:bg-ribbon hover:text-indigo-deep"
         >
           <Icon icon={roundArrowBack} className="h-4 w-4" aria-hidden />
-          Học tập
+          {m.learn_learning()}
         </Link>
         <h1>
-          <SkyBoxRibbon size="lg">Tập viết</SkyBoxRibbon>
+          <SkyBoxRibbon size="lg">{m.learn_handwriting()}</SkyBoxRibbon>
         </h1>
         <p className="max-w-md font-display text-base font-bold text-white drop-shadow-[0_2px_4px_rgba(12,58,110,0.45)] sm:text-lg">
-          Xem cô viết mẫu, rồi em lấy ngón tay tô theo nhé!
+          {m.learn_handwriting_intro()}
         </p>
       </header>
 
@@ -161,11 +159,15 @@ function SpiralBinding() {
   );
 }
 
-const TAB_LOOK: Record<TapVietCategoryId, { icon: IconifyIcon; tone: string }> = {
-  net: { icon: roundGesture, tone: "bg-box-ice" },
-  chu: { icon: roundAbc, tone: "bg-box-mint" },
-  ghep: { icon: roundLink, tone: "bg-box-lavender" },
-  so: { icon: roundPin, tone: "bg-box-peach" },
+// The tab's name in the UI language. The data's own `label` is the Vietnamese one.
+const TAB_LOOK: Record<
+  TapVietCategoryId,
+  { icon: IconifyIcon; tone: string; label: () => string }
+> = {
+  net: { icon: roundGesture, tone: "bg-box-ice", label: m.learn_handwriting_tab_strokes },
+  chu: { icon: roundAbc, tone: "bg-box-mint", label: m.learn_handwriting_tab_letters },
+  ghep: { icon: roundLink, tone: "bg-box-lavender", label: m.learn_handwriting_tab_digraphs },
+  so: { icon: roundPin, tone: "bg-box-peach", label: m.learn_handwriting_tab_numbers },
 };
 
 /** The four sections as index tabs, like the coloured dividers in a school binder.
@@ -234,7 +236,7 @@ function NotebookTabs({
     <div
       ref={listRef}
       role="tablist"
-      aria-label="Chọn bài tập viết"
+      aria-label={m.learn_handwriting_pick()}
       onKeyDown={onKeyDown}
       // A fixed height, so the row doesn't grow or shrink with whichever tab is
       // open (on phones some labels wrap to two lines).
@@ -242,7 +244,7 @@ function NotebookTabs({
     >
       {TAP_VIET.map((c, i) => {
         const isOpen = i === selected;
-        const { icon, tone } = TAB_LOOK[c.id];
+        const { icon, tone, label } = TAB_LOOK[c.id];
         return (
           <button
             key={c.id}
@@ -283,7 +285,7 @@ function NotebookTabs({
             ].join(" ")}
           >
             <Icon icon={icon} className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" aria-hidden />
-            <span className="text-center sm:whitespace-nowrap">{c.label}</span>
+            <span className="text-center sm:whitespace-nowrap">{label()}</span>
           </button>
         );
       })}
@@ -377,7 +379,7 @@ function WritingDialog({
       >
         <DialogClose className="absolute right-3 top-3 z-10 grid h-10 w-10 cursor-pointer place-items-center rounded-[0.6rem] bg-white text-indigo-deep shadow-btn transition-[colors,box-shadow] hover:bg-box-white-deep active:shadow-btn-active">
           <Icon icon={roundClose} className="h-5 w-5" aria-hidden />
-          <span className="sr-only">Đóng</span>
+          <span className="sr-only">{m.learn_close()}</span>
         </DialogClose>
 
         {item && (
@@ -440,7 +442,7 @@ function WatchPanel({
   };
 
   return (
-    <div role="group" aria-label="Xem cô viết" className="contents">
+    <div role="group" aria-label={m.learn_handwriting_watch()} className="contents">
       <SquareStage>
         <video
           ref={videoRef}
@@ -464,14 +466,17 @@ function WatchPanel({
           fast={rate === FAST_RATE}
           onChange={(fast) => onRateChange(fast ? FAST_RATE : SLOW_RATE)}
         />
-        <IconButton label={playing ? "Tạm dừng" : "Phát"} onClick={togglePlay}>
+        <IconButton
+          label={playing ? m.learn_video_pause() : m.learn_video_play()}
+          onClick={togglePlay}
+        >
           {playing ? (
             <Icon icon={roundPause} aria-hidden />
           ) : (
             <Icon icon={roundPlayArrow} aria-hidden />
           )}
         </IconButton>
-        <IconButton label="Xem lại từ đầu" onClick={replay}>
+        <IconButton label={m.learn_video_replay()} onClick={replay}>
           <Icon icon={roundReplay} aria-hidden />
         </IconButton>
       </div>
@@ -494,7 +499,7 @@ function SpeedSwitch({ fast, onChange }: { fast: boolean; onChange: (fast: boole
       <SwitchPrimitive.Root
         checked={fast}
         onCheckedChange={onChange}
-        aria-label="Chạy nhanh"
+        aria-label={m.learn_video_fast()}
         className="relative h-9 w-16 shrink-0 cursor-pointer rounded-full bg-grass-deep shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)] transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ribbon data-[state=checked]:bg-primary"
       >
         <SwitchPrimitive.Thumb className="block h-7 w-7 translate-x-1 rounded-full bg-white shadow-btn transition-transform duration-200 ease-bounce data-[state=checked]:translate-x-8" />

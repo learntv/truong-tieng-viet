@@ -5,6 +5,7 @@ import mdiLoading from "@iconify-icons/mdi/loading";
 import { supabase } from "@/integrations/supabase/client";
 import { Mascot } from "@/components/Mascot";
 import { PageBanner } from "@/components/site/PageBanner";
+import { m } from "@/paraglide/messages";
 
 const leaderboardQueryOptions = {
   queryKey: ["leaderboard"],
@@ -23,17 +24,15 @@ const leaderboardQueryOptions = {
 export const Route = createFileRoute("/bang-xep-hang")({
   head: () => ({
     meta: [
-      { title: "Bảng xếp hạng | Trường Tiếng Việt Của Em" },
+      { title: m.account_leaderboard_meta_title() },
       {
         name: "description",
-        content:
-          "Xem bảng xếp hạng học sinh chăm chỉ nhất Trường Tiếng Việt Của Em và theo dõi tiến độ học tập.",
+        content: m.account_leaderboard_meta_description(),
       },
-      { property: "og:title", content: "Bảng xếp hạng | Trường Tiếng Việt Của Em" },
+      { property: "og:title", content: m.account_leaderboard_meta_title() },
       {
         property: "og:description",
-        content:
-          "Xem bảng xếp hạng học sinh chăm chỉ nhất Trường Tiếng Việt Của Em và theo dõi tiến độ học tập.",
+        content: m.account_leaderboard_meta_description(),
       },
       { property: "og:url", content: "/bang-xep-hang" },
     ],
@@ -88,7 +87,7 @@ function BangXepHang() {
 
   return (
     <main>
-      <PageBanner title="Bảng xếp hạng" />
+      <PageBanner title={m.account_leaderboard_title()} />
 
       <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6">
         {isLoading ? (
@@ -98,9 +97,11 @@ function BangXepHang() {
         ) : !profiles || profiles.length === 0 ? (
           <div className="p-12 text-center">
             <Mascot pose="wave" decorative className="mx-auto mb-3 h-24" />
-            <p className="font-display text-lg font-bold text-navy">Chưa có học sinh nào!</p>
+            <p className="font-display text-lg font-bold text-navy">
+              {m.account_leaderboard_empty_title()}
+            </p>
             <p className="text-sm text-muted-foreground mt-1">
-              Hãy là người đầu tiên bắt đầu học nhé.
+              {m.account_leaderboard_empty_body()}
             </p>
           </div>
         ) : (
@@ -163,7 +164,9 @@ function PodiumPlace({ profile, rank }: { profile: Profile; rank: 1 | 2 | 3 }) {
         </span>
         <Flag country={profile.country} />
       </div>
-      <p className="text-xs text-muted-foreground">{profile.completed_count} bài xong</p>
+      <p className="text-xs text-muted-foreground">
+        {m.account_lessons_done_count({ count: profile.completed_count })}
+      </p>
 
       <div className={["mt-3 w-full rounded-t-3xl", look.step, look.height].join(" ")} />
     </Link>
@@ -197,7 +200,9 @@ function RankRow({ profile, rank }: { profile: Profile; rank: number }) {
         <div className="font-display text-lg font-bold leading-none text-navy">
           {profile.completed_count}
         </div>
-        <div className="text-xs font-semibold leading-tight text-muted-foreground">bài xong</div>
+        <div className="text-xs font-semibold leading-tight text-muted-foreground">
+          {m.account_lessons_done({ count: profile.completed_count })}
+        </div>
       </div>
     </Link>
   );
@@ -218,7 +223,7 @@ function Avatar({ profile, className }: { profile: Profile; className: string })
       {profile.avatar_url ? (
         <img
           src={profile.avatar_url}
-          alt={`Ảnh đại diện của ${profile.display_name}`}
+          alt={m.account_avatar_alt({ name: profile.display_name })}
           className="h-full w-full object-cover"
           referrerPolicy="no-referrer"
         />
