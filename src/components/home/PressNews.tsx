@@ -19,12 +19,36 @@ import ketNoiCongDongCover from "@/assets/press/ket-noi-cong-dong-cover.webp";
 import scovLogo from "@/assets/press/scov-logo.png";
 import baoTinTucCover from "@/assets/press/bao-tin-tuc-cover.webp";
 import baoTinTucLogo from "@/assets/press/bao-tin-tuc-logo.png";
+import nhanDanEnCover from "@/assets/press/nhan-dan-en-cover.webp";
+import nhanDanLogo from "@/assets/press/nhan-dan-logo.svg";
+import vietnamVnKetNoiCover from "@/assets/press/vietnam-vn-ket-noi-cover.webp";
+import vietnamVnClassCover from "@/assets/press/vietnam-vn-class-cover.webp";
+import vietnamVnLogo from "@/assets/press/vietnam-vn-logo.png";
+import vietnamPlusEnCover from "@/assets/press/vietnamplus-en-cover.webp";
+import vietNamNewsCover from "@/assets/press/viet-nam-news-cover.webp";
+import vietNamNewsLogo from "@/assets/press/viet-nam-news-logo.png";
+import vietnamNetCover from "@/assets/press/vietnamnet-cover.webp";
+import vietnamNetLogo from "@/assets/press/vietnamnet-logo.png";
+import qdndCover from "@/assets/press/qdnd-cover.webp";
+import qdndLogo from "@/assets/press/qdnd-logo.png";
 import { m } from "@/paraglide/messages";
+
+type Article = {
+  press: string;
+  logo: string;
+  logoClass: string;
+  cover: string;
+  date: string;
+  title: string;
+  excerpt: string;
+  url: string;
+};
 
 /**
  * The homepage's one press box: the VNA television report up top as the
  * featured piece (played in place, see PressVideo), then newspaper articles
- * about CVCEC's work in Canada, newest first.
+ * about CVCEC's work in Canada, newest first, in two carousels: the
+ * Vietnamese-language papers, then their English-language editions.
  *
  * Covers and mastheads are copied into the repo rather than hotlinked: the
  * papers' CDNs are free to rename or block them, and a card with a broken
@@ -37,9 +61,11 @@ import { m } from "@/paraglide/messages";
  * one shared height would make the blocks look half the size of the others.
  *
  * The SCOV piece is a reprint of a Vietnam+ article, so its cover is that
- * article's.
+ * article's. Several English pieces are likewise translations of the
+ * Vietnamese ones (vietnam.vn of Đại Đoàn Kết and Tin tức, Viet Nam News of
+ * Vietnam+); each keeps its own paper's cover all the same.
  */
-const ARTICLES = [
+const VI_ARTICLES: Article[] = [
   {
     press: "Báo Tin tức và Dân tộc (TTXVN)",
     logo: baoTinTucLogo,
@@ -97,10 +123,115 @@ const ARTICLES = [
   },
 ];
 
+const EN_ARTICLES: Article[] = [
+  {
+    press: "Nhan Dan Online",
+    logo: nhanDanLogo,
+    logoClass: "h-8",
+    cover: nhanDanEnCover,
+    date: "2026-10-27",
+    title: "Vietnamese language education network expanded across Canada",
+    excerpt:
+      "The Canada-Viet Nam Cultural and Educational Council (CVCEC) is expanding Vietnamese language classes across Canada by combining in-person teaching with online learning, helping young people preserve their mother tongue and national cultural identity.",
+    url: "https://en.nhandan.vn/vietnamese-language-education-network-expanded-across-canada-post168279.html",
+  },
+  {
+    press: "Vietnam.vn",
+    logo: vietnamVnLogo,
+    logoClass: "h-8",
+    cover: vietnamVnKetNoiCover,
+    date: "2026-10-26",
+    title: "Celebrating the Vietnamese language: Connecting communities to preserve it.",
+    excerpt:
+      "Given that many Vietnamese-Canadian children grow up with English or French as their primary language, maintaining their mother tongue requires close collaboration between families, teachers, and community organizations.",
+    url: "https://www.vietnam.vn/en/ton-vinh-tieng-viet-ket-noi-cong-dong-de-gin-giu-tieng-viet",
+  },
+  {
+    press: "Vietnam+ (VietnamPlus)",
+    logo: vietnamPlusLogo,
+    logoClass: "h-5",
+    cover: vietnamPlusEnCover,
+    date: "2026-07-28",
+    title: "Learning plaform helps young OVs connect with Vietnamese language, culture",
+    excerpt:
+      "Phan Thi Quynh Trang, CVCEC founder and project coordinator, said the project aims to provide a fundamental and sustainable solution to the lack of standardised, systematic Vietnamese-language education models and the fragmented, spontaneous nature of existing teaching activities.",
+    url: "https://en.vietnamplus.vn/learning-plaform-helps-young-ovs-connect-with-vietnamese-language-culture-post348995.vnp",
+  },
+  {
+    press: "Việt Nam News",
+    logo: vietNamNewsLogo,
+    logoClass: "h-6",
+    cover: vietNamNewsCover,
+    date: "2026-07-28",
+    title: "Learning plaform helps young OVs connect with Vietnamese language, culture",
+    excerpt:
+      "An online Vietnamese-language learning platform, recently launched in Canada, is helping young overseas Vietnamese (OVs) maintain their mother tongue while deepening their connection with the culture, history, customs and traditions of their homeland.",
+    url: "https://vietnamnews.vn/life-style/1796330/learning-plaform-helps-young-ovs-connect-with-vietnamese-language-culture.html",
+  },
+  {
+    press: "Vietnam.vn",
+    logo: vietnamVnLogo,
+    logoClass: "h-8",
+    cover: vietnamVnClassCover,
+    date: "2026-07-27",
+    title: "A traditional Vietnamese language class organized by CVCEC in Toronto, Canada.",
+    excerpt:
+      "An online Vietnamese language learning platform specifically for Vietnamese children living abroad has just been launched in Canada.",
+    url: "https://www.vietnam.vn/en/mot-lop-tieng-viet-kieu-truyen-thong-do-cvcec-to-chuc-tai-toronto-canada",
+  },
+  {
+    press: "VietNamNet Global",
+    logo: vietnamNetLogo,
+    logoClass: "h-8",
+    cover: vietnamNetCover,
+    date: "2026-04-20",
+    title: "Vietnamese Canadian youth hub launched to fight mother tongue erosion",
+    excerpt:
+      "The Canada-Vietnam Cultural and Educational Council (CVCEC) has launched the Viet Youth Readiness Hub, inaugurated a community Vietnamese language class for children, and introduced a Vietnamese book collection in Canada.",
+    url: "https://vietnamnet.vn/en/vietnamese-canadian-youth-hub-launched-to-fight-mother-tongue-erosion-2508139.html",
+  },
+  {
+    press: "People's Army Newspaper (QĐND)",
+    logo: qdndLogo,
+    logoClass: "h-5",
+    cover: qdndCover,
+    date: "2026-04-19",
+    title: "Vietnamese Canadian youth hub launched to fight mother tongue erosion",
+    excerpt:
+      "The Canada-Vietnam Cultural and Educational Council (CVCEC) has launched the Viet Youth Readiness Hub, inaugurated a community Vietnamese language class for children, and introducing a Vietnamese book collection in Canada.",
+    url: "https://en.qdnd.vn/ovs/news/vietnamese-canadian-youth-hub-launched-to-fight-mother-tongue-erosion-590083",
+  },
+];
+
 const ARROW_BUTTON =
   "grid h-10 w-10 cursor-pointer place-items-center rounded-full bg-white text-indigo-deep shadow-btn transition-[colors,transform,box-shadow,opacity] hover:bg-box-white-deep active:translate-y-[1px] active:shadow-btn-active disabled:cursor-default disabled:opacity-40 disabled:shadow-none";
 
 export function PressNews() {
+  return (
+    <SkyBox
+      tone="cream"
+      ribbon={m.home_press_ribbon()}
+      title={m.home_press_title()}
+      lede={
+        <RichMessage parts={m.home_press_lede.parts()} tags={{ b: (c) => <strong>{c}</strong> }} />
+      }
+    >
+      <PressVideo />
+
+      <h3 className="mt-8 font-display text-lg font-extrabold text-sky-ink">
+        {m.home_press_vi_heading()}
+      </h3>
+      <PressCarousel articles={VI_ARTICLES} lang="vi" />
+
+      <h3 className="mt-8 font-display text-lg font-extrabold text-sky-ink">
+        {m.home_press_en_heading()}
+      </h3>
+      <PressCarousel articles={EN_ARTICLES} lang="en" />
+    </SkyBox>
+  );
+}
+
+function PressCarousel({ articles, lang }: { articles: Article[]; lang: "vi" | "en" }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ align: "start" });
   const [snaps, setSnaps] = useState<number[]>([]);
   const [selected, setSelected] = useState(0);
@@ -127,22 +258,13 @@ export function PressNews() {
   }, [emblaApi, sync]);
 
   return (
-    <SkyBox
-      tone="cream"
-      ribbon={m.home_press_ribbon()}
-      title={m.home_press_title()}
-      lede={
-        <RichMessage parts={m.home_press_lede.parts()} tags={{ b: (c) => <strong>{c}</strong> }} />
-      }
-    >
-      <PressVideo />
-
+    <>
       {/* One card a page on phones, two from sm, three from lg. The viewport
         gets a little top padding so the hover lift isn't clipped by its
         overflow-hidden. */}
       <div ref={emblaRef} className="mt-3 overflow-hidden pt-1">
         <ul className="-ml-4 flex">
-          {ARTICLES.map((a) => (
+          {articles.map((a) => (
             <li
               key={a.url}
               className="flex min-w-0 shrink-0 grow-0 basis-full pl-4 sm:basis-1/2 lg:basis-1/3"
@@ -180,15 +302,16 @@ export function PressNews() {
                     </time>
                   </span>
 
-                  {/* The papers' own words, so they stay Vietnamese in every UI language. */}
+                  {/* The papers' own words, so they stay in the paper's language
+                    whatever the UI language. */}
                   <span
-                    lang="vi"
+                    lang={lang}
                     className="mt-3 font-display text-base leading-snug font-extrabold text-sky-ink group-hover:text-indigo-deep"
                   >
                     {a.title}
                   </span>
                   <span
-                    lang="vi"
+                    lang={lang}
                     className="mt-2 line-clamp-3 text-sm leading-relaxed text-sky-ink-soft"
                   >
                     {a.excerpt}
@@ -242,6 +365,6 @@ export function PressNews() {
           </button>
         </div>
       </div>
-    </SkyBox>
+    </>
   );
 }
