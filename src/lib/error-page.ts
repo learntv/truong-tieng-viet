@@ -3,12 +3,12 @@ import { getServerAsyncLocalStorage, type Locale } from "@/paraglide/runtime";
 
 // Inside paraglideMiddleware (start.ts's request middleware) the request's
 // locale is in async local storage. server.ts's outer catches run outside it,
-// where the locale can't be known, so those fall back to Vietnamese.
+// where the locale can't be known, so those fall back to English.
 function safeLocale(): Locale {
   try {
-    return getServerAsyncLocalStorage()?.getStore()?.locale ?? "vi";
+    return getServerAsyncLocalStorage()?.getStore()?.locale ?? "en";
   } catch {
-    return "vi";
+    return "en";
   }
 }
 
