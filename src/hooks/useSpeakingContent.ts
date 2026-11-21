@@ -1,6 +1,7 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import type { SpeakingSentence } from "@/lib/speech";
 import { cmsEnglish, type CmsTranslations, type Localized } from "@/lib/localized";
+import { cmsApiBase } from "@/lib/cms-url";
 
 export type SpeakingTopic = {
   id: string;
@@ -25,10 +26,8 @@ type CmsSpeakingTopic = {
 //
 // A title's English comes back beside it in the same response, so the cached result is the same
 // whatever the UI language is and the page decides what to show (see lib/localized.ts).
-const CMS_URL: string = import.meta.env.VITE_CMS_URL || process.env.CMS_URL || "";
-
 export async function fetchSpeakingContent(): Promise<SpeakingTopic[]> {
-  const res = await fetch(`${CMS_URL}/api/speaking-topics?sort=_order&pagination=false&depth=0`);
+  const res = await fetch(`${cmsApiBase()}/api/speaking-topics?sort=_order&pagination=false&depth=0`);
   if (!res.ok) throw new Error(`CMS speaking-topics request failed: ${res.status}`);
   const { docs } = (await res.json()) as { docs: CmsSpeakingTopic[] };
 

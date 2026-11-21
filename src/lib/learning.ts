@@ -2,6 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import type { ChuDe } from "@/data/topics";
 import { LESSON_HIGHLIGHTS, type HighlightTarget } from "@/data/lessonHighlights";
 import { cmsEnglish, type CmsTranslations } from "@/lib/localized";
+import { cmsApiBase, cmsPublicBase } from "@/lib/cms-url";
 
 const STAGE_EMOJIS = ["👋", "📚", "💬", "📖", "✏️"];
 const TOPIC_EMOJIS = ["👨‍👩‍👧", "🏫", "🧑‍🤝‍🧑", "🧸", "🌳", "🏞️", "👩‍⚕️", "🌏"];
@@ -11,7 +12,6 @@ const ACCENTS: ChuDe["accent"][] = ["purple", "primary", "green", "yellow", "pin
 // CMS (cms/ workspace) and read here over its public REST API, the same way speaking practice is
 // (see useSpeakingContent.ts). It used to come from the app's Supabase public.* tables; those are
 // no longer read, and teachers now change lessons from the admin panel instead of the database.
-const CMS_URL: string = import.meta.env.VITE_CMS_URL || process.env.CMS_URL || "";
 
 export type Hinh = {
   id: string;
@@ -83,7 +83,7 @@ function mediaUrl(value: CmsUpload | undefined): string {
   if (!value || typeof value !== "object") return "";
   const url = value.url;
   if (!url) return "";
-  return /^https?:\/\//.test(url) ? url : `${CMS_URL}${url}`;
+  return /^https?:\/\//.test(url) ? url : `${cmsPublicBase()}${url}`;
 }
 
 // --- legacy ids ----------------------------------------------------------------------------
@@ -202,7 +202,7 @@ async function fetchChuDes(select: string[][]): Promise<CmsChuDe[]> {
     ),
   ]);
 
-  const res = await fetch(`${CMS_URL}/api/chu-de?${params}`);
+  const res = await fetch(`${cmsApiBase()}/api/chu-de?${params}`);
   if (!res.ok) throw new Error(`CMS chu-de request failed: ${res.status}`);
   const { docs } = (await res.json()) as { docs: CmsChuDe[] };
   return docs;

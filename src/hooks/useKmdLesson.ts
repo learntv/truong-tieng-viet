@@ -1,4 +1,5 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
+import { cmsApiBase } from "@/lib/cms-url";
 
 export type KmdLesson = {
   id: string;
@@ -11,15 +12,13 @@ type CmsKmdLesson = Omit<KmdLesson, "id"> & { id: string | number };
 
 // A single KMD lesson, fetched by slug. Its body is one Canva design, stored by the CMS as an
 // already-normalised embed URL (cms/src/lib/canva.ts), so nothing here needs depth.
-const CMS_URL: string = import.meta.env.VITE_CMS_URL || process.env.CMS_URL || "";
-
 async function fetchKmdLesson(slug: string): Promise<KmdLesson | null> {
   const params = new URLSearchParams([
     ["where[slug][equals]", slug],
     ["depth", "0"],
     ["limit", "1"],
   ]);
-  const res = await fetch(`${CMS_URL}/api/bai-kmd?${params}`);
+  const res = await fetch(`${cmsApiBase()}/api/bai-kmd?${params}`);
   if (!res.ok) throw new Error(`CMS bai-kmd request failed: ${res.status}`);
   const { docs } = (await res.json()) as { docs: CmsKmdLesson[] };
   const doc = docs[0];
